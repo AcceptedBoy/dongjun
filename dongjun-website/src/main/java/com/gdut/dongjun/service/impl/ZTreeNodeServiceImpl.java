@@ -49,6 +49,7 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 		List<Substation> substations = substationService// 取到所有的变电站
 				.selectByCompanyId(company_id);
 
+		@SuppressWarnings("rawtypes")
 		BaseService baseService = null;
 		switch (type) {
 		case "0":
@@ -95,6 +96,7 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 							List<ZTreeNode> switchNodes = new LinkedList<ZTreeNode>();
 							switch (type) {
 							case "0":
+								@SuppressWarnings("unchecked")
 								List<LowVoltageSwitch> switchs = baseService
 										.selectByParameters(MyBatisMapUtil
 												.warp("line_id", lines.get(j)
@@ -121,6 +123,7 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 								}
 								break;
 							case "1":
+								@SuppressWarnings("unchecked")
 								List<HighVoltageSwitch> switchs2 = baseService
 										.selectByParameters(MyBatisMapUtil
 												.warp("line_id", lines.get(j)
@@ -148,6 +151,7 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 								}
 								break;
 							case "2":
+								@SuppressWarnings("unchecked")
 								List<ControlMearsureSwitch> switchs3 = baseService
 										.selectByParameters(MyBatisMapUtil
 												.warp("line_id", lines.get(j)

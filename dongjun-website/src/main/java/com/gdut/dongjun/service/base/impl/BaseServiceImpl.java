@@ -24,12 +24,10 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
 	@Override
 	public boolean deleteByPrimaryKey(String id) {
 
-		try {
-			baseMapper.deleteByPrimaryKey(id);
-		} catch (Exception e) {
-			return false;
+		if(baseMapper.deleteByPrimaryKey(id) == 1) {
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package com.gdut.dongjun.util;
 
 import java.util.List;
+import java.util.Map;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -11,6 +12,9 @@ import net.sf.json.JSONObject;
  *
  */
 public class JsonUtil {
+	
+	public static final Map<String, Object> SUCCESS = MapUtil.warp("success", true);
+	public static final Map<String, Object> ERROR = MapUtil.warp("success", false);
 
 	public static String toJsonString(@SuppressWarnings("rawtypes") List list) {
 		JSONArray jsonObject = JSONArray.fromObject(list);
