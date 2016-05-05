@@ -37,6 +37,7 @@ public class HitchEventListener implements ApplicationListener<ContextRefreshedE
 			activeSwitchThread.start();
 		}
 	}
+	
 }
 
 class ActiveSwitchThread extends Thread {

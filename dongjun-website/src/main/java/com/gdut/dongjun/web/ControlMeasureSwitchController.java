@@ -161,7 +161,7 @@ public class ControlMeasureSwitchController {
 
 		// @RequestParam(required = true)
 		// 进不来
-		if (switch1.getId() == "") {
+		if (switch1.getId() != null && "".equals(switch1.getId())) {
 			switch1.setId(UUIDUtil.getUUID());
 		}
 		try {

@@ -115,11 +115,11 @@ public class ChartController {
 			String beginDate,
 			String endDate) throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, InstantiationException {
 
-		if (beginDate == null || beginDate == "") {// 使用当前日期
+		if (beginDate == null || beginDate.equals("")) {// 使用当前日期
 			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");// 设置日期格式
 			beginDate = df.format(new Date());
 		}
-		if (endDate == null || endDate == "") {// 使用当前日期下一天的日期
+		if (endDate == null || endDate.equals("")) {// 使用当前日期下一天的日期
 			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");// 设置日期格式
 			
 			Date date = new Date();

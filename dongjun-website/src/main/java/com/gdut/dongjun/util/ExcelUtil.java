@@ -212,12 +212,9 @@ public class ExcelUtil {
 	 * 读取文件
 	 */
 	private HSSFWorkbook readFile(String filePath) throws Exception {
-		FileInputStream fis = null;
-		try {
-			fis = new FileInputStream(filePath);
+		
+		try(FileInputStream fis = new FileInputStream(filePath)) {
 			return new HSSFWorkbook(fis);
-		} finally {
-			fis.close();
 		}
 	}
 

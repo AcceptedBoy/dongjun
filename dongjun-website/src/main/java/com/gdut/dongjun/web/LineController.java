@@ -126,7 +126,7 @@ public class LineController {
 
 		// @RequestParam(required = true)
 		// 进不来
-		if (switch1.getId() == "") {
+		if (switch1.getId().equals("")) {
 			switch1.setId(UUIDUtil.getUUID());
 		}
 		try {

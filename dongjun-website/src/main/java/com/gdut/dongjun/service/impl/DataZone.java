@@ -35,7 +35,7 @@ public class DataZone {
 	public static final String MINITE = "02";
 	public static final String HOUR = "03";
 
-	private String identifier = "";
+    private String identifier = "";
 	private String password = DEFAULT_PASSWORD;
 	private String operatorCode = DEFAULT_OPERATOR_CODE;
 	private String data = "";

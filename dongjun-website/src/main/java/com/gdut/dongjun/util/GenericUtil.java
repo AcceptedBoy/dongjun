@@ -27,10 +27,12 @@ public class GenericUtil {
 		}
 
 		try {
-			return field.get(t);
+			if(field != null) {
+				return field.get(t);
+			}
 		} catch (IllegalArgumentException | IllegalAccessException e) {
 			e.printStackTrace();
-			return null;
 		}
+		return null;
 	}
 }

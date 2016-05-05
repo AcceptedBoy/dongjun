@@ -3,6 +3,7 @@ package com.gdut.dongjun;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
 
+import javax.servlet.DispatcherType;
 import javax.sql.DataSource;
 
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
@@ -149,6 +150,7 @@ public class Application extends SpringBootServletInitializer {
 
 		FilterRegistrationBean chafil = new FilterRegistrationBean();
 		chafil.setFilter(characterEncodingFilter());
+		chafil.setDispatcherTypes(DispatcherType.ASYNC);
 		chafil.addUrlPatterns("/*");
 		return chafil;
 	}
@@ -264,33 +266,9 @@ public class Application extends SpringBootServletInitializer {
 		return realm;
 	}
 
-	/*@Bean
-	public ServletRegistrationBean servletRegistrationBean() {
-		ServletRegistrationBean servletRegistrationBean = new ServletRegistrationBean();
-		servletRegistrationBean.setName("dwr-invoker");
-		servletRegistrationBean.addInitParameter("activeReverseAjaxEnabled", "true");
-		servletRegistrationBean.addInitParameter("debug", "true");
-		servletRegistrationBean.setServlet(new DwrServlet());
-		servletRegistrationBean.addUrlMappings("/dwr/*");
-
-		return servletRegistrationBean;
-	}*/
-/*	@Bean
-	public ServletListenerRegistrationBean<HistoryDataListener> listenerRegistration() {
-		
-		ServletListenerRegistrationBean<HistoryDataListener> listenerRegistration = 
-				new ServletListenerRegistrationBean<>();
-		
-		listenerRegistration.setListener(new HistoryDataListener());
-		listenerRegistration.setOrder(9);
-		
-		return listenerRegistration;
-	}*/
-
 	public static void main(String[] args) throws Exception {
 
 		SpringApplication.run(Application.class, args);
-
 	}
 
 }
