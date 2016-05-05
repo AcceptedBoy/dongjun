@@ -2,6 +2,7 @@ package com.gdut.dongjun.service.socket.listener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -57,10 +58,12 @@ class ActiveSwitchThread extends Thread {
 		while(true) {
 			try {
 				sleep(5000);
-				this.template.convertAndSend("/topic/get_active_switch_status", 
-						getActiveSwitchStatus());
+				//this.template.convertAndSend("/topic/get_active_switch_status", 
+				//		getActiveSwitchStatus());
 				//this.template.convertAndSend("/topic/get_active_switch_status", 
 				//		new Random().nextInt(100));
+				this.template.convertAndSend("/topic/get_active_switch_status", 
+						getVisualData());
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -94,4 +97,46 @@ class ActiveSwitchThread extends Thread {
 		}
 		return list;
 	}
+	
+	 /**
+     * @description TODO
+     * @return
+     */
+    public Object getVisualData() {
+    	
+    	if(new Random().nextInt(3) == 1) {
+    		return generateActiveHighSwitchA();
+    	} else {
+    		return generateActiveHighSwitchB();
+    	}
+    }
+    
+    public Object generateActiveHighSwitchA() {
+    	List<ActiveHighSwitch> list = new ArrayList<>();
+    	ActiveHighSwitch as = new ActiveHighSwitch();
+		as.setId("75ab61fafa814ce8a587eeb6a6693464");
+		as.setOpen(false);
+		as.setStatus("01");
+		list.add(as);
+		ActiveHighSwitch as2 = new ActiveHighSwitch();
+		as2.setId("2bf5d3fec85c498c9f2c588e66c29ec9");
+		as2.setOpen(false);
+		as2.setStatus("01");
+		list.add(as2);
+		return list;
+    }
+    public Object generateActiveHighSwitchB() {
+    	List<ActiveHighSwitch> list = new ArrayList<>();
+    	ActiveHighSwitch as = new ActiveHighSwitch();
+    	as.setId("193f7aacc04e452e9c8fa67841d69421");
+    	as.setOpen(false);
+    	as.setStatus("01");
+    	list.add(as);
+    	ActiveHighSwitch as2 = new ActiveHighSwitch();
+    	as2.setId("1e6e4fb97ffa4f6caf5121e2c5e6e896");
+    	as2.setOpen(false);
+    	as2.setStatus("01");
+    	list.add(as2);
+    	return list;
+    }
 }

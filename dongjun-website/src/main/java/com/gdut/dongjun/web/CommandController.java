@@ -1,6 +1,8 @@
 package com.gdut.dongjun.web;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import javax.servlet.http.HttpSession;
 
@@ -20,6 +22,7 @@ import com.gdut.dongjun.domain.po.HighVoltageVoltage;
 import com.gdut.dongjun.domain.po.LowVoltageCurrent;
 import com.gdut.dongjun.domain.po.LowVoltageVoltage;
 import com.gdut.dongjun.domain.po.User;
+import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
 import com.gdut.dongjun.service.ControlMearsureCurrentService;
 import com.gdut.dongjun.service.ControlMearsureVoltageService;
 import com.gdut.dongjun.service.HighVoltageCurrentService;
@@ -476,6 +479,8 @@ public class CommandController {
 		}
 		return list;
 	}*/
+    
+   
 }
 
 /*class ActiveSwitchThread extends Thread {
