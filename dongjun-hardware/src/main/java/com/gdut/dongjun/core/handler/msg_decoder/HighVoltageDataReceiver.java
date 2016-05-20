@@ -24,12 +24,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
+
 import org.apache.log4j.Logger;
+import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.SwitchGPRS;
+import com.gdut.dongjun.core.device_message_engine.impl.HighVoltageSwitchMessageEngine;
 import com.gdut.dongjun.core.server.impl.HighVoltageServer;
 import com.gdut.dongjun.domain.HighVoltageStatus;
 import com.gdut.dongjun.domain.po.HighVoltageCurrent;
@@ -64,6 +68,8 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	private HighVoltageSwitchService switchService;
 	@Autowired
 	private HighVoltageHitchEventService hitchEventService;
+	@Resource(name="HighVoltageSwitchMessageEngine")
+	private HighVoltageSwitchMessageEngine highVoltageEngine;
 
 	private static final Logger logger = Logger.getLogger(HighVoltageDataReceiver.class);
 
@@ -111,205 +117,208 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		 */
 		if ((data.startsWith("EB90") || data.startsWith("eb90"))) {
 			
-			SwitchGPRS gprs = CtxStore.get(ctx);
-			/**
-			 * 当注册的高压开关的地址不为空，说明已经注册过了，不再进行相关操作
-			 */
-			if(gprs != null && gprs.getAddress() != null) {
-				ctx.channel().writeAndFlush(data);
-				return;
-			}
-			String address = data.substring(12, 16);
-			gprs.setAddress(address);
-
-			address = new HighVoltageDeviceCommandUtil().reverseString(address);
-
-			if (gprs != null) {
-				/**
-				 * 根据反转后的地址查询得到highvoltageswitch的集合
-				 */
-				List<HighVoltageSwitch> list = switchService
-						.selectByParameters(MyBatisMapUtil.warp("address", Integer.parseInt(address, 16)));
-				HighVoltageSwitch s = null;
-				if (list != null && list.size() != 0) {
-
-					s = list.get(0);
-					String id = s.getId();
-					gprs.setId(id);
-					
-					/**
-					 * 这个地方是开始对bug的一个测试，当开关从跳闸到合闸的时候，无法及时获取，只能
-					 * 这样替换ctx才能进行状态更新
-					 * 
-					 * 	if (CtxStore.get(id) != null) {
-					 *		CtxStore.remove(id);
-					 *		CtxStore.add(gprs);
-					 *	}
-					 * 
-					 */
-					HighVoltageServer.totalCall(id);
-					if(CtxStore.get(id) != null) {
-						CtxStore.remove(id);
-						CtxStore.add(gprs);
-					}
-				} else {
-					logger.info("this device is not registered!!");
-				}
-			}
+			getOnlineAddress(ctx, data);
 		} else if(infoIdenCode.equals("64")) {
+			
 			/**
 			 * 总召激活确定
 			 */
 			logger.info("总召激活已经确定：" + data.substring(10, 14));
 		} else if(infoIdenCode.equals("03")) {
+			
 			/**
 			 * 遥信变位初步确定
 			 */
-			String resu = new HighVoltageDeviceCommandUtil().confirmChangeAffair(data.substring(10, 14));
-			logger.info("遥信变位确定---------" + resu);
-			ctx.writeAndFlush(resu);
+			confirmSignalInitialChange(ctx, data);
 		} else if(infoIdenCode.equals("2e")) { 
+			
 			/**
-			 * 是否开合闸成功
+			 * 遥控预置接收并发送遥控
 			 */
-			/*String id = CtxStore.getIdbyAddress(data.substring(10, 14));
-			HighVoltageStatus hvs = null;
-			if(id != null) {
-				hvs = CtxStore.getStatusbyId(id);
-			} else {
-				return;
-			}
-			switch(data.substring(30, 32)) {
-				case "02" : hvs.setStatus("01");
-				case "01" : hvs.setStatus("00"); //分闸
-			}
-			logger.info("遥控合分闸成功：状态变为" + (hvs.getStatus().equals("00") ? "分闸" : "合闸") + data);*/
+			whetherOperateSwitch(data);
 		} else if(infoIdenCode.equals("1f")) {
+			
 			/**
 			 * 遥信变位确定
 			 */
-			for(int i = 26, j = Integer.valueOf(data.substring(16, 18)); j > 0; i += 6, --j) {
-				changeState(data.substring(22, 26), data.substring(i, i + 4), data.substring(i + 4, i + 6));
-			}
-			String resu = new HighVoltageDeviceCommandUtil().confirmChangeAffair(data.substring(10, 14));
-			logger.info("遥信变位事件确定---------" + resu);
-			ctx.writeAndFlush(resu);
+			confirmSignalChangeInfo(ctx, data);
 		} else if (infoIdenCode.equals("09")) {
 			
-			if(!data.substring(2,4).equals("47")) {
-				/**
-				 * 若data.length=40，测归一值
-				 */
-				logger.info("测归一值-------" + data);
-				//680e0e68f4680009010301680008400000001a16
-				//68131368f46600090203016600054000000006402700008116
-				//68131368f46600090203016600054000000006402700008116
-				for(int i = 22; i + 14 < data.length(); i += 10) {
-					getMessageAddress(data.substring(i + 4, i + 8), data.substring(22, 26), 
-							data.substring(i + 8, i + 14));
-				}
-				return;
-			}
-			logger.info("解析CV---------" + data);
-			String address = data.substring(10, 14);
-			String id = CtxStore.getIdbyAddress(address);
-			if (id != null) {
-				saveCV(id, data);
-			} else {
-				logger.error("there is an error in saving CV!");
-			}
+			/**
+			 * 遥测变化值，或者总召获取全部遥测值
+			 */
+			changeMesurementInfo(data);
 		} else if (infoIdenCode.equals("01")) {
 
-			String address = data.substring(10, 14);
-			String id = CtxStore.getIdbyAddress(address);
-
-			if (id != null && address != null) {
-
-				HighVoltageStatus s = CtxStore.getStatusbyId(id);
-				SwitchGPRS gprs = CtxStore.get(id);
-
-				if (s == null) {
-
-					s = new HighVoltageStatus();
-					s.setId(id);
-					CtxStore.addStatus(s);
-				}
-
-				s.setGuo_liu_yi_duan(data.substring(30, 32));
-				s.setGuo_liu_er_duan(data.substring(32, 34));
-				s.setGuo_liu_san_duan(data.substring(34, 36));
-
-				s.setLing_xu_guo_liu_(data.substring(38, 40));
-
-				if (data.substring(40, 42).equals("01") || data.substring(42, 44).equals("01")
-						|| data.substring(44, 46).equals("01")) {
-					s.setChong_he_zha("01");
-				} else {
-					s.setChong_he_zha("00");
-				}
-
-				s.setPt1_you_ya(data.substring(48, 50));
-				s.setPt2_you_ya(data.substring(50, 52));
-
-				s.setPt1_guo_ya(data.substring(52, 54));
-				s.setPt2_guo_ya(data.substring(54, 56));
-
-				String new_status = data.substring(66, 68);
-
-				if ("01".equals(s.getStatus()) && "00".equals(new_status)) {
-
-					gprs.setOpen(true);
-
-					HighVoltageHitchEvent event = new HighVoltageHitchEvent();
-
-					event.setHitchTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
-					event.setHitchPhase("A");
-					event.setHitchReason(hitchEventDesc == null ? "未知报警" : hitchEventDesc);
-					event.setChangeType(0);
-					event.setSolveWay("分闸");
-					event.setId(UUIDUtil.getUUID());
-					event.setSwitchId(id);
-					// event.setSolvePeople();
-					hitchEventService.insert(event);
-
-					logger.info("-----------跳闸成功");
-				} else if ("01".equals(new_status) && "00".equals(s.getStatus())) {
-
-					gprs.setOpen(false);
-
-					HighVoltageHitchEvent event = new HighVoltageHitchEvent();
-
-					event.setHitchTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
-					event.setHitchPhase("A");
-					event.setHitchReason(hitchEventDesc == null ? "未知报警" : hitchEventDesc);
-					event.setChangeType(1);
-					event.setSolveWay("合闸");
-					event.setId(UUIDUtil.getUUID());
-					event.setSwitchId(id);
-					hitchEventService.insert(event);
-					logger.info("-----------合闸成功");
-				}
-				s.setStatus(new_status);
-
-				s.setJiao_liu_shi_dian(data.substring(76, 78));
-
-				s.setShou_dong_he_zha(data.substring(78, 80));
-				s.setShou_dong_fen_zha(data.substring(80, 82));
-
-				s.setYao_kong_he_zha(data.substring(84, 86));
-				s.setYao_kong_fen_zha(data.substring(86, 88));
-				s.setYao_kong_fu_gui(data.substring(88, 90));
-
-				logger.info("状态变为-----------" + new_status);
-
-			} else {
-				logger.error("there is an error in catching hitch event!");
-			}
+			/**
+			 * 遥信总召所有值获取
+			 */
+			readAllSignal(hitchEventDesc, data);
 		} else {
 			logger.info("undefine message received!");
 			logger.error("接收到的非法数据--------------------" + data);
 		}
 
+	}
+
+	private void whetherOperateSwitch(String data) {
+		
+		/**
+		 * 81代表终端空闲；80代表拒绝
+		 */
+		if(data.length() > 32) {
+			if(data.substring(30, 32).equals("81")) {
+				String address = data.substring(10, 14);
+				SwitchGPRS gprs = CtxStore.getByAddress(address);
+				/**
+				 * 1合闸；2分闸；
+				 */
+				if(gprs.getPrepareType() == 1) {
+					highVoltageEngine.generateCloseSwitchMessage(address);
+				} else {
+					highVoltageEngine.generateOpenSwitchMessage(address);
+				}
+				gprs.setPrepareType(3);
+			}
+		}
+	}
+	
+	@Test
+	public void testOne() {
+		String str = "68 0C 0C 68 F4 08 00 2E 01 07 01 08 00 01 60 81 42 16";
+		System.out.println(str.replace(" ", "").substring(30, 32));
+	}
+
+	private void readAllSignal(String hitchEventDesc, String data) {
+		
+		String address = data.substring(10, 14);
+		String id = CtxStore.getIdbyAddress(address);
+
+		if (id != null && address != null) {
+
+			HighVoltageStatus s = CtxStore.getStatusbyId(id);
+			SwitchGPRS gprs = CtxStore.get(id);
+
+			if (s == null) {
+
+				s = new HighVoltageStatus();
+				s.setId(id);
+				CtxStore.addStatus(s);
+			}
+
+			s.setGuo_liu_yi_duan(data.substring(30, 32));
+			s.setGuo_liu_er_duan(data.substring(32, 34));
+			s.setGuo_liu_san_duan(data.substring(34, 36));
+
+			s.setLing_xu_guo_liu_(data.substring(38, 40));
+
+			if (data.substring(40, 42).equals("01") || data.substring(42, 44).equals("01")
+					|| data.substring(44, 46).equals("01")) {
+				s.setChong_he_zha("01");
+			} else {
+				s.setChong_he_zha("00");
+			}
+
+			s.setPt1_you_ya(data.substring(48, 50));
+			s.setPt2_you_ya(data.substring(50, 52));
+
+			s.setPt1_guo_ya(data.substring(52, 54));
+			s.setPt2_guo_ya(data.substring(54, 56));
+
+			String new_status = data.substring(66, 68);
+
+			if ("01".equals(s.getStatus()) && "00".equals(new_status)) {
+
+				gprs.setOpen(true);
+
+				HighVoltageHitchEvent event = new HighVoltageHitchEvent();
+
+				event.setHitchTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
+				event.setHitchPhase("A");
+				event.setHitchReason(hitchEventDesc == null ? "未知报警" : hitchEventDesc);
+				event.setChangeType(0);
+				event.setSolveWay("分闸");
+				event.setId(UUIDUtil.getUUID());
+				event.setSwitchId(id);
+				// event.setSolvePeople();
+				hitchEventService.insert(event);
+
+				logger.info("-----------跳闸成功");
+			} else if ("01".equals(new_status) && "00".equals(s.getStatus())) {
+
+				gprs.setOpen(false);
+
+				HighVoltageHitchEvent event = new HighVoltageHitchEvent();
+
+				event.setHitchTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
+				event.setHitchPhase("A");
+				event.setHitchReason(hitchEventDesc == null ? "未知报警" : hitchEventDesc);
+				event.setChangeType(1);
+				event.setSolveWay("合闸");
+				event.setId(UUIDUtil.getUUID());
+				event.setSwitchId(id);
+				hitchEventService.insert(event);
+				logger.info("-----------合闸成功");
+			}
+			s.setStatus(new_status);
+
+			s.setJiao_liu_shi_dian(data.substring(76, 78));
+
+			s.setShou_dong_he_zha(data.substring(78, 80));
+			s.setShou_dong_fen_zha(data.substring(80, 82));
+
+			s.setYao_kong_he_zha(data.substring(84, 86));
+			s.setYao_kong_fen_zha(data.substring(86, 88));
+			s.setYao_kong_fu_gui(data.substring(88, 90));
+
+			logger.info("状态变为-----------" + new_status);
+
+		} else {
+			logger.error("there is an error in catching hitch event!");
+		}
+	}
+
+	private void changeMesurementInfo(String data) {
+		
+		if(!data.substring(2,4).equals("47")) {
+			/**
+			 * 若data.length=40，测归一值
+			 */
+			logger.info("测归一值-------" + data);
+			//680e0e68f4680009010301680008400000001a16
+			//68131368f46600090203016600054000000006402700008116
+			//68131368f46600090203016600054000000006402700008116
+			for(int i = 22; i + 14 < data.length(); i += 10) {
+				getMessageAddress(data.substring(i + 4, i + 8), data.substring(22, 26), 
+						data.substring(i + 8, i + 14));
+			}
+			return;
+		}
+		logger.info("解析CV---------" + data);
+		String address = data.substring(10, 14);
+		String id = CtxStore.getIdbyAddress(address);
+		if (id != null) {
+			saveCV(id, data);
+		} else {
+			logger.error("there is an error in saving CV!");
+		}
+	}
+
+	private void confirmSignalChangeInfo(ChannelHandlerContext ctx, String data) {
+		
+		for(int i = 26, j = Integer.valueOf(data.substring(16, 18)); j > 0; i += 6, --j) {
+			changeState(data.substring(22, 26), data.substring(i, i + 4), data.substring(i + 4, i + 6));
+		}
+		String resu = new HighVoltageDeviceCommandUtil().confirmChangeAffair(data.substring(10, 14));
+		logger.info("遥信变位事件确定---------" + resu);
+		ctx.writeAndFlush(resu);
+	}
+
+	private void confirmSignalInitialChange(ChannelHandlerContext ctx, String data) {
+		
+		String resu = new HighVoltageDeviceCommandUtil().confirmChangeAffair(data.substring(10, 14));
+		logger.info("遥信变位确定---------" + resu);
+		ctx.writeAndFlush(resu);
 	}
 
 	private void changeState(String address, String code, String value) {
@@ -351,7 +360,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	}
 
 	private void getMessageAddress(String code, String address, String value) {
-		// TODO Auto-generated method stub
+
 		if(code == null || code.length() == 0 || code.length() != 4) {
 			return;
 		}
@@ -375,6 +384,55 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			case "4008": saveCurrentForValue(CtxStore.getIdbyAddress(address), "C",
 					HighVoltageDeviceCommandUtil.changToRight(value));break;
 			default:break;
+		}
+	}
+	
+	private void getOnlineAddress(ChannelHandlerContext ctx, String data) {
+		
+		SwitchGPRS gprs = CtxStore.get(ctx);
+		/**
+		 * 当注册的高压开关的地址不为空，说明已经注册过了，不再进行相关操作
+		 */
+		if(gprs != null && gprs.getAddress() != null) {
+			ctx.channel().writeAndFlush(data);
+			return;
+		}
+		String address = data.substring(12, 16);
+		gprs.setAddress(address);
+
+		address = new HighVoltageDeviceCommandUtil().reverseString(address);
+
+		if (gprs != null) {
+			/**
+			 * 根据反转后的地址查询得到highvoltageswitch的集合
+			 */
+			List<HighVoltageSwitch> list = switchService
+					.selectByParameters(MyBatisMapUtil.warp("address", Integer.parseInt(address, 16)));
+			HighVoltageSwitch s = null;
+			if (list != null && list.size() != 0) {
+
+				s = list.get(0);
+				String id = s.getId();
+				gprs.setId(id);
+				
+				/**
+				 * 这个地方是开始对bug的一个测试，当开关从跳闸到合闸的时候，无法及时获取，只能
+				 * 这样替换ctx才能进行状态更新
+				 * 
+				 * 	if (CtxStore.get(id) != null) {
+				 *		CtxStore.remove(id);
+				 *		CtxStore.add(gprs);
+				 *	}
+				 * 
+				 */
+				HighVoltageServer.totalCall(id);
+				if(CtxStore.get(id) != null) {
+					CtxStore.remove(id);
+					CtxStore.add(gprs);
+				}
+			} else {
+				logger.info("this device is not registered!!");
+			}
 		}
 	}
 
@@ -403,13 +461,9 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 
 		CtxStore.printCtxStore();
 	}
-
-	/**
-	 * 
-	 * @Title: saveCV @Description: TODO @param @param switchId @param @param
-	 *         data @return void @throws
-	 */
+	
 	public void saveCV(String switchId, String data) {
+		
 		data = data.replace(" ", "");
 		String ABVoltage = new HighVoltageDeviceCommandUtil().readABPhaseVoltage(data);
 		String BCVoltage = new HighVoltageDeviceCommandUtil().readBCPhaseVoltage(data);
