@@ -156,18 +156,16 @@ public class Application extends SpringBootServletInitializer {
 	}
 
 	/**
-	 * 
-	 * @Title: defaultAdvisorAutoProxyCreator
-	 * @Description: TODO
-	 * @param @return
-	 * @return DefaultAdvisorAutoProxyCreator
-	 * @throws
+	 * 启用shiro注解
 	 */
 	@Bean
 	@DependsOn("lifecycleBeanPostProcessor")
 	public DefaultAdvisorAutoProxyCreator defaultAdvisorAutoProxyCreator() {
 
-		return new DefaultAdvisorAutoProxyCreator();
+		DefaultAdvisorAutoProxyCreator shiroAutoProxyCreator =
+				new DefaultAdvisorAutoProxyCreator();
+		shiroAutoProxyCreator.setProxyTargetClass(true);
+		return shiroAutoProxyCreator;
 	}
 
 	/**
@@ -213,12 +211,8 @@ public class Application extends SpringBootServletInitializer {
 
 		ShiroFilterFactoryBean factoryBean = new ShiroFilterFactoryBean();
 		factoryBean.setSecurityManager(defaultWebSecurityManager());
-		factoryBean
-				.setFilterChainDefinitions("/dongjun/* = authc");
-//
+		factoryBean.setFilterChainDefinitions("/dongjun/* = authc");
 		factoryBean.setLoginUrl("/dongjun/login");
-//		factoryBean.setSuccessUrl("index");
-//		factoryBean.setUnauthorizedUrl("unauthorized");
 		return factoryBean;
 	}
 
@@ -270,5 +264,4 @@ public class Application extends SpringBootServletInitializer {
 
 		SpringApplication.run(Application.class, args);
 	}
-
 }
