@@ -14,7 +14,7 @@ import com.gdut.dongjun.enums.HighCommandControlCode;
  * @package com.gdut.dongjun.util
  */
 @Component
-public class HighVoltageDeviceCommandUtil {
+public class HighVoltageDeviceCommandUtil extends StringCommonUtil {
 
 	private String address;// 地址
 	@SuppressWarnings("unused")

@@ -27,7 +27,6 @@ import java.util.Map;
 import javax.annotation.Resource;
 
 import org.apache.log4j.Logger;
-import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -49,9 +48,17 @@ import com.gdut.dongjun.service.HistoryHighVoltageVoltageService;
 import com.gdut.dongjun.util.HighVoltageDeviceCommandUtil;
 import com.gdut.dongjun.util.LowVoltageDeviceCommandUtil;
 import com.gdut.dongjun.util.MyBatisMapUtil;
+import com.gdut.dongjun.util.StringCommonUtil;
 import com.gdut.dongjun.util.TimeUtil;
 import com.gdut.dongjun.util.UUIDUtil;
 
+/**
+ *@Author link xiaoMian <972192420@qq.com>
+ *@ClassName HighVoltageDataReceiver.java
+ *@Time 2016年5月20日下午10:35:32
+ *@Description TODO
+ *@Version 1.0 Topview
+ */
 @Service
 @Sharable
 public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
@@ -80,37 +87,31 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 
-		// Send greeting for a new connection.
-		// System.out.println(InetAddress.getLocalHost().getHostName());
-
 		SwitchGPRS gprs = new SwitchGPRS();// 添加ctx到Store中
 		gprs.setCtx(ctx);
 		if (CtxStore.get(ctx) == null) {
 			CtxStore.add(gprs);
 		}
-
-		// ***********************************************
-		// 设备刚连上我们的服务器还不知道它的地址的,先查一下它的地址
-		// ***********************************************
-		// ctx.channel().writeAndFlush(READ_ADDRESS);// 读取地址
-		//CtxStore.printCtxStore();
-		//
 	}
 	
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-		String data = (String) msg;// 查询后回来的报文
-		data = data.replace(" ", "");
+		String data = ((String) msg).replace(" ", "");
 		logger.info("接收到的报文： " + data);
-		// 截取控制码
-		//if(!data.startsWith("EB90") && !checkCrc(data))
-		String infoIdenCode = data.substring(14, 16);
+		
 		String hitchEventDesc = "控制回路";
 		if (data.length() == 190) {
 
 			hitchEventDesc = getHitchReason(data.substring(140, 160));
 		}
 
+		handleIdenCode(ctx, data, hitchEventDesc);
+	}
+	
+	private void handleIdenCode(ChannelHandlerContext ctx, String data, String hitchEventDesc) {
+		
+		String infoIdenCode = data.substring(14, 16);
+		
 		/**
 		 * 将接收到的客户端信息分类处理
 		 * 读通信地址并将地址反转
@@ -124,6 +125,13 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			 * 总召激活确定
 			 */
 			logger.info("总召激活已经确定：" + data.substring(10, 14));
+			
+			/**
+			 * 为应对老机器中将总召，遥控，遥测值都加在同一份数据块而做的解析
+			 */
+			if(data.length() > 36) {
+				getSwitchAllInfo(ctx, data, hitchEventDesc);
+			}
 		} else if(infoIdenCode.equals("03")) {
 			
 			/**
@@ -158,9 +166,36 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			logger.info("undefine message received!");
 			logger.error("接收到的非法数据--------------------" + data);
 		}
-
 	}
 
+	/**
+	 * 老版本机器中将总召，遥信，遥测值都放在一起，将其一起解析，可以获取某个开关的所有开关信息
+	 * @param data 报文
+	 */
+	private void getSwitchAllInfo(ChannelHandlerContext ctx, String data, String hitchEventDesc) {
+		
+		/**
+		 * 总召确认报文 data.substring(0, 32);
+		 */
+		data = data.substring(32, data.length());
+		
+		/**
+		 * 遥控信息
+		 */
+		while(data.length() != 0) {
+			int index = StringCommonUtil.getFirstIndexOfEndTag(data, "16");
+			if(index != -1) {
+				String dataInfo = data.substring(0, index);
+				handleIdenCode(ctx, dataInfo, hitchEventDesc);
+				data = data.substring(index, data.length());
+			}
+		}
+	}
+	
+	/**
+	 * 在发送遥控预置操作之后，若开关空闲，则可以开始对本开关进行开合闸操作
+	 * @param data
+	 */
 	private void whetherOperateSwitch(String data) {
 		
 		/**
@@ -182,13 +217,12 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			}
 		}
 	}
-	
-	@Test
-	public void testOne() {
-		String str = "68 0C 0C 68 F4 08 00 2E 01 07 01 08 00 01 60 81 42 16";
-		System.out.println(str.replace(" ", "").substring(30, 32));
-	}
 
+	/**
+	 * 所有遥信值的获取
+	 * @param hitchEventDesc	报警原因描述
+	 * @param data
+	 */
 	private void readAllSignal(String hitchEventDesc, String data) {
 		
 		String address = data.substring(10, 14);
@@ -278,6 +312,10 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		}
 	}
 
+	/**
+	 * 遥测归一值获取（遥测中的变化数据）
+	 * @param data
+	 */
 	private void changeMesurementInfo(String data) {
 		
 		if(!data.substring(2,4).equals("47")) {
@@ -304,6 +342,11 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		}
 	}
 
+	/**
+	 * 遥信值的归一值获取，并且遥信变化是要服务器端发出接收确认的
+	 * @param ctx
+	 * @param data
+	 */
 	private void confirmSignalChangeInfo(ChannelHandlerContext ctx, String data) {
 		
 		for(int i = 26, j = Integer.valueOf(data.substring(16, 18)); j > 0; i += 6, --j) {
@@ -314,6 +357,11 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		ctx.writeAndFlush(resu);
 	}
 
+	/**
+	 * 遥信值的归一值初始获取，遥信值变化时会分两个流程，第一个流程先发一次，若有收到回复，再发一次，整个流程才算结束。
+	 * @param ctx
+	 * @param data
+	 */
 	private void confirmSignalInitialChange(ChannelHandlerContext ctx, String data) {
 		
 		String resu = new HighVoltageDeviceCommandUtil().confirmChangeAffair(data.substring(10, 14));
@@ -356,7 +404,6 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			case "00FC": hvs.setYao_kong_he_zha(value);break;
 			case "00FD": hvs.setYao_kong_fu_gui(value);break;
 		}
-		System.out.println("===========================解析成功");
 	}
 
 	private void getMessageAddress(String code, String address, String value) {
@@ -387,7 +434,10 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		}
 	}
 	
-	private void getOnlineAddress(ChannelHandlerContext ctx, String data) {
+	/**
+	 * 获取在线开关的逻辑地址
+	 */
+	private void getOnlineAddress(ChannelHandlerContext ctx, String data) { 
 		
 		SwitchGPRS gprs = CtxStore.get(ctx);
 		/**
@@ -458,10 +508,12 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 				switchService.updateByPrimaryKey(hvSwitch);
 			}
 		}
-
 		CtxStore.printCtxStore();
 	}
 	
+	/**
+	 * 根据开关的id， 和报文信息来获取该开关的全部电压电流值，调用方法保存
+	 */
 	public void saveCV(String switchId, String data) {
 		
 		data = data.replace(" ", "");
@@ -476,9 +528,11 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		saveCurrentForValue(switchId, "C", CCurrent);
 		saveVoltageForValue(switchId, "A", ABVoltage);
 		saveVoltageForValue(switchId, "B", BCVoltage);
-		System.out.println("-------saved cv-----------");
 	}
 	
+	/**
+	 * 保存电压的一个相值
+	 */
 	private void saveVoltageForValue(String switchId, String phase, String value) {
 		
 		Date date = new Date();
@@ -505,6 +559,9 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		}
 	}
 	
+	/**
+	 * 保存电流的一个相值
+	 */
 	private void saveCurrentForValue(String switchId, String phase, String value) {
 		
 		Date date = new Date();
@@ -531,47 +588,9 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		}
 	}
 
-	/**
-	 * 
-	 * @Title: readHitchEvent @Description: TODO @param @param id @param @param
-	 *         address @param @param data @return void @throws
-	 */
-	@SuppressWarnings("unused")
-	private void readHitchEvent(String id, String address, String data) {
-		//
-		// if (address != null && id != null) {
-		//
-		// LowVoltageHitchEvent hitchEvent =
-		// LowVoltageDeviceCommandUtil.readHitchEvent(data);// 查询开关的结果
-		// hitchEvent.setId(UUIDUtil.getUUID());
-		// hitchEvent.setSwitchId(id);
-		// LowVoltageHitchEvent hitchEvent2 =
-		// hitchEventService.getRecentlyHitchEvent();
-		//
-		// hitchEvent2.getHitchTime().compareTo(hitchEvent.getHitchTime());
-		//
-		// if (hitchEvent2 != null) {
-		// if (hitchEvent != null) {
-		// if (hitchEvent2.getHitchTime().getTime() < hitchEvent// 当前的跳闸事件新增
-		// .getHitchTime().getTime()) {
-		// hitchEventService.insert(hitchEvent);// 存入数据库
-		// CtxStore.updateSwtichOpen(id);
-		// }
-		//
-		// }
-		// } else {
-		// hitchEventService.insert(hitchEvent);
-		// CtxStore.updateSwtichOpen(id);
-		// }
-		//
-		// }
-
-	}
-
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
 		cause.printStackTrace();
 		ctx.close();
 	}
-
 }
