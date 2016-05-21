@@ -81,4 +81,14 @@ public class PermissionServiceImpl extends BaseServiceImpl<Permission>
 	protected boolean isExist(Permission record) {
 		return true;
 	}
+
+	@Override
+	public Object selectByUserId(String userId) {
+		return permissionMapper.selectByUserId(userId);
+	}
+
+	@Override
+	public Object selectByRoleId(String roleId) {
+		return permissionMapper.selectByRoleId(roleId);
+	}
 }

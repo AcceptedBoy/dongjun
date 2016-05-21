@@ -2,6 +2,9 @@ package com.gdut.dongjun;
 
 import java.beans.PropertyVetoException;
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.servlet.DispatcherType;
 import javax.sql.DataSource;
@@ -211,9 +214,23 @@ public class Application extends SpringBootServletInitializer {
 
 		ShiroFilterFactoryBean factoryBean = new ShiroFilterFactoryBean();
 		factoryBean.setSecurityManager(defaultWebSecurityManager());
-		factoryBean.setFilterChainDefinitions("/dongjun/* = authc");
+		factoryBean.setFilterChainDefinitionMap(createFilterChainMap());
+		factoryBean.setUnauthorizedUrl("/dongjun/user/unauthorized");
 		factoryBean.setLoginUrl("/dongjun/login");
 		return factoryBean;
+	}
+	
+	/**
+	 * <p>*：匹配零个或多个字符串
+	 * <p>**：匹配路径中的零个或多个路径
+	 * <p>url模式匹配顺序是按照在配置中的声明顺序匹配，即从头开始使用第一个匹配的url模式对应的拦截器链
+	 */
+	private Map<String, String> createFilterChainMap() {
+		Map<String, String> map = new LinkedHashMap<>();
+		map.put("/dongjun/elecon/*", "anon");
+		map.put("/dongjun/admin/**", "roles[super_admin]");
+		map.put("/dongjun/**", "authc");
+		return map;
 	}
 
 	/**
@@ -254,12 +271,20 @@ public class Application extends SpringBootServletInitializer {
 		realm.setAuthenticationCacheName("shiro.authorizationCache");
 		realm.setAuthenticationQuery("select password from user where name = ?");
 		realm.setSaltStyle(SaltStyle.NO_SALT);
-		realm.setUserRolesQuery("select r.role from role r, user_role ur,user u where u.name = ? and ur.role_id = r.id and ur.user_id = u.id");
-		realm.setPermissionsQuery("select p.permission from role r,role_permission rp, permission p where r.role = ? and rp.role_id = r.id and rp.permission_id = p.id");
+		
+		/**
+		 * 查询用户的角色时只能通过用户的名字查，查询用户的权限时只能通过用户的角色名查
+		 */
+		realm.setUserRolesQuery("select role from role where id in " +
+				"(select role_id from user_role where user_id in " +
+				"(select id from user where name = ?))");
+		realm.setPermissionsQuery("select permission from permission where id in " +
+				"(select permission_id from role_permission where role_id in " +
+				"(select id from role where role = ?))");
 		realm.setPermissionsLookupEnabled(true);
 		return realm;
 	}
-
+	
 	public static void main(String[] args) throws Exception {
 
 		SpringApplication.run(Application.class, args);
