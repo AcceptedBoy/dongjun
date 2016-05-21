@@ -22,6 +22,7 @@ import com.gdut.dongjun.domain.po.LowVoltageVoltage;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.service.ControlMearsureCurrentService;
 import com.gdut.dongjun.service.ControlMearsureVoltageService;
+import com.gdut.dongjun.service.HighSwitchUserService;
 import com.gdut.dongjun.service.HighVoltageCurrentService;
 import com.gdut.dongjun.service.HighVoltageHitchEventService;
 import com.gdut.dongjun.service.HighVoltageVoltageService;
@@ -48,7 +49,9 @@ public class CommandController {
 	@Autowired
 	private ControlMearsureVoltageService voltageService3;
 	@Autowired
-	public HighVoltageHitchEventService eventService;
+	private HighVoltageHitchEventService eventService;
+	@Autowired
+	private HighSwitchUserService highOperatorService;
 	
 	private static final Logger logger = Logger
 			.getLogger(CommandController.class);
@@ -63,16 +66,6 @@ public class CommandController {
 	//
 	// }
 
-	/**
-	 * 
-	 * @Title: securityConfirm
-	 * @Description: TODO
-	 * @param @param controlCode
-	 * @param @param session
-	 * @param @return
-	 * @return Object
-	 * @throws
-	 */
 	@RequestMapping("/security_confirm")
 	@ResponseBody
 	public Object securityConfirm(
@@ -83,10 +76,8 @@ public class CommandController {
 
 		if (controlCode != null && u != null && u.getControlCode() != null
 				&& controlCode.equals(u.getControlCode())) {
-			
 			return true;
 		} else {
-
 			return false;
 		}
 	}
@@ -107,10 +98,11 @@ public class CommandController {
 	@RequestMapping("/control_switch")
 	public String controlSwitch(@RequestParam(required = true) String switchId,
 			int sign, int type) {
-
+		
 		Hardware client = CxfUtil.getHardwareClient();
 		String address = client.getOnlineAddressById(switchId);
 		String msg = null;
+		
 		switch (sign) {
 		case 0:// 开
 			msg = client.generateOpenSwitchMessage(address, type);
@@ -252,14 +244,7 @@ public class CommandController {
 	}
 
 	/**
-	 * 
-	 * @Title: readCurrentVariable
-	 * @Description: TODO
-	 * @param @param switchId
-	 * @param @param sign
-	 * @param @return
-	 * @return Object
-	 * @throws
+	 * 通过前端发送请求，获取开关的id，从而读取开关电压之，再根据socket的订阅，定点推送到特定的人
 	 */
 	@RequestMapping("/read_current")
 	@ResponseBody
