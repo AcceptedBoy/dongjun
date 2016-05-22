@@ -60,7 +60,7 @@
         <entry file="file://$PROJECT_DIR$/src/main/resources/static/js/custom/substation_manager.js">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.5840093" vertical-offset="616" max-vertical-offset="5600">
-              <caret line="40" column="44" selection-start-line="40" selection-start-column="44" selection-end-line="40" selection-end-column="44" />
+              <caret line="40" column="42" selection-start-line="40" selection-start-column="27" selection-end-line="40" selection-end-column="42" />
               <folding />
             </state>
           </provider>
@@ -833,7 +833,7 @@
     <entry file="file://$PROJECT_DIR$/src/main/resources/static/js/custom/substation_manager.js">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.5840093" vertical-offset="616" max-vertical-offset="5600">
-          <caret line="40" column="44" selection-start-line="40" selection-start-column="44" selection-end-line="40" selection-end-column="44" />
+          <caret line="40" column="42" selection-start-line="40" selection-start-column="27" selection-end-line="40" selection-end-column="42" />
           <folding />
         </state>
       </provider>

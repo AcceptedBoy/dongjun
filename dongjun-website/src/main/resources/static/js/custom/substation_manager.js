@@ -43,7 +43,7 @@ $(document).ready(function() {
 	 }).success(function(data) {
 		 data = JSON.parse(data)
 		 var item = data;
-		 
+		 console.log(item)
 	 })
 
 	/**
