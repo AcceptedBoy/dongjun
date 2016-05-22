@@ -139,6 +139,18 @@ public abstract class CtxStore {
 		return null;
 	}
 	
+	public static SwitchGPRS getByAddress(String address) {
+		
+		if(ctxlist != null) {
+			for(SwitchGPRS gprs : ctxlist) {
+				if(gprs != null && address.equals(gprs.getAddress())) {
+					return gprs;
+				}
+			}
+		}
+		return null;
+	}
+	
 	public static com.gdut.dongjun.service.cxf.po.SwitchGPRS getPostGPRS(String id) {
 		if (postList != null) {
 

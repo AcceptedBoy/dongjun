@@ -1,10 +1,5 @@
 package com.gdut.dongjun.core;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-
 import io.netty.channel.ChannelHandlerContext;
 
 
@@ -26,6 +21,11 @@ public class SwitchGPRS {
 	private String id;//ID
 	private String address;//地址
 	private ChannelHandlerContext ctx;//上下文对象，可以用于发送报文
+	
+	/**
+	 * 1为预备合闸， 2为预备分闸，3为未预备
+	 */
+	private Integer prepareType;
 	private boolean isOpen = false;//开关是否跳闸的标志(从合闸->分闸才算跳闸)
 
 	public String getId() {
@@ -51,12 +51,13 @@ public class SwitchGPRS {
 	public void setCtx(ChannelHandlerContext ctx) {
 		this.ctx = ctx;
 	}
-
-	@Override
-	public String toString() {
-		// TODO Auto-generated method stub
-		return "id  " + id + "  address  " + address + "  ctx  " + ctx
-				+ " isOpen " + isOpen;
+	
+	public Integer getPrepareType() {
+		return prepareType;
+	}
+	
+	public void setPrepareType(Integer prepareType) {
+		this.prepareType = prepareType;
 	}
 
 	public boolean isOpen() {

@@ -55,4 +55,8 @@ public interface PermissionMapper extends
 	public List<Permission> selectUserModulePermissionWithoutClassId(
 			Map<String, Object> map);
 
+	public Object selectByUserId(String userId);
+
+	public Object selectByRoleId(String roleId);
+
 }

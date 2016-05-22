@@ -1,8 +1,6 @@
 package com.gdut.dongjun.service.authc.impl;
 
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -31,38 +29,6 @@ public class RoleServiceImpl extends BaseServiceImpl<Role> implements
 	public List<Role> selectByUserId(String userId) {
 
 		return roleMapper.selectByUserId(userId);
-	}
-
-//	@Resource
-//	public void setBaseDao(RoleMapper roleMapper) {
-//
-//		super.setBaseDao(roleMapper);
-//	}
-
-	@Override
-	public List<Map<String, Object>> selectAllUserRole(String schoolId) {
-
-//		List<Teacher> teachers = teacherService.getTeacher(MapUtil.warp(
-//				"schoolId", schoolId));
-
-		List<Map<String, Object>> maps = new LinkedList<>();
-//		for (Teacher t : teachers) {
-//
-//			if(t!= null){
-//				
-//				Map<String, Object> map = MapUtil.warp("id", t.getId());
-//				map.put("name", t.getName());
-//				map.put("roles", roleMapper.selectByUserId(t.getId()));
-//				maps.add(map);
-//			}
-//		}
-		return maps;
-	}
-
-	@Override
-	public List<Object> selectUnarrangeRoleByUserId(Map<String, Object> map) {
-		
-		return roleMapper.selectUnarrangeRoleByUserId(map);
 	}
 
 	@Override

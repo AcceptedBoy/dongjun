@@ -21,6 +21,22 @@
     -->
     id, module_id, permission, description, available
   </sql>
+  
+   <select id="selectByUserId" resultMap="BaseResultMap">
+  		select * from permission WHERE id in (
+			select permission_id from role_permission where role_id in (
+				select role_id from user_role WHERE id = #{userId}
+			)
+		)
+  	</select>
+  
+  <select id="selectByRoleId" resultMap="BaseResultMap">
+  		select * from permission WHERE id in (
+			select permission_id from role_permission 
+				where role_id = #{roleId}
+		)
+  </select>
+  
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
     <!--
       WARNING - @mbggenerated

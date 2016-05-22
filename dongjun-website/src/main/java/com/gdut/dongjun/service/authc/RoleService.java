@@ -1,10 +1,10 @@
 package com.gdut.dongjun.service.authc;
 
 import java.util.List;
-import java.util.Map;
 
 import com.gdut.dongjun.domain.po.authc.Role;
 import com.gdut.dongjun.service.base.BaseService;
+import com.sun.xml.bind.v2.TODO;
 
 /**
  * @author Sherlock-lee
@@ -24,27 +24,4 @@ public interface RoleService extends BaseService<Role> {
 	 * @throws
 	 */
 	public List<Role> selectByUserId(String userId);
-
-	/**
-	 * @param schoolId
-	 * 
-	 * @Title: selectAllUserRole
-	 * @Description: TODO
-	 * @param @return
-	 * @return List<Object>
-	 * @throws
-	 */
-	public List<Map<String, Object>> selectAllUserRole(String schoolId);
-
-	/**
-	 * 
-	 * @Title: selectUnarrangeRoleByUserId
-	 * @Description: TODO
-	 * @param @param userId
-	 * @param @return
-	 * @return Object
-	 * @throws
-	 */
-	public List<Object> selectUnarrangeRoleByUserId(Map<String, Object> map);
-
 }

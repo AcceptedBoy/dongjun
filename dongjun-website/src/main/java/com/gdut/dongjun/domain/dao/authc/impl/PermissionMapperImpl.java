@@ -49,4 +49,16 @@ public class PermissionMapperImpl extends
 				getNamespace("selectUserModulePermissionWithoutClassId"), map);
 	}
 
+	@Override
+	public Object selectByUserId(String userId) {
+
+		return template.selectList(getNamespace("selectByUserId"), userId);
+	}
+
+	@Override
+	public Object selectByRoleId(String roleId) {
+
+		return template.selectList(getNamespace("selectByRoleId"), roleId);
+	}
+
 }

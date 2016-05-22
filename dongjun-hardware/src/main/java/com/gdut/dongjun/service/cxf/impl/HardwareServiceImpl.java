@@ -35,6 +35,7 @@ public class HardwareServiceImpl implements HardwareService {
 			msg = lowVoltageDevice.generateOpenSwitchMessage(address);
 			break;
 		case 1:// 高压开关
+			CtxStore.getByAddress(address).setPrepareType(2);
 			msg = highVoltageDevice.generateOpenSwitchMessage(address);
 			break;
 		case 2:// 管控开关
@@ -63,6 +64,7 @@ public class HardwareServiceImpl implements HardwareService {
 			msg = lowVoltageDevice.generateCloseSwitchMessage(address);
 			break;
 		case 1:// 高压开关
+			CtxStore.getByAddress(address).setPrepareType(1);
 			msg = highVoltageDevice.generateCloseSwitchMessage(address);
 			break;
 		case 2:// 管控开关

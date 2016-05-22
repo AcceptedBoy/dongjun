@@ -7,78 +7,19 @@
 			connectionURL="jdbc:mysql://localhost:3306/elecon" userId="root"
 			password="root">
 		</jdbcConnection>
-		<javaModelGenerator targetPackage="com.gdut.dongjun.domain.po"
+		<javaModelGenerator targetPackage="com.gdut.dongjun.domain.po.authc"
 			targetProject="E:\generator" />
 
-		<sqlMapGenerator targetPackage="com.gdut.dongjun.domain.dao"
+		<sqlMapGenerator targetPackage="com.gdut.dongjun.domain.dao.authc"
 			targetProject="E:\generator" />
 
-		<javaClientGenerator targetPackage="com.gdut.dongjun.domain.dao"
+		<javaClientGenerator targetPackage="com.gdut.dongjun.domain.dao.authc"
 			targetProject="E:\generator" type="XMLMAPPER" />
 			
-		<table schema="root" tableName="high_switch_user"
-			domainObjectName="HighSwitchUser" enableCountByExample="false"
+		<table schema="root" tableName="role_permission"
+			domainObjectName="RolePermission" enableCountByExample="false"
 			enableUpdateByExample="false" enableDeleteByExample="false"
 			enableSelectByExample="false" selectByExampleQueryId="false" />
-
-		<!-- <table schema="root" tableName="control_mearsure_current" domainObjectName="ControlMearsureCurrent" 
-			enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" 
-			enableSelectByExample="false" selectByExampleQueryId="false" /> <table schema="root" 
-			tableName="control_mearsure_hitch_event" domainObjectName="ControlMearsureHitchEvent" 
-			enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" 
-			enableSelectByExample="false" selectByExampleQueryId="false" /> <table schema="root" 
-			tableName="control_mearsure_switch" domainObjectName="ControlMearsureSwitch" 
-			enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" 
-			enableSelectByExample="false" selectByExampleQueryId="false" /> <table schema="root" 
-			tableName="control_mearsure_voltage" domainObjectName="ControlMearsureVoltage" 
-			enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" 
-			enableSelectByExample="false" selectByExampleQueryId="false" /> <table schema="root" 
-			tableName="high_voltage_current" domainObjectName="HighVoltageCurrent" enableCountByExample="false" 
-			enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" 
-			selectByExampleQueryId="false" /> <table schema="root" tableName="high_voltage_hitch_event" 
-			domainObjectName="HighVoltageHitchEvent" enableCountByExample="false" enableUpdateByExample="false" 
-			enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false" 
-			/> <table schema="root" tableName="high_voltage_switch" domainObjectName="HighVoltageSwitch" 
-			enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" 
-			enableSelectByExample="false" selectByExampleQueryId="false" /> <table schema="root" 
-			tableName="high_voltage_voltage" domainObjectName="HighVoltageVoltage" enableCountByExample="false" 
-			enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" 
-			selectByExampleQueryId="false" /> <table schema="root" tableName="low_voltage_current" 
-			domainObjectName="LowVoltageCurrent" enableCountByExample="false" enableUpdateByExample="false" 
-			enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false" 
-			/> <table schema="root" tableName="low_voltage_hitch_event" domainObjectName="LowVoltageHitchEvent" 
-			enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" 
-			enableSelectByExample="false" selectByExampleQueryId="false" /> <table schema="root" 
-			tableName="low_voltage_switch" domainObjectName="LowVoltageSwitch" enableCountByExample="false" 
-			enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" 
-			selectByExampleQueryId="false" /> <table schema="root" tableName="low_voltage_voltage" 
-			domainObjectName="LowVoltageVoltage" enableCountByExample="false" enableUpdateByExample="false" 
-			enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false" 
-			/> <table schema="root" tableName="low_voltage_voltage" domainObjectName="LowVoltageVoltage" 
-			enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" 
-			enableSelectByExample="false" selectByExampleQueryId="false" /> <table schema="root" 
-			tableName="low_voltage_voltage" domainObjectName="LowVoltageVoltage" enableCountByExample="false" 
-			enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" 
-			selectByExampleQueryId="false" /> <table schema="root" tableName="low_voltage_voltage" 
-			domainObjectName="LowVoltageVoltage" enableCountByExample="false" enableUpdateByExample="false" 
-			enableDeleteByExample="false" enableSelectByExample="false" selectByExampleQueryId="false" 
-			/> <table schema="root" tableName="low_voltage_voltage" domainObjectName="LowVoltageVoltage" 
-			enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" 
-			enableSelectByExample="false" selectByExampleQueryId="false" /> <table schema="root" 
-			tableName="low_voltage_voltage" domainObjectName="LowVoltageVoltage" enableCountByExample="false" 
-			enableUpdateByExample="false" enableDeleteByExample="false" enableSelectByExample="false" 
-			selectByExampleQueryId="false" /> -->
-
-
-
-
-
-
-
-
-
-
-
 
 	</context>
 </generatorConfiguration>

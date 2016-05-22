@@ -51,4 +51,7 @@ public interface PermissionService extends BaseService<Permission> {
 	public List<Permission> selectUserModulePermission(String userId, String moduleId,
 			String classId);
 
+	public Object selectByUserId(String userId);
+
+	public Object selectByRoleId(String roleId);
 }
