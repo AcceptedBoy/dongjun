@@ -3,7 +3,8 @@ $(document).ready(function() {
 	/**
 	 * 初始化列表
 	 */
-	initial_table("switch_list");
+	//initial_table("switch_list");
+	reloadDataTable('003')
 	$("#add_switch_btn").click(addSwitch);
 	$(".edit_switch_btn").click(editSwitch);
 	$(".del_switch_btn").click(delSwitch);
@@ -21,7 +22,7 @@ $(document).ready(function() {
 			data : {
 				"id" : $("#editId").val(),
 				"name" : $("#editName").val(),
-				"substationId" : $("#editLineId").val(),
+				"substationId" : $("#editLineId").val()
 			},
 			success : function(data) {
 
@@ -57,7 +58,7 @@ $(document).ready(function() {
 	/**
 	 * 切换变电站时的监听
 	 */
-	$(".substations").click(function(){
+	$(".substations").change(function(){
 		
 		reloadDataTable(this.value);
 	});

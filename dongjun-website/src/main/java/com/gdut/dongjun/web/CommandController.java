@@ -29,6 +29,7 @@ import com.gdut.dongjun.service.HighVoltageVoltageService;
 import com.gdut.dongjun.service.LowVoltageCurrentService;
 import com.gdut.dongjun.service.LowVoltageVoltageService;
 import com.gdut.dongjun.service.cxf.Hardware;
+import com.gdut.dongjun.service.cxf.po.HighVoltageStatus;
 import com.gdut.dongjun.util.CxfUtil;
 
 @Controller
@@ -151,9 +152,11 @@ public class CommandController {
 			new Runnable() {
 				public void run() {
 					try {
-						Thread.sleep(10000);
+						//template.convertAndSendToUser(userName, "/queue/read_voltage", 
+						//		getVoltage(type, switchId));
 						template.convertAndSendToUser(userName, "/queue/read_voltage", 
-								getVoltage(type, switchId));
+									getVolt());
+						Thread.sleep(10000);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
@@ -263,9 +266,12 @@ public class CommandController {
 				new Runnable() {
 					public void run() {
 						try {
-							Thread.sleep(10000);
+							
+							//template.convertAndSendToUser(userName, "/queue/read_current", 
+							//		getCurrnet(type, switchId));
 							template.convertAndSendToUser(userName, "/queue/read_current", 
-									getCurrnet(type, switchId));
+											getCurr());
+							Thread.sleep(10000);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
@@ -386,11 +392,26 @@ public class CommandController {
 			public void run() {
 				template.convertAndSendToUser(userName, 
 						"/queue/read_hv_status", 
-						CxfUtil.getHardwareClient().getStatusbyId(id));
+						//CxfUtil.getHardwareClient().getStatusbyId(id));
+						getStatus());
+				try {
+					Thread.sleep(10000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
 			}
 		});
 		thread.setDaemon(true);
 		thread.start();
+	}
+	
+	public 		HighVoltageStatus getStatus() {
+		HighVoltageStatus status = new HighVoltageStatus();
+		status.setChong_he_zha("01");
+		status.setGuo_liu_er_duan("00");
+		status.setGuo_liu_yi_duan("00");
+		status.setStatus("00");
+		return status;
 	}
 	
 	@Autowired
@@ -400,7 +421,26 @@ public class CommandController {
     public CommandController(SimpMessagingTemplate template) {
         this.template = template;
     }
+    
+    private Integer[] getCurr() {
+    	
+    	int i = new Random().nextInt(3);
+    	if(i == 1) {
+    		return new Integer[] {345, 0,0};
+    	} else {
+    		return new Integer[] {166, 0, 0};
+    	}
+    }
 	
+    private Integer[] getVolt() {
+    	
+    	int i = new Random().nextInt(3);
+    	if(i == 1) {
+    		return new Integer[] {12345, 0,0};
+    	} else {
+    		return new Integer[] {16766, 0, 0};
+    	}
+    }
 	/*@RequestMapping("/hitch_event_spy")
 	@ResponseBody
 	public void getActiveSwitchStatus() {
