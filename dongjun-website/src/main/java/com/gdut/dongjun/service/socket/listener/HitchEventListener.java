@@ -57,7 +57,7 @@ class ActiveSwitchThread extends Thread {
 		
 		while(true) {
 			try {
-				sleep(5000);
+				sleep(10000);
 				//this.template.convertAndSend("/topic/get_active_switch_status", 
 				//		getActiveSwitchStatus());
 				//this.template.convertAndSend("/topic/get_active_switch_status", 
@@ -104,10 +104,13 @@ class ActiveSwitchThread extends Thread {
      */
     public Object getVisualData() {
     	
-    	if(new Random().nextInt(3) == 1) {
+    	int i = new Random().nextInt(4);
+    	if(i == 1) {
     		return generateActiveHighSwitchA();
-    	} else {
+    	} else if(i == 2) {
     		return generateActiveHighSwitchB();
+    	} else {
+    		return generateActiveHighSwitchC();
     	}
     }
     
@@ -120,8 +123,8 @@ class ActiveSwitchThread extends Thread {
 		list.add(as);
 		ActiveHighSwitch as2 = new ActiveHighSwitch();
 		as2.setId("2bf5d3fec85c498c9f2c588e66c29ec9");
-		as2.setOpen(false);
-		as2.setStatus("01");
+		as2.setOpen(true);
+		as2.setStatus("00");
 		list.add(as2);
 		return list;
     }
@@ -137,6 +140,26 @@ class ActiveSwitchThread extends Thread {
     	as2.setOpen(false);
     	as2.setStatus("01");
     	list.add(as2);
+    	return list;
+    }
+    
+    public Object generateActiveHighSwitchC() {
+    	List<ActiveHighSwitch> list = new ArrayList<>();
+    	ActiveHighSwitch as = new ActiveHighSwitch();
+    	as.setId("2bf5d3fec85c498c9f2c588e66c29ec9");
+    	as.setOpen(false);
+    	as.setStatus("00");
+    	list.add(as);
+    	ActiveHighSwitch as2 = new ActiveHighSwitch();
+    	as2.setId("18edc1fd879a41119b2410ec66ce02ac");
+    	as2.setOpen(false);
+    	as2.setStatus("01");
+    	list.add(as2);
+    	ActiveHighSwitch as3 = new ActiveHighSwitch();
+    	as3.setId("25a4d5f3752443c78e2dfe6189704e95");
+    	as3.setOpen(false);
+    	as3.setStatus("01");
+    	list.add(as3);
     	return list;
     }
 }

@@ -33,9 +33,7 @@ function readCurrentVoltage(id, type) {
 	readAllPhaseVoltage(id, type);
 	readAllPhaseCurrent(id, type);
 
-	t = setTimeout(function() {
-		readCurrentVoltage(id, type);
-	}, 5 * 1000);
+
 }
 
 /**
@@ -57,10 +55,10 @@ function readAllPhaseVoltage(id, type) {
 			"type" : type,
 		},
 		success : function(data) {
+//			$("#a_phase_voltage").text(data[0] / volacc);
+//			$("#b_phase_voltage").text(data[1] / volacc);
+//			$("#c_phase_voltage").text(data[2] / volacc);
 
-			$("#a_phase_voltage").text(data[0] / volacc);
-			$("#b_phase_voltage").text(data[1] / volacc);
-			$("#c_phase_voltage").text(data[2] / volacc);
 		}
 	})
 }
@@ -84,10 +82,10 @@ function readAllPhaseCurrent(id, type) {
 			"type" : type,
 		},
 		success : function(data) {
+//			$("#a_phase_current").text(data[0] / curacc);
+//			$("#b_phase_current").text(data[1] / curacc);
+//			$("#c_phase_current").text(data[2] / curacc);
 
-			$("#a_phase_current").text(data[0] / curacc);
-			$("#b_phase_current").text(data[1] / curacc);
-			$("#c_phase_current").text(data[2] / curacc);
 		}
 
 	})

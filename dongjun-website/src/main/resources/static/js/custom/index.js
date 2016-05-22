@@ -47,33 +47,125 @@ $(document).ready(function() {
 		$.fn.zTree.init($("#treeDemo"), set_tree(this.value));
 	})
 
-	var stompClient;
-	initSock(stompClient);
-});
+	initSock();
 
-function initSock(stompClient) {
+});
+var stompClient;
+var oldMarker = [];
+var oldList = [];
+var alarmList = [];
+
+function initSock() {
 	var socket = new SockJS("/portfolio");
 	stompClient = Stomp.over(socket);
 
 	stompClient.connect({}, function(frame) {
 		stompClient.subscribe("/topic/get_active_switch_status", 
 				function(message) {
-			getActiveSwitchStatus(JSON.parse(message.body));
-		});
+					var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+					var node = JSON.parse(message.body);
+					for(var length = oldList.length - 1; length >= 0; --length) {
+						switchs_drawByTye(oldList[length], voltage_switch_icon_high, voltage_switch_icon_low, click_high_voltage_switch_out);
+						update(oldList[length], 0);
+					}
+					for(var j = 0 ; j < oldMarker.length ; j++) {
+						map.removeOverlay(oldMarker[j]);
+					}
+					oldList = [];
+					oldMarker = [];
+					node.forEach(function(node) {
+						if(node.id != null) {
+							var nodeList = zTree.getNodesByParamFuzzy("id", node.id);
+
+							if(nodeList.length != 0) {
+								oldList.push(nodeList);
+								if(node.status == "00") { // '00' 开闸 ， '01'合闸
+									switchs_drawByTye(nodeList[0], open_switch_high, open_switch_low, click_high_voltage_switch_open);
+									if(node.open == true) {//status与open同时符合才报警
+										alarmList.push(nodeList[0].id);
+										playVoice(getVoiceData(nodeList[0].name));
+										update(nodeList, 2);  // 树节点变红
+										worning_switchs_draw(nodeList[0]);
+									}
+								} else {
+									deleteAlarmSwitch(nodeList);
+									switchs_drawByTye(nodeList[0], close_switch_high, close_switch_low, click_high_voltage_switch_close);
+								}
+							}
+						}
+					})
+				});
 	});
 }
 
 function startSubscribe(stompClient) {
 	stompClient.subscribe('/user/queue/read_voltage', 
 			function(message) {
-		//alert(JSON.parse(message.body));
+				var data = message.body;
+				data = JSON.parse(data);
+				console.log(data)
+				$("#a_phase_voltage").text(data[0] / volacc);
+
+				$("#b_phase_voltage").text(data[1] / volacc);
+
+				$("#c_phase_voltage").text(data[2] / volacc);
+
+
 	});
 	stompClient.subscribe('/user/queue/read_current', 
 			function(message) {
+				var data = message.body;
+				data = JSON.parse(data)
+				console.log(data)
+				$("#a_phase_current").text(data[0] / curacc);
+				$("#b_phase_current").text(data[1] / curacc);
+				$("#c_phase_current").text(data[2] / curacc);
 		//alert(JSON.parse(message.body));
 	});
 	stompClient.subscribe('/user/queue/read_hv_status',
 			function(message) {
+				var data = message.body
+				console.log(data)
+				data = JSON.parse(data)
+				if (data == null || data == "") {
+					$("#status").text("离线");
+				} else {
+					$("#guo_liu_yi_duan").addClass(
+						green_or_red(data.guo_liu_yi_duan));
+					$("#guo_liu_er_duan").addClass(
+						green_or_red(data.guo_liu_er_duan));
+					$("#guo_liu_san_duan").addClass(
+						green_or_red(data.guo_liu_san_duan));
+
+					$("#pt1_you_ya").addClass(green_or_red(data.pt1_you_ya));
+					$("#pt2_you_ya").addClass(green_or_red(data.pt2_you_ya));
+					$("#pt1_guo_ya").addClass(green_or_red(data.pt1_guo_ya));
+					$("#pt2_guo_ya").addClass(green_or_red(data.pt2_guo_ya));
+
+					$("#shou_dong_he_zha").addClass(
+						green_or_red(data.shou_dong_he_zha));
+					$("#shou_dong_fen_zha").addClass(
+						green_or_red(data.shou_dong_fen_zha));
+
+					$("#yao_kong_fu_gui").addClass(
+						green_or_red(data.yao_kong_fu_gui));
+					$("#yao_kong_fen_zha").addClass(
+						green_or_red(data.yao_kong_fen_zha));
+					$("#yao_kong_he_zha").addClass(
+						green_or_red(data.yao_kong_he_zha));
+
+					$("#jiao_liu_shi_dian").addClass(
+						green_or_red(data.jiao_liu_shi_dian));
+					$("#chong_he_zha").addClass(green_or_red(data.chong_he_zha));
+					$("#ling_xu_guo_liu_").addClass(
+						green_or_red(data.ling_xu_guo_liu_));
+					if (data.status == '00') {
+						$("#status").text("分");
+					} else if (data.status == "01") {
+						$("#status").text("合");
+					}
+
+				}
 		//alert(JSON.parse(message.body));
 	});
 }
@@ -247,7 +339,7 @@ function updateSwitch(node, highlight) {
  */
 function getFontCss(treeId, treeNode) {
 
-	if (treeNode.highlight == 0) {
+	if (treeNode.highlight == 0) { //还原
 
 		return {
 			color : "#333333",
@@ -625,7 +717,11 @@ function switchs_draw(node, switch_icon, click_switch) {
 
 	// **************************************************************************
 	// 添加图标点击事件,弹出窗口
-	marker2.addEventListener("click", click_switch);
+	var marker = marker2;
+	var NODE = node;
+	marker2.addEventListener("click", function() {
+		click_switch(NODE, marker)
+	});
 	// **************************************************************************
 
 }
@@ -757,14 +853,26 @@ function click_high_voltage_switch_open(node,marker) {
 	}
 	id = marker.id;
 	type = marker.type;
+//	startSubscribe(stompClient);
+//	hvswitchStatusSpy(marker.id);
+//	readCurrentVoltage(marker.id, marker.type);// 读取实时数据。。
+
+	startSubscribe(stompClient);
 	hvswitchStatusSpy(marker.id);
-	//readCurrentVoltage(marker.id, marker.type);// 读取实时数据。。
+	readCurrentVoltage(marker.id, marker.type);// 读取实时数据。。
 	infoWindow.addEventListener("close", function() {
-		clearTimeout(k);
-		clearTimeout(t);
+		stopSubscribe(stompClient)
+	});
+	infoWindow.addEventListener("open", function() {
+		hvswitchStatusSpy(marker.id);
+		readCurrentVoltage(marker.id, marker.type);// 读取实时数据。。
+//		console.log('opopo')
+//		startSubscribe(stompClient);
+//		hvswitchStatusSpy(marker.id);
+//		readCurrentVoltage(marker.id, marker.type);// 读取实时数据。。
+
 	});
 }
-var test;
 function click_high_voltage_switch_close(node, marker) {
 	obj_high = marker;
 	sessionStorage.longtitude = marker.point.lng;
@@ -860,24 +968,35 @@ function click_high_voltage_switch_close(node, marker) {
 	type = marker.type;
 
 	// 高压开关状态
-	hvswitchStatusSpy(marker.id);
-	//readCurrentVoltage(marker.id, marker.type);// 读取实时数据。。
+//	startSubscribe(stompClient);
+//	hvswitchStatusSpy(marker.id);
+//	readCurrentVoltage(marker.id, marker.type);// 读取实时数据。。
 
 	// 添加窗口关闭监听，停止读取实时数据
+	//startSubscribe(stompClient);
+	startSubscribe(stompClient);
+	hvswitchStatusSpy(marker.id);
+	readCurrentVoltage(marker.id, marker.type);// 读取实时数据。。
 	infoWindow.addEventListener("close", function() {
-		clearTimeout(k);
-		clearTimeout(t);
+		stopSubscribe(stompClient)
 	});
-
+	infoWindow.addEventListener("open", function() {
+		hvswitchStatusSpy(marker.id);
+		readCurrentVoltage(marker.id, marker.type);// 读取实时数据。。
+//		console.log('opopo')
+//		startSubscribe(stompClient);
+//		hvswitchStatusSpy(marker.id);
+//		readCurrentVoltage(marker.id, marker.type);// 读取实时数据。。
+	});
 }
 
-function click_high_voltage_switch_out() {
+function click_high_voltage_switch_out(node ,marker) {
 	console.log(this);
-	obj_high = this;
-	sessionStorage.longtitude = this.point.lng;
-	sessionStorage.latitude = this.point.lat;
+	obj_high = marker;
+	sessionStorage.longtitude = marker.point.lng;
+	sessionStorage.latitude = marker.point.lat;
 	var content = "<div class='BDM_custom_popup'>" + "<h4>"
-		+ this.name + '&nbsp;&nbsp;'
+		+ marker.name + '&nbsp;&nbsp;'
 		+ '<button class="btn btn-info btn-mini" onclick="SetCenterPoint_high()">设为中心点</button>'
 		+ '<button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="CloseinfoWin_high()">'
 		+ '<span aria-hidden="true">' + '&times;'
@@ -900,28 +1019,26 @@ function click_high_voltage_switch_out() {
 	// -47);
 
 	var infoWindow = new BMap.InfoWindow(content, opts); // 创建信息窗口对象
-	this.openInfoWindow(infoWindow);
+	marker.openInfoWindow(infoWindow);
 
 	// 窗口打开读取实时数据,switch_detail.js 中定义
 	// ********************************************************************
 	if (old_icon != "") {
 
-		this.setIcon(old_icon);// 打开窗口就代表去处理了报警
+		marker.setIcon(old_icon);// 打开窗口就代表去处理了报警
 	}
 	// 还没有提报警处理的需求 ==！
 	// ********************************************************************
 
-	id = this.id;
-	type = this.type;
+	id = marker.id;
+	type = marker.type;
 
 	// 高压开关状态
-	//hvswitchStatusSpy(this.id);
-	readCurrentVoltage(this.id, this.type);// 读取实时数据。。
-
+	startSubscribe(stompClient);
+	hvswitchStatusSpy(marker.id);
 	// 添加窗口关闭监听，停止读取实时数据
 	infoWindow.addEventListener("close", function() {
-		clearTimeout(k);
-		clearTimeout(t);
+		stopSubscribe(stompClient)
 	});
 
 }
@@ -1117,8 +1234,7 @@ function click_low_voltage_switch() {
 
 	// 添加窗口关闭监听，停止读取实时数据
 	infoWindow.addEventListener("close", function() {
-		clearTimeout(h);
-		clearTimeout(t);
+
 	});
 
 }
@@ -1155,11 +1271,7 @@ function readlvSwitchStatus(id) {
 				$("#status").text("合");
 			}
 		}
-	})
-
-	h = setTimeout(function() {
-		readlvSwitchStatus(id);
-	}, 6 * 1000);
+	});
 }
 
 /**
@@ -1178,10 +1290,9 @@ function hvswitchStatusSpy(id) {
 		url : "read_hvswitch_status",
 		async : false,
 		data : {
-
 			"id" : id,
-		},
-		success : function(data) {
+		}
+		/*success : function(data) {
 
 			if (data == null || data == "") {
 
@@ -1226,12 +1337,9 @@ function hvswitchStatusSpy(id) {
 					$("#status").text("合");
 				}
 
-			}
-		}
-	})
-	k = setTimeout(function() {
-		hvswitchStatusSpy(id);
-	}, 6 * 1000);
+			}*/
+
+	});
 }
 
 /**
@@ -1321,9 +1429,7 @@ function hitchEventSpy() {
 		hitchEventSpy();
 	}, 8 * 1000);
 }*/
-var oldMarker = [];
-var oldList = [];
-var alarmList = [];
+
 
 function getActiveSwitchStatus(message) {
 	alert(message);
@@ -1347,6 +1453,7 @@ function hitchEventSpy() {
 			 */
 			for(var length = oldList.length - 1; length >= 0; --length) {
 				switchs_drawByTye(oldList[length], voltage_switch_icon_high, voltage_switch_icon_low, click_high_voltage_switch_out);
+				update(oldList[length], 2)
 			}
 			for(var j = 0 ; j < oldMarker.length ; j++) {
 				map.removeOverlay(oldMarker[j]);
@@ -1360,7 +1467,7 @@ function hitchEventSpy() {
 					
 					if(nodeList.length != 0) {
 						oldList.push(nodeList[0].id);
-						if(data[i].status == "00") {
+						if(data[i].status == "00") { // '00' 开闸 ， '01'合闸
 							switchs_drawByTye(nodeList[0], open_switch_high, open_switch_low, click_high_voltage_switch_open);
 							if(data[i].open == true) {//status与open同时符合才报警
 								alarmList.push(nodeList[0].id);
@@ -1528,9 +1635,9 @@ function worning_switchs_draw(node) {
 	oldMarker.push(marker2);
 	var warmIcon = marker2;
   marker2.addEventListener("click", function (e) {
-    //map.removeOverlay(warmIcon); // remove the alarm icon
-   // $('audio').remove(); // remove the audio
-    //handleAlarm(node); // pop up a handle window
+    map.removeOverlay(warmIcon); // remove the alarm icon
+    $('audio').remove(); // remove the audio
+    handleAlarm(node); // pop up a handle window
   });
 }
 
