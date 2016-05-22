@@ -6,6 +6,7 @@ import java.util.List;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -81,20 +82,14 @@ public class LineController {
 		return map;
 	}
 
+	
 	/**
-	 * 
-	 * @Title: delSwitch
-	 * @Description: TODO
-	 * @param @param switchId
-	 * @param @param model
-	 * @param @param redirectAttributes
-	 * @param @return
-	 * @return String
-	 * @throws
+	 * 对线路进行删除，需要有line_admin:delete权限
 	 */
 	@RequestMapping("/del_line")
 	@ResponseBody
-	public String delSwitch(@RequestParam(required = true) String switchId,
+	@RequiresPermissions("line_admin:delete")
+	public String deleLine(@RequestParam(required = true) String switchId,
 			Model model, RedirectAttributes redirectAttributes) {
 
 		String id = lineService.selectByPrimaryKey(switchId).getSubstationId();
@@ -109,18 +104,11 @@ public class LineController {
 	}
 
 	/**
-	 * 
-	 * @Title: editSwitch
-	 * @Description: TODO
-	 * @param @param switch1
-	 * @param @param model
-	 * @param @param redirectAttributes
-	 * @param @return
-	 * @return String
-	 * @throws
+	 * 对线路进行修改或者添加，需要有line_admin:edit权限
 	 */
 	@RequestMapping("/edit_line")
 	@ResponseBody
+	@RequiresPermissions("line_admin:edit")
 	public String editSwitch(Line switch1, Model model,
 			RedirectAttributes redirectAttributes) {
 

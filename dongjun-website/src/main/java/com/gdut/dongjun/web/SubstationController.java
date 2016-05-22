@@ -6,6 +6,7 @@ import java.util.List;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -84,19 +85,13 @@ public class SubstationController {
 		return map;
 	}
 
+
 	/**
-	 * 
-	 * @Title: delSwitch
-	 * @Description: TODO
-	 * @param @param switchId
-	 * @param @param model
-	 * @param @param redirectAttributes
-	 * @param @return
-	 * @return String
-	 * @throws
+	 * 删除特定的变电站，需要substation_admin:delete权限
 	 */
 	@RequestMapping("/del_substation")
 	@ResponseBody
+	@RequiresPermissions("substation_admin:delete")
 	public String delSwitch(@RequestParam(required = true) String switchId,
 			Model model, RedirectAttributes redirectAttributes) {
 
@@ -125,6 +120,7 @@ public class SubstationController {
 	 */
 	@RequestMapping("/edit_substation")
 	@ResponseBody
+	@RequiresPermissions("substation_admin:edit")
 	public String editSwitch(Substation switch1, Model model,
 			RedirectAttributes redirectAttributes) {
 
@@ -136,7 +132,7 @@ public class SubstationController {
 			substationService.updateByPrimaryKey(switch1);
 		} catch (Exception e) {
 
-			logger.error("修改开关失败！");
+			logger.error("修改变电站失败！");
 			return null;
 		}
 		return switch1.getCompanyId();

@@ -18,7 +18,7 @@ import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.UUIDUtil;
 
 @RestController
-@RequestMapping("/dongjun")
+@RequestMapping("/dongjun/operator")
 public class SwitchOperatorController {
 
 	@Autowired
@@ -90,14 +90,4 @@ public class SwitchOperatorController {
 		}
 		return JsonUtil.ERROR;
 	}
-	
-	/*private String getUserId(HttpSession session) {
-		
-		User user = (User) session.getAttribute("currentUser");
-		
-		if(user == null || user.getId() == null) {
-			return null;
-		}
-		return user.getId();
-	}*/
 }
