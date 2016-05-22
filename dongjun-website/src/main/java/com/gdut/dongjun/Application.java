@@ -4,7 +4,6 @@ import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 import javax.servlet.DispatcherType;
 import javax.sql.DataSource;
@@ -32,6 +31,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
+import com.gdut.dongjun.test.RedisFactory;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 @SpringBootApplication
@@ -284,6 +284,23 @@ public class Application extends SpringBootServletInitializer {
 		realm.setPermissionsLookupEnabled(true);
 		return realm;
 	}
+	
+	/**
+	 * redis的bean注入
+	 */
+	@Bean
+	public RedisFactory redisFactory() {
+		RedisFactory redisFactory = new RedisFactory();
+		redisFactory.setPoolConnectTimeOut(5000);
+		redisFactory.setPoolIp("127.0.0.1");
+		redisFactory.setPoolMaxIdel(8);
+		redisFactory.setPoolMaxWaitMillis(5000);
+		redisFactory.setPoolPassword("");
+		redisFactory.setPoolPort(6379);
+		redisFactory.setPoolTestOnBorrow(true);
+		return redisFactory;
+	}
+	
 	
 	public static void main(String[] args) throws Exception {
 
