@@ -1,6 +1,7 @@
 package com.gdut.dongjun.web;
 
 import java.util.List;
+import java.util.Random;
 
 import javax.servlet.http.HttpSession;
 
@@ -152,10 +153,10 @@ public class CommandController {
 			new Runnable() {
 				public void run() {
 					try {
-						//template.convertAndSendToUser(userName, "/queue/read_voltage", 
-						//		getVoltage(type, switchId));
 						template.convertAndSendToUser(userName, "/queue/read_voltage", 
-									getVolt());
+								getVoltage(type, switchId));
+						//template.convertAndSendToUser(userName, "/queue/read_voltage", 
+						//			getVolt());
 						Thread.sleep(10000);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
@@ -267,10 +268,10 @@ public class CommandController {
 					public void run() {
 						try {
 							
-							//template.convertAndSendToUser(userName, "/queue/read_current", 
-							//		getCurrnet(type, switchId));
 							template.convertAndSendToUser(userName, "/queue/read_current", 
-											getCurr());
+									getCurrnet(type, switchId));
+							//template.convertAndSendToUser(userName, "/queue/read_current", 
+							//				getCurr());
 							Thread.sleep(10000);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
@@ -392,8 +393,8 @@ public class CommandController {
 			public void run() {
 				template.convertAndSendToUser(userName, 
 						"/queue/read_hv_status", 
-						//CxfUtil.getHardwareClient().getStatusbyId(id));
-						getStatus());
+						CxfUtil.getHardwareClient().getStatusbyId(id));
+						//getStatus());
 				try {
 					Thread.sleep(10000);
 				} catch (InterruptedException e) {

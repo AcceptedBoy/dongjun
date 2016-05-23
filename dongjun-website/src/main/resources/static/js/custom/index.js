@@ -1432,7 +1432,7 @@ function hitchEventSpy() {
 
 
 function getActiveSwitchStatus(message) {
-	alert(message);
+	//alert(message);
 }
 
 function hitchEventSpy() {

@@ -102,7 +102,7 @@ public class HighVoltageSwitchController {
 				"draw", 1);
 		int size = switchs.size();
 		map.put("recordsTotal", size);
-		//map.put("data", updateDate(switchs));
+		map.put("data", updateDate(switchs));
 		map.put("data", switchs);
 		map.put("recordsFiltered", size);
 		return map;

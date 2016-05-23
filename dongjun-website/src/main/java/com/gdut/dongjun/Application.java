@@ -10,6 +10,8 @@ import javax.sql.DataSource;
 
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.authc.credential.SimpleCredentialsMatcher;
+import org.apache.shiro.crypto.hash.Md2Hash;
+import org.apache.shiro.crypto.hash.Md5Hash;
 import org.apache.shiro.realm.jdbc.JdbcRealm;
 import org.apache.shiro.realm.jdbc.JdbcRealm.SaltStyle;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
@@ -264,7 +266,7 @@ public class Application extends SpringBootServletInitializer {
 
 		HashedCredentialsMatcher credentialsMatcher = new HashedCredentialsMatcher();
 		SimpleCredentialsMatcher matcher = new SimpleCredentialsMatcher();
-
+		
 		credentialsMatcher.setHashAlgorithmName("SHA-256");
 		realm.setDataSource(dataSource());
 		realm.setCredentialsMatcher(matcher);
