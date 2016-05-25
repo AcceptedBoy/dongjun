@@ -1,11 +1,8 @@
 package com.gdut.dongjun;
 
-import javax.servlet.http.HttpServlet;
-
 import org.apache.log4j.Logger;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.gdut.dongjun.core.server.impl.ControlMeasureServer;
@@ -16,60 +13,41 @@ import com.gdut.dongjun.domain.po.port.ProtocolPort;
 
 /**
  * 这个是应用程序在初始化的时候启动，所以因此可以开启对端口的监听；
- * 
- * TODO 可能因为容器被初始化了几次，所以第一次加载类没问题，第二次加载就会抛出端口占用的问题，这是一个bug，虽然不会影响运行结果，
- * 		以后还是要解决掉比较好。
- * 
+ * <p>编写InitializingBean的实现类,项目在加载完毕后立刻执行{@code afterPropertiesSet()} 方法 ,
+ * 并且可以使用spring 注入好的bean
  * @author link xiaoMian <972192420@qq.com>
  */
 @Component
-public class MonitorStartup extends HttpServlet implements ApplicationContextAware {
+public class MonitorStartup implements InitializingBean {
 	
+	@Autowired
+	private LowVoltageServer lowVoltageServer;
+	
+	@Autowired
+	private HighVoltageServer highVoltageServer;
+	
+	@Autowired
+	private ControlMeasureServer controlMeasureServer;
+	
+	@Autowired
+	private ProtocolPortMapper protocolPortDAOImpl;
+	
+	private static Logger logger = Logger.getLogger(MonitorStartup.class);
+
 	@Override
-	public void init() {
+	public void afterPropertiesSet() throws Exception {
 		
-		ProtocolPort port = ((ProtocolPortMapper)getBean("protocolPortDAOImpl")).
-				selectByPrimaryKey("1");
-		if(null != port) {
-			((LowVoltageServer)getBean("LowVoltageServer")).setPort(port.getLvPort());
-			((HighVoltageServer)getBean("HighVoltageServer")).setPort(port.getHvPort());
-			((ControlMeasureServer)getBean("ControlMeasureServer")).setPort(port.getHvPort());
-			
-			logger.info("低压开关端口号：" + port.getLvPort());
-			logger.info("高压开关端口号：" + port.getHvPort());
-			logger.info("管控开关端口号：" + port.getConPort());
-			((LowVoltageServer)getBean("LowVoltageServer")).start();
-			((HighVoltageServer)getBean("HighVoltageServer")).start();
-			((ControlMeasureServer)getBean("ControlMeasureServer")).start();
-		}
-	}
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	private Logger logger = Logger.getLogger(this.getClass());
-	private static ApplicationContext applicationContext;
-	
-	/**
-	 * 实现该接口的setApplicationContext(ApplicationContext context)方法，
-	 * 并保存ApplicationContext 对象。Spring初始化时，
-	 * 会通过该方法将ApplicationContext对象注入。
-	 * 
-	 * 如果只是在类中使用autowired对使用对象进行注入，这一步骤在spring的执行过程中
-	 * 完成bean初始化后还没有执行，则得出的值为null
-	 */
-	@SuppressWarnings("static-access")
-	@Override
-	public void setApplicationContext(ApplicationContext applicationContext)
-			throws BeansException {
-		this.applicationContext = applicationContext; 
-	}
-	
-	public static ApplicationContext getApplicationContext() {  
-        return applicationContext;  
-    } 
-	
-	public static Object getBean(String name) throws BeansException {  
-        return applicationContext.getBean(name);  
-    }
+		ProtocolPort port = protocolPortDAOImpl.selectByPrimaryKey("1");
+		
+		logger.info("低压开关端口号：" + port.getLvPort());
+		logger.info("高压开关端口号：" + port.getHvPort());
+		logger.info("管控开关端口号：" + port.getConPort());
+		lowVoltageServer.setPort(port.getLvPort());
+		highVoltageServer.setPort(port.getHvPort());
+		controlMeasureServer.setPort(port.getConPort());
+		
+		lowVoltageServer.start();
+		highVoltageServer.start();
+		controlMeasureServer.start();
+	}	
 }

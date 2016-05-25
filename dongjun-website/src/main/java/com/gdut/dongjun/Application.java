@@ -30,6 +30,8 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.remoting.rmi.RmiProxyFactoryBean;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
 import com.gdut.dongjun.service.rmi.HardwareService;
@@ -37,6 +39,8 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 @SpringBootApplication
 @EnableAspectJAutoProxy
+@EnableAsync
+@EnableScheduling
 public class Application extends SpringBootServletInitializer {
 
 	@Override
@@ -298,7 +302,6 @@ public class Application extends SpringBootServletInitializer {
 	}
 	
 	public static void main(String[] args) throws Exception {
-
 		SpringApplication.run(Application.class, args);
 	}
 }

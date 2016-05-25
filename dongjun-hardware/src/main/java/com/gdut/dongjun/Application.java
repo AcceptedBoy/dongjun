@@ -14,7 +14,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
-import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.ApplicationContext;
@@ -154,15 +153,6 @@ public class Application extends SpringBootServletInitializer {
         TomcatEmbeddedServletContainerFactory factory = new TomcatEmbeddedServletContainerFactory("/ws-server-1.0", 8080);
         return factory;
     }
-    
-    @Bean
-	public ServletRegistrationBean monitorBean() {
-		
-		ServletRegistrationBean monitorBean = new ServletRegistrationBean();
-		monitorBean.setServlet(new MonitorStartup());
-		monitorBean.setLoadOnStartup(5);
-		return monitorBean;
-	}
     
     /**
      * rmi 配置

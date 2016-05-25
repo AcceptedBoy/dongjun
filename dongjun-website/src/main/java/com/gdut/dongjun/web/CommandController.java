@@ -393,15 +393,16 @@ public class CommandController {
 		} else {
 			return;
 		}
-		
 		Thread thread = new Thread(new Runnable() {
 
 			@Override
 			public void run() {
 				try {
-					template.convertAndSendToUser(userName, 
-							"/queue/read_hv_status", 
-							hardwareService.getStatusbyId(id));
+					HighVoltageStatus status = hardwareService.getStatusbyId(id);
+					if(status != null) {
+						template.convertAndSendToUser(userName, 
+								"/queue/read_hv_status", status);
+					}
 					Thread.sleep(10000);
 				} catch (MessagingException | InterruptedException | RemoteException e1) {
 					// TODO Auto-generated catch block

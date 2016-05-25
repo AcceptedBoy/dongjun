@@ -14,6 +14,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import com.gdut.dongjun.domain.model.ErrorInfo;
 import com.gdut.dongjun.domain.model.ResponseMessage;
 
+/**
+ * 通过controller切面织入，使发生异常的时候直接返回json格式数据
+ * @author link xiaoMian <972192420@qq.com>
+ */
 @ControllerAdvice
 public class HandleExceptionController {
 

@@ -4,10 +4,9 @@ import java.io.Serializable;
 
 
 /**
- * 
  * 为了能够提供接口服务，删去了ctx
+ * @author acceptedboy
  */
-
 public class SwitchGPRS implements Serializable {
 	
 	/**
