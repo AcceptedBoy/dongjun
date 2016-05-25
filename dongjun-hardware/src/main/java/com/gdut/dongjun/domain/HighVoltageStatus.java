@@ -1,12 +1,19 @@
 package com.gdut.dongjun.domain;
 
+import java.io.Serializable;
+
 /**   
  * @author	Sherlock-lee
  * @date	2016年1月15日 下午11:20:25
  * @see 	TODO
  * @since   1.0
  */
-public class HighVoltageStatus {
+public class HighVoltageStatus implements Serializable {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	
 	private String id;//设备ID
 	private String status;//当前状态 00分闸 01合闸

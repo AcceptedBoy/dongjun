@@ -1,4 +1,6 @@
-package com.gdut.dongjun.service.cxf.po;
+package com.gdut.dongjun.service.rmi.po;
+
+import java.io.Serializable;
 
 /**   
  * @author	Sherlock-lee
@@ -6,7 +8,12 @@ package com.gdut.dongjun.service.cxf.po;
  * @see 	TODO
  * @since   1.0
  */
-public class HighVoltageStatus {
+public class HighVoltageStatus implements Serializable {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	
 	private String id;//设备ID
 	private String status;//当前状态 00分闸 01合闸

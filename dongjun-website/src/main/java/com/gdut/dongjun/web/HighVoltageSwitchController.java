@@ -1,11 +1,13 @@
 package com.gdut.dongjun.web;
 
 import java.io.File;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -22,9 +24,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.gdut.dongjun.domain.po.HighVoltageSwitch;
 import com.gdut.dongjun.service.HighVoltageSwitchService;
-import com.gdut.dongjun.service.cxf.po.SwitchGPRS;
+import com.gdut.dongjun.service.rmi.HardwareService;
+import com.gdut.dongjun.service.rmi.po.SwitchGPRS;
 import com.gdut.dongjun.util.ClassLoaderUtil;
-import com.gdut.dongjun.util.CxfUtil;
 import com.gdut.dongjun.util.DownloadAndUploadUtil;
 import com.gdut.dongjun.util.MapUtil;
 import com.gdut.dongjun.util.MyBatisMapUtil;
@@ -37,6 +39,9 @@ public class HighVoltageSwitchController {
 
 	@Autowired
 	private HighVoltageSwitchService switchService;
+	
+	@Resource(name="hardwareService")
+	private HardwareService hardwareService;
 	
 	private static final Logger logger = Logger.getLogger(HighVoltageHitchEventController.class);
 
@@ -143,11 +148,15 @@ public class HighVoltageSwitchController {
 		if(id == null) {
 			return false;
 		}
-		List<SwitchGPRS> list = CxfUtil.getHardwareClient().getCtxInstance();
-		for(SwitchGPRS gprs : list) {
-			if(gprs.getId() != null && gprs.getId().equals(id)) {
-				return true;
+		try {
+			List<SwitchGPRS> list = hardwareService.getCtxInstance();
+			for(SwitchGPRS gprs : list) {
+				if(gprs.getId() != null && gprs.getId().equals(id)) {
+					return true;
+				}
 			}
+		} catch (RemoteException e) {
+			e.printStackTrace();
 		}
 		return false;
  	}

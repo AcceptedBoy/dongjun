@@ -1,8 +1,11 @@
 package com.gdut.dongjun.service.socket.listener;
 
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
+import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -13,10 +16,9 @@ import org.springframework.stereotype.Component;
 import com.gdut.dongjun.domain.po.HighVoltageHitchEvent;
 import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
 import com.gdut.dongjun.service.HighVoltageHitchEventService;
-import com.gdut.dongjun.service.cxf.Hardware;
-import com.gdut.dongjun.service.cxf.po.HighVoltageStatus;
-import com.gdut.dongjun.service.cxf.po.SwitchGPRS;
-import com.gdut.dongjun.util.CxfUtil;
+import com.gdut.dongjun.service.rmi.HardwareService;
+import com.gdut.dongjun.service.rmi.po.HighVoltageStatus;
+import com.gdut.dongjun.service.rmi.po.SwitchGPRS;
 
 @Component
 public class HitchEventListener implements ApplicationListener<ContextRefreshedEvent> {
@@ -52,34 +54,40 @@ class ActiveSwitchThread extends Thread {
 		this.template = template;	
 	}
 	
+	/**
+	 * rmi
+	 */
+	@Resource(name="hardwareService")
+	private HardwareService hardwareService;
+	
 	@Override
 	public synchronized void run() {
 		
 		while(true) {
 			try {
-				sleep(10000);
+				
 				//this.template.convertAndSend("/topic/get_active_switch_status", 
 				//		getActiveSwitchStatus());
-				//this.template.convertAndSend("/topic/get_active_switch_status", 
-				//		new Random().nextInt(100));
 				this.template.convertAndSend("/topic/get_active_switch_status", 
 						getVisualData());
+				sleep(10000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
 	}
 	
-	private List<ActiveHighSwitch> getActiveSwitchStatus() {
-		Hardware client = CxfUtil.getHardwareClient(); 
-		List<SwitchGPRS> switchs = client.getCtxInstance();
+	@SuppressWarnings("unused")
+	private List<ActiveHighSwitch> getActiveSwitchStatus() throws RemoteException {
+		
+		List<SwitchGPRS> switchs = hardwareService.getCtxInstance();
 		List<ActiveHighSwitch> list = new ArrayList<>();
 		//System.out.println(switchs.size());
 		if(switchs != null) {
 			for(SwitchGPRS s : switchs) {
 				
-				HighVoltageStatus status = client.getStatusbyId(s.getId());
-				if(client.getStatusbyId(s.getId()) != null) {
+				HighVoltageStatus status = hardwareService.getStatusbyId(s.getId());
+				if(hardwareService.getStatusbyId(s.getId()) != null) {
 					
 					ActiveHighSwitch as = new ActiveHighSwitch();
 					as.setId(s.getId());

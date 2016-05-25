@@ -1,5 +1,7 @@
 package com.gdut.dongjun.core;
 
+import java.io.Serializable;
+
 import io.netty.channel.ChannelHandlerContext;
 
 
@@ -11,16 +13,15 @@ import io.netty.channel.ChannelHandlerContext;
  * @date 2015年8月11日 下午7:10:20
  * @version V1.0
  */
-public class SwitchGPRS {
+public class SwitchGPRS implements Serializable {
+
 	/**
-	 * @ClassName: SwitchGPRS
-	 * @Description: TODO
-	 * @author Sherlock-lee
-	 * @date 2015年8月11日 下午7:10:20
+	 * 
 	 */
+	private static final long serialVersionUID = 1L;
 	private String id;//ID
 	private String address;//地址
-	private ChannelHandlerContext ctx;//上下文对象，可以用于发送报文
+	private transient ChannelHandlerContext ctx;//上下文对象，可以用于发送报文
 	
 	/**
 	 * 1为预备合闸， 2为预备分闸，3为未预备

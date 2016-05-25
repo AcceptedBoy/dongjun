@@ -1,12 +1,15 @@
 package com.gdut.dongjun.web;
 
+import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Random;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,9 +32,8 @@ import com.gdut.dongjun.service.HighVoltageHitchEventService;
 import com.gdut.dongjun.service.HighVoltageVoltageService;
 import com.gdut.dongjun.service.LowVoltageCurrentService;
 import com.gdut.dongjun.service.LowVoltageVoltageService;
-import com.gdut.dongjun.service.cxf.Hardware;
-import com.gdut.dongjun.service.cxf.po.HighVoltageStatus;
-import com.gdut.dongjun.util.CxfUtil;
+import com.gdut.dongjun.service.rmi.HardwareService;
+import com.gdut.dongjun.service.rmi.po.HighVoltageStatus;
 
 @Controller
 @RequestMapping("/dongjun")
@@ -54,6 +56,9 @@ public class CommandController {
 	private HighVoltageHitchEventService eventService;
 	@Autowired
 	private HighSwitchUserService highOperatorService;
+	
+	@Resource(name="hardwareService")
+	private HardwareService hardwareService;
 	
 	private static final Logger logger = Logger
 			.getLogger(CommandController.class);
@@ -85,6 +90,7 @@ public class CommandController {
 	}
 
 	/**
+	 * @throws RemoteException 
 	 * 
 	 * @Title: controlSwitch
 	 * @Description: TODO
@@ -99,18 +105,21 @@ public class CommandController {
 	 */
 	@RequestMapping("/control_switch")
 	public String controlSwitch(@RequestParam(required = true) String switchId,
-			int sign, int type) {
+			int sign, int type) throws RemoteException {
 		
-		Hardware client = CxfUtil.getHardwareClient();
-		String address = client.getOnlineAddressById(switchId);
+		/*Hardware client = CxfUtil.getHardwareClient();
+		String address = client.getOnlineAddressById(switchId);*/
+		String address = hardwareService.getOnlineAddressById(switchId);
 		String msg = null;
 		
 		switch (sign) {
 		case 0:// 开
-			msg = client.generateOpenSwitchMessage(address, type);
+			//msg = client.generateOpenSwitchMessage(address, type);
+			msg = hardwareService.generateOpenSwitchMessage(address, type);
 			break;
 		case 1:// 合
-			msg = client.generateCloseSwitchMessage(address, type);
+			//msg = client.generateCloseSwitchMessage(address, type);
+			msg = hardwareService.generateCloseSwitchMessage(address, type);
 			break;
 		default:
 			break;
@@ -361,10 +370,9 @@ public class CommandController {
 
 	@RequestMapping("/read_lvswitch_status")
 	@ResponseBody
-	public Object read_lvswitch_status(String id) {
+	public Object read_lvswitch_status(String id) throws RemoteException {
 
-		//return CtxStore.get(id);
-		return CxfUtil.getHardwareClient().getSwitchGPRS(id);
+		return hardwareService.getSwitchGPRS(id);
 	}
 
 	/**
@@ -391,14 +399,14 @@ public class CommandController {
 
 			@Override
 			public void run() {
-				template.convertAndSendToUser(userName, 
-						"/queue/read_hv_status", 
-						CxfUtil.getHardwareClient().getStatusbyId(id));
-						//getStatus());
 				try {
+					template.convertAndSendToUser(userName, 
+							"/queue/read_hv_status", 
+							hardwareService.getStatusbyId(id));
 					Thread.sleep(10000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
+				} catch (MessagingException | InterruptedException | RemoteException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
 			}
 		});
@@ -406,7 +414,7 @@ public class CommandController {
 		thread.start();
 	}
 	
-	public 		HighVoltageStatus getStatus() {
+	public HighVoltageStatus getStatus() {
 		HighVoltageStatus status = new HighVoltageStatus();
 		status.setChong_he_zha("01");
 		status.setGuo_liu_er_duan("00");

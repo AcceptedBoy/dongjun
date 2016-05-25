@@ -2,14 +2,10 @@ package com.gdut.dongjun;
 
 import java.beans.PropertyVetoException;
 import java.io.IOException;
+import java.rmi.RemoteException;
 
 import javax.sql.DataSource;
 
-import org.apache.cxf.Bus;
-import org.apache.cxf.interceptor.LoggingInInterceptor;
-import org.apache.cxf.interceptor.LoggingOutInterceptor;
-import org.apache.cxf.jaxws.EndpointImpl;
-import org.apache.cxf.transport.servlet.CXFServlet;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,18 +20,17 @@ import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.context.annotation.ImportResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.remoting.rmi.RmiServiceExporter;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
-import com.gdut.dongjun.service.cxf.impl.HardwareServiceImpl;
-import com.gdut.dongjun.util.jedis.RedisFactory;
+import com.gdut.dongjun.service.rmi.HardwareService;
+import com.gdut.dongjun.service.rmi.impl.HardwareServiceImpl;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 @SpringBootApplication
 @EnableAspectJAutoProxy
-@ImportResource({ "classpath:META-INF/cxf/cxf.xml" })
 public class Application extends SpringBootServletInitializer {
 	
 	@Autowired
@@ -152,27 +147,6 @@ public class Application extends SpringBootServletInitializer {
 		return sst;
 	}
 	
-	// Replaces the need for web.xml
-    @Bean
-    public ServletRegistrationBean servletRegistrationBean(ApplicationContext context) {
-    	ServletRegistrationBean s = new ServletRegistrationBean(new CXFServlet(), "/api/*");
-    	s.setLoadOnStartup(9);
-        return s;
-    }
-
-    // Replaces cxf-servlet.xml
-    @Bean
-    // <jaxws:endpoint id="helloWorld" implementor="demo.spring.service.HelloWorldImpl" address="/HelloWorld"/>
-    public EndpointImpl helloService() {
-        Bus bus = (Bus) applicationContext.getBean(Bus.DEFAULT_BUS_ID);
-        Object implementor = new HardwareServiceImpl();
-        EndpointImpl endpoint = new EndpointImpl(bus, implementor);
-        endpoint.publish("/hello");
-        endpoint.getServer().getEndpoint().getInInterceptors().add(new LoggingInInterceptor());
-        endpoint.getServer().getEndpoint().getOutInterceptors().add(new LoggingOutInterceptor());
-        return endpoint;
-    }
-
     // Configure the embedded tomcat to use same settings as default standalone tomcat deploy
     @Bean
     public EmbeddedServletContainerFactory embeddedServletContainerFactory() {
@@ -191,20 +165,24 @@ public class Application extends SpringBootServletInitializer {
 	}
     
     /**
-	 * redis的bean注入
-	 */
-	@Bean
-	public RedisFactory redisFactory() {
-		RedisFactory redisFactory = new RedisFactory();
-		redisFactory.setPoolConnectTimeOut(5000);
-		redisFactory.setPoolIp("127.0.0.1");
-		redisFactory.setPoolMaxIdel(8);
-		redisFactory.setPoolMaxWaitMillis(5000);
-		redisFactory.setPoolPassword("");
-		redisFactory.setPoolPort(6379);
-		redisFactory.setPoolTestOnBorrow(true);
-		return redisFactory;
-	}
+     * rmi 配置
+     * @throws RemoteException 
+     */
+    @Bean
+    public HardwareService hardwareService() throws RemoteException {
+    	return new HardwareServiceImpl();
+    }
+    
+    @Bean
+    public RmiServiceExporter rmiServiceExporter() throws RemoteException {
+    	RmiServiceExporter exporter = new RmiServiceExporter();
+    	exporter.setServiceName("HardwareService");
+    	exporter.setRegistryPort(9998);
+    	exporter.setServicePort(9999);
+    	exporter.setServiceInterface(HardwareService.class);
+    	exporter.setService(hardwareService());
+    	return exporter;
+    }
 
 	public static void main(String[] args) throws Exception {
 

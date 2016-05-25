@@ -1,4 +1,6 @@
-package com.gdut.dongjun.service.cxf.po;
+package com.gdut.dongjun.service.rmi.po;
+
+import java.io.Serializable;
 
 
 /**
@@ -6,11 +8,20 @@ package com.gdut.dongjun.service.cxf.po;
  * 为了能够提供接口服务，删去了ctx
  */
 
-public class SwitchGPRS {
+public class SwitchGPRS implements Serializable {
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	
 	private String id;//ID
 	private String address;//地址
 	private boolean isOpen = false;//开关是否跳闸的标志(从合闸->分闸才算跳闸)
+	/**
+	 * 1为预备合闸， 2为预备分闸，3为未预备
+	 */
+	private Integer prepareType;
 
 	public String getId() {
 		return id;
@@ -35,6 +46,16 @@ public class SwitchGPRS {
 	public void setOpen(boolean isOpen) {
 		this.isOpen = isOpen;
 	}
+	
+	public Integer getPrepareType() {
+		return prepareType;
+	}
+	
+	public void setPrepareType(Integer prepareType) {
+		this.prepareType = prepareType;
+	}
+	
+	
 	
 	public SwitchGPRS() {
 		super();

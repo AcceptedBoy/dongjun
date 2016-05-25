@@ -14,7 +14,14 @@ import com.gdut.dongjun.core.server.impl.LowVoltageServer;
 import com.gdut.dongjun.domain.dao.ProtocolPortMapper;
 import com.gdut.dongjun.domain.po.port.ProtocolPort;
 
-
+/**
+ * 这个是应用程序在初始化的时候启动，所以因此可以开启对端口的监听；
+ * 
+ * TODO 可能因为容器被初始化了几次，所以第一次加载类没问题，第二次加载就会抛出端口占用的问题，这是一个bug，虽然不会影响运行结果，
+ * 		以后还是要解决掉比较好。
+ * 
+ * @author link xiaoMian <972192420@qq.com>
+ */
 @Component
 public class MonitorStartup extends HttpServlet implements ApplicationContextAware {
 	
@@ -55,7 +62,6 @@ public class MonitorStartup extends HttpServlet implements ApplicationContextAwa
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext)
 			throws BeansException {
-		// TODO Auto-generated method stub
 		this.applicationContext = applicationContext; 
 	}
 	

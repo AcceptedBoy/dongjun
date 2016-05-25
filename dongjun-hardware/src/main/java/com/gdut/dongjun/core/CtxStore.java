@@ -26,9 +26,6 @@ public abstract class CtxStore {
 	 */
 	private static final Logger logger = Logger.getLogger(CtxStore.class);
 	private static final List<SwitchGPRS> ctxlist = new LinkedList<SwitchGPRS>();
-	private static final List<com.gdut.dongjun.service.cxf.po.SwitchGPRS> postList =
-			new LinkedList<>();
-
 	private static final List<HighVoltageStatus> hstalist = new LinkedList<HighVoltageStatus>();
 
 	private CtxStore() {
@@ -46,11 +43,6 @@ public abstract class CtxStore {
 	public static List<SwitchGPRS> getInstance() {
 
 		return ctxlist;
-	}
-	
-	public static List<com.gdut.dongjun.service.cxf.po.SwitchGPRS> getPostInstance() {
-		
-		return postList;
 	}
 	
 	public static ChannelHandlerContext getCtxByAddress(String address) {
@@ -151,20 +143,6 @@ public abstract class CtxStore {
 		return null;
 	}
 	
-	public static com.gdut.dongjun.service.cxf.po.SwitchGPRS getPostGPRS(String id) {
-		if (postList != null) {
-
-			for (com.gdut.dongjun.service.cxf.po.SwitchGPRS gprs : postList) {
-
-				if (gprs != null && id.equals(gprs.getId())) {
-					return gprs;
-				}
-
-			}
-		}
-		return null;
-	}
-
 	/**
 	 * 
 	 * @Title: get
@@ -243,7 +221,6 @@ public abstract class CtxStore {
 
 		if(ctx != null) {
 			ctxlist.add(ctx);
-			postList.add(new com.gdut.dongjun.service.cxf.po.SwitchGPRS(ctx));
 		}
 		printCtxStore();
 
@@ -292,7 +269,6 @@ public abstract class CtxStore {
 				if (gprs != null && ctx.equals(gprs.getCtx())) {
 
 					ctxlist.remove(gprs);	
-					postList.remove(new com.gdut.dongjun.service.cxf.po.SwitchGPRS(gprs));
 				}
 			}
 		} else {
@@ -317,7 +293,6 @@ public abstract class CtxStore {
 		}
 
 		ctxlist.clear();
-		postList.clear();
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("clear() - end");
@@ -451,11 +426,9 @@ public abstract class CtxStore {
 	public static boolean changeOpen(String switchId) {
 		
 		SwitchGPRS gprs = CtxStore.get(switchId);
-		com.gdut.dongjun.service.cxf.po.SwitchGPRS gprs2 = CtxStore.getPostGPRS(switchId);
 		if(gprs != null) {
 		//	CtxStore.remove(switchId);
 			gprs.setOpen(gprs.isOpen() == true ? false : true);
-			gprs2.setOpen(gprs.isOpen() == true ? false : true);
 		//	CtxStore.add(gprs);
 			return true;
 		} else {
