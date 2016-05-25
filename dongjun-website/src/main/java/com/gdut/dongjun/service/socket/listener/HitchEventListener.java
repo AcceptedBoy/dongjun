@@ -10,6 +10,7 @@ import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
+import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
@@ -66,18 +67,17 @@ class ActiveSwitchThread extends Thread {
 		while(true) {
 			try {
 				
-				//this.template.convertAndSend("/topic/get_active_switch_status", 
-				//		getActiveSwitchStatus());
 				this.template.convertAndSend("/topic/get_active_switch_status", 
-						getVisualData());
+						getActiveSwitchStatus());
+				//this.template.convertAndSend("/topic/get_active_switch_status", 
+				//		getVisualData());
 				sleep(10000);
-			} catch (InterruptedException e) {
+			} catch (InterruptedException | MessagingException | RemoteException e) {
 				e.printStackTrace();
 			}
 		}
 	}
 	
-	@SuppressWarnings("unused")
 	private List<ActiveHighSwitch> getActiveSwitchStatus() throws RemoteException {
 		
 		List<SwitchGPRS> switchs = hardwareService.getCtxInstance();

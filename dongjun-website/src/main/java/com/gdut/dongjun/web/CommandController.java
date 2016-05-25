@@ -2,7 +2,6 @@ package com.gdut.dongjun.web;
 
 import java.rmi.RemoteException;
 import java.util.List;
-import java.util.Random;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
@@ -431,7 +430,7 @@ public class CommandController {
         this.template = template;
     }
     
-    private Integer[] getCurr() {
+    /*private Integer[] getCurr() {
     	
     	int i = new Random().nextInt(3);
     	if(i == 1) {
@@ -449,7 +448,7 @@ public class CommandController {
     	} else {
     		return new Integer[] {16766, 0, 0};
     	}
-    }
+    }*/
 	/*@RequestMapping("/hitch_event_spy")
 	@ResponseBody
 	public void getActiveSwitchStatus() {
