@@ -22,10 +22,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.domain.po.HighVoltageSwitch;
 import com.gdut.dongjun.service.HighVoltageSwitchService;
 import com.gdut.dongjun.service.rmi.HardwareService;
-import com.gdut.dongjun.service.rmi.po.SwitchGPRS;
 import com.gdut.dongjun.util.ClassLoaderUtil;
 import com.gdut.dongjun.util.DownloadAndUploadUtil;
 import com.gdut.dongjun.util.MapUtil;

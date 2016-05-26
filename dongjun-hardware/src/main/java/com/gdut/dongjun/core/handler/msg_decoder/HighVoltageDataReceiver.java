@@ -101,10 +101,8 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		
 		String hitchEventDesc = "控制回路";
 		if (data.length() == 190) {
-
 			hitchEventDesc = getHitchReason(data.substring(140, 160));
 		}
-
 		handleIdenCode(ctx, data, hitchEventDesc);
 	}
 	
@@ -173,11 +171,6 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	 * @param data 报文
 	 */
 	private void getSwitchAllInfo(ChannelHandlerContext ctx, String data, String hitchEventDesc) {
-		
-		/**
-		 * 总召确认报文 data.substring(0, 32);
-		 */
-		data = data.substring(32, data.length());
 		
 		/**
 		 * 遥控信息

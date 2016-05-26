@@ -14,12 +14,12 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.gdut.dongjun.core.SwitchGPRS;
+import com.gdut.dongjun.domain.HighVoltageStatus;
 import com.gdut.dongjun.domain.po.HighVoltageHitchEvent;
 import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
 import com.gdut.dongjun.service.HighVoltageHitchEventService;
 import com.gdut.dongjun.service.rmi.HardwareService;
-import com.gdut.dongjun.service.rmi.po.HighVoltageStatus;
-import com.gdut.dongjun.service.rmi.po.SwitchGPRS;
 
 @Component
 public class HitchEventListener {

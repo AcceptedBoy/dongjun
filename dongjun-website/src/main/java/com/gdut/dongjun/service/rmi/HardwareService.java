@@ -3,8 +3,8 @@ package com.gdut.dongjun.service.rmi;
 import java.rmi.RemoteException;
 import java.util.List;
 
-import com.gdut.dongjun.service.rmi.po.HighVoltageStatus;
-import com.gdut.dongjun.service.rmi.po.SwitchGPRS;
+import com.gdut.dongjun.core.SwitchGPRS;
+import com.gdut.dongjun.domain.HighVoltageStatus;
 
 /**
  * 远程方法调用rmi的接口类

@@ -50,4 +50,6 @@ public class MonitorStartup implements InitializingBean {
 		highVoltageServer.start();
 		controlMeasureServer.start();
 	}	
+	
+	
 }

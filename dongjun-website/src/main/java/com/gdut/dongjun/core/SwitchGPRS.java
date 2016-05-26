@@ -1,4 +1,4 @@
-package com.gdut.dongjun.service.rmi.po;
+package com.gdut.dongjun.core;
 
 import java.io.Serializable;
 

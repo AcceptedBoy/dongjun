@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
+import com.gdut.dongjun.domain.HighVoltageStatus;
 import com.gdut.dongjun.domain.po.ControlMearsureCurrent;
 import com.gdut.dongjun.domain.po.ControlMearsureVoltage;
 import com.gdut.dongjun.domain.po.HighVoltageCurrent;
@@ -32,7 +33,6 @@ import com.gdut.dongjun.service.HighVoltageVoltageService;
 import com.gdut.dongjun.service.LowVoltageCurrentService;
 import com.gdut.dongjun.service.LowVoltageVoltageService;
 import com.gdut.dongjun.service.rmi.HardwareService;
-import com.gdut.dongjun.service.rmi.po.HighVoltageStatus;
 
 @Controller
 @RequestMapping("/dongjun")
