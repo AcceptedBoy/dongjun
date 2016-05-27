@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.domain.HighVoltageStatus;
+import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
 
 /**
  * <p> All of the methods on a RMI Remote interface must declare RemoteException in their throws clause
@@ -48,4 +49,13 @@ public interface HardwareService {
 	 */
 	public boolean changeCtxOpen(String switchId) throws RemoteException;
 	
+	/**
+	 * 获取所有在线开关的详细状态
+	 */
+	public List<ActiveHighSwitch> getActiveSwitchStatus() throws RemoteException;
+	
+	/**
+	 * 这个方法只有在等于true的时候软件客户端才会去发请求向这边请求获取所有在线开关的详细
+	 */
+	public boolean whetherChangeInfo() throws RemoteException;
 }

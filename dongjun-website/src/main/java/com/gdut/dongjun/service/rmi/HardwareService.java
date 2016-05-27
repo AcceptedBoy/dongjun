@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.domain.HighVoltageStatus;
+import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
 
 /**
  * 远程方法调用rmi的接口类
@@ -26,4 +27,7 @@ public interface HardwareService {
 	
 	public boolean changeCtxOpen(String switchId) throws RemoteException;
 	
+	public List<ActiveHighSwitch> getActiveSwitchStatus() throws RemoteException;
+	
+	public boolean whetherChangeInfo() throws RemoteException;
 }

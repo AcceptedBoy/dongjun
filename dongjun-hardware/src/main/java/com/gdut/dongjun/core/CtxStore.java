@@ -27,7 +27,20 @@ public abstract class CtxStore {
 	private static final Logger logger = Logger.getLogger(CtxStore.class);
 	private static final List<SwitchGPRS> ctxlist = new LinkedList<SwitchGPRS>();
 	private static final List<HighVoltageStatus> hstalist = new LinkedList<HighVoltageStatus>();
-
+	private static boolean changeInfo = false;
+	
+	public static void trueChange() {
+		changeInfo = true;
+	}
+	
+	public static void falseChange() {
+		changeInfo = false;
+	}
+	
+	public static boolean whetherChangeInfo() {
+		return changeInfo;
+	}
+	
 	private CtxStore() {
 		super();
 	}
@@ -220,6 +233,7 @@ public abstract class CtxStore {
 		}
 
 		if(ctx != null) {
+			trueChange();
 			ctxlist.add(ctx);
 		}
 		printCtxStore();
@@ -243,7 +257,8 @@ public abstract class CtxStore {
 		}
 
 		hstalist.add(ctx);
-
+		trueChange();
+		
 		if (logger.isDebugEnabled()) {
 			logger.debug("add(SwitchGPRS) - end");
 		}
@@ -271,6 +286,7 @@ public abstract class CtxStore {
 					ctxlist.remove(gprs);	
 				}
 			}
+			trueChange();
 		} else {
 			logger.info("ctxlist is empty, no gprs has bean remove!");
 		}
@@ -293,7 +309,7 @@ public abstract class CtxStore {
 		}
 
 		ctxlist.clear();
-
+		trueChange();
 		if (logger.isDebugEnabled()) {
 			logger.debug("clear() - end");
 		}
@@ -313,6 +329,7 @@ public abstract class CtxStore {
 		if (gprs != null && id.equals(gprs.getId())) {
 			gprs.setOpen(true);
 			printCtxStore();
+			trueChange();
 		} else {
 			logger.info("ctxlist is empty!");
 		}
@@ -421,15 +438,15 @@ public abstract class CtxStore {
 				list.remove(i);
 			}
 		}
+		trueChange();
 	}
 
 	public static boolean changeOpen(String switchId) {
 		
 		SwitchGPRS gprs = CtxStore.get(switchId);
 		if(gprs != null) {
-		//	CtxStore.remove(switchId);
 			gprs.setOpen(gprs.isOpen() == true ? false : true);
-		//	CtxStore.add(gprs);
+			trueChange();
 			return true;
 		} else {
 			return false;

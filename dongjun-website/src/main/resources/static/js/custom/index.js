@@ -103,7 +103,6 @@ function startSubscribe(stompClient) {
 			function(message) {
 				var data = message.body;
 				data = JSON.parse(data);
-				console.log(data)
 				$("#a_phase_voltage").text(data[0] / volacc);
 
 				$("#b_phase_voltage").text(data[1] / volacc);
@@ -116,7 +115,6 @@ function startSubscribe(stompClient) {
 			function(message) {
 				var data = message.body;
 				data = JSON.parse(data)
-				console.log(data)
 				$("#a_phase_current").text(data[0] / curacc);
 				$("#b_phase_current").text(data[1] / curacc);
 				$("#c_phase_current").text(data[2] / curacc);
@@ -125,7 +123,6 @@ function startSubscribe(stompClient) {
 	stompClient.subscribe('/user/queue/read_hv_status',
 			function(message) {
 				var data = message.body
-				console.log(data)
 				data = JSON.parse(data)
 				if (data == null || data == "") {
 					$("#status").text("离线");
@@ -509,8 +506,6 @@ function zTreeOnAsyncSuccess(event, treeId, treeNode, msg) {
 	} else {
 		if (nodeList != null && nodeList.length != 0 && nodeList[0].longitude != null
 			&& nodeList[0].latitude != null) {
-			console.log(nodeList[0].longitude);
-			console.log(nodeList[0].latitude);
 			point = new BMap.Point(nodeList[0].longitude, nodeList[0].latitude);
 		} else {
 			//没有定位开关则定位到上思县
@@ -991,7 +986,6 @@ function click_high_voltage_switch_close(node, marker) {
 }
 
 function click_high_voltage_switch_out(node ,marker) {
-	console.log(this);
 	obj_high = marker;
 	sessionStorage.longtitude = marker.point.lng;
 	sessionStorage.latitude = marker.point.lat;
@@ -1437,7 +1431,7 @@ function getActiveSwitchStatus(message) {
 
 function hitchEventSpy() {
 	
-	$.ajax({
+	/*$.ajax({
 		type : "GET",
 		url: 'get_active_switch_status',
 		//url : "../../js/custom/alarmjson.json",
@@ -1448,9 +1442,9 @@ function hitchEventSpy() {
 
 			var zTree = $.fn.zTree.getZTreeObj("treeDemo");
 			
-			/**
+			*//**
 			 * 清除旧数据
-			 */
+			 *//*
 			for(var length = oldList.length - 1; length >= 0; --length) {
 				switchs_drawByTye(oldList[length], voltage_switch_icon_high, voltage_switch_icon_low, click_high_voltage_switch_out);
 				update(oldList[length], 2)
@@ -1487,7 +1481,7 @@ function hitchEventSpy() {
 
 	alarmTimer = setTimeout(function() {
 		hitchEventSpy();
-	}, 8 * 1000);
+	}, 8 * 1000);*/
 }
 
 function switchs_drawByTye(node, switch_icon1, switch_icon2, click_switch) {
@@ -1577,7 +1571,6 @@ function getVoiceData(name) {
 }
 
 function playVoice(data) {
-	console.log(data);
 	var audioUrl ="data:audio/mp3;base64,"+ data;
 	new Audio(audioUrl).play();
 }

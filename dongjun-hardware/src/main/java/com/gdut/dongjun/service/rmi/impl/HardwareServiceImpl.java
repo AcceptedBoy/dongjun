@@ -1,14 +1,20 @@
 package com.gdut.dongjun.service.rmi.impl;
 
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
+
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.core.device.Device;
 import com.gdut.dongjun.domain.HighVoltageStatus;
+import com.gdut.dongjun.domain.po.HighVoltageHitchEvent;
+import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
+import com.gdut.dongjun.service.HighVoltageHitchEventService;
 import com.gdut.dongjun.service.rmi.HardwareService;
 
 /**
@@ -30,6 +36,9 @@ public class HardwareServiceImpl implements HardwareService {
 
 	@Resource(name = "ControlMeasureDevice")
 	private Device controlMeasureDevice;
+	
+	@Autowired
+	private HighVoltageHitchEventService eventService;
 	
 	/* (non-Javadoc)
 	 * @see com.gdut.dongjun.service.rmi.HardwareService#generateOpenSwitchMessage(java.lang.String, int)
@@ -145,6 +154,50 @@ public class HardwareServiceImpl implements HardwareService {
 			return true;
 		}
 		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.gdut.dongjun.service.rmi.HardwareService#getActiveSwitchStatus()
+	 */
+	@Override
+	public List<ActiveHighSwitch> getActiveSwitchStatus()
+			throws RemoteException {
+		//被客户拉取信息后将变化设为false
+		CtxStore.falseChange();
+		
+		List<SwitchGPRS> switchs = CtxStore.getInstance();
+		List<ActiveHighSwitch> list = new ArrayList<>();
+
+		if(switchs != null) {
+			for(SwitchGPRS s : switchs) {
+				
+				HighVoltageStatus status = getStatusbyId(s.getId());
+				if(status != null) {
+					
+					ActiveHighSwitch as = new ActiveHighSwitch();
+					as.setId(s.getId());
+					as.setOpen(s.isOpen());
+					as.setStatus(status.getStatus());
+					if(s.isOpen() == true) {
+						//唯一一个需要去查找数据库的操作
+						HighVoltageHitchEvent event = eventService.getRecentHitchEvent(s.getId());
+						if(event != null) {
+							as.setHitchEventId(event.getId());
+						}
+					}
+					list.add(as);
+				}
+			}
+		}
+		return list;
+	}
+
+	/* (non-Javadoc)
+	 * @see com.gdut.dongjun.service.rmi.HardwareService#whetherChangeInfo()
+	 */
+	@Override
+	public boolean whetherChangeInfo() throws RemoteException {
+		return CtxStore.whetherChangeInfo();
 	}
 
 }
