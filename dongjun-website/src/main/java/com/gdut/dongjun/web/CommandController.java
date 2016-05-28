@@ -2,6 +2,7 @@ package com.gdut.dongjun.web;
 
 import java.rmi.RemoteException;
 import java.util.List;
+import java.util.Random;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
@@ -59,6 +60,14 @@ public class CommandController {
 	@Resource(name="hardwareService")
 	private HardwareService hardwareService;
 	
+	@Autowired
+	private SimpMessagingTemplate template;
+
+    @Autowired
+    public CommandController(SimpMessagingTemplate template) {
+        this.template = template;
+    }
+	
 	private static final Logger logger = Logger
 			.getLogger(CommandController.class);
 
@@ -87,7 +96,15 @@ public class CommandController {
 			return false;
 		}
 	}
-
+	
+	@RequestMapping("/get_active_switch_ignore_change")
+	@ResponseBody
+	public void getActiveSwitchIgnoreChange() throws MessagingException, RemoteException {
+		
+		template.convertAndSend("/topic/get_active_switch_status", 
+				hardwareService.getActiveSwitchStatus());
+	}
+	
 	/**
 	 * @throws RemoteException 
 	 * 
@@ -163,8 +180,9 @@ public class CommandController {
 					try {
 						template.convertAndSendToUser(userName, "/queue/read_voltage", 
 								getVoltage(type, switchId));
-						//template.convertAndSendToUser(userName, "/queue/read_voltage", 
-						//			getVolt());
+						/*template.convertAndSendToUser(userName, "/queue/read_current", 
+								getVoltVisual());
+						System.out.println("调用了虚拟电压数据");*/
 						Thread.sleep(10000);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
@@ -278,8 +296,9 @@ public class CommandController {
 							
 							template.convertAndSendToUser(userName, "/queue/read_current", 
 									getCurrnet(type, switchId));
-							//template.convertAndSendToUser(userName, "/queue/read_current", 
-							//				getCurr());
+							/*template.convertAndSendToUser(userName, "/queue/read_current", 
+									getCurrVisual());
+							System.err.println("调用了虚拟电流数据");*/
 							Thread.sleep(10000);
 						} catch (InterruptedException e) {
 							e.printStackTrace();
@@ -403,9 +422,11 @@ public class CommandController {
 						template.convertAndSendToUser(userName, 
 								"/queue/read_hv_status", status);
 					}
+					/*template.convertAndSendToUser(userName, 
+							"/queue/read_hv_status", getStatusVisual());
+					System.out.println("调用了虚拟状态数据");*/
 					Thread.sleep(10000);
 				} catch (MessagingException | InterruptedException | RemoteException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
@@ -414,24 +435,34 @@ public class CommandController {
 		thread.start();
 	}
 	
-	public HighVoltageStatus getStatus() {
-		HighVoltageStatus status = new HighVoltageStatus();
-		status.setChong_he_zha("01");
-		status.setGuo_liu_er_duan("00");
-		status.setGuo_liu_yi_duan("00");
-		status.setStatus("00");
-		return status;
+	//**************************************
+	// TODO 虚拟数据获取
+	//**************************************
+	
+	public HighVoltageStatus getStatusVisual() {
+		
+		int i = new Random().nextInt(3);
+		if(i == 1) {
+			HighVoltageStatus status = new HighVoltageStatus();
+			status.setChong_he_zha("01");
+			status.setGuo_liu_er_duan("00");
+			status.setGuo_liu_yi_duan("00");
+			status.setStatus("00");
+			return status;
+		} else {
+			HighVoltageStatus status = new HighVoltageStatus();
+			status.setChong_he_zha("01");
+			status.setGuo_liu_er_duan("00");
+			status.setGuo_liu_yi_duan("01");
+			status.setStatus("01");
+			return status;
+		}
 	}
 	
-	@Autowired
-	private SimpMessagingTemplate template;
-
-    @Autowired
-    public CommandController(SimpMessagingTemplate template) {
-        this.template = template;
-    }
+	
     
-    /*private Integer[] getCurr() {
+    @SuppressWarnings("unused")
+	private Integer[] getCurrVisual() {
     	
     	int i = new Random().nextInt(3);
     	if(i == 1) {
@@ -441,7 +472,8 @@ public class CommandController {
     	}
     }
 	
-    private Integer[] getVolt() {
+    @SuppressWarnings("unused")
+	private Integer[] getVoltVisual() {
     	
     	int i = new Random().nextInt(3);
     	if(i == 1) {
@@ -449,125 +481,9 @@ public class CommandController {
     	} else {
     		return new Integer[] {16766, 0, 0};
     	}
-    }*/
-	/*@RequestMapping("/hitch_event_spy")
-	@ResponseBody
-	public void getActiveSwitchStatus() {
-		
-		Thread thread = new ActiveSwitchThread(template);
-		thread.setDaemon(true);
-		thread.start();
-		Hardware client = CxfUtil.getHardwareClient(); 
-		List<SwitchGPRS> switchs = client.getCtxInstance();
-		List<ActiveHighSwitch> list = new ArrayList<>();
-		System.out.println(switchs.size());
-		for(SwitchGPRS s : switchs) {
-			
-			HighVoltageStatus status = client.getStatusbyId(s.getId());
-			if(client.getStatusbyId(s.getId()) != null) {
-				
-				ActiveHighSwitch as = new ActiveHighSwitch();
-				as.setId(s.getId());
-				as.setOpen(s.isOpen());
-				as.setStatus(status.getStatus());
-				if(s.isOpen() == true) {
-					HighVoltageHitchEvent event = eventService.getRecentHitchEvent(s.getId());
-					if(event != null) {
-						as.setHitchEventId(event.getId());
-					}
-				}
-				list.add(as);
-			}
-		}
-		return list;
-	}*/
-	
-	/*@RequestMapping("/get_active_switch_status")
-	@ResponseBody
-	public Object getActiveSwitchStatus() {
-		
-		Hardware client = CxfUtil.getHardwareClient(); 
-		List<SwitchGPRS> switchs = client.getCtxInstance();
-		List<ActiveHighSwitch> list = new ArrayList<>();
-		System.out.println(switchs.size());
-		for(SwitchGPRS s : switchs) {
-			
-			HighVoltageStatus status = client.getStatusbyId(s.getId());
-			if(client.getStatusbyId(s.getId()) != null) {
-				
-				ActiveHighSwitch as = new ActiveHighSwitch();
-				as.setId(s.getId());
-				as.setOpen(s.isOpen());
-				as.setStatus(status.getStatus());
-				if(s.isOpen() == true) {
-					HighVoltageHitchEvent event = eventService.getRecentHitchEvent(s.getId());
-					if(event != null) {
-						as.setHitchEventId(event.getId());
-					}
-				}
-				list.add(as);
-			}
-		}
-		return list;
-	}*/
-    
-   
-}
-
-/*class ActiveSwitchThread extends Thread {
-	
-	@Autowired
-	public HighVoltageHitchEventService eventService;
-	
-	private SimpMessagingTemplate template;
-
-    @Autowired
-    public ActiveSwitchThread(SimpMessagingTemplate template) {
-        this.template = template;
     }
-	
-	@Override
-	public synchronized void start() {
-		
-		
-			try {
-				sleep(5000);
-				this.template.convertAndSend("/topic/get_active_switch_status", 
-						getActiveSwitchStatus());
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		
-	}
-	
-	public List<ActiveHighSwitch> getActiveSwitchStatus() {
-		Hardware client = CxfUtil.getHardwareClient(); 
-		List<SwitchGPRS> switchs = client.getCtxInstance();
-		List<ActiveHighSwitch> list = new ArrayList<>();
-		//System.out.println(switchs.size());
-		if(switchs != null) {
-			for(SwitchGPRS s : switchs) {
-				
-				HighVoltageStatus status = client.getStatusbyId(s.getId());
-				if(client.getStatusbyId(s.getId()) != null) {
-					
-					ActiveHighSwitch as = new ActiveHighSwitch();
-					as.setId(s.getId());
-					as.setOpen(s.isOpen());
-					as.setStatus(status.getStatus());
-					if(s.isOpen() == true) {
-						HighVoltageHitchEvent event = eventService.getRecentHitchEvent(s.getId());
-						if(event != null) {
-							as.setHitchEventId(event.getId());
-						}
-					}
-					list.add(as);
-				}
-			}
-		}
-		return list;
-	}
-}*/
+
+}
 
 
 

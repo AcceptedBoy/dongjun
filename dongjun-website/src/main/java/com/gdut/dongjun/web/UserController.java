@@ -75,6 +75,7 @@ public class UserController {
 		try {
 			currentUser.login(token);
 			session.setAttribute("currentUser", user);
+			SecurityUtils.getSubject().getSession().setTimeout(-1000l);
 			// if no exception, that's it, we're done!
 		} catch (UnknownAccountException uae) {
 			// username wasn't in the system, show them an error message?

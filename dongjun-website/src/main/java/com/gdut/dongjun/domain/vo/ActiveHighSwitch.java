@@ -1,5 +1,7 @@
 package com.gdut.dongjun.domain.vo;
 
+import java.io.Serializable;
+
 /**
  *@Author link xiaoMian <972192420@qq.com>
  *@ClassName ActiveHighSwitch.java
@@ -7,8 +9,13 @@ package com.gdut.dongjun.domain.vo;
  *@Description TODO
  *@Version 1.0 Topview
  */
-public class ActiveHighSwitch {
+public class ActiveHighSwitch implements Serializable {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private String id;
 	
 	private boolean open = false;

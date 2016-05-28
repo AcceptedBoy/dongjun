@@ -12,6 +12,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
 import com.gdut.dongjun.service.HighVoltageHitchEventService;
 import com.gdut.dongjun.service.rmi.HardwareService;
 
@@ -32,12 +33,24 @@ public class HitchEventListener {
 	@Resource(name="hardwareService")
 	private HardwareService hardwareService;
 
-	@Scheduled(initialDelay=3000, fixedDelay=15000)
+	@Scheduled(initialDelay=3000, fixedRate=15000)
 	@Async
 	public void activeSwitchStatusScheduled() throws ServletException, MessagingException, RemoteException {
 		if(hardwareService.whetherChangeInfo()) {
 			this.template.convertAndSend("/topic/get_active_switch_status", 
 					hardwareService.getActiveSwitchStatus());
 		}
+		/*this.template.convertAndSend("/topic/get_active_switch_status", 
+				getVisualData());*/
+	}
+	
+	//*************
+	public ActiveHighSwitch getVisualData() {
+		
+		ActiveHighSwitch status = new ActiveHighSwitch();
+		status.setId("75ab61fafa814ce8a587eeb6a6693464");
+		status.setOpen(false);
+		status.setOpen(false);
+		return status;
 	}
 }

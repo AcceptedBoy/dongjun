@@ -56,6 +56,7 @@ public interface HardwareService {
 	
 	/**
 	 * 这个方法只有在等于true的时候软件客户端才会去发请求向这边请求获取所有在线开关的详细
+	 * @see {@link #getActiveSwitchStatus()}
 	 */
 	public boolean whetherChangeInfo() throws RemoteException;
 }

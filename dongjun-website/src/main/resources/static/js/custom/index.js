@@ -34,6 +34,12 @@ $(document).ready(function() {
 	    }
 	});
 	
+	$.ajax({
+	    type: 'POST',
+	    url: 'get_active_switch_ignore_change',
+	    async: false,
+	    dataType: 'json'
+	});
 	// 添加搜索栏监听
 	$("#searchNode").click(function() {
 
@@ -46,9 +52,8 @@ $(document).ready(function() {
 		$.fn.zTree.getZTreeObj("treeDemo").destroy();
 		$.fn.zTree.init($("#treeDemo"), set_tree(this.value));
 	})
-
+	
 	initSock();
-
 });
 var stompClient;
 var oldMarker = [];
@@ -103,18 +108,18 @@ function startSubscribe(stompClient) {
 			function(message) {
 				var data = message.body;
 				data = JSON.parse(data);
+				console.log(data)
 				$("#a_phase_voltage").text(data[0] / volacc);
 
 				$("#b_phase_voltage").text(data[1] / volacc);
 
 				$("#c_phase_voltage").text(data[2] / volacc);
-
-
 	});
 	stompClient.subscribe('/user/queue/read_current', 
 			function(message) {
 				var data = message.body;
 				data = JSON.parse(data)
+				console.log(data)
 				$("#a_phase_current").text(data[0] / curacc);
 				$("#b_phase_current").text(data[1] / curacc);
 				$("#c_phase_current").text(data[2] / curacc);
@@ -123,6 +128,7 @@ function startSubscribe(stompClient) {
 	stompClient.subscribe('/user/queue/read_hv_status',
 			function(message) {
 				var data = message.body
+				console.log(data)
 				data = JSON.parse(data)
 				if (data == null || data == "") {
 					$("#status").text("离线");
@@ -506,6 +512,8 @@ function zTreeOnAsyncSuccess(event, treeId, treeNode, msg) {
 	} else {
 		if (nodeList != null && nodeList.length != 0 && nodeList[0].longitude != null
 			&& nodeList[0].latitude != null) {
+			console.log(nodeList[0].longitude);
+			console.log(nodeList[0].latitude);
 			point = new BMap.Point(nodeList[0].longitude, nodeList[0].latitude);
 		} else {
 			//没有定位开关则定位到上思县
@@ -986,6 +994,7 @@ function click_high_voltage_switch_close(node, marker) {
 }
 
 function click_high_voltage_switch_out(node ,marker) {
+	console.log(this);
 	obj_high = marker;
 	sessionStorage.longtitude = marker.point.lng;
 	sessionStorage.latitude = marker.point.lat;
@@ -1287,50 +1296,39 @@ function hvswitchStatusSpy(id) {
 			"id" : id,
 		}
 		/*success : function(data) {
-
 			if (data == null || data == "") {
-
 				$("#status").text("离线");
 			} else {
-
 				$("#guo_liu_yi_duan").addClass(
 						green_or_red(data.guo_liu_yi_duan));
 				$("#guo_liu_er_duan").addClass(
 						green_or_red(data.guo_liu_er_duan));
 				$("#guo_liu_san_duan").addClass(
 						green_or_red(data.guo_liu_san_duan));
-
 				$("#pt1_you_ya").addClass(green_or_red(data.pt1_you_ya));
 				$("#pt2_you_ya").addClass(green_or_red(data.pt2_you_ya));
 				$("#pt1_guo_ya").addClass(green_or_red(data.pt1_guo_ya));
 				$("#pt2_guo_ya").addClass(green_or_red(data.pt2_guo_ya));
-
 				$("#shou_dong_he_zha").addClass(
 						green_or_red(data.shou_dong_he_zha));
 				$("#shou_dong_fen_zha").addClass(
 						green_or_red(data.shou_dong_fen_zha));
-
 				$("#yao_kong_fu_gui").addClass(
 						green_or_red(data.yao_kong_fu_gui));
 				$("#yao_kong_fen_zha").addClass(
 						green_or_red(data.yao_kong_fen_zha));
 				$("#yao_kong_he_zha").addClass(
 						green_or_red(data.yao_kong_he_zha));
-
 				$("#jiao_liu_shi_dian").addClass(
 						green_or_red(data.jiao_liu_shi_dian));
 				$("#chong_he_zha").addClass(green_or_red(data.chong_he_zha));
 				$("#ling_xu_guo_liu_").addClass(
 						green_or_red(data.ling_xu_guo_liu_));
-
 				if (data.status == "00") {
-
 					$("#status").text("分");
 				} else if (data.status == "01") {
-
 					$("#status").text("合");
 				}
-
 			}*/
 
 	});
@@ -1356,7 +1354,6 @@ var newList = [];
 var alarmList = [];
 var distinctList = [];
 function hitchEventSpy() {
-
 	$.ajax({
 		type : "GET",
 		//url : "../../js/custom/alarmjson.json", //测试json
@@ -1365,7 +1362,6 @@ function hitchEventSpy() {
 		data : {},
 		dataType: 'json',
 		success : function(data) {
-
 			var zTree = $.fn.zTree.getZTreeObj("treeDemo");
 			for (var i = data.length - 1; i >= 0; --i) {
 				if(isDistinct(data[i].id, distinctList)) {	//防止重复数据
@@ -1375,7 +1371,6 @@ function hitchEventSpy() {
 						var nodeList = zTree.getNodesByParamFuzzy("id", data[i].id);
 						
 						if(nodeList.length != 0) {
-
 							if(data[i].status == "00") {
 								switchs_drawByTye(nodeList[0], open_switch_high, open_switch_low, click_high_voltage_switch);	//开闸描绘
 								if(data[i].open == true) {
@@ -1418,7 +1413,6 @@ function hitchEventSpy() {
 			distinctList = [];
 		}
 	});
-
 	alarmTimer = setTimeout(function() {
 		hitchEventSpy();
 	}, 8 * 1000);
@@ -1431,7 +1425,7 @@ function getActiveSwitchStatus(message) {
 
 function hitchEventSpy() {
 	
-	/*$.ajax({
+	$.ajax({
 		type : "GET",
 		url: 'get_active_switch_status',
 		//url : "../../js/custom/alarmjson.json",
@@ -1442,9 +1436,9 @@ function hitchEventSpy() {
 
 			var zTree = $.fn.zTree.getZTreeObj("treeDemo");
 			
-			*//**
+			/**
 			 * 清除旧数据
-			 *//*
+			 */
 			for(var length = oldList.length - 1; length >= 0; --length) {
 				switchs_drawByTye(oldList[length], voltage_switch_icon_high, voltage_switch_icon_low, click_high_voltage_switch_out);
 				update(oldList[length], 2)
@@ -1481,7 +1475,7 @@ function hitchEventSpy() {
 
 	alarmTimer = setTimeout(function() {
 		hitchEventSpy();
-	}, 8 * 1000);*/
+	}, 8 * 1000);
 }
 
 function switchs_drawByTye(node, switch_icon1, switch_icon2, click_switch) {
@@ -1571,6 +1565,7 @@ function getVoiceData(name) {
 }
 
 function playVoice(data) {
+	console.log(data);
 	var audioUrl ="data:audio/mp3;base64,"+ data;
 	new Audio(audioUrl).play();
 }
@@ -1740,4 +1735,3 @@ function submitAlarmEvent () {
 // var myZoomCtrl = new ZoomControl();
 // //添加到地图当中
 // map.addControl(myZoomCtrl);
-
