@@ -27,4 +27,19 @@ public class ModuleController {
 			return ResponseMessage.success(null);
 		}
 	}
+
+	@RequestMapping("/characterPower")
+	public String forwardCharacterPower() {
+		return "characterPower";
+	}
+
+	@RequestMapping("/powerControl")
+	public String forwardPowerControl() {
+		return "powerControl";
+	}
+
+	@RequestMapping("/switchPower")
+	public String forwardSwitchPower() {
+		return "switchPower";
+	}
 }
