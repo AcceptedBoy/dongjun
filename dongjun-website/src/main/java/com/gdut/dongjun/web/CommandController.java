@@ -101,7 +101,7 @@ public class CommandController {
 	@ResponseBody
 	public void getActiveSwitchIgnoreChange() throws MessagingException, RemoteException {
 		
-		template.convertAndSend("/topic/get_active_switch_status", 
+		this.template.convertAndSend("/topic/get_active_switch_status", 
 				hardwareService.getActiveSwitchStatus());
 	}
 	
