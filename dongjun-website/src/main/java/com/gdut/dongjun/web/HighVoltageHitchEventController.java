@@ -1,4 +1,4 @@
-package com.gdut.dongjun.web;
+﻿package com.gdut.dongjun.web;
 
 import java.rmi.RemoteException;
 import java.util.Date;
@@ -32,6 +32,11 @@ public class HighVoltageHitchEventController {
 
 	@Resource(name="hardwareService")
 	private HardwareService hardwareService;
+
+	@RequestMapping("/all_switch_event")
+	public String forwardIndex() {
+		return "all_switch_event";
+	}
 
 	/**
 	 * 
