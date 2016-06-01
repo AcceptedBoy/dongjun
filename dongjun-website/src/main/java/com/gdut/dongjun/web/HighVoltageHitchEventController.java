@@ -4,6 +4,7 @@ import java.rmi.RemoteException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
@@ -17,7 +18,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.gdut.dongjun.domain.po.HighVoltageHitchEvent;
 import com.gdut.dongjun.domain.po.User;
+import com.gdut.dongjun.domain.vo.HighVoltageHitchEventVo;
 import com.gdut.dongjun.service.HighVoltageHitchEventService;
+import com.gdut.dongjun.service.HighVoltageSwitchService;
 import com.gdut.dongjun.service.rmi.HardwareService;
 import com.gdut.dongjun.util.MapUtil;
 import com.gdut.dongjun.util.MyBatisMapUtil;
@@ -29,12 +32,15 @@ public class HighVoltageHitchEventController {
 
 	@Autowired
 	private HighVoltageHitchEventService hitchEventService;
+	
+	@Autowired
+	private HighVoltageSwitchService switchService;
 
 	@Resource(name="hardwareService")
 	private HardwareService hardwareService;
 
 	@RequestMapping("/all_switch_event")
-	public String forwardIndex() {
+	public String forwardEvent() {
 		return "all_switch_event";
 	}
 
@@ -130,5 +136,15 @@ public class HighVoltageHitchEventController {
 			}
 		}
 		return MapUtil.warp("success", true);
+	}
+	
+	@RequestMapping("/get_all_high_event_by_time")
+	@ResponseBody
+	public Object getAllHighEventByTime() {
+		Map<String, Object> result = new HashMap<String, Object>(1);
+		result.put("data", HighVoltageHitchEventVo.createHitchEventVoList(
+				hitchEventService.getAllHighEventByTime(), 
+				switchService.selectByParameters(null)));
+		return result;
 	}
 }
