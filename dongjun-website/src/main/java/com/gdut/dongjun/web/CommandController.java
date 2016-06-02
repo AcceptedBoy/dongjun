@@ -178,12 +178,13 @@ public class CommandController {
 			new Runnable() {
 				public void run() {
 					try {
-						template.convertAndSendToUser(userName, "/queue/read_voltage", 
+						/*template.convertAndSendToUser(userName, "/queue/read_voltage", 
 								getVoltage(type, switchId));
-						/*template.convertAndSendToUser(userName, "/queue/read_current", 
+						Thread.sleep(10000);	
+								*/
+						template.convertAndSendToUser(userName, "/queue/read_current", 
 								getVoltVisual());
-						System.out.println("调用了虚拟电压数据");*/
-						Thread.sleep(10000);
+						Thread.sleep(5000);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
@@ -294,12 +295,14 @@ public class CommandController {
 					public void run() {
 						try {
 							
-							template.convertAndSendToUser(userName, "/queue/read_current", 
-									getCurrnet(type, switchId));
 							/*template.convertAndSendToUser(userName, "/queue/read_current", 
-									getCurrVisual());
-							System.err.println("调用了虚拟电流数据");*/
+									getCurrnet(type, switchId));
 							Thread.sleep(10000);
+							*/
+							template.convertAndSendToUser(userName, "/queue/read_current", 
+									getCurrVisual());
+							Thread.sleep(5000);
+							
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
@@ -417,16 +420,17 @@ public class CommandController {
 			@Override
 			public void run() {
 				try {
-					HighVoltageStatus status = hardwareService.getStatusbyId(id);
+					/*HighVoltageStatus status = hardwareService.getStatusbyId(id);
 					if(status != null) {
 						template.convertAndSendToUser(userName, 
 								"/queue/read_hv_status", status);
 					}
-					/*template.convertAndSendToUser(userName, 
+					Thread.sleep(10000);*/
+					template.convertAndSendToUser(userName, 
 							"/queue/read_hv_status", getStatusVisual());
-					System.out.println("调用了虚拟状态数据");*/
 					Thread.sleep(10000);
-				} catch (MessagingException | InterruptedException | RemoteException e1) {
+					
+				} catch (MessagingException | InterruptedException e1) {// | RemoteException e1) {
 					e1.printStackTrace();
 				}
 			}
@@ -441,45 +445,60 @@ public class CommandController {
 	
 	public HighVoltageStatus getStatusVisual() {
 		
-		int i = new Random().nextInt(3);
+		int i = new Random().nextInt(4);
 		if(i == 1) {
 			HighVoltageStatus status = new HighVoltageStatus();
 			status.setChong_he_zha("01");
 			status.setGuo_liu_er_duan("00");
 			status.setGuo_liu_yi_duan("00");
+			status.setLing_xu_guo_liu_("01");
+			status.setGuo_liu_san_duan("00");
 			status.setStatus("00");
+			return status;
+		} else if(i == 2){
+			HighVoltageStatus status = new HighVoltageStatus();
+			status.setChong_he_zha("01");
+			status.setGuo_liu_er_duan("00");
+			status.setGuo_liu_yi_duan("01");
+			status.setLing_xu_guo_liu_("00");
+			status.setGuo_liu_san_duan("00");
+			status.setStatus("01");
 			return status;
 		} else {
 			HighVoltageStatus status = new HighVoltageStatus();
 			status.setChong_he_zha("01");
 			status.setGuo_liu_er_duan("00");
 			status.setGuo_liu_yi_duan("01");
-			status.setStatus("01");
+			status.setLing_xu_guo_liu_("00");
+			status.setGuo_liu_san_duan("01");
+			status.setStatus("00");
 			return status;
 		}
 	}
 	
 	
     
-    @SuppressWarnings("unused")
 	private Integer[] getCurrVisual() {
     	
-    	int i = new Random().nextInt(3);
+    	int i = new Random().nextInt(4);
     	if(i == 1) {
     		return new Integer[] {345, 0,0};
-    	} else {
+    	} else if(i == 2){
     		return new Integer[] {166, 0, 0};
+    	} else {
+    		return new Integer[] {452, 0, 0};
     	}
     }
 	
-    @SuppressWarnings("unused")
 	private Integer[] getVoltVisual() {
     	
-    	int i = new Random().nextInt(3);
+    	int i = new Random().nextInt(4);
     	if(i == 1) {
     		return new Integer[] {12345, 0,0};
+    	} else if(i == 3) {
+    		return new Integer[] {11266, 0, 0};
     	} else {
-    		return new Integer[] {16766, 0, 0};
+    		return new Integer[] {16726, 0, 0};
     	}
     }
 
