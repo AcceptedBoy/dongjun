@@ -101,6 +101,7 @@ function initSock() {
 function startSubscribe(stompClient) {
 	stompClient.subscribe('/user/queue/read_voltage', 
 			function(message) {
+				alert('changeV')
 				var data = message.body;
 				data = JSON.parse(data);
 				$("#a_phase_voltage").text(data[0] / volacc);
@@ -114,6 +115,7 @@ function startSubscribe(stompClient) {
 	stompClient.subscribe('/user/queue/read_current', 
 			function(message) {
 				var data = message.body;
+				alert('changeC')
 				data = JSON.parse(data)
 				$("#a_phase_current").text(data[0] / curacc);
 				$("#b_phase_current").text(data[1] / curacc);
