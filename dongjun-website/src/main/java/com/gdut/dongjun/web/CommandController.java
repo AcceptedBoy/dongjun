@@ -182,7 +182,7 @@ public class CommandController {
 								getVoltage(type, switchId));
 						Thread.sleep(10000);	
 								*/
-						template.convertAndSendToUser(userName, "/queue/read_current", 
+						template.convertAndSendToUser(userName, "/queue/read_voltage", 
 								getVoltVisual());
 						Thread.sleep(5000);
 					} catch (InterruptedException e) {
