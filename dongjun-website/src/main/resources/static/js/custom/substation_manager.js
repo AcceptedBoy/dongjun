@@ -37,14 +37,7 @@ $(document).ready(function() {
 	* 根据权限加载左边的菜单栏
 	*
 	*/
-	 $.ajax({
-		 url: '/dongjun/module/get_user_module',
-		 method: 'GET'
-	 }).success(function(data) {
-		 data = JSON.parse(data)
-		 var item = data;
-		 console.log(item)
-	 })
+
 
 	/**
 	 * 编辑提交
