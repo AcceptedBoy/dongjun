@@ -9,6 +9,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
@@ -25,6 +26,7 @@ import com.gdut.dongjun.domain.po.HighVoltageVoltage;
 import com.gdut.dongjun.domain.po.LowVoltageCurrent;
 import com.gdut.dongjun.domain.po.LowVoltageVoltage;
 import com.gdut.dongjun.domain.po.User;
+import com.gdut.dongjun.factory.MsgPushThreadManager;
 import com.gdut.dongjun.service.ControlMearsureCurrentService;
 import com.gdut.dongjun.service.ControlMearsureVoltageService;
 import com.gdut.dongjun.service.HighSwitchUserService;
@@ -167,35 +169,42 @@ public class CommandController {
 	public void readVoltage(@RequestParam(required = true) final String switchId,
 			final String type, HttpSession session) {
 		
-		final String userName;
+		User user = null;
 		if(session.getAttribute("currentUser") != null) {
-			userName = ((User) session.getAttribute("currentUser")).getName();
+			user = (User) session.getAttribute("currentUser");
 		} else {
 			return;
 		}
-		Thread thread = new Thread(
-			
-			new Runnable() {
-				public void run() {
-					try {
-						/*template.convertAndSendToUser(userName, "/queue/read_voltage", 
-								getVoltage(type, switchId));
-						Thread.sleep(10000);	
-								*/
-						template.convertAndSendToUser(userName, "/queue/read_voltage", 
-								getVoltVisual());
-						Thread.sleep(5000);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		);
-		thread.setDaemon(true);
-		thread.start();
+		MsgPushThreadManager.createScheduledPoolDaemonThread(
+				getVoltageRunnable(user.getName()), 6, user.getId());
 	}
 	
-	
+	@RequestMapping("/stop_read_voltage")
+	@ResponseBody
+	public void stopReadVoltage(HttpSession session) {
+		
+		User user = null;
+		if(session.getAttribute("currentUser") != null) {
+			user = (User) session.getAttribute("currentUser");
+		} else {
+			return;
+		}
+		MsgPushThreadManager.finishScheduledByUser(user.getId());
+	}
+
+	private Runnable getVoltageRunnable(final String userName) {
+		return new Runnable() {
+			public void run() {
+				/*template.convertAndSendToUser(userName, "/queue/read_voltage", 
+						getVoltage(type, switchId));
+				Thread.sleep(10000);	
+						*/
+				template.convertAndSendToUser(userName, "/queue/read_voltage", 
+						getVoltVisual());
+				System.out.println("读电压。。。。");
+			}
+		};
+	}
 	
 	private Integer[] getVoltage(String type, String switchId) {
 		Integer[] deStrings = new Integer[3];
@@ -282,38 +291,38 @@ public class CommandController {
 	public void readCurrentVariable(@RequestParam(required = true) 
 		final String switchId, final String type, HttpSession session) {
 		
-		final String userName;
+		User user = null;
 		if(session.getAttribute("currentUser") != null) {
-			userName = ((User) session.getAttribute("currentUser")).getName();
-		} else {
-			return;
+			user = (User) session.getAttribute("currentUser");
 		}
-		
-		Thread thread = new Thread(
-				
-				new Runnable() {
-					public void run() {
-						try {
-							
-							/*template.convertAndSendToUser(userName, "/queue/read_current", 
-									getCurrnet(type, switchId));
-							Thread.sleep(10000);
-							*/
-							template.convertAndSendToUser(userName, "/queue/read_current", 
-									getCurrVisual());
-							Thread.sleep(5000);
-							
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			);
-			thread.setDaemon(true);
-			thread.start();
+		MsgPushThreadManager.createScheduledPoolDaemonThread(
+				getCurrentRunnable(user.getName()), 6, user.getId());
 	}
 	
-	private Integer[] getCurrnet(String type, String switchId) {
+	@RequestMapping("/stop_read_current")
+	@ResponseBody
+	public void StopReadCurrent(HttpSession session) {
+		
+		User user = null;
+		if(session.getAttribute("currentUser") != null) {
+			user = (User) session.getAttribute("currentUser");
+		}
+		MsgPushThreadManager.finishScheduledByUser(user.getId());
+	}
+	
+	private Runnable getCurrentRunnable(final String userName) {
+		return new Runnable() {
+			public void run() {
+				/*template.convertAndSendToUser(userName, "/queue/read_current", 
+						getCurrent(type, switchId));
+				*/
+				template.convertAndSendToUser(userName, "/queue/read_current", 
+						getCurrVisual());
+			}
+		};
+	}
+	
+	private Integer[] getCurrent(String type, String switchId) {
 		Integer[] deStrings = new Integer[3];
 		switch (type) {
 		case "0":// 低压开关
