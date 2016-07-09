@@ -24,5 +24,5 @@ public class RoleController {
 			return ResponseMessage.success(null);
 		}
 	}
-	
+
 }

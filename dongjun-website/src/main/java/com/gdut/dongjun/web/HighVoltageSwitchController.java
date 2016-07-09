@@ -10,6 +10,7 @@ import java.util.List;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,7 +81,7 @@ public class HighVoltageSwitchController {
 	 */
 	@RequestMapping("/get_all_high_voltage_switch")
 	@ResponseBody
-	public Object getAllLowVoltage_Switch(Model model) {
+	public Object getAllLowVoltage_Switch() {
 
 		return switchService.selectByParameters(null);
 	}
@@ -242,8 +243,8 @@ public class HighVoltageSwitchController {
 	 */
 	@RequestMapping("/edit_high_voltage_switch")
 	@ResponseBody
-	public Object editSwitch(HighVoltageSwitch switch1, Model model,
-			RedirectAttributes redirectAttributes) {
+	public Object editSwitch(@Valid HighVoltageSwitch switch1,
+			Model model, RedirectAttributes redirectAttributes) {
 
 		// @RequestParam(required = true)
 		// 进不来

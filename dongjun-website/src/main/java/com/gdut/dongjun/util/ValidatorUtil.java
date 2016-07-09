@@ -9,6 +9,8 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
+import org.springframework.validation.ObjectError;
+
 
 /**
  * @author AcceptedBoy
@@ -52,6 +54,14 @@ public abstract class ValidatorUtil {
 			if(sonResult != null) {
 				result.addAll(sonResult);
 			}
+		}
+		return result;
+	}
+	
+	public static List<String> getValidationMessage(List<ObjectError> objErrors) {
+		List<String> result = new LinkedList<>(); 
+		for(ObjectError error : objErrors) {
+			result.add(error.getDefaultMessage());
 		}
 		return result;
 	}

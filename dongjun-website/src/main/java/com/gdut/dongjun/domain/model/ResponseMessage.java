@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.collections.ListUtils;
+
 /**
  * Be used to send message to client or frontend with restful design.
  * @author acceptedboy
@@ -31,6 +33,13 @@ public class ResponseMessage {
         this.text = text;
         this.success = success;
         this.errors = errors;
+    }
+    
+    public ResponseMessage(Type type, Object text, boolean success, ErrorInfo error) {
+        this.type = type;
+        this.text = text;
+        this.success = success;
+        this.errors = Arrays.asList(error);
     }
 
     public ResponseMessage(Type type, String code, Object text, boolean success) {
@@ -86,8 +95,8 @@ public class ResponseMessage {
     	return new ResponseMessage(Type.DANGER, null, false, errors);
     }
     
-    public static ResponseMessage generateNullData() {
-    	
-    	return new ResponseMessage(Type.WARNING, null, true, null);
+    @SuppressWarnings("unchecked")
+	public static ResponseMessage generateNullData() {
+    	return new ResponseMessage(Type.WARNING, null, true, ListUtils.EMPTY_LIST);
     }
 }

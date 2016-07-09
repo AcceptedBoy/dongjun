@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.MessagingException;
@@ -197,7 +198,6 @@ public class CommandController {
 			public void run() {
 				/*template.convertAndSendToUser(userName, "/queue/read_voltage", 
 						getVoltage(type, switchId));
-				Thread.sleep(10000);	
 						*/
 				template.convertAndSendToUser(userName, "/queue/read_voltage", 
 						getVoltVisual());

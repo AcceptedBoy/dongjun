@@ -32,6 +32,7 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.remoting.rmi.RmiProxyFactoryBean;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
 import com.gdut.dongjun.service.rmi.HardwareService;
@@ -298,7 +299,19 @@ public class Application extends SpringBootServletInitializer {
 		RmiProxyFactoryBean proxy = new RmiProxyFactoryBean();
 		proxy.setServiceUrl("rmi://localhost:9998/HardwareService");
 		proxy.setServiceInterface(HardwareService.class);
+		//解决重启 rmi 的服务器后会出现拒绝连接或找不到服务对象的错误
+		proxy.setLookupStubOnStartup(false);
+		proxy.setRefreshStubOnConnectFailure(true);
 		return proxy;
+	}
+	
+	/**
+	 * {@code @Autowired
+     * private Validator validator;}
+	 */
+	@Bean
+	public LocalValidatorFactoryBean validator() {
+		return new LocalValidatorFactoryBean();
 	}
 	
 	public static void main(String[] args) throws Exception {

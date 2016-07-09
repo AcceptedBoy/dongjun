@@ -8,6 +8,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * @author AcceptedBoy
+ *
+ */
 public class MsgPushThreadManager {
 
 	private static ScheduledExecutorService scheduledPool = Executors.newScheduledThreadPool(10);
