@@ -1,5 +1,7 @@
 package com.gdut.dongjun.domain.po;
 
+import javax.validation.constraints.NotNull;
+
 import org.hibernate.validator.constraints.Length;
 
 public class HighVoltageSwitch {
@@ -18,6 +20,7 @@ public class HighVoltageSwitch {
      * @mbggenerated Fri Mar 11 10:53:17 CST 2016
      */
     @Length(max = 40, message = "开关名字应在40个字符以内")
+    @NotNull
     private String name;
 
     /**

@@ -180,7 +180,7 @@ public class CommandController {
 				getVoltageRunnable(user.getName()), 6, user.getId());
 	}
 	
-	@RequestMapping("/stop_read_voltage")
+	@RequestMapping("/stop_read_param")
 	@ResponseBody
 	public void stopReadVoltage(HttpSession session) {
 		
@@ -299,23 +299,13 @@ public class CommandController {
 				getCurrentRunnable(user.getName()), 6, user.getId());
 	}
 	
-	@RequestMapping("/stop_read_current")
-	@ResponseBody
-	public void StopReadCurrent(HttpSession session) {
-		
-		User user = null;
-		if(session.getAttribute("currentUser") != null) {
-			user = (User) session.getAttribute("currentUser");
-		}
-		MsgPushThreadManager.finishScheduledByUser(user.getId());
-	}
-	
 	private Runnable getCurrentRunnable(final String userName) {
 		return new Runnable() {
 			public void run() {
 				/*template.convertAndSendToUser(userName, "/queue/read_current", 
 						getCurrent(type, switchId));
 				*/
+				System.out.println("读电流。。。。。");
 				template.convertAndSendToUser(userName, "/queue/read_current", 
 						getCurrVisual());
 			}
@@ -418,34 +408,35 @@ public class CommandController {
 	@ResponseBody
 	public void read_hvswitch_status(final String id, HttpSession session) {
 		
-		final String userName;
+		final User user;
 		if(session.getAttribute("currentUser") != null) {
-			userName = ((User) session.getAttribute("currentUser")).getName();
+			user = (User) session.getAttribute("currentUser");
 		} else {
 			return;
 		}
-		Thread thread = new Thread(new Runnable() {
+		MsgPushThreadManager.createScheduledPoolDaemonThread(
+				new Runnable() {
 
-			@Override
-			public void run() {
-				try {
-					/*HighVoltageStatus status = hardwareService.getStatusbyId(id);
-					if(status != null) {
-						template.convertAndSendToUser(userName, 
-								"/queue/read_hv_status", status);
+					@Override
+					public void run() {
+						try {
+							/*HighVoltageStatus status = hardwareService.getStatusbyId(id);
+							if(status != null) {
+								template.convertAndSendToUser(userName, 
+										"/queue/read_hv_status", status);
+							}
+							Thread.sleep(10000);*/
+							template.convertAndSendToUser(user.getName(), 
+									"/queue/read_hv_status", getStatusVisual());
+							System.out.println("读高压信息");
+							Thread.sleep(10000);
+							
+						} catch (MessagingException | InterruptedException e1) {// | RemoteException e1) {
+							e1.printStackTrace();
+						}
 					}
-					Thread.sleep(10000);*/
-					template.convertAndSendToUser(userName, 
-							"/queue/read_hv_status", getStatusVisual());
-					Thread.sleep(10000);
-					
-				} catch (MessagingException | InterruptedException e1) {// | RemoteException e1) {
-					e1.printStackTrace();
-				}
-			}
-		});
-		thread.setDaemon(true);
-		thread.start();
+				}, 6, user.getId());
+		
 	}
 	
 	//**************************************
