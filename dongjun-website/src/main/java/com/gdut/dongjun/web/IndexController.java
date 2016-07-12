@@ -37,6 +37,21 @@ public class IndexController {
 	public String forwardIndex() {
 		return "index";
 	}
+	
+	@RequestMapping("/characterPower")
+	public String forwardCharacterPower() {
+		return "characterPower";
+	}
+
+	@RequestMapping("/powerControl")
+	public String forwardPowerControl() {
+		return "powerControl";
+	}
+
+	@RequestMapping("/switchPower")
+	public String forwardSwitchPower() {
+		return "switchPower";
+	}
 
 	/**
 	 * 

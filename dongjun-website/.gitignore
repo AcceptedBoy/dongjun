@@ -1,5 +1,5 @@
-!.gitignore
-!/src/
+!/.gitignore
+!/src/*
 !/pom.xml
 /.settings/*
 /.classpath
