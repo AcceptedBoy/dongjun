@@ -29,6 +29,7 @@ import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.remoting.rmi.RmiProxyFactoryBean;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -44,24 +45,19 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 @EnableScheduling
 public class Application extends SpringBootServletInitializer {
 
-	@Override
-	protected SpringApplicationBuilder configure(
-			SpringApplicationBuilder application) {
-		return application.sources(Application.class);
-	}
+	
+	/*--------------------------------------------------------
+	 * 					数据库配置
+	 * -------------------------------------------------------
+	 */
 
 	/**
-	 * 
-	 * @Title: dataSource
-	 * @Description: TODO
-	 * @param @return
-	 * @return DataSource
-	 * @throws
+	 * 数据库c3p0连接池
 	 */
 	@Bean
 	public DataSource dataSource() {
 
-		com.mchange.v2.c3p0.ComboPooledDataSource ds = new ComboPooledDataSource();
+		ComboPooledDataSource ds = new ComboPooledDataSource();
 		ds.setJdbcUrl("jdbc:mysql://localhost:3306/elecon?useUnicode=true&amp;charaterEncoding=utf-8&" +
 				"zeroDateTimeBehavior=convertToNull");
 		ds.setUser("root");
@@ -69,7 +65,6 @@ public class Application extends SpringBootServletInitializer {
 		try {
 			ds.setDriverClass("com.mysql.jdbc.Driver");
 		} catch (PropertyVetoException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		ds.setAcquireIncrement(5);
@@ -81,12 +76,7 @@ public class Application extends SpringBootServletInitializer {
 	}
 
 	/**
-	 * 
-	 * @Title: sessionFactory
-	 * @Description: TODO
-	 * @param @return
-	 * @return SqlSessionFactoryBean
-	 * @throws
+	 * SqlSessionFactoryBean管理mapper文件
 	 */
 	@Bean
 	public SqlSessionFactoryBean sessionFactory() {
@@ -100,7 +90,6 @@ public class Application extends SpringBootServletInitializer {
 			resources = new PathMatchingResourcePatternResolver()
 					.getResources(packageSearchPath);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		sFactoryBean.setMapperLocations(resources);
@@ -110,12 +99,7 @@ public class Application extends SpringBootServletInitializer {
 	}
 
 	/**
-	 * 
-	 * @Title: sessionTemplate
-	 * @Description: TODO
-	 * @param @return
-	 * @return SqlSessionTemplate
-	 * @throws
+	 * 使用SqlSessionTemplate，dao层用该对象进行数据库操作
 	 */
 	@Bean(name = "msg_sqlSessionTemplate")
 	public SqlSessionTemplate sessionTemplate() {
@@ -124,19 +108,28 @@ public class Application extends SpringBootServletInitializer {
 		try {
 			sst = new SqlSessionTemplate(sessionFactory().getObject());
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return sst;
 	}
+	
+	/*--------------------------------------------------------
+	 * 					事务管理配置
+	 * -------------------------------------------------------
+	 */
+	public DataSourceTransactionManager txManager() {
+		DataSourceTransactionManager txManager = new DataSourceTransactionManager();
+		txManager.setDataSource(dataSource());
+		return txManager;
+	}
+	
+	/*--------------------------------------------------------
+	 * 					编码过滤器 配置
+	 * -------------------------------------------------------
+	 */
 
 	/**
-	 * 
-	 * @Title: characterEncodingFilter
-	 * @Description: TODO
-	 * @param @return
-	 * @return CharacterEncodingFilter
-	 * @throws
+	 * 配置UTF-8过滤器
 	 */
 	@Bean
 	public CharacterEncodingFilter characterEncodingFilter() {
@@ -147,12 +140,7 @@ public class Application extends SpringBootServletInitializer {
 	}
 
 	/**
-	 * 
-	 * @Title: registerCharacterEncodingFilter
-	 * @Description: TODO
-	 * @param @return
-	 * @return FilterRegistrationBean
-	 * @throws
+	 * 过滤器进行编码配置
 	 */
 	@Bean
 	public FilterRegistrationBean registerCharacterEncodingFilter() {
@@ -163,6 +151,11 @@ public class Application extends SpringBootServletInitializer {
 		chafil.addUrlPatterns("/*");
 		return chafil;
 	}
+	
+	/*--------------------------------------------------------
+	 * 					shiro 配置
+	 * -------------------------------------------------------
+	 */
 
 	/**
 	 * 启用shiro注解
@@ -179,11 +172,6 @@ public class Application extends SpringBootServletInitializer {
 
 	/**
 	 * 
-	 * @Title: lifecycleBeanPostProcessor
-	 * @Description: TODO
-	 * @param @return
-	 * @return LifecycleBeanPostProcessor
-	 * @throws
 	 */
 	@Bean
 	public LifecycleBeanPostProcessor lifecycleBeanPostProcessor() {
@@ -192,12 +180,7 @@ public class Application extends SpringBootServletInitializer {
 	}
 
 	/**
-	 * 
-	 * @Title: AuthorizationAttributeSourceAdvisor
-	 * @Description: TODO
-	 * @param @return
-	 * @return AuthorizationAttributeSourceAdvisor
-	 * @throws
+	 * shiro认证通知器
 	 */
 	@Bean
 	public AuthorizationAttributeSourceAdvisor AuthorizationAttributeSourceAdvisor() {
@@ -208,12 +191,7 @@ public class Application extends SpringBootServletInitializer {
 	}
 
 	/**
-	 * 
-	 * @Title: ShiroFilterFactoryBean
-	 * @Description: TODO
-	 * @param @return
-	 * @return ShiroFilterFactoryBean
-	 * @throws
+	 * shiro filter
 	 */
 	@Bean(name = "shiroFilter")
 	public ShiroFilterFactoryBean ShiroFilterFactoryBean() {
@@ -240,12 +218,7 @@ public class Application extends SpringBootServletInitializer {
 	}
 
 	/**
-	 * 
-	 * @Title: defaultWebSecurityManager
-	 * @Description: TODO
-	 * @param @return
-	 * @return DefaultWebSecurityManager
-	 * @throws
+	 * DefaultWebSecurityManager配置
 	 */
 	@Bean
 	public DefaultWebSecurityManager defaultWebSecurityManager() {
@@ -256,12 +229,7 @@ public class Application extends SpringBootServletInitializer {
 	}
 
 	/**
-	 * 
-	 * @Title: jdbcAuthenticationRealm
-	 * @Description: TODO
-	 * @param @return
-	 * @return JdbcRealm
-	 * @throws
+	 * shiro认证池
 	 */
 	@Bean
 	public JdbcRealm jdbcAuthenticationRealm() {
@@ -291,6 +259,11 @@ public class Application extends SpringBootServletInitializer {
 		return realm;
 	}
 	
+	/*--------------------------------------------------------
+	 * 					远程方法调用
+	 * -------------------------------------------------------
+	 */
+	
 	/**
 	 * rmi 远程调用方法，获取与硬件交互的方法
 	 */
@@ -312,6 +285,12 @@ public class Application extends SpringBootServletInitializer {
 	@Bean
 	public LocalValidatorFactoryBean validator() {
 		return new LocalValidatorFactoryBean();
+	}
+	
+	@Override
+	protected SpringApplicationBuilder configure(
+			SpringApplicationBuilder application) {
+		return application.sources(Application.class);
 	}
 	
 	public static void main(String[] args) throws Exception {

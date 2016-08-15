@@ -53,11 +53,9 @@ import com.gdut.dongjun.util.TimeUtil;
 import com.gdut.dongjun.util.UUIDUtil;
 
 /**
- *@Author link xiaoMian <972192420@qq.com>
- *@ClassName HighVoltageDataReceiver.java
- *@Time 2016年5月20日下午10:35:32
- *@Description TODO
- *@Version 1.0 Topview
+ * TODO 值得关注的一个类
+ * @author Sherlock
+ * @author Acceptedboy
  */
 @Service
 @Sharable
@@ -119,12 +117,12 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			getOnlineAddress(ctx, data);
 		} else if(infoIdenCode.equals("64")) {
 			
-			/**
+			/*
 			 * 总召激活确定
 			 */
 			logger.info("总召激活已经确定：" + data.substring(10, 14));
 			
-			/**
+			/*
 			 * 为应对老机器中将总召，遥控，遥测值都加在同一份数据块而做的解析
 			 */
 			if(data.length() > 36) {
@@ -132,31 +130,31 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			}
 		} else if(infoIdenCode.equals("03")) {
 			
-			/**
+			/*
 			 * 遥信变位初步确定
 			 */
 			confirmSignalInitialChange(ctx, data);
 		} else if(infoIdenCode.equals("2e")) { 
 			
-			/**
+			/*
 			 * 遥控预置接收并发送遥控
 			 */
 			whetherOperateSwitch(data);
 		} else if(infoIdenCode.equals("1f")) {
-			
-			/**
+		
+			/*
 			 * 遥信变位确定
 			 */
 			confirmSignalChangeInfo(ctx, data);
 		} else if (infoIdenCode.equals("09")) {
 			
-			/**
+			/*
 			 * 遥测变化值，或者总召获取全部遥测值
 			 */
 			changeMesurementInfo(data);
 		} else if (infoIdenCode.equals("01")) {
 
-			/**
+			/*
 			 * 遥信总召所有值获取
 			 */
 			readAllSignal(hitchEventDesc, data);
@@ -166,7 +164,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		}
 	}
 
-	/**
+	/*
 	 * 老版本机器中将总召，遥信，遥测值都放在一起，将其一起解析，可以获取某个开关的所有开关信息
 	 * @param data 报文
 	 */
@@ -186,12 +184,20 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	}
 	
 	/**
-	 * 在发送遥控预置操作之后，若开关空闲，则可以开始对本开关进行开合闸操作
-	 * @param data
+	 * 在发送遥控预置操作之后，若开关空闲，则可以开始对本开关进行开合闸操作<br><br>
+	 * 
+	 * TODO 现在如果前端发送一个开合闸的命令，那么该命令会同时生成一个预执行命令和执行命令，
+	 * 并且拼接起来全部发送给设备，所以这个地方是没有按照协议中写的来进行的，当时也是为了让设备
+	 * 能够快速看到效果，即马上开合闸，不然如果报文因为网速的缘故迟迟不来的话，页面上没看到效果就认为
+	 * 是这个项目的原因。
+	 * 因为下面的方法是当接收到预执行命令才去调用方法的，通过报文返回的数据来判断是否要去发出执行命令，
+	 * 所以是不会被执行的。如果到时发现了重大的问题，就对发送命令的方法进行重写吧！这个类在这里
+	 * @see HighVoltageSwitchMessageEngine#generateCloseSwitchMessage(String)
+	 * @see HighVoltageSwitchMessageEngine#generateOpenSwitchMessage(String)
 	 */
 	private void whetherOperateSwitch(String data) {
 		
-		/**
+		/*
 		 * 81代表终端空闲；80代表拒绝
 		 */
 		if(data.length() > 32) {
@@ -458,7 +464,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 				String id = s.getId();
 				gprs.setId(id);
 				
-				/**
+				/*
 				 * 这个地方是开始对bug的一个测试，当开关从跳闸到合闸的时候，无法及时获取，只能
 				 * 这样替换ctx才能进行状态更新
 				 * 

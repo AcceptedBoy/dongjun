@@ -1,9 +1,6 @@
 package com.gdut.dongjun.service.socket.listener;
 
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletException;
@@ -15,7 +12,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
 import com.gdut.dongjun.service.HighVoltageHitchEventService;
 import com.gdut.dongjun.service.rmi.HardwareService;
 
@@ -27,10 +23,10 @@ public class HitchEventListener {
 	
 	@Autowired
 	private SimpMessagingTemplate template;
-	
+
 	@Autowired
-	public HitchEventListener(SimpMessagingTemplate template) {
-		this.template = template;	
+	public HitchEventListener(SimpMessagingTemplate messagingTemplate) {
+		this.template = messagingTemplate;
 	}
 	
 	@Resource(name="hardwareService")
@@ -39,16 +35,16 @@ public class HitchEventListener {
 	@Scheduled(initialDelay=3000, fixedRate=15000)
 	@Async
 	public void activeSwitchStatusScheduled() throws ServletException, MessagingException, RemoteException {
-		/*if(hardwareService.whetherChangeInfo()) {
+		if(hardwareService.whetherChangeInfo()) {
 			this.template.convertAndSend("/topic/get_active_switch_status", 
 					hardwareService.getActiveSwitchStatus());
-		}*/
-		this.template.convertAndSend("/topic/get_active_switch_status", 
-				getVisualData());
+		}
+		/*this.template.convertAndSend("/topic/get_active_switch_status", 
+				getVisualData());*/
 	}
 	
 	//*************
-	public List<ActiveHighSwitch> getVisualData() {
+	/*public List<ActiveHighSwitch> getVisualData() {
 		int num = new Random().nextInt(3);
 		if(num == 1) {
 			return getVisualDataA();
@@ -85,5 +81,5 @@ public class HitchEventListener {
 		status.add(new ActiveHighSwitch("81f03ab5cafc468f98e033bfd5724735", false, "01", null));
 		status.add(new ActiveHighSwitch("89a82bd7146e4bf8baac07f00fe13bcd", false, "01", null));
 		return status;
-	}
+	}*/
 }

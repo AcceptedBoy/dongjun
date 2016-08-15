@@ -31,10 +31,16 @@ public class HighVoltageSwitchMessageEngine implements ControlMessageEngine,
 	public String generateCloseSwitchMessage(String address) {
 
 		Logger.getLogger(HighVoltageSwitchMessageEngine.class).info("执行合闸");
-		return util.closeSwitch(address,
+		return util.closeSwitchPre(address,
+				HighCommandControlCode.PRE_CLOSE_SWITCH.toString())
+				+ util.closeSwitch(address,
+						HighCommandControlCode.CLOSE_SWITCH.toString())
+				+ util.readVoltageAndCurrent(address,
+						HighCommandControlCode.READ_VOLTAGE_CURRENT.toString());
+		/*return util.closeSwitch(address,
 				HighCommandControlCode.CLOSE_SWITCH.toString())
 				+ util.readVoltageAndCurrent(address,
-				HighCommandControlCode.READ_VOLTAGE_CURRENT.toString());
+				HighCommandControlCode.READ_VOLTAGE_CURRENT.toString());*/
 	}
 	
 	public String generatePreparedOpenSwitchMesg(String address) {
@@ -47,10 +53,16 @@ public class HighVoltageSwitchMessageEngine implements ControlMessageEngine,
 	public String generateOpenSwitchMessage(String address) {
 
 		Logger.getLogger(HighVoltageSwitchMessageEngine.class).info("执行分闸");
-		return util.openSwitch(address,
+		return util.openSwitchPre(address,
+				HighCommandControlCode.PRE_OPEN_SWITCH.toString())
+				+ util.openSwitch(address,
 						HighCommandControlCode.OPEN_SWITCH.toString())
 				+ util.readVoltageAndCurrent(address,
 						HighCommandControlCode.READ_VOLTAGE_CURRENT.toString());
+		/*return util.openSwitch(address,
+						HighCommandControlCode.OPEN_SWITCH.toString())
+				+ util.readVoltageAndCurrent(address,
+						HighCommandControlCode.READ_VOLTAGE_CURRENT.toString());*/
 	}
 
 	@Override

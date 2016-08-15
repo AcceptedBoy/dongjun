@@ -2,15 +2,12 @@ package com.gdut.dongjun.web;
 
 import java.rmi.RemoteException;
 import java.util.List;
-import java.util.Random;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
-import org.hibernate.validator.constraints.Length;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
@@ -27,7 +24,6 @@ import com.gdut.dongjun.domain.po.HighVoltageVoltage;
 import com.gdut.dongjun.domain.po.LowVoltageCurrent;
 import com.gdut.dongjun.domain.po.LowVoltageVoltage;
 import com.gdut.dongjun.domain.po.User;
-import com.gdut.dongjun.factory.MsgPushThreadManager;
 import com.gdut.dongjun.service.ControlMearsureCurrentService;
 import com.gdut.dongjun.service.ControlMearsureVoltageService;
 import com.gdut.dongjun.service.HighSwitchUserService;
@@ -37,6 +33,8 @@ import com.gdut.dongjun.service.HighVoltageVoltageService;
 import com.gdut.dongjun.service.LowVoltageCurrentService;
 import com.gdut.dongjun.service.LowVoltageVoltageService;
 import com.gdut.dongjun.service.rmi.HardwareService;
+import com.gdut.dongjun.thread.manager.DefaultThreadManager;
+import com.gdut.dongjun.thread.manager.MsgPushThreadManager;
 
 @Controller
 @RequestMapping("/dongjun")
@@ -63,26 +61,15 @@ public class CommandController {
 	@Resource(name="hardwareService")
 	private HardwareService hardwareService;
 	
-	@Autowired
-	private SimpMessagingTemplate template;
+	private final SimpMessagingTemplate template;
 
-    @Autowired
-    public CommandController(SimpMessagingTemplate template) {
-        this.template = template;
-    }
+	@Autowired
+	public CommandController(SimpMessagingTemplate messagingTemplate) {
+		this.template = messagingTemplate;
+	}
 	
 	private static final Logger logger = Logger
 			.getLogger(CommandController.class);
-
-	// @RequestMapping("/read_switch_status")
-	// @ResponseBody
-	// public String switchStatus(@RequestParam(required = true) String
-	// switchId,
-	// int sign, int type) {
-	//
-	//
-	//
-	// }
 
 	@RequestMapping("/security_confirm")
 	@ResponseBody
@@ -100,44 +87,46 @@ public class CommandController {
 		}
 	}
 	
+	/**
+	 * TODO
+	 * 因为开关的渲染是要等到开关信息有变化的时候才会发送过来，
+	 * 所以当用户刷新页面的时候不能及时地获取到开关的在线信息
+	 * <p>这里的接口实现就是可以忽略开关变化获取所以开关在线信息
+	 * <p>需要注意的地方就是，因为这个是前端{@code index.js}文件一刚开始刷新的时候就发送这个请求，那个
+	 * 时候如果websocket还没完成订阅而发送信息的话，浏览器可能无法接收到信息；所以，发送信息之前要
+	 * 延时几秒，等页面加载完，订阅完，再通过{@code template}发送在线开关信息
+	 */
 	@RequestMapping("/get_active_switch_ignore_change")
 	@ResponseBody
-	public void getActiveSwitchIgnoreChange() throws MessagingException, RemoteException {
+	public void getActiveSwitchIgnoreChange(HttpSession session) throws MessagingException, RemoteException {
 		
-		this.template.convertAndSend("/topic/get_active_switch_status", 
-				hardwareService.getActiveSwitchStatus());
+		DefaultThreadManager.delayExecute(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					template.convertAndSend("/topic/get_active_switch_status", 
+							hardwareService.getActiveSwitchStatus());
+				} catch (MessagingException | RemoteException e) {
+					e.printStackTrace();
+				}
+			}
+		}, 8);
 	}
 	
-	/**
-	 * @throws RemoteException 
-	 * 
-	 * @Title: controlSwitch
-	 * @Description: TODO
-	 * @param @param switchId
-	 * @param @param sign
-	 * @param @param orderTime
-	 * @param @param model
-	 * @param @param redirectAttributes
-	 * @param @return
-	 * @return String
-	 * @throws
-	 */
+
 	@RequestMapping("/control_switch")
+	@ResponseBody
 	public String controlSwitch(@RequestParam(required = true) String switchId,
 			int sign, int type) throws RemoteException {
 		
-		/*Hardware client = CxfUtil.getHardwareClient();
-		String address = client.getOnlineAddressById(switchId);*/
 		String address = hardwareService.getOnlineAddressById(switchId);
 		String msg = null;
 		
 		switch (sign) {
 		case 0:// 开
-			//msg = client.generateOpenSwitchMessage(address, type);
 			msg = hardwareService.generateOpenSwitchMessage(address, type);
 			break;
 		case 1:// 合
-			//msg = client.generateCloseSwitchMessage(address, type);
 			msg = hardwareService.generateCloseSwitchMessage(address, type);
 			break;
 		default:
@@ -151,19 +140,8 @@ public class CommandController {
 		} else {
 			return "error";
 		}
-		return "switch_detail";
+		return "success";
 	}
-
-	/**
-	 * 
-	 * @Title: readVoltage
-	 * @Description: TODO
-	 * @param @param switchId
-	 * @param @param sign
-	 * @param @return
-	 * @return Object
-	 * @throws
-	 */
 	
 	@RequestMapping("/read_voltage")
 	@ResponseBody
@@ -176,8 +154,10 @@ public class CommandController {
 		} else {
 			return;
 		}
+		/*MsgPushThreadManager.createScheduledPoolDaemonThread(
+				getVoltageRunnable(user.getName(), type, switchId), 6, user.getId());*/
 		MsgPushThreadManager.createScheduledPoolDaemonThread(
-				getVoltageRunnable(user.getName()), 6, user.getId());
+				getVoltageRunnable(user.getName(), type, switchId), 6, user.getId());
 	}
 	
 	@RequestMapping("/stop_read_param")
@@ -193,15 +173,17 @@ public class CommandController {
 		MsgPushThreadManager.finishScheduledByUser(user.getId());
 	}
 
-	private Runnable getVoltageRunnable(final String userName) {
+	/**
+	 * TODO 
+	 */
+	private Runnable getVoltageRunnable(final String userName, 
+			final String type, final String switchId) {
 		return new Runnable() {
 			public void run() {
-				/*template.convertAndSendToUser(userName, "/queue/read_voltage", 
-						getVoltage(type, switchId));
-						*/
 				template.convertAndSendToUser(userName, "/queue/read_voltage", 
-						getVoltVisual());
-				System.out.println("读电压。。。。");
+						getVoltage(type, switchId));
+				/*template.convertAndSendToUser(userName, "/queue/read_voltage", 
+						getVoltVisual());*/
 			}
 		};
 	}
@@ -296,18 +278,20 @@ public class CommandController {
 			user = (User) session.getAttribute("currentUser");
 		}
 		MsgPushThreadManager.createScheduledPoolDaemonThread(
-				getCurrentRunnable(user.getName()), 6, user.getId());
+				getCurrentRunnable(user.getName(), type, switchId), 6, user.getId());
 	}
 	
-	private Runnable getCurrentRunnable(final String userName) {
+	/**
+	 * TODO
+	 */
+	private Runnable getCurrentRunnable(final String userName,
+			final String type, final String switchId) {
 		return new Runnable() {
 			public void run() {
-				/*template.convertAndSendToUser(userName, "/queue/read_current", 
-						getCurrent(type, switchId));
-				*/
-				System.out.println("读电流。。。。。");
 				template.convertAndSendToUser(userName, "/queue/read_current", 
-						getCurrVisual());
+						getCurrent(type, switchId));
+				/*template.convertAndSendToUser(userName, "/queue/read_current", 
+						getCurrVisual());*/
 			}
 		};
 	}
@@ -414,24 +398,23 @@ public class CommandController {
 		} else {
 			return;
 		}
+		
 		MsgPushThreadManager.createScheduledPoolDaemonThread(
 				new Runnable() {
 
 					@Override
 					public void run() {
 						try {
-							/*HighVoltageStatus status = hardwareService.getStatusbyId(id);
+							
+							//TODO
+							HighVoltageStatus status = hardwareService.getStatusbyId(id);
 							if(status != null) {
-								template.convertAndSendToUser(userName, 
+								template.convertAndSendToUser(user.getName(), 
 										"/queue/read_hv_status", status);
 							}
-							Thread.sleep(10000);*/
-							template.convertAndSendToUser(user.getName(), 
-									"/queue/read_hv_status", getStatusVisual());
-							System.out.println("读高压信息");
-							Thread.sleep(10000);
-							
-						} catch (MessagingException | InterruptedException e1) {// | RemoteException e1) {
+							/*template.convertAndSendToUser(user.getName(), 
+									"/queue/read_hv_status", getStatusVisual());*/
+						} catch (MessagingException | RemoteException e1) {
 							e1.printStackTrace();
 						}
 					}
@@ -443,7 +426,7 @@ public class CommandController {
 	// TODO 虚拟数据获取
 	//**************************************
 	
-	public HighVoltageStatus getStatusVisual() {
+	/*public HighVoltageStatus getStatusVisual() {
 		
 		int i = new Random().nextInt(4);
 		if(i == 1) {
@@ -500,11 +483,9 @@ public class CommandController {
     	} else {
     		return new Integer[] {16726, 0, 0};
     	}
-    }
+    }*/
 
 }
-
-
 
 
 

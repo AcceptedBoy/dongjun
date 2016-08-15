@@ -30,6 +30,11 @@
 			</foreach>
 		</if>
 	</select>
+	
+	<select id="selectByUserId" resultMap="BaseResultMap">
+		select * from role where id in
+		(select id from user_role where user_id = #{userId})
+	</select>
   
   
   

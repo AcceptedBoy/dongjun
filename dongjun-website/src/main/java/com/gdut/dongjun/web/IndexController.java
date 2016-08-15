@@ -24,7 +24,6 @@ public class IndexController {
 	@Autowired
 	private ZTreeNodeService zTreeNodeService;
 
-
 	/**
 	 * 
 	 * @Title: forwardIndex

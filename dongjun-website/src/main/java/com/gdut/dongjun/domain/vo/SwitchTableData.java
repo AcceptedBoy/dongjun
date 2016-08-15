@@ -18,7 +18,6 @@ import com.gdut.dongjun.util.TimeUtil;
 public class SwitchTableData {
 	
 	//private String id;
-	
 	private String time;
 	
 	private Float aValue;

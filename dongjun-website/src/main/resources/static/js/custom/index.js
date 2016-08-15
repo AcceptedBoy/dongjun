@@ -23,7 +23,7 @@ $(document).ready(function() {
 		    	 
 		    	  $.fn.zTree.init($("#treeDemo"), set_tree(1));
 		    	  document.getElementById("zTree_node_type").
-		    	  	options[1].selected = true;
+		    	  options[1].selected = true;
 		      }
 	    },
 	    error: function() {
@@ -100,77 +100,75 @@ function initSock() {
 						}
 					})
 				});
+		stompClient.subscribe('/user/queue/read_voltage', 
+				function(message) {
+					var data = message.body;
+					data = JSON.parse(data);
+					$("#a_phase_voltage").text(data[0] / volacc);
+
+					$("#b_phase_voltage").text(data[1] / volacc);
+
+					$("#c_phase_voltage").text(data[2] / volacc);
+		});
+		stompClient.subscribe('/user/queue/read_current', 
+				function(message) {
+					var data = message.body;
+					data = JSON.parse(data)
+					$("#a_phase_current").text(data[0] / curacc);
+					$("#b_phase_current").text(data[1] / curacc);
+					$("#c_phase_current").text(data[2] / curacc);
+			//alert(JSON.parse(message.body));
+		});
+		stompClient.subscribe('/user/queue/read_hv_status',
+				function(message) {
+					var data = message.body
+					data = JSON.parse(data)
+					if (data == null || data == "") {
+						$("#status").text("离线");
+					} else {
+						$("#guo_liu_yi_duan").addClass(
+							green_or_red(data.guo_liu_yi_duan));
+						$("#guo_liu_er_duan").addClass(
+							green_or_red(data.guo_liu_er_duan));
+						$("#guo_liu_san_duan").addClass(
+							green_or_red(data.guo_liu_san_duan));
+
+						$("#pt1_you_ya").addClass(green_or_red(data.pt1_you_ya));
+						$("#pt2_you_ya").addClass(green_or_red(data.pt2_you_ya));
+						$("#pt1_guo_ya").addClass(green_or_red(data.pt1_guo_ya));
+						$("#pt2_guo_ya").addClass(green_or_red(data.pt2_guo_ya));
+
+						$("#shou_dong_he_zha").addClass(
+							green_or_red(data.shou_dong_he_zha));
+						$("#shou_dong_fen_zha").addClass(
+							green_or_red(data.shou_dong_fen_zha));
+
+						$("#yao_kong_fu_gui").addClass(
+							green_or_red(data.yao_kong_fu_gui));
+						$("#yao_kong_fen_zha").addClass(
+							green_or_red(data.yao_kong_fen_zha));
+						$("#yao_kong_he_zha").addClass(
+							green_or_red(data.yao_kong_he_zha));
+
+						$("#jiao_liu_shi_dian").addClass(
+							green_or_red(data.jiao_liu_shi_dian));
+						$("#chong_he_zha").addClass(green_or_red(data.chong_he_zha));
+						$("#ling_xu_guo_liu_").addClass(
+							green_or_red(data.ling_xu_guo_liu_));
+						if (data.status == '00') {
+							$("#status").text("分");
+						} else if (data.status == "01") {
+							$("#status").text("合");
+						}
+
+					}
+			//alert(JSON.parse(message.body));
+		});
 	});
 }
 
 function startSubscribe(stompClient) {
-	stompClient.subscribe('/user/queue/read_voltage', 
-			function(message) {
-				var data = message.body;
-				data = JSON.parse(data);
-				console.log(data)
-				$("#a_phase_voltage").text(data[0] / volacc);
-
-				$("#b_phase_voltage").text(data[1] / volacc);
-
-				$("#c_phase_voltage").text(data[2] / volacc);
-	});
-	stompClient.subscribe('/user/queue/read_current', 
-			function(message) {
-				var data = message.body;
-				data = JSON.parse(data)
-				console.log(data)
-				$("#a_phase_current").text(data[0] / curacc);
-				$("#b_phase_current").text(data[1] / curacc);
-				$("#c_phase_current").text(data[2] / curacc);
-		//alert(JSON.parse(message.body));
-	});
-	stompClient.subscribe('/user/queue/read_hv_status',
-			function(message) {
-				var data = message.body
-				console.log(data)
-				data = JSON.parse(data)
-				if (data == null || data == "") {
-					$("#status").text("离线");
-				} else {
-					$("#guo_liu_yi_duan").addClass(
-						green_or_red(data.guo_liu_yi_duan));
-					$("#guo_liu_er_duan").addClass(
-						green_or_red(data.guo_liu_er_duan));
-					$("#guo_liu_san_duan").addClass(
-						green_or_red(data.guo_liu_san_duan));
-
-					$("#pt1_you_ya").addClass(green_or_red(data.pt1_you_ya));
-					$("#pt2_you_ya").addClass(green_or_red(data.pt2_you_ya));
-					$("#pt1_guo_ya").addClass(green_or_red(data.pt1_guo_ya));
-					$("#pt2_guo_ya").addClass(green_or_red(data.pt2_guo_ya));
-
-					$("#shou_dong_he_zha").addClass(
-						green_or_red(data.shou_dong_he_zha));
-					$("#shou_dong_fen_zha").addClass(
-						green_or_red(data.shou_dong_fen_zha));
-
-					$("#yao_kong_fu_gui").addClass(
-						green_or_red(data.yao_kong_fu_gui));
-					$("#yao_kong_fen_zha").addClass(
-						green_or_red(data.yao_kong_fen_zha));
-					$("#yao_kong_he_zha").addClass(
-						green_or_red(data.yao_kong_he_zha));
-
-					$("#jiao_liu_shi_dian").addClass(
-						green_or_red(data.jiao_liu_shi_dian));
-					$("#chong_he_zha").addClass(green_or_red(data.chong_he_zha));
-					$("#ling_xu_guo_liu_").addClass(
-						green_or_red(data.ling_xu_guo_liu_));
-					if (data.status == '00') {
-						$("#status").text("分");
-					} else if (data.status == "01") {
-						$("#status").text("合");
-					}
-
-				}
-		//alert(JSON.parse(message.body));
-	});
+	
 }
 
 function stopSubscribe(stompClient) {
@@ -503,7 +501,7 @@ function zTreeOnAsyncSuccess(event, treeId, treeNode, msg) {
 		$('#Center').unbind().click(function () {
 			$('#show_line').text('您的中心点');
 			point = new BMap.Point(center_lng, center_lag);
-			map.centerAndZoom(point, location_scale == 0 ? 16 : location_scale);
+			map.centerAndZoom(point, location_scale);
 		});
 	}
 	
@@ -512,8 +510,6 @@ function zTreeOnAsyncSuccess(event, treeId, treeNode, msg) {
 	} else {
 		if (nodeList != null && nodeList.length != 0 && nodeList[0].longitude != null
 			&& nodeList[0].latitude != null) {
-			console.log(nodeList[0].longitude);
-			console.log(nodeList[0].latitude);
 			point = new BMap.Point(nodeList[0].longitude, nodeList[0].latitude);
 		} else {
 			//没有定位开关则定位到上思县
@@ -521,7 +517,7 @@ function zTreeOnAsyncSuccess(event, treeId, treeNode, msg) {
 		}
 	}
 
-	map.centerAndZoom(point, location_scale == 0 ? 16 : location_scale); // 初始化地图，设置中心点坐标和地图级别
+	map.centerAndZoom(point, location_scale? location_scale : 4); // 初始化地图，设置中心点坐标和地图级别
 	map.enableScrollWheelZoom();// 启滑轮缩放
 
 	// *************************************************************
@@ -769,7 +765,15 @@ function SetCenterPoint_high() {
 	})
 }
 
+function stopRead() {
+	$.ajax({
+		method: 'post',
+		url: '/dongjun/stop_read_param'
+	})
+}
+
 function click_high_voltage_switch_open(node,marker) {
+	stopRead()
 	PreHandlerNode = node;
 	obj_high = marker;
 	sessionStorage.longtitude = marker.point.lng;
@@ -785,17 +789,17 @@ function click_high_voltage_switch_open(node,marker) {
 		+ "<tbody>"
 		+ "<tr>"
 		+ "<td></td><td>电压</td><td>电流</td>"
-		+ "<td>过渡I段保护</td>"
+		+ "<td>过流I段保护</td>"
 		+ "<td id='guo_liu_yi_duan'></td>"
 		+ "</tr>"
 		+ "<tr>"
 		+ "<td>A相</td><td id='a_phase_voltage' class='red'></td><td id='a_phase_current' class='red'></td>"
-		+ "<td>过渡II段保护</td>"
+		+ "<td>过流II段保护</td>"
 		+ "<td id='guo_liu_er_duan'></td>"
 		+ "</tr>"
 		+ "<tr>"
 		+ "<td>B相</td><td id='b_phase_voltage' class='red'></td><td id='b_phase_current' class='red'></td>"
-		+ "<td>过渡III段保护</td>"
+		+ "<td>过流III段保护</td>"
 		+ "<td id='guo_liu_san_duan'></td>"
 		+ "</tr>"
 		+ "<tr>"
@@ -851,7 +855,6 @@ function click_high_voltage_switch_open(node,marker) {
 	var infoWindow = new BMap.InfoWindow(content, opts);
 	marker.openInfoWindow(infoWindow);
 	if (old_icon != "") {
-
 		marker.setIcon(old_icon);// 打开窗口就代表去处理了报警
 	}
 	id = marker.id;
@@ -860,16 +863,15 @@ function click_high_voltage_switch_open(node,marker) {
 //	hvswitchStatusSpy(marker.id);
 //	readCurrentVoltage(marker.id, marker.type);// 读取实时数据。。
 
-	startSubscribe(stompClient);
+//	startSubscribe(stompClient);
 	hvswitchStatusSpy(marker.id);
 	readCurrentVoltage(marker.id, marker.type);// 读取实时数据。。
 	infoWindow.addEventListener("close", function() {
-		stopSubscribe(stompClient)
+		stopRead()
 	});
 	infoWindow.addEventListener("open", function() {
 		hvswitchStatusSpy(marker.id);
 		readCurrentVoltage(marker.id, marker.type);// 读取实时数据。。
-//		console.log('opopo')
 //		startSubscribe(stompClient);
 //		hvswitchStatusSpy(marker.id);
 //		readCurrentVoltage(marker.id, marker.type);// 读取实时数据。。
@@ -877,6 +879,7 @@ function click_high_voltage_switch_open(node,marker) {
 	});
 }
 function click_high_voltage_switch_close(node, marker) {
+	stopRead()
 	obj_high = marker;
 	sessionStorage.longtitude = marker.point.lng;
 	sessionStorage.latitude = marker.point.lat;
@@ -891,17 +894,17 @@ function click_high_voltage_switch_close(node, marker) {
 			+ "<tbody>"
 			+ "<tr>"
 			+ "<td></td><td>电压</td><td>电流</td>"
-			+ "<td>过渡I段保护</td>"
+			+ "<td>过流I段保护</td>"
 			+ "<td id='guo_liu_yi_duan'></td>"
 			+ "</tr>"
 			+ "<tr>"
 			+ "<td>A相</td><td id='a_phase_voltage' class='red'></td><td id='a_phase_current' class='red'></td>"
-			+ "<td>过渡II段保护</td>"
+			+ "<td>过流II段保护</td>"
 			+ "<td id='guo_liu_er_duan'></td>"
 			+ "</tr>"
 			+ "<tr>"
 			+ "<td>B相</td><td id='b_phase_voltage' class='red'></td><td id='b_phase_current' class='red'></td>"
-			+ "<td>过渡III段保护</td>"
+			+ "<td>过流III段保护</td>"
 			+ "<td id='guo_liu_san_duan'></td>"
 			+ "</tr>"
 			+ "<tr>"
@@ -977,16 +980,15 @@ function click_high_voltage_switch_close(node, marker) {
 
 	// 添加窗口关闭监听，停止读取实时数据
 	//startSubscribe(stompClient);
-	startSubscribe(stompClient);
+//	startSubscribe(stompClient);
 	hvswitchStatusSpy(marker.id);
 	readCurrentVoltage(marker.id, marker.type);// 读取实时数据。。
 	infoWindow.addEventListener("close", function() {
-		stopSubscribe(stompClient)
+		stopRead()
 	});
 	infoWindow.addEventListener("open", function() {
 		hvswitchStatusSpy(marker.id);
 		readCurrentVoltage(marker.id, marker.type);// 读取实时数据。。
-//		console.log('opopo')
 //		startSubscribe(stompClient);
 //		hvswitchStatusSpy(marker.id);
 //		readCurrentVoltage(marker.id, marker.type);// 读取实时数据。。
@@ -994,7 +996,6 @@ function click_high_voltage_switch_close(node, marker) {
 }
 
 function click_high_voltage_switch_out(node ,marker) {
-	console.log(this);
 	obj_high = marker;
 	sessionStorage.longtitude = marker.point.lng;
 	sessionStorage.latitude = marker.point.lat;
@@ -1037,7 +1038,7 @@ function click_high_voltage_switch_out(node ,marker) {
 	type = marker.type;
 
 	// 高压开关状态
-	startSubscribe(stompClient);
+//	startSubscribe(stompClient);
 	hvswitchStatusSpy(marker.id);
 	// 添加窗口关闭监听，停止读取实时数据
 	infoWindow.addEventListener("close", function() {
@@ -1565,7 +1566,6 @@ function getVoiceData(name) {
 }
 
 function playVoice(data) {
-	console.log(data);
 	var audioUrl ="data:audio/mp3;base64,"+ data;
 	new Audio(audioUrl).play();
 }

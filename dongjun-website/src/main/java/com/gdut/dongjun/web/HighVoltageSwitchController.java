@@ -101,7 +101,6 @@ public class HighVoltageSwitchController {
 	public Object getLineSwitchListByLineId(
 			@RequestParam(required = true) String lineId, Model model) {
 
-		System.out.println(lineId);
 		List<HighVoltageSwitch> switchs = switchService
 				.selectByParameters(MyBatisMapUtil.warp("line_id", lineId));
 		HashMap<String, Object> map = (HashMap<String, Object>) MapUtil.warp(
@@ -218,16 +217,17 @@ public class HighVoltageSwitchController {
 	public String delSwitch(@RequestParam(required = true) String switchId,
 			Model model, RedirectAttributes redirectAttributes) {
 
-		String lineId = switchService.selectByPrimaryKey(switchId).getLineId();
-		
+		HighVoltageSwitch delSwitch = switchService.selectByPrimaryKey(switchId);
 		try {
-			
-			switchService.deleteByPrimaryKey(switchId);// 删除这个开关
+			if(delSwitch != null) {
+				// 删除这个开关
+				switchService.deleteByPrimaryKey(switchId);
+			}
 		} catch (Exception e) {
 			logger.error("删除开关失败！");
 			return null;
 		}
-		return lineId;
+		return delSwitch != null ? delSwitch.getLineId() : "";
 	}
 
 	/**

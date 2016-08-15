@@ -111,18 +111,14 @@ function controlSwitch(id, type, sign) {
 			"type" : type,
 		},
 		success : function(data) {
-
 			if (data == "success") {
-				//alert("操作成功！");
 				$("#security_modal").modal('hide');
 				TheBtnStatus(type);
 
 			} else {
-				//alert("操作失败");
 				$('#notice_msg').text("将在 " + '  ' + " 秒内执行！");
 			}
-		}
-
+		},
 	})
 }
 

@@ -1,6 +1,7 @@
 package com.gdut.dongjun.util;
 
 
+
 /**
  * @Title: CheckCodeUtil.java
  * @Package com.gdut.Netty_testing.dongjun.util
@@ -10,7 +11,7 @@ package com.gdut.dongjun.util;
  * @version V1.0
  */
 public class CheckCodeUtil {
-
+	
 	/**
 	 * 
 	 * @Title: generate

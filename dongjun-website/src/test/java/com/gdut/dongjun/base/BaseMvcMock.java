@@ -1,10 +1,13 @@
 package com.gdut.dongjun.base;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+
 import org.junit.Before;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -38,4 +41,11 @@ public class BaseMvcMock {
 	public void setup() {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context).build();
 	}
+	
+	public void defaultUrlTest(String url) throws Exception {
+		mockMvc.perform(get(url))  
+	            .andDo(MockMvcResultHandlers.print())  
+	            .andReturn(); 
+	}
+	
 }

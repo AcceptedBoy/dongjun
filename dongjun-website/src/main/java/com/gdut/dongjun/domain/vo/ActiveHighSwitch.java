@@ -68,4 +68,10 @@ public class ActiveHighSwitch implements Serializable {
 	public ActiveHighSwitch() {
 		super();
 	}
+
+	@Override
+	public String toString() {
+		return "ActiveHighSwitch [id=" + id + ", open=" + open + ", status="
+				+ status + ", hitchEventId=" + hitchEventId + "]";
+	}
 }

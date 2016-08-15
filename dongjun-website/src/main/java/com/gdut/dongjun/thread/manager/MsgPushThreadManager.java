@@ -1,10 +1,8 @@
-package com.gdut.dongjun.factory;
+package com.gdut.dongjun.thread.manager;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -12,10 +10,8 @@ import java.util.concurrent.TimeUnit;
  * @author AcceptedBoy
  *
  */
-public class MsgPushThreadManager {
+public class MsgPushThreadManager extends DefaultThreadManager {
 
-	private static ScheduledExecutorService scheduledPool = Executors.newScheduledThreadPool(10);
-	
 	/**
 	 * 因为在业务中，一个用户id可能有多个线程同时运行，所以值采用list容器
 	 */
@@ -75,10 +71,12 @@ public class MsgPushThreadManager {
 	
 	public static void finishScheduledByUser(String userId) {
 		LinkedList<ScheduledFuture<?>> futures = scheduledMap.get(userId); 
-		for(ScheduledFuture<?> future : futures) {
-			future.cancel(true);
+		if(futures != null) {
+			for(ScheduledFuture<?> future : futures) {
+				future.cancel(true);
+			}
+			removeScheduledByUser(userId);
 		}
-		removeScheduledByUser(userId);
 	}
 	
 	private static void removeScheduledByUser(String userId) {
@@ -92,5 +90,11 @@ public class MsgPushThreadManager {
 	
 	public int getIntervalSecond() {
 		return intervalSecond;
+	}
+	
+	@Override
+	protected void finalize() throws Throwable {
+		shutdown();
+		super.finalize();
 	}
 }

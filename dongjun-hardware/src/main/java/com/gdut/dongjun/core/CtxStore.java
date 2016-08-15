@@ -27,7 +27,7 @@ public abstract class CtxStore {
 	private static final Logger logger = Logger.getLogger(CtxStore.class);
 	private static final List<SwitchGPRS> ctxlist = new LinkedList<SwitchGPRS>();
 	private static final List<HighVoltageStatus> hstalist = new LinkedList<HighVoltageStatus>();
-	private static boolean changeInfo = false;
+	private static volatile boolean changeInfo = false;
 	
 	public static void trueChange() {
 		changeInfo = true;

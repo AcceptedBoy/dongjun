@@ -225,13 +225,12 @@ function delSwitch() {
 
 	var column = $(this).parent("td").prevAll();
 	$("#del_confirm_btn").click(function() {
-
 		$.ajax({
 			type : "post",
 			url : "del_high_voltage_switch",
 			async : false,
 			data : {
-				"switchId" : column[8].innerHTML,
+				"switchId" : column[9].innerHTML,
 			},
 			success : function(data) {
 
