@@ -1,4 +1,4 @@
-﻿package com.gdut.dongjun.web;
+package com.gdut.dongjun.web;
 
 import java.rmi.RemoteException;
 import java.util.Date;
@@ -129,7 +129,7 @@ public class HighVoltageHitchEventController {
 		if(hardwareService.changeCtxOpen(switchId)) {
 			HighVoltageHitchEvent event = hitchEventService.getRecentHitchEvent(switchId);
 			if(event != null) {
-				event.setSolveWay("忽略");
+				event.setSolveWay("����");
 				event.setSolveTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
 				event.setSolvePeople(((User)session.getAttribute("currentUser")).getName());
 				hitchEventService.updateByPrimaryKeySelective(event);
