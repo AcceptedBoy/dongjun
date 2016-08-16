@@ -1,0 +1,8 @@
+!.gitignore
+!/src/
+!/pom.xml
+/.settings/*
+/.classpath
+/.project
+/target/*
+/.idea/*
