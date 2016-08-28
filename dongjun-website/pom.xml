@@ -3,11 +3,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.gdut</groupId>
-	<artifactId>dongjun.website</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<packaging>jar</packaging>
+	<artifactId>dongjun</artifactId>
+	<version>1.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
 
-	<name>dongjun-webiste</name>
+	<name>dongjun_webiste</name>
 	<url>http://maven.apache.org</url>
 
 	<parent>

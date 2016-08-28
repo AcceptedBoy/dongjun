@@ -45,7 +45,7 @@ public class HandleExceptionController {
 	 */
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ExceptionHandler(MissingServletRequestParameterException.class)
-	@ResponseBody ResponseEntity<ResponseMessage> handleMissingParameter(HttpServletRequest request, 
+	@ResponseBody ResponseEntity<?> handleMissingParameter(HttpServletRequest request,
 			MissingServletRequestParameterException ex) {
 		
 	    return new ResponseEntity<>(ResponseMessage.addException(
