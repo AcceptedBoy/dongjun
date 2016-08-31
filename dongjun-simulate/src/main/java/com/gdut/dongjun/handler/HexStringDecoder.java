@@ -8,7 +8,7 @@ import io.netty.handler.codec.ByteToMessageDecoder;
 import java.util.List;
 
 /**
- * 以十六进制的字符和二进制流的编码器
+ * 以十六进制的字符和二进制流的译码器
  */
 public class HexStringDecoder extends ByteToMessageDecoder {
 

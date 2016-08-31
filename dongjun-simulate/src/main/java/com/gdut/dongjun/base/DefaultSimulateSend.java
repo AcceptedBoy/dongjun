@@ -1,6 +1,6 @@
-package com.gdut.dongjun;
+package com.gdut.dongjun.base;
 
-import com.gdut.dongjun.Constant.Constant;
+import com.gdut.dongjun.constant.Constant;
 
 import java.io.BufferedReader;
 import java.io.IOException;

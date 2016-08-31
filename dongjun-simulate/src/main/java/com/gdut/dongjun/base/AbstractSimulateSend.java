@@ -1,6 +1,6 @@
-package com.gdut.dongjun;
+package com.gdut.dongjun.base;
 
-import com.gdut.dongjun.Constant.Constant;
+import com.gdut.dongjun.constant.Constant;
 import com.gdut.dongjun.util.HexString_BytesUtil;
 
 import java.io.*;
@@ -29,6 +29,7 @@ public abstract class AbstractSimulateSend {
      */
     public final void simulateSend() throws IOException, InterruptedException {
         createSourceCache();
+        //noinspection deprecation
         sendToIpWithPort();
     }
 
@@ -45,6 +46,7 @@ public abstract class AbstractSimulateSend {
      * 发送报文到指定的ip和端口
      * @throws IOException
      */
+    @Deprecated
     public void sendToIpWithPort() throws IOException, InterruptedException {
         for(int i = 0, length = cache.size();; ++i) {
             Socket socket = new Socket(Constant.SEND_IP, Constant.SEND_PORT);

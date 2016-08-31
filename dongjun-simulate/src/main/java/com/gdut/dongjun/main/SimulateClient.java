@@ -1,6 +1,6 @@
 package com.gdut.dongjun.main;
 
-import com.gdut.dongjun.Constant.Constant;
+import com.gdut.dongjun.constant.Constant;
 import com.gdut.dongjun.handler.HexStringDecoder;
 import com.gdut.dongjun.handler.HexStringEncoder;
 import com.gdut.dongjun.handler.SimulateDataHandler;

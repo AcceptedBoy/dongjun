@@ -1,4 +1,4 @@
-package com.gdut.dongjun.Constant;
+package com.gdut.dongjun.constant;
 
 /**
  * 发送报文的策略

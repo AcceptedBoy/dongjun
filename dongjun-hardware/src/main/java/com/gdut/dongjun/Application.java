@@ -1,11 +1,8 @@
 package com.gdut.dongjun;
 
-import java.beans.PropertyVetoException;
-import java.io.IOException;
-import java.rmi.RemoteException;
-
-import javax.sql.DataSource;
-
+import com.gdut.dongjun.service.rmi.HardwareService;
+import com.gdut.dongjun.service.rmi.impl.HardwareServiceImpl;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,9 +21,10 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.remoting.rmi.RmiServiceExporter;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
-import com.gdut.dongjun.service.rmi.HardwareService;
-import com.gdut.dongjun.service.rmi.impl.HardwareServiceImpl;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
+import javax.sql.DataSource;
+import java.beans.PropertyVetoException;
+import java.io.IOException;
+import java.rmi.RemoteException;
 
 @SpringBootApplication
 @EnableAspectJAutoProxy
@@ -167,16 +165,16 @@ public class Application extends SpringBootServletInitializer {
     public RmiServiceExporter rmiServiceExporter() throws RemoteException {
     	RmiServiceExporter exporter = new RmiServiceExporter();
     	exporter.setServiceName("HardwareService");
+		//exporter.setRegistryHost("");
     	exporter.setRegistryPort(9998);
-    	exporter.setServicePort(9999);
+    	exporter.setServicePort(9999);	//不指定就随机
     	exporter.setServiceInterface(HardwareService.class);
     	exporter.setService(hardwareService());
     	return exporter;
     }
 
 	public static void main(String[] args) throws Exception {
-
+		System.setProperty("java.rmi.server.hostname", "115.28.7.40");
 		SpringApplication.run(Application.class, args);
 	}
-
 }

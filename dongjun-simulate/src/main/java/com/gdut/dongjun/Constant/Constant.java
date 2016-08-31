@@ -1,4 +1,4 @@
-package com.gdut.dongjun.Constant;
+package com.gdut.dongjun.constant;
 
 /**
  * 常量
@@ -22,14 +22,14 @@ public class Constant {
     public static final String WRITE_CHARSET = "utf-8";
 
     /** 发送ip */
-    public static String SEND_IP ="115.28.7.40";
-    //public static String SEND_IP = "192.168.56.1";
+    //public static String SEND_IP ="115.28.7.40";
+    public static String SEND_IP = "192.168.56.1";
 
     /** 发送端口号 */
     public static int SEND_PORT = 8464;
 
     /** 发送报文时间 */
-    public static final int AVERAGE_SEND_SECOND = 1000 * 60;
+    public static final int AVERAGE_SEND_SECOND = 200;
 
     /** 发送报文的策略：随机发送，定时发送 */
     public static final SendStrategy SEND_STRATEGY = SendStrategy.UNIFORMITY;
