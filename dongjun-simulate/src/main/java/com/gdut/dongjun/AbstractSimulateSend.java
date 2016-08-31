@@ -1,5 +1,6 @@
 package com.gdut.dongjun;
 
+import com.gdut.dongjun.Constant.Constant;
 import com.gdut.dongjun.util.HexString_BytesUtil;
 
 import java.io.*;
@@ -16,10 +17,14 @@ public abstract class AbstractSimulateSend {
     /**
      * 存储报文
      */
-    public static List<String> cache = new LinkedList<>();
+    protected static List<String> cache = new LinkedList<>();
+
+    public List<String> getCache() {
+        return cache;
+    }
 
     /**
-     * 模板方法，创建cacheh后发送报文
+     * 模板方法，创建cache后发送报文
      * @throws IOException
      */
     public final void simulateSend() throws IOException, InterruptedException {
@@ -50,7 +55,7 @@ public abstract class AbstractSimulateSend {
             OutputStream os = socket.getOutputStream();
             os.write(HexString_BytesUtil.hexStringToBytes(cache.get(i)));
             os.flush();
-            Thread.sleep(1000 * 20);
+            Thread.sleep(1000);
         }
     }
 

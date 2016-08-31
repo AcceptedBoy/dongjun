@@ -1,5 +1,7 @@
 package com.gdut.dongjun;
 
+import com.gdut.dongjun.Constant.Constant;
+
 import java.io.*;
 
 /**

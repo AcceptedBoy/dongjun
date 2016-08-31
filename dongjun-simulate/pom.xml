@@ -11,6 +11,12 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>4.0.34.Final</version>
         </dependency>
     </dependencies>
     <packaging>jar</packaging>
@@ -26,10 +32,8 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <addClasspath>true</addClasspath>
-                            <classpathPrefix>lib/</classpathPrefix>
                             <mainClass>
-                                com.gdut.dongjun.main.StartupSimulate
+                                com.gdut.dongjun.main.SimulateClient
                             </mainClass>
                         </manifest>
                     </archive>

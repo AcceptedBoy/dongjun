@@ -1,11 +1,11 @@
-package com.gdut.dongjun;
+package com.gdut.dongjun.Constant;
 
 /**
  * 常量
  * Created by AcceptedBoy on 2016/8/27.
  */
 public class Constant {
-    
+
     /** 日志读路径 */
     public static final String LOGGER_FILE = "/file/myApp.txt";
 
@@ -14,7 +14,7 @@ public class Constant {
 
     /** 要进行判断开始切割的字符串 */
     public static final String JUDGE_START = "接收到的报文： ";
-    
+
     /** 日志读的格式 */
     public static final String READ_CHARSET = "gb2312";
 
@@ -23,7 +23,14 @@ public class Constant {
 
     /** 发送ip */
     public static String SEND_IP ="115.28.7.40";
+    //public static String SEND_IP = "192.168.56.1";
 
     /** 发送端口号 */
     public static int SEND_PORT = 8464;
+
+    /** 发送报文时间 */
+    public static final int AVERAGE_SEND_SECOND = 1000 * 60;
+
+    /** 发送报文的策略：随机发送，定时发送 */
+    public static final SendStrategy SEND_STRATEGY = SendStrategy.UNIFORMITY;
 }
