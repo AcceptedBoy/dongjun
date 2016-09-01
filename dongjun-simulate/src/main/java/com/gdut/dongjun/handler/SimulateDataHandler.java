@@ -3,7 +3,8 @@ package com.gdut.dongjun.handler;
 import com.gdut.dongjun.base.AbstractSimulateSend;
 import com.gdut.dongjun.base.DefaultSimulateSend;
 import com.gdut.dongjun.constant.Constant;
-import com.gdut.dongjun.constant.SendStrategy;
+import com.gdut.dongjun.strategy.RandomReadAndConfirmSend;
+import com.gdut.dongjun.strategy.SimulateStrategy;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
@@ -14,14 +15,18 @@ import java.util.List;
  */
 public class SimulateDataHandler extends ChannelInboundHandlerAdapter {
 
+    private SimulateStrategy strategy;
+
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         AbstractSimulateSend send = new DefaultSimulateSend();
         send.createSourceCache();
         List<String> cache = send.getCache();
+        strategy = new RandomReadAndConfirmSend(cache, ctx, Constant.AVERAGE_SEND_SECOND);
+        strategy.readAndSend();
     }
 
-    private static class SendWorker extends Thread {
+    /*private static class SendWorker extends Thread {
 
         private List<String> cache;
 
@@ -54,7 +59,7 @@ public class SimulateDataHandler extends ChannelInboundHandlerAdapter {
                 }
             }
         }
-    }
+    }*/
 
     /**
      * 因为在这个数据模拟客户端中，没有接收数据的功能，所以不对其进行重写
