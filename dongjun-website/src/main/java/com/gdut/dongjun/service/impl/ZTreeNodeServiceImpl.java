@@ -1,24 +1,15 @@
 package com.gdut.dongjun.service.impl;
 
-import java.util.LinkedList;
-import java.util.List;
-
+import com.gdut.dongjun.domain.po.*;
+import com.gdut.dongjun.service.*;
+import com.gdut.dongjun.service.base.BaseService;
+import com.gdut.dongjun.util.MyBatisMapUtil;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.gdut.dongjun.domain.po.ControlMearsureSwitch;
-import com.gdut.dongjun.domain.po.HighVoltageSwitch;
-import com.gdut.dongjun.domain.po.Line;
-import com.gdut.dongjun.domain.po.LowVoltageSwitch;
-import com.gdut.dongjun.domain.po.Substation;
-import com.gdut.dongjun.service.ControlMearsureSwitchService;
-import com.gdut.dongjun.service.HighVoltageSwitchService;
-import com.gdut.dongjun.service.LineService;
-import com.gdut.dongjun.service.LowVoltageSwitchService;
-import com.gdut.dongjun.service.SubstationService;
-import com.gdut.dongjun.service.ZTreeNodeService;
-import com.gdut.dongjun.service.base.BaseService;
-import com.gdut.dongjun.util.MyBatisMapUtil;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @Title: ZTreeNodeServiceImpl.java
@@ -43,7 +34,7 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 	private ControlMearsureSwitchService switchService3;
 
 	@Override
-	public List<ZTreeNode> getSwitchTree(String company_id, String type) {
+	public List<ZTreeNode> getSwitchTree(String company_id, String type, boolean isAvailable) {
 		// TODO Auto-generated method stub
 		List<ZTreeNode> nodes = new LinkedList<ZTreeNode>();
 		List<Substation> substations = substationService// 取到所有的变电站
@@ -106,7 +97,6 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 
 									ZTreeNode n3 = new ZTreeNode();
 									if (switchs.get(k) != null) {
-
 										n3.setId(switchs.get(k).getId());
 										n3.setName(switchs.get(k).getName());
 										n3.setParentName(lines.get(j).getName());
@@ -123,7 +113,7 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 								}
 								break;
 							case "1":
-								@SuppressWarnings("unchecked")
+
 								List<HighVoltageSwitch> switchs2 = baseService
 										.selectByParameters(MyBatisMapUtil
 												.warp("line_id", lines.get(j)
@@ -131,6 +121,14 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 								// 遍历所有的开关
 								for (int k = 0; k < switchs2.size(); k++) {
 
+									if(isAvailable) {
+										//过期或者未授权不在树上显示
+										if(StringUtils.isEmpty(switchs2.get(k).getAvailableTime()) ||
+												switchs2.get(k).getAvailableTime().compareTo(
+														String.valueOf(System.currentTimeMillis())) < 0) {
+											continue;
+										}
+									}
 									ZTreeNode n3 = new ZTreeNode();
 									if (switchs2.get(k) != null) {
 

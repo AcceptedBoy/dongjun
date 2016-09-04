@@ -1,7 +1,5 @@
 package com.gdut.dongjun.constant;
 
-import com.gdut.dongjun.strategy.RandomReadAndConfirmSend;
-
 /**
  * 常量
  * Created by AcceptedBoy on 2016/8/27.
@@ -31,8 +29,5 @@ public class Constant {
     public static int SEND_PORT = 8464;
 
     /** 发送报文时间 */
-    public static final long AVERAGE_SEND_SECOND = 200;
-
-    /** 发送报文的策略：随机发送，定时发送 */
-    public static Class<?> strategyClazz = RandomReadAndConfirmSend.class;
+    public static final long AVERAGE_SEND_SECOND = 1000;
 }

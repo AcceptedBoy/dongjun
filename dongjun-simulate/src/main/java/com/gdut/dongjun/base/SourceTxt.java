@@ -14,22 +14,25 @@ public class SourceTxt {
      * 生成报文txt
      */
     public void createSourceTxt() {
-        try (
-                BufferedReader br = new BufferedReader(
-                        new InputStreamReader(this.getClass().getResourceAsStream(Constant.LOGGER_FILE),
-                                Constant.READ_CHARSET));
+        try {
 
-                BufferedWriter bw = new BufferedWriter(
-                        new OutputStreamWriter(new FileOutputStream(this.getClass().getResource(
-                                Constant.OUTPUT_FILE).getPath()),
-                                Constant.WRITE_CHARSET))
-        ){
+            BufferedReader br = new BufferedReader(
+                    new InputStreamReader(this.getClass().getResourceAsStream(Constant.LOGGER_FILE),
+                            Constant.READ_CHARSET));
 
+            String outputPath = this.getClass().getResource(Constant.OUTPUT_FILE.substring
+                    (0, Constant.OUTPUT_FILE.lastIndexOf("/"))).getPath() +
+                    Constant.OUTPUT_FILE.substring(Constant.OUTPUT_FILE.lastIndexOf("/"), Constant.OUTPUT_FILE.length());
+
+            BufferedWriter bw = new BufferedWriter(
+                    new OutputStreamWriter(new FileOutputStream(outputPath),
+                            Constant.WRITE_CHARSET));
             String str;
             while((str = br.readLine()) != null) {
                 if(str.contains(Constant.JUDGE_START)) {
-                    bw.write(str.substring(str.lastIndexOf(Constant.JUDGE_START)
-                            + Constant.JUDGE_START.length(), str.length()));
+                    str = str.substring(str.lastIndexOf(Constant.JUDGE_START)
+                            + Constant.JUDGE_START.length(), str.length());
+                    bw.write(str);
                     bw.newLine();
                 }
             }
@@ -43,7 +46,7 @@ public class SourceTxt {
      * 当为新的日志文件导出格式化txt文件时，可以调用该main函数
      * @param args
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException, InterruptedException {
         new SourceTxt().createSourceTxt();
     }
 }

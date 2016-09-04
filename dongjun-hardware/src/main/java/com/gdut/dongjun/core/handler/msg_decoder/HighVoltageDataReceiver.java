@@ -15,21 +15,6 @@
  */
 package com.gdut.dongjun.core.handler.msg_decoder;
 
-import io.netty.channel.ChannelHandler.Sharable;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
-
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.core.device_message_engine.impl.HighVoltageSwitchMessageEngine;
@@ -39,18 +24,20 @@ import com.gdut.dongjun.domain.po.HighVoltageCurrent;
 import com.gdut.dongjun.domain.po.HighVoltageHitchEvent;
 import com.gdut.dongjun.domain.po.HighVoltageSwitch;
 import com.gdut.dongjun.domain.po.HighVoltageVoltage;
-import com.gdut.dongjun.service.HighVoltageCurrentService;
-import com.gdut.dongjun.service.HighVoltageHitchEventService;
-import com.gdut.dongjun.service.HighVoltageSwitchService;
-import com.gdut.dongjun.service.HighVoltageVoltageService;
-import com.gdut.dongjun.service.HistoryHighVoltageCurrentService;
-import com.gdut.dongjun.service.HistoryHighVoltageVoltageService;
-import com.gdut.dongjun.util.HighVoltageDeviceCommandUtil;
-import com.gdut.dongjun.util.LowVoltageDeviceCommandUtil;
-import com.gdut.dongjun.util.MyBatisMapUtil;
-import com.gdut.dongjun.util.StringCommonUtil;
-import com.gdut.dongjun.util.TimeUtil;
-import com.gdut.dongjun.util.UUIDUtil;
+import com.gdut.dongjun.service.*;
+import com.gdut.dongjun.util.*;
+import io.netty.channel.ChannelHandler.Sharable;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * TODO 值得关注的一个类
@@ -106,8 +93,12 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	
 	private void handleIdenCode(ChannelHandlerContext ctx, String data, String hitchEventDesc) {
 		
+		if(data.length() < 16) {
+			return;
+		}
+
 		String infoIdenCode = data.substring(14, 16);
-		
+
 		/**
 		 * 将接收到的客户端信息分类处理
 		 * 读通信地址并将地址反转

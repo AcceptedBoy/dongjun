@@ -21,7 +21,7 @@ public class DefaultSimulateSend extends AbstractSimulateSend {
                 cache.add(str);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+           e.printStackTrace();
         }
     }
 }

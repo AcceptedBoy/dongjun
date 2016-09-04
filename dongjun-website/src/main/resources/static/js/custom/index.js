@@ -516,8 +516,11 @@ function zTreeOnAsyncSuccess(event, treeId, treeNode, msg) {
 			point = new BMap.Point(107.979, 22.156); // 创建点坐标
 		}
 	}
+	 map.centerAndZoom(point, location_scale? location_scale : 12); // 初始化地图，设置中心点坐标和地图级别
+	/*//企业版定位到南宁市
+	point = new BMap.Point(108.386287, 22.82277);
+	map.centerAndZoom(point, 11); // 地图级别*/
 
-	map.centerAndZoom(point, location_scale? location_scale : 4); // 初始化地图，设置中心点坐标和地图级别
 	map.enableScrollWheelZoom();// 启滑轮缩放
 
 	// *************************************************************

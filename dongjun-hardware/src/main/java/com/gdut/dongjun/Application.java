@@ -174,7 +174,7 @@ public class Application extends SpringBootServletInitializer {
     }
 
 	public static void main(String[] args) throws Exception {
-		System.setProperty("java.rmi.server.hostname", "115.28.7.40");
+		//System.setProperty("java.rmi.server.hostname", "115.28.7.40");
 		SpringApplication.run(Application.class, args);
 	}
 }

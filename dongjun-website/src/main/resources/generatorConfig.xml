@@ -7,7 +7,7 @@
 			connectionURL="jdbc:mysql://localhost:3306/elecon" userId="root"
 			password="root">
 		</jdbcConnection>
-		<javaModelGenerator targetPackage="com.gdut.dongjun.domain.po.authc"
+		<javaModelGenerator targetPackage="com.gdut.dongjun.domain.po"
 			targetProject="E:\generator" />
 
 		<sqlMapGenerator targetPackage="com.gdut.dongjun.domain.dao.authc"
@@ -21,6 +21,10 @@
 			enableUpdateByExample="false" enableDeleteByExample="false"
 			enableSelectByExample="false" selectByExampleQueryId="false" />
 
+		<table schema="root" tableName="high_voltage_switch"
+			   domainObjectName="HighVoltageSwitch" enableCountByExample="false"
+			   enableUpdateByExample="false" enableDeleteByExample="false"
+			   enableSelectByExample="false" selectByExampleQueryId="false" />
 	</context>
 </generatorConfiguration>
 

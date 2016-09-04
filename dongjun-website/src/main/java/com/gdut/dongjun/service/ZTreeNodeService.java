@@ -1,8 +1,8 @@
 package com.gdut.dongjun.service;
 
-import java.util.List;
-
 import com.gdut.dongjun.service.impl.ZTreeNode;
+
+import java.util.List;
 
 /**
  * @Title: CommandService.java
@@ -15,14 +15,12 @@ import com.gdut.dongjun.service.impl.ZTreeNode;
 public interface ZTreeNodeService {
 
 	/**
-	 * @param type 
-	 * 
-	 * @Title: diplaySwitchTree
-	 * @Description: TODO
-	 * @param @return
-	 * @return List<ZTreeNode>
-	 * @throws
+	 *
+	 * @param company_id 公司id
+	 * @param type 开关类型
+	 * @param isAvailable 如果为true，返回的类型的开关必须是已经授权的
+	 * @return
 	 */
-	public List<ZTreeNode> getSwitchTree(String company_id, String type);
-
+	public List<ZTreeNode> getSwitchTree(String company_id, String type,
+												  boolean isAvailable);
 }
