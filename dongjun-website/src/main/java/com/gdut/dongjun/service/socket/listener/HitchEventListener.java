@@ -1,10 +1,7 @@
 package com.gdut.dongjun.service.socket.listener;
 
-import java.rmi.RemoteException;
-
-import javax.annotation.Resource;
-import javax.servlet.ServletException;
-
+import com.gdut.dongjun.service.HighVoltageHitchEventService;
+import com.gdut.dongjun.service.rmi.HardwareService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -12,9 +9,14 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.gdut.dongjun.service.HighVoltageHitchEventService;
-import com.gdut.dongjun.service.rmi.HardwareService;
+import javax.annotation.Resource;
+import javax.servlet.ServletException;
+import java.rmi.RemoteException;
 
+/**
+ * 监听器，当有开关变化推送至页面
+ * @author AcceptedBoy
+ */
 @Component
 public class HitchEventListener {
 	
@@ -32,6 +34,9 @@ public class HitchEventListener {
 	@Resource(name="hardwareService")
 	private HardwareService hardwareService;
 
+	/**
+	 * 每15秒就询问硬件系统，若硬件信息有变化，则将硬件信息推送出去
+	 */
 	@Scheduled(initialDelay=3000, fixedRate=15000)
 	@Async
 	public void activeSwitchStatusScheduled() throws ServletException, MessagingException, RemoteException {

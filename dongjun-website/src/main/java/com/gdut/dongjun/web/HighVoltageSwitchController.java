@@ -1,17 +1,11 @@
 package com.gdut.dongjun.web;
 
-import java.io.File;
-import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-
+import com.gdut.dongjun.core.SwitchGPRS;
+import com.gdut.dongjun.domain.po.HighVoltageSwitch;
+import com.gdut.dongjun.domain.vo.AvailableHighVoltageSwitch;
+import com.gdut.dongjun.service.HighVoltageSwitchService;
+import com.gdut.dongjun.service.rmi.HardwareService;
+import com.gdut.dongjun.util.*;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,16 +17,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.gdut.dongjun.core.SwitchGPRS;
-import com.gdut.dongjun.domain.po.HighVoltageSwitch;
-import com.gdut.dongjun.service.HighVoltageSwitchService;
-import com.gdut.dongjun.service.rmi.HardwareService;
-import com.gdut.dongjun.util.ClassLoaderUtil;
-import com.gdut.dongjun.util.DownloadAndUploadUtil;
-import com.gdut.dongjun.util.MapUtil;
-import com.gdut.dongjun.util.MyBatisMapUtil;
-import com.gdut.dongjun.util.TimeUtil;
-import com.gdut.dongjun.util.UUIDUtil;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+import java.io.File;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 @Controller
 @RequestMapping("/dongjun")
@@ -61,11 +55,12 @@ public class HighVoltageSwitchController {
 
 		if (lineId != null) {
 
-			model.addAttribute("switches", switchService
-					.selectByParameters(MyBatisMapUtil.warp("line_id", lineId)));
+			model.addAttribute("switches", AvailableHighVoltageSwitch.change2VoList(
+					switchService
+							.selectByParameters(MyBatisMapUtil.warp("line_id", lineId))));
 		} else {
-			model.addAttribute("switches",
-					switchService.selectByParameters(null));
+			model.addAttribute("switches", AvailableHighVoltageSwitch.change2VoList(
+					switchService.selectByParameters(null)));
 		}
 		return "high_voltage_switch_manager";
 	}
