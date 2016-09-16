@@ -11,7 +11,7 @@ import java.io.IOException;
 public class SimulateClient {
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        //new SimulateClient().connect(Constant.SEND_IP, Constant.SEND_PORT);
+
         new DefaultSimulateSend().simulateSend();
     }
 }

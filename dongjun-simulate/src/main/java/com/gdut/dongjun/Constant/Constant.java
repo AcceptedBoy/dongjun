@@ -22,8 +22,8 @@ public class Constant {
     public static final String WRITE_CHARSET = "utf-8";
 
     /** 发送ip */
-    //public static String SEND_IP ="115.28.7.40";
-    public static String SEND_IP = "192.168.56.1";
+    public static String SEND_IP ="115.28.7.40";
+    //public static String SEND_IP = "192.168.56.1";
 
     /** 发送端口号 */
     public static int SEND_PORT = 8464;

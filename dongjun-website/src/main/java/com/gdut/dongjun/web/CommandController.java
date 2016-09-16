@@ -1,11 +1,11 @@
 package com.gdut.dongjun.web;
 
-import java.rmi.RemoteException;
-import java.util.List;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpSession;
-
+import com.gdut.dongjun.domain.HighVoltageStatus;
+import com.gdut.dongjun.domain.po.*;
+import com.gdut.dongjun.service.*;
+import com.gdut.dongjun.service.rmi.HardwareService;
+import com.gdut.dongjun.thread.manager.DefaultThreadManager;
+import com.gdut.dongjun.thread.manager.MsgPushThreadManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.MessagingException;
@@ -16,25 +16,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
-import com.gdut.dongjun.domain.HighVoltageStatus;
-import com.gdut.dongjun.domain.po.ControlMearsureCurrent;
-import com.gdut.dongjun.domain.po.ControlMearsureVoltage;
-import com.gdut.dongjun.domain.po.HighVoltageCurrent;
-import com.gdut.dongjun.domain.po.HighVoltageVoltage;
-import com.gdut.dongjun.domain.po.LowVoltageCurrent;
-import com.gdut.dongjun.domain.po.LowVoltageVoltage;
-import com.gdut.dongjun.domain.po.User;
-import com.gdut.dongjun.service.ControlMearsureCurrentService;
-import com.gdut.dongjun.service.ControlMearsureVoltageService;
-import com.gdut.dongjun.service.HighSwitchUserService;
-import com.gdut.dongjun.service.HighVoltageCurrentService;
-import com.gdut.dongjun.service.HighVoltageHitchEventService;
-import com.gdut.dongjun.service.HighVoltageVoltageService;
-import com.gdut.dongjun.service.LowVoltageCurrentService;
-import com.gdut.dongjun.service.LowVoltageVoltageService;
-import com.gdut.dongjun.service.rmi.HardwareService;
-import com.gdut.dongjun.thread.manager.DefaultThreadManager;
-import com.gdut.dongjun.thread.manager.MsgPushThreadManager;
+import javax.annotation.Resource;
+import javax.servlet.http.HttpSession;
+import java.rmi.RemoteException;
+import java.util.List;
 
 @Controller
 @RequestMapping("/dongjun")
@@ -121,21 +106,15 @@ public class CommandController {
 		
 		String address = hardwareService.getOnlineAddressById(switchId);
 		String msg = null;
-		
-		switch (sign) {
-		case 0:// 开
+
+		if(sign == 0) { //开
 			msg = hardwareService.generateOpenSwitchMessage(address, type);
-			break;
-		case 1:// 合
+		} else { //合
 			msg = hardwareService.generateCloseSwitchMessage(address, type);
-			break;
-		default:
-			break;
 		}
 		
 		// 发送报文
 		if (msg != null) {
-
 			logger.info("发送开合闸报文" + msg);
 		} else {
 			return "error";
@@ -256,7 +235,6 @@ public class CommandController {
 						break;
 					}
 				}
-
 			}
 			break;
 		default:
