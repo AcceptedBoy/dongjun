@@ -268,8 +268,8 @@ public class Application extends SpringBootServletInitializer {
 	@Bean
 	public RmiProxyFactoryBean hardwareService() {
 		RmiProxyFactoryBean proxy = new RmiProxyFactoryBean();
-		proxy.setServiceUrl("rmi://115.28.7.40:9998/HardwareService");
-		//proxy.setServiceUrl("rmi://localhost:9998/HardwareService");
+		//proxy.setServiceUrl("rmi://115.28.7.40:9998/HardwareService");
+		proxy.setServiceUrl("rmi://localhost:9998/HardwareService");
 		proxy.setServiceInterface(HardwareService.class);
 		//解决重启 rmi 的服务器后会出现拒绝连接或找不到服务对象的错误
 		proxy.setLookupStubOnStartup(false);

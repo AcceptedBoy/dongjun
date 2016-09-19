@@ -31,6 +31,7 @@ public class HighVoltageServer extends NetServer {
 	private ServerInitializer initializer;
 	@Autowired
 	private HighVoltageSwitchService lowVoltageSwitchService;
+
 	private static final Logger logger = Logger
 			.getLogger(HighVoltageServer.class);
 

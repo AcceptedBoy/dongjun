@@ -17,6 +17,9 @@ package com.gdut.dongjun.core.handler.msg_decoder;
 
 import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.SwitchGPRS;
+import com.gdut.dongjun.core.chain.AbstractHandler;
+import com.gdut.dongjun.core.chain.high.HighVoltageHandlerChain;
+import com.gdut.dongjun.core.chain.high.factory.HighVoltageChainFactory;
 import com.gdut.dongjun.core.device_message_engine.impl.HighVoltageSwitchMessageEngine;
 import com.gdut.dongjun.core.server.impl.HighVoltageServer;
 import com.gdut.dongjun.domain.HighVoltageStatus;
@@ -29,7 +32,8 @@ import com.gdut.dongjun.util.*;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +42,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * TODO 值得关注的一个类
@@ -57,17 +62,28 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	@Autowired
 	private HistoryHighVoltageVoltageService historyVoltageService;
 	@Autowired
-	private HighVoltageSwitchService switchService;
-	@Autowired
 	private HighVoltageHitchEventService hitchEventService;
+
 	@Resource(name="HighVoltageSwitchMessageEngine")
 	private HighVoltageSwitchMessageEngine highVoltageEngine;
 
-	private static final Logger logger = Logger.getLogger(HighVoltageDataReceiver.class);
+	private static final Logger logger = LoggerFactory.getLogger(HighVoltageDataReceiver.class);
+
+	@Autowired
+	private HighVoltageSwitchService switchService;
+
+	@Resource
+	public void setHandlerChain(HighVoltageChainFactory factory) {
+		this.handlerChain = factory.getInstance();
+	}
 
 	public HighVoltageDataReceiver() {
 		super();
 	}
+
+	private static CopyOnWriteArrayList<AbstractHandler> handlerChain;
+
+	private static int plain = 0;
 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -81,14 +97,40 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+
 		String data = ((String) msg).replace(" ", "");
-		logger.info("接收到的报文： " + data);
-		
-		String hitchEventDesc = "控制回路";
-		if (data.length() == 190) {
-			hitchEventDesc = getHitchReason(data.substring(140, 160));
+		if(plain == 1) {
+			new HighVoltageHandlerChain(handlerChain, ctx, data, data.substring(14, 16)).process();
+		} else {
+			logger.info("接收到的报文： " + data);
+
+			String hitchEventDesc = "控制回路";
+			if (data.length() == 190) {
+				hitchEventDesc = getHitchReason(data.substring(140, 160));
+			}
+			handleIdenCode(ctx, data, hitchEventDesc);
 		}
-		handleIdenCode(ctx, data, hitchEventDesc);
+	}
+
+	@Override
+	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+
+		SwitchGPRS gprs = CtxStore.get(ctx);
+		if (gprs != null) {
+			CtxStore.remove(ctx);// 从Store中移除这个context
+			if(gprs.getId() != null) {
+				HighVoltageSwitch hvSwitch = switchService.selectByPrimaryKey(gprs.getId());
+				hvSwitch.setOnlineTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
+				switchService.updateByPrimaryKey(hvSwitch);
+			}
+		}
+		CtxStore.printCtxStore();
+	}
+
+	@Override
+	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+		cause.printStackTrace();
+		ctx.close();
 	}
 	
 	private void handleIdenCode(ChannelHandlerContext ctx, String data, String hitchEventDesc) {
@@ -99,7 +141,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 
 		String infoIdenCode = data.substring(14, 16);
 
-		/**
+		/*
 		 * 将接收到的客户端信息分类处理
 		 * 读通信地址并将地址反转
 		 */
@@ -107,6 +149,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			
 			getOnlineAddress(ctx, data);
 		} else if(infoIdenCode.equals("64")) {
+
 			
 			/*
 			 * 总召激活确定
@@ -155,13 +198,13 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		}
 	}
 
-	/*
+	/**
 	 * 老版本机器中将总召，遥信，遥测值都放在一起，将其一起解析，可以获取某个开关的所有开关信息
 	 * @param data 报文
 	 */
 	private void getSwitchAllInfo(ChannelHandlerContext ctx, String data, String hitchEventDesc) {
 		
-		/**
+		/*
 		 * 遥控信息
 		 */
 		while(data.length() != 0) {
@@ -195,7 +238,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			if(data.substring(30, 32).equals("81")) {
 				String address = data.substring(10, 14);
 				SwitchGPRS gprs = CtxStore.getByAddress(address);
-				/**
+				/*
 				 * 1合闸；2分闸；
 				 */
 				if(gprs.getPrepareType() == 1) {
@@ -365,7 +408,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			return;
 		}
 		if(code.endsWith("00")) {
-			/**
+			/*
 			 * 报文反转
 			 */
 			code = LowVoltageDeviceCommandUtil.reverseStringBy2(code);
@@ -402,7 +445,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			return;
 		}
 		if(code.endsWith("40")) {
-			/**
+			/*
 			 * 报文反转
 			 */
 			code = LowVoltageDeviceCommandUtil.reverseStringBy2(code);
@@ -430,7 +473,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	private void getOnlineAddress(ChannelHandlerContext ctx, String data) { 
 		
 		SwitchGPRS gprs = CtxStore.get(ctx);
-		/**
+		/*
 		 * 当注册的高压开关的地址不为空，说明已经注册过了，不再进行相关操作
 		 */
 		if(gprs != null && gprs.getAddress() != null) {
@@ -443,7 +486,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		address = new HighVoltageDeviceCommandUtil().reverseString(address);
 
 		if (gprs != null) {
-			/**
+			/*
 			 * 根据反转后的地址查询得到highvoltageswitch的集合
 			 */
 			List<HighVoltageSwitch> list = switchService
@@ -486,21 +529,6 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		return "未知报警";
 	}
 
-	@Override
-	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-
-		SwitchGPRS gprs = CtxStore.get(ctx);
-		if (gprs != null) {
-			CtxStore.remove(ctx);// 从Store中移除这个context
-			if(gprs.getId() != null) {
-				HighVoltageSwitch hvSwitch = switchService.selectByPrimaryKey(gprs.getId());
-				hvSwitch.setOnlineTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
-				switchService.updateByPrimaryKey(hvSwitch);
-			}
-		}
-		CtxStore.printCtxStore();
-	}
-	
 	/**
 	 * 根据开关的id， 和报文信息来获取该开关的全部电压电流值，调用方法保存
 	 */
@@ -576,11 +604,5 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			currentService.insert(c1);
 			historyCurrentService.insert(c1.changeToHistory());
 		}
-	}
-
-	@Override
-	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-		cause.printStackTrace();
-		ctx.close();
 	}
 }

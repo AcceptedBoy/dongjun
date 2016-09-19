@@ -1,14 +1,12 @@
 package com.gdut.dongjun.core;
 
+import com.gdut.dongjun.domain.HighVoltageStatus;
 import io.netty.channel.ChannelHandlerContext;
-
-import java.util.LinkedList;
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 
-import com.gdut.dongjun.domain.HighVoltageStatus;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @Title: ClientList.java
@@ -25,8 +23,8 @@ public abstract class CtxStore {
 	 * Logger for this class
 	 */
 	private static final Logger logger = Logger.getLogger(CtxStore.class);
-	private static final List<SwitchGPRS> ctxlist = new LinkedList<SwitchGPRS>();
-	private static final List<HighVoltageStatus> hstalist = new LinkedList<HighVoltageStatus>();
+	private static final List<SwitchGPRS> ctxlist = new CopyOnWriteArrayList<>();
+	private static final List<HighVoltageStatus> hstalist = new CopyOnWriteArrayList<HighVoltageStatus>();
 	private static volatile boolean changeInfo = false;
 	
 	public static void trueChange() {

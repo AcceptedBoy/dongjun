@@ -1,18 +1,15 @@
 package com.gdut.dongjun.web;
 
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
+import com.gdut.dongjun.domain.model.ErrorInfo;
+import com.gdut.dongjun.domain.model.ResponseMessage;
+import com.gdut.dongjun.domain.po.User;
+import com.gdut.dongjun.service.UserService;
+import com.gdut.dongjun.service.impl.enums.LoginResult;
+import com.gdut.dongjun.util.MyBatisMapUtil;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.authc.AuthenticationException;
-import org.apache.shiro.authc.IncorrectCredentialsException;
-import org.apache.shiro.authc.LockedAccountException;
-import org.apache.shiro.authc.UnknownAccountException;
-import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.authc.*;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,12 +21,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.gdut.dongjun.domain.model.ErrorInfo;
-import com.gdut.dongjun.domain.model.ResponseMessage;
-import com.gdut.dongjun.domain.po.User;
-import com.gdut.dongjun.service.UserService;
-import com.gdut.dongjun.service.impl.enums.LoginResult;
-import com.gdut.dongjun.util.MyBatisMapUtil;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/dongjun")
@@ -67,7 +62,7 @@ public class UserController {
 		User user = null;
 		
 		// 数据库查找账号密码
-		if (users != null && users.get(0) != null) {
+		if (CollectionUtils.isNotEmpty(users)) {
 
 			user = users.get(0);
 		}
