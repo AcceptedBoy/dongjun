@@ -1,3 +1,4 @@
+import com.gdut.dongjun.util.HighVoltageDeviceCommandUtil;
 import com.gdut.dongjun.util.StringCommonUtil;
 import org.junit.Test;
 
@@ -8,17 +9,9 @@ public class TestC {
 
     @Test
     public void testOne() {
-        String data = "680c0c68f4ac0064010701ac00000014cd16";
-        System.out.println(data.substring(14, 16));
-        while(data.length() != 0) {
-            int index = StringCommonUtil.getFirstIndexOfEndTag(data, "16");
-            if(index != -1) {
-                String dataInfo = data.substring(0, index);
-                System.out.println(index);
-                System.out.println(data.length());
-                data = data.substring(index, data.length());
-            }
-        }
+        String data = "68 0C 0C 68 F3 01 00 03 01 03 01 01 00 04 00 01 0F 16".replace(" ", "");
+        String resu = new HighVoltageDeviceCommandUtil().confirmChangeAffair(data.substring(10, 14));
+        System.out.println(resu);
     }
 
 

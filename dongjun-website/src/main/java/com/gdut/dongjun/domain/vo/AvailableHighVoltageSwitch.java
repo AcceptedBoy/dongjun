@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class AvailableHighVoltageSwitch {
 
-    private String id;
+    /*private String id;
 
     private String name;
 
@@ -86,11 +86,11 @@ public class AvailableHighVoltageSwitch {
     private static final String HAS_VALID = "已验证";
 
     private static final String HAS_OUT_TIME = "已过期";
-    /**
+    *//**
      * 根据数据库中的{@code availableTime}获取vo类中的isAvailable的情况：1. 未验证 2. 已验证 3. 已过期
      * @param availableTime
      * @return
-     */
+     *//*
     private static String getVoIsAvailable(String availableTime) {
         if(StringUtils.isEmpty(availableTime)) {
             return NO_VALID;
@@ -201,5 +201,5 @@ public class AvailableHighVoltageSwitch {
 
     public void setIsAvailable(String isAvailable) {
         this.isAvailable = isAvailable;
-    }
+    }*/
 }

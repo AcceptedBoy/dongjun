@@ -55,12 +55,17 @@ public class HighVoltageSwitchController {
 
 		if (lineId != null) {
 
-			model.addAttribute("switches", AvailableHighVoltageSwitch.change2VoList(
+			/*model.addAttribute("switches", AvailableHighVoltageSwitch.change2VoList(
 					switchService
-							.selectByParameters(MyBatisMapUtil.warp("line_id", lineId))));
+							.selectByParameters(MyBatisMapUtil.warp("line_id", lineId))));*/
+			model.addAttribute("switches",
+					switchService
+							.selectByParameters(MyBatisMapUtil.warp("line_id", lineId)));
 		} else {
-			model.addAttribute("switches", AvailableHighVoltageSwitch.change2VoList(
-					switchService.selectByParameters(null)));
+			/*model.addAttribute("switches", AvailableHighVoltageSwitch.change2VoList(
+					switchService.selectByParameters(null)));*/
+			model.addAttribute("switches",
+					switchService.selectByParameters(null));
 		}
 		return "high_voltage_switch_manager";
 	}

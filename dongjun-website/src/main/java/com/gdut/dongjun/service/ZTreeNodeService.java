@@ -18,9 +18,7 @@ public interface ZTreeNodeService {
 	 *
 	 * @param company_id 公司id
 	 * @param type 开关类型
-	 * @param isAvailable 如果为true，返回的类型的开关必须是已经授权的
 	 * @return
 	 */
-	public List<ZTreeNode> getSwitchTree(String company_id, String type,
-												  boolean isAvailable);
+	public List<ZTreeNode> getSwitchTree(String company_id, String type);
 }

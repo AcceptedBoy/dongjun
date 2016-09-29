@@ -91,20 +91,23 @@ public class SubstationController {
 	 */
 	@RequestMapping("/del_substation")
 	@ResponseBody
-	@RequiresPermissions("substation_admin:delete")
+	//@RequiresPermissions("substation_admin:delete")
 	public String delSwitch(@RequestParam(required = true) String switchId,
 			Model model, RedirectAttributes redirectAttributes) {
 
-		String lineId = substationService.selectByPrimaryKey(switchId)
-				.getCompanyId();
-		try {
-
-			substationService.deleteByPrimaryKey(switchId);// 删除这个开关
-		} catch (Exception e) {
-			logger.error("删除开关失败！");
+		Substation substation = substationService.selectByPrimaryKey(switchId);
+		if(substation != null) {
+			try {
+				substationService.deleteByPrimaryKey(switchId);// 删除这个开关
+			} catch (Exception e) {
+				logger.error("删除开关失败！");
+				return null;
+			}
+			return substation.getCompanyId();
+		} else {
 			return null;
 		}
-		return lineId;
+
 	}
 
 	/**
@@ -120,7 +123,7 @@ public class SubstationController {
 	 */
 	@RequestMapping("/edit_substation")
 	@ResponseBody
-	@RequiresPermissions("substation_admin:edit")
+	//@RequiresPermissions("substation_admin:edit")
 	public String editSwitch(Substation switch1, Model model,
 			RedirectAttributes redirectAttributes) {
 

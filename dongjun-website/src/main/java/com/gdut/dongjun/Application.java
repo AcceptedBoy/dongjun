@@ -1,6 +1,7 @@
 package com.gdut.dongjun;
 
 import com.gdut.dongjun.service.rmi.HardwareService;
+import com.gdut.dongjun.webservice.Constant;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.authc.credential.SimpleCredentialsMatcher;
@@ -42,6 +43,18 @@ import java.util.Map;
 @EnableAsync
 @EnableScheduling
 public class Application extends SpringBootServletInitializer {
+
+	/*--------------------------------------------------------
+	 * 					常量配置
+	 * -------------------------------------------------------
+	 */
+	@Bean
+	public Constant projectConstant() {
+		Constant constant = new Constant();
+		constant.setIsService(true);
+		constant.setPreSerivcePath("http://localhost:8080/dongjun_service/ws/common");
+		return constant;
+	}
 
 	
 	/*--------------------------------------------------------

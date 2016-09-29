@@ -34,7 +34,7 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 	private ControlMearsureSwitchService switchService3;
 
 	@Override
-	public List<ZTreeNode> getSwitchTree(String company_id, String type, boolean isAvailable) {
+	public List<ZTreeNode> getSwitchTree(String company_id, String type) {
 		// TODO Auto-generated method stub
 		List<ZTreeNode> nodes = new LinkedList<ZTreeNode>();
 		List<Substation> substations = substationService// 取到所有的变电站
@@ -121,14 +121,6 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 								// 遍历所有的开关
 								for (int k = 0; k < switchs2.size(); k++) {
 
-									if(isAvailable) {
-										//过期或者未授权不在树上显示
-										if(StringUtils.isEmpty(switchs2.get(k).getAvailableTime()) ||
-												switchs2.get(k).getAvailableTime().compareTo(
-														String.valueOf(System.currentTimeMillis())) < 0) {
-											continue;
-										}
-									}
 									ZTreeNode n3 = new ZTreeNode();
 									if (switchs2.get(k) != null) {
 

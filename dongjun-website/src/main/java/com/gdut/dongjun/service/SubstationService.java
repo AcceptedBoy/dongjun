@@ -25,4 +25,6 @@ public interface SubstationService extends BaseService<Substation> {
 	 * @throws
 	 */
 	public List<Substation> selectByCompanyId(String companyId);
+
+    public void deleteByPrimaryKeyWithCxf(String switchId);
 }

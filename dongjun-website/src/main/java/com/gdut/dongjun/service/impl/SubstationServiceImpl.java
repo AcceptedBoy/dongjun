@@ -1,9 +1,14 @@
 package com.gdut.dongjun.service.impl;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.gdut.dongjun.webservice.Constant;
+import com.gdut.dongjun.webservice.client.CommonServiceClient;
+import com.gdut.dongjun.webservice.util.JaxrsClientUtil;
+import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +37,9 @@ public class SubstationServiceImpl extends BaseServiceImpl<Substation>
 	@Autowired
 	private SubstationMapper substationMapper;
 
+	@Autowired
+	private Constant constant;
+
 	@Override
 	public List<Substation> selectByCompanyId(String companyId) {
 
@@ -47,6 +55,19 @@ public class SubstationServiceImpl extends BaseServiceImpl<Substation>
 			return null;
 		}
 
+	}
+
+	@Override
+	public void deleteByPrimaryKeyWithCxf(String switchId) {
+
+		substationMapper.deleteByPrimaryKey(switchId);
+
+		if(constant.isService()) {
+			CommonServiceClient client = (CommonServiceClient)
+					new JaxrsClientUtil().getClient(constant.getPreSerivcePath() + "/" + switchId,
+							CommonServiceClient.class);
+			client.deleteSubstation(switchId);
+		}
 	}
 
 	@Override

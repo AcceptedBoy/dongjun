@@ -88,7 +88,7 @@ public class LineController {
 	 */
 	@RequestMapping("/del_line")
 	@ResponseBody
-	@RequiresPermissions("line_admin:delete")
+	//@RequiresPermissions("line_admin:delete")
 	public String deleLine(@RequestParam(required = true) String switchId,
 			Model model, RedirectAttributes redirectAttributes) {
 
@@ -108,7 +108,7 @@ public class LineController {
 	 */
 	@RequestMapping("/edit_line")
 	@ResponseBody
-	@RequiresPermissions("line_admin:edit")
+	//@RequiresPermissions("line_admin:edit")
 	public String editSwitch(Line switch1, Model model,
 			RedirectAttributes redirectAttributes) {
 
