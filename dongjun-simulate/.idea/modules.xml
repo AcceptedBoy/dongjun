@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/../dongjun-website/dongjun.iml" filepath="$PROJECT_DIR$/../dongjun-website/dongjun.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../dongjun-company/dongjun-company.iml" filepath="$PROJECT_DIR$/../dongjun-company/dongjun-company.iml" />
       <module fileurl="file://$PROJECT_DIR$/../dongjun-service/dongjun-service.iml" filepath="$PROJECT_DIR$/../dongjun-service/dongjun-service.iml" />
       <module fileurl="file://$PROJECT_DIR$/../dongjun-hardware/dongjun_hardware.iml" filepath="$PROJECT_DIR$/../dongjun-hardware/dongjun_hardware.iml" />
       <module fileurl="file://$PROJECT_DIR$/dongjun_simulate.iml" filepath="$PROJECT_DIR$/dongjun_simulate.iml" />
