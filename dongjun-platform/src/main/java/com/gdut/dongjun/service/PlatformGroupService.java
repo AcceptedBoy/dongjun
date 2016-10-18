@@ -7,4 +7,12 @@ import com.gdut.dongjun.service.base.BaseService;
  * Created by symon on 16-10-18.
  */
 public interface PlatformGroupService extends BaseService<PlatformGroup> {
+
+    /**
+     * 根据公司id和类型获取其默认的分组
+     * @param companyId 公司id
+     * @param type 类型
+     * @return
+     */
+    public PlatformGroup getDefaultGroup(String companyId, int type);
 }

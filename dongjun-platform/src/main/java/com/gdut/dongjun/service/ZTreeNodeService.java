@@ -22,5 +22,5 @@ public interface ZTreeNodeService {
 	 */
 	public List<ZTreeNode> getSwitchTree(String company_id, String type);
 
-	public void groupTree(String companyId, Integer deviceType);
+	public List<ZTreeNode> groupTree(String companyId, Integer deviceType);
 }

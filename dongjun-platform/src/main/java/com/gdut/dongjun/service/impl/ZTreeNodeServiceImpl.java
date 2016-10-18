@@ -7,15 +7,12 @@ import com.gdut.dongjun.util.MyBatisMapUtil;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import sun.plugin.services.PlatformService;
 
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import static javafx.scene.input.KeyCode.Y;
 
 /**
  * @Title: ZTreeNodeServiceImpl.java
@@ -203,24 +200,58 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 	 * 获取在主页上显示的分组信息
 	 * @param companyId
 	 * @param deviceType
-     */
+	 */
 	@Override
-	public void groupTree(String companyId, Integer deviceType) {
+	public List<ZTreeNode> groupTree(String companyId, Integer deviceType) {
 
 		Map<String, Object> params = new HashMap<>();
-		params.put("companyId", companyId);
-		params.put("deviceType", deviceType);
+		params.put("company_id", companyId);
+		params.put("type", deviceType);
 		List<PlatformGroup> groupList =
 				groupService.selectByParameters(MyBatisMapUtil.warp(params));
 
-		List<ZTreeNode> groupNode = new LinkedList<ZTreeNode>();
+		Map<Integer, List<ZTreeNode>> zTreeMap = new HashMap<>();
+		List<ZTreeNode> result = new LinkedList<ZTreeNode>();
+
+		for(PlatformGroup group : groupList) {
+			zTreeMap.put(group.getId(), new LinkedList<ZTreeNode>());
+		}
+
 		if(deviceType == 1) {
 			//高压
 			List<HighVoltageSwitch> hvList = switchService2.selectByParameters(null);
-			for(PlatformGroup group : groupList) {
-
+			for(HighVoltageSwitch hvSwitch : hvList) {
+				ZTreeNode deviceNode = new ZTreeNode();
+				deviceNode.setId(hvSwitch.getId());
+				deviceNode.setType(deviceType);
+				deviceNode.setLineId(hvSwitch.getLineId());
+				deviceNode.setName(hvSwitch.getName());
+				deviceNode.setShowName(hvSwitch.getShowName());
+				deviceNode.setLatitude(String.valueOf(hvSwitch.getLatitude()));
+				deviceNode.setLongitude(String.valueOf(hvSwitch.getLongitude()));
+				deviceNode.setAddress(hvSwitch.getAddress());
+				deviceNode.setChildren(null);
+				if(zTreeMap.containsKey(hvSwitch.getGroupId())) {
+					zTreeMap.get(hvSwitch.getGroupId()).add(deviceNode);
+				} else {
+					deviceNode.setChildren(null);
+					result.add(deviceNode);
+				}
 			}
 		}
+
+		for(PlatformGroup group : groupList) {
+			ZTreeNode groupNode = new ZTreeNode();
+			groupNode.setId(String.valueOf(group.getId()));
+			groupNode.setName(group.getName());
+			groupNode.setShowName(group.getName());
+			groupNode.setType(deviceType);
+			//添加子节点
+			groupNode.setChildren(zTreeMap.get(group.getId()));
+			//添加到结果
+			result.add(groupNode);
+		}
+		return result;
 	}
 
 

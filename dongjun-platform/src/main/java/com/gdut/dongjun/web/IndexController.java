@@ -90,8 +90,8 @@ public class IndexController {
      */
 	@RequestMapping("/group_tree")
 	@ResponseBody
-	public ResponseMessage groupTree(String companyId, Integer deviceType) {
-		zTreeNodeService.groupTree(companyId, deviceType);
+	public Object groupTree(String companyId, Integer deviceType) {
+		return zTreeNodeService.groupTree(companyId, deviceType);
 	}
 
 	/**
