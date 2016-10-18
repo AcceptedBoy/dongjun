@@ -52,6 +52,7 @@
         <option value="$PROJECT_DIR$/../dongjun-service/pom.xml" />
         <option value="$PROJECT_DIR$/../dongjun-website/pom.xml" />
         <option value="$PROJECT_DIR$/../dongjun-company/pom.xml" />
+        <option value="$PROJECT_DIR$/../dongjun-platform/pom.xml" />
       </list>
     </option>
     <option name="ignoredFiles">

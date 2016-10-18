@@ -45,7 +45,6 @@ import java.util.Map;
 @EnableAspectJAutoProxy
 @EnableAsync
 @EnableScheduling
-@ConfigurationProperties()
 public class Application extends SpringBootServletInitializer {
 
 	/*--------------------------------------------------------
@@ -88,8 +87,8 @@ public class Application extends SpringBootServletInitializer {
 	@Bean
 	public Constant projectConstant() {
 		Constant constant = new Constant();
-		constant.setIsService(canService);
-		constant.setPreSerivcePath(cxfServiceUrl);
+		constant.setIsService(true);
+		constant.setPreSerivcePath("http://localhost:6666/dongjun_service/ws/common");
 		return constant;
 	}
 
@@ -106,19 +105,19 @@ public class Application extends SpringBootServletInitializer {
 	public DataSource dataSource() {
 
 		ComboPooledDataSource ds = new ComboPooledDataSource();
-		ds.setJdbcUrl(jdbcUrl);
-		ds.setUser(user);
-		ds.setPassword(password);//elecon
+		ds.setJdbcUrl("jdbc:mysql://localhost:3306/elecon?useUnicode=true&amp;charaterEncoding=utf-8&zeroDateTimeBehavior=convertToNull");
+		ds.setUser("root");
+		ds.setPassword("root");//elecon
 		try {
-			ds.setDriverClass(driver);
+			ds.setDriverClass("com.mysql.jdbc.Driver");
 		} catch (PropertyVetoException e) {
 			e.printStackTrace();
 		}
-		ds.setAcquireIncrement(acquireIncrement);
-		ds.setInitialPoolSize(initialPoolSize);
-		ds.setMinPoolSize(minPoolSize);
-		ds.setMaxPoolSize(maxPoolSize);
-		ds.setMaxIdleTime(maxIdleTime);
+		ds.setAcquireIncrement(5);
+		ds.setInitialPoolSize(10);
+		ds.setMinPoolSize(5);
+		ds.setMaxPoolSize(60);
+		ds.setMaxIdleTime(120);
 		return ds;
 	}
 

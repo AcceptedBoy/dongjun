@@ -24,6 +24,7 @@
         <processorPath useClasspath="true" />
         <module name="dongjun" />
         <module name="dongjun-company" />
+        <module name="dongjun-platform" />
         <module name="dongjun-service" />
         <module name="dongjun_simulate" />
       </profile>
@@ -32,6 +33,7 @@
       <module name="dongjun" target="1.7" />
       <module name="dongjun--service" target="1.7" />
       <module name="dongjun-company" target="1.7" />
+      <module name="dongjun-platform" target="1.7" />
       <module name="dongjun-service" target="1.7" />
       <module name="dongjun_hardware" target="1.7" />
       <module name="dongjun_simulate" target="1.7" />

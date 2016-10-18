@@ -1,5 +1,6 @@
 package com.gdut.dongjun.web;
 
+import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.service.ZTreeNodeService;
 import com.gdut.dongjun.util.EncoderUtil;
@@ -83,40 +84,15 @@ public class IndexController {
 		return "current_voltage_chart";
 	}
 
+
 	/**
-	 * 
-	 * @Title: switchTree
-	 * @Description: TODO
-	 * @param @param companyId
-	 * @param @param model
-	 * @param @param redirectAttributes
-	 * @param @return
-	 * @return Object
-	 * @throws
-	 */
-	@RequestMapping("/switch_tree")
+	 * symon 获取分组接口
+     */
+	@RequestMapping("/group_tree")
 	@ResponseBody
-	public Object switchTree(@RequestParam(required = true) String type,
-			Model model, HttpSession session,
-			RedirectAttributes redirectAttributes) {
-
-		User user = (User) session.getAttribute("currentUser");
-		if (user != null && user.getCompanyId() != null) {
-			if(constant.isService()) {
-				CommonServiceClient client = (CommonServiceClient)
-						new JaxrsClientUtil().getClient(constant.getPreSerivcePath(),
-								CommonServiceClient.class);
-				return client.getSwitchTree(user.getCompanyId(), type);
-			}
-			return zTreeNodeService.getSwitchTree(user.getCompanyId(), type);
-		} else {
-
-			return "";
-		}
+	public ResponseMessage groupTree(String companyId, Integer deviceType) {
+		zTreeNodeService.groupTree(companyId, deviceType);
 	}
-
-	
-	
 
 	/**
 	 * 

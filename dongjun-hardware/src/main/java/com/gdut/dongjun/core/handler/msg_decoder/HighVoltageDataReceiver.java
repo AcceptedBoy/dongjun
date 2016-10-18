@@ -17,9 +17,6 @@ package com.gdut.dongjun.core.handler.msg_decoder;
 
 import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.SwitchGPRS;
-import com.gdut.dongjun.core.chain.AbstractHandler;
-import com.gdut.dongjun.core.chain.high.HighVoltageHandlerChain;
-import com.gdut.dongjun.core.chain.high.factory.HighVoltageChainFactory;
 import com.gdut.dongjun.core.device_message_engine.impl.HighVoltageSwitchMessageEngine;
 import com.gdut.dongjun.core.server.impl.HighVoltageServer;
 import com.gdut.dongjun.domain.HighVoltageStatus;
@@ -72,18 +69,9 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	@Autowired
 	private HighVoltageSwitchService switchService;
 
-	@Resource
-	public void setHandlerChain(HighVoltageChainFactory factory) {
-		this.handlerChain = factory.getInstance();
-	}
-
 	public HighVoltageDataReceiver() {
 		super();
 	}
-
-	private static CopyOnWriteArrayList<AbstractHandler> handlerChain;
-
-	private static int plain = 0;
 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -99,17 +87,14 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 
 		String data = ((String) msg).replace(" ", "");
-		if(plain == 1) {
-			new HighVoltageHandlerChain(handlerChain, ctx, data, data.substring(14, 16)).process();
-		} else {
-			logger.info("接收到的报文： " + data);
 
-			String hitchEventDesc = "控制回路";
-			if (data.length() == 190) {
-				hitchEventDesc = getHitchReason(data.substring(140, 160));
-			}
-			handleIdenCode(ctx, data, hitchEventDesc);
+		logger.info("接收到的报文： " + data);
+
+		String hitchEventDesc = "控制回路";
+		if (data.length() == 190) {
+			hitchEventDesc = getHitchReason(data.substring(140, 160));
 		}
+		handleIdenCode(ctx, data, hitchEventDesc);
 	}
 
 	@Override

@@ -1,3 +1,4 @@
+/*
 package com.gdut.dongjun.webservice.aspect;
 
 import com.gdut.dongjun.domain.po.HighVoltageSwitch;
@@ -14,9 +15,11 @@ import org.springframework.stereotype.Component;
 import javax.annotation.Resource;
 
 
+*/
 /**
  * Created by symon on 16-9-29.
- */
+ *//*
+
 @Aspect
 @Component
 public class CommonAspect {
@@ -107,3 +110,4 @@ public class CommonAspect {
         }
     }
 }
+*/

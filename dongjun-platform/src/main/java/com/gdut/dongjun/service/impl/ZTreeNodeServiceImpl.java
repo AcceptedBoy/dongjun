@@ -4,12 +4,18 @@ import com.gdut.dongjun.domain.po.*;
 import com.gdut.dongjun.service.*;
 import com.gdut.dongjun.service.base.BaseService;
 import com.gdut.dongjun.util.MyBatisMapUtil;
-import org.apache.commons.lang.StringUtils;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import sun.plugin.services.PlatformService;
 
+
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+
+import static javafx.scene.input.KeyCode.Y;
 
 /**
  * @Title: ZTreeNodeServiceImpl.java
@@ -32,6 +38,9 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 	private HighVoltageSwitchService switchService2;
 	@Autowired
 	private ControlMearsureSwitchService switchService3;
+
+	@Autowired
+	private PlatformGroupService groupService;
 
 	@Override
 	public List<ZTreeNode> getSwitchTree(String company_id, String type) {
@@ -189,6 +198,31 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 		}
 		return nodes;
 	}
+
+	/**
+	 * 获取在主页上显示的分组信息
+	 * @param companyId
+	 * @param deviceType
+     */
+	@Override
+	public void groupTree(String companyId, Integer deviceType) {
+
+		Map<String, Object> params = new HashMap<>();
+		params.put("companyId", companyId);
+		params.put("deviceType", deviceType);
+		List<PlatformGroup> groupList =
+				groupService.selectByParameters(MyBatisMapUtil.warp(params));
+
+		List<ZTreeNode> groupNode = new LinkedList<ZTreeNode>();
+		if(deviceType == 1) {
+			//高压
+			List<HighVoltageSwitch> hvList = switchService2.selectByParameters(null);
+			for(PlatformGroup group : groupList) {
+
+			}
+		}
+	}
+
 
 	/*@Test
 	public void t() {

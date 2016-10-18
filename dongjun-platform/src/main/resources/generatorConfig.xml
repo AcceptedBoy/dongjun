@@ -6,7 +6,7 @@
 	<classPathEntry location="/home/symon/文档/generator/mysql-connector-java-5.1.7-bin.jar" />
 	<context id="context1" targetRuntime="MyBatis3">
 		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
-						connectionURL="jdbc:mysql://localhost:3306/elecon" userId="root"
+						connectionURL="jdbc:mysql://115.28.7.40:3306/elecon" userId="root"
 						password="root">
 		</jdbcConnection>
 		<javaModelGenerator targetPackage="com.gdut.dongjun.domain.po"
@@ -20,6 +20,11 @@
 
 		<table schema="root" tableName="high_voltage_switch"
 			   domainObjectName="HighVoltageSwitch" enableCountByExample="false"
+			   enableUpdateByExample="false" enableDeleteByExample="false"
+			   enableSelectByExample="false" selectByExampleQueryId="false" />
+
+		<table schema="root" tableName="platform_group"
+			   domainObjectName="PlatformGroup" enableCountByExample="false"
 			   enableUpdateByExample="false" enableDeleteByExample="false"
 			   enableSelectByExample="false" selectByExampleQueryId="false" />
 	</context>

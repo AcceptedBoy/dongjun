@@ -14,10 +14,12 @@ import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.DependsOn;
@@ -48,15 +50,48 @@ public class Application extends SpringBootServletInitializer {
 	 * 					常量配置
 	 * -------------------------------------------------------
 	 */
+	@Value("${cxf.service.url}")
+	private String cxfServiceUrl;
+
+	@Value("${cxf.service.canService}")
+	private boolean canService;
+
+	@Value("${c3p0.jdbcUrl}")
+	private String jdbcUrl;
+
+	@Value("${c3p0.user}")
+	private String user;
+
+	@Value("${c3p0.password}")
+	private String password;
+
+	@Value("${c3p0.driver}")
+	private String driver;
+
+	@Value("${c3p0.acquireIncrement}")
+	private int acquireIncrement;
+
+	@Value("${c3p0.initialPoolSize}")
+	private int initialPoolSize;
+
+	@Value("${c3p0.minPoolSize}")
+	private int minPoolSize;
+
+	@Value("${c3p0.maxPoolSize}")
+	private int maxPoolSize;
+
+	@Value("${c3p0.maxIdleTime}")
+	private int maxIdleTime;
+
 	@Bean
 	public Constant projectConstant() {
 		Constant constant = new Constant();
 		constant.setIsService(true);
-		constant.setPreSerivcePath("http://localhost:8080/dongjun_service/ws/common");
+		constant.setPreSerivcePath("http://localhost:6666/dongjun_service/ws/common");
 		return constant;
 	}
 
-	
+
 	/*--------------------------------------------------------
 	 * 					数据库配置
 	 * -------------------------------------------------------
@@ -69,8 +104,7 @@ public class Application extends SpringBootServletInitializer {
 	public DataSource dataSource() {
 
 		ComboPooledDataSource ds = new ComboPooledDataSource();
-		ds.setJdbcUrl("jdbc:mysql://localhost:3306/elecon?useUnicode=true&amp;charaterEncoding=utf-8&" +
-				"zeroDateTimeBehavior=convertToNull");
+		ds.setJdbcUrl("jdbc:mysql://115.28.7.40:3306/elecon?useUnicode=true&amp;charaterEncoding=utf-8&zeroDateTimeBehavior=convertToNull");
 		ds.setUser("root");
 		ds.setPassword("root");//elecon
 		try {
@@ -123,7 +157,7 @@ public class Application extends SpringBootServletInitializer {
 		}
 		return sst;
 	}
-	
+
 	/*--------------------------------------------------------
 	 * 					事务管理配置
 	 * -------------------------------------------------------
@@ -182,7 +216,7 @@ public class Application extends SpringBootServletInitializer {
 	}
 
 	/**
-	 * 
+	 *
 	 */
 	@Bean
 	public LifecycleBeanPostProcessor lifecycleBeanPostProcessor() {
@@ -214,7 +248,7 @@ public class Application extends SpringBootServletInitializer {
 		factoryBean.setLoginUrl("/dongjun/login");
 		return factoryBean;
 	}
-	
+
 	/**
 	 * <p>*：匹配零个或多个字符串
 	 * <p>**：匹配路径中的零个或多个路径
@@ -249,14 +283,14 @@ public class Application extends SpringBootServletInitializer {
 
 		HashedCredentialsMatcher credentialsMatcher = new HashedCredentialsMatcher();
 		SimpleCredentialsMatcher matcher = new SimpleCredentialsMatcher();
-		
+
 		credentialsMatcher.setHashAlgorithmName("SHA-256");
 		realm.setDataSource(dataSource());
 		realm.setCredentialsMatcher(matcher);
 		realm.setAuthenticationCacheName("shiro.authorizationCache");
 		realm.setAuthenticationQuery("select password from user where name = ?");
 		realm.setSaltStyle(SaltStyle.NO_SALT);
-		
+
 		/**
 		 * 查询用户的角色时只能通过用户的名字查，查询用户的权限时只能通过用户的角色名查
 		 */
@@ -274,37 +308,37 @@ public class Application extends SpringBootServletInitializer {
 	 * 					远程方法调用
 	 * -------------------------------------------------------
 	 */
-	
+
 	/**
 	 * rmi 远程调用方法，获取与硬件交互的方法
 	 */
 	@Bean
 	public RmiProxyFactoryBean hardwareService() {
 		RmiProxyFactoryBean proxy = new RmiProxyFactoryBean();
-		//proxy.setServiceUrl("rmi://115.28.7.40:9998/HardwareService");
-		proxy.setServiceUrl("rmi://localhost:9998/HardwareService");
+		proxy.setServiceUrl("rmi://115.28.7.40:9998/HardwareService");
+		//proxy.setServiceUrl("rmi://localhost:9998/HardwareService");
 		proxy.setServiceInterface(HardwareService.class);
 		//解决重启 rmi 的服务器后会出现拒绝连接或找不到服务对象的错误
 		proxy.setLookupStubOnStartup(false);
 		proxy.setRefreshStubOnConnectFailure(true);
 		return proxy;
 	}
-	
+
 	/**
 	 * {@code @Autowired
-     * private Validator validator;}
+	 * private Validator validator;}
 	 */
 	@Bean
 	public LocalValidatorFactoryBean validator() {
 		return new LocalValidatorFactoryBean();
 	}
-	
+
 	@Override
 	protected SpringApplicationBuilder configure(
 			SpringApplicationBuilder application) {
 		return application.sources(Application.class);
 	}
-	
+
 	public static void main(String[] args) throws Exception {
 		SpringApplication.run(Application.class, args);
 	}

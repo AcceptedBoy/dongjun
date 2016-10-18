@@ -1,3 +1,4 @@
+/*
 package com.gdut.dongjun.webservice;
 
 
@@ -15,9 +16,11 @@ import org.springframework.stereotype.Component;
 import java.net.*;
 
 
+*/
 /**
  * Created by symon on 16-9-29.
- */
+ *//*
+
 @Component
 public class SystemInitalStartup implements InitializingBean {
 
@@ -65,3 +68,4 @@ public class SystemInitalStartup implements InitializingBean {
     }
 }
 
+*/
