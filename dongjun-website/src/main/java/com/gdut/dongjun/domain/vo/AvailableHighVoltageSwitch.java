@@ -1,20 +1,15 @@
 package com.gdut.dongjun.domain.vo;
 
-import com.gdut.dongjun.domain.po.HighVoltageSwitch;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.ListUtils;
-import org.apache.commons.lang.StringUtils;
 
-import java.util.ArrayList;
-import java.util.List;
 
 /**
- * 高压开关vo类，包含是否激活的字符串
+ * 高压开关vo类,包含是否激活的字符串
  * Created by AcceptedBoy on 2016/9/6.
  */
+
 public class AvailableHighVoltageSwitch {
 
-    /*private String id;
+    private String id;
 
     private String name;
 
@@ -38,74 +33,6 @@ public class AvailableHighVoltageSwitch {
 
     //包含有三种情况：未验证，已验证，已过期
     private String isAvailable;
-
-    public static AvailableHighVoltageSwitch change2Vo(HighVoltageSwitch hSwitch) {
-        return new AvailableHighVoltageSwitch(hSwitch);
-    }
-
-    public static List<?> change2VoList(List<HighVoltageSwitch> switchList) {
-        if(CollectionUtils.isEmpty(switchList)) {
-            return ListUtils.EMPTY_LIST;
-        } else {
-            List<AvailableHighVoltageSwitch> resultList = new ArrayList<>(switchList.size());
-            for(HighVoltageSwitch hSwitch : switchList) {
-                resultList.add(change2Vo(hSwitch));
-            }
-            return resultList;
-        }
-    }
-
-    public AvailableHighVoltageSwitch(String id, String name, String address, String simNumber,
-                                      String deviceNumber, Float longitude, Float latitude,
-                                      Integer inlineIndex, String lineId, String showName,
-                                      String onlineTime, String isAvailable) {
-        this.id = id;
-        this.name = name;
-        this.address = address;
-        this.simNumber = simNumber;
-        this.deviceNumber = deviceNumber;
-        this.longitude = longitude;
-        this.latitude = latitude;
-        this.inlineIndex = inlineIndex;
-        this.lineId = lineId;
-        this.showName = showName;
-        this.onlineTime = onlineTime;
-        this.isAvailable = isAvailable;
-    }
-
-    public AvailableHighVoltageSwitch(HighVoltageSwitch hSwitch) {
-        this(hSwitch.getId(), hSwitch.getName(), hSwitch.getAddress(), hSwitch.getSimNumber(),
-                hSwitch.getDeviceNumber(), hSwitch.getLongitude(), hSwitch.getLatitude(),
-                hSwitch.getInlineIndex(), hSwitch.getLineId(), hSwitch.getShowName(),
-                hSwitch.getOnlineTime(),
-                getVoIsAvailable(hSwitch.getAvailableTime()));
-    }
-
-    private static final String NO_VALID = "未验证";
-
-    private static final String HAS_VALID = "已验证";
-
-    private static final String HAS_OUT_TIME = "已过期";
-    *//**
-     * 根据数据库中的{@code availableTime}获取vo类中的isAvailable的情况：1. 未验证 2. 已验证 3. 已过期
-     * @param availableTime
-     * @return
-     *//*
-    private static String getVoIsAvailable(String availableTime) {
-        if(StringUtils.isEmpty(availableTime)) {
-            return NO_VALID;
-        } else {
-            if(availableTime.compareTo(String.valueOf(System.currentTimeMillis())) < 0) {
-                return HAS_OUT_TIME;
-            } else {
-                return HAS_VALID;
-            }
-        }
-    }
-
-    public AvailableHighVoltageSwitch() {
-
-    }
 
     public String getId() {
         return id;
@@ -201,5 +128,5 @@ public class AvailableHighVoltageSwitch {
 
     public void setIsAvailable(String isAvailable) {
         this.isAvailable = isAvailable;
-    }*/
+    }
 }

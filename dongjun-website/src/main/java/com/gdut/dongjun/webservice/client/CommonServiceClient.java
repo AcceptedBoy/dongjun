@@ -5,6 +5,7 @@ import javax.ws.rs.Produces;
 import com.gdut.dongjun.domain.po.HighVoltageSwitch;
 import com.gdut.dongjun.domain.po.Line;
 import com.gdut.dongjun.domain.po.Substation;
+import com.gdut.dongjun.domain.vo.AvailableHighVoltageSwitch;
 import com.gdut.dongjun.service.impl.ZTreeNode;
 import com.gdut.dongjun.webservice.po.Center;
 import com.gdut.dongjun.webservice.po.InitialParam;
@@ -84,4 +85,9 @@ public interface CommonServiceClient extends Serializable {
     public String getSwitchTree(
             @FormParam("companyId") String company_id,
             @FormParam("type") String type);
+
+    @POST
+    @Path("/switchs_of_line")
+    public List<AvailableHighVoltageSwitch> switchsOfLine(@FormParam("type") Integer type,
+                                                          @FormParam("lineId") String lineId);
 }

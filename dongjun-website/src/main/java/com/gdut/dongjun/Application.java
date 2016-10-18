@@ -3,6 +3,7 @@ package com.gdut.dongjun;
 import com.gdut.dongjun.service.rmi.HardwareService;
 import com.gdut.dongjun.webservice.Constant;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import com.sun.xml.internal.ws.api.PropertySet;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.authc.credential.SimpleCredentialsMatcher;
 import org.apache.shiro.realm.jdbc.JdbcRealm;
@@ -14,10 +15,12 @@ import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.DependsOn;
@@ -42,17 +45,51 @@ import java.util.Map;
 @EnableAspectJAutoProxy
 @EnableAsync
 @EnableScheduling
+@ConfigurationProperties()
 public class Application extends SpringBootServletInitializer {
 
 	/*--------------------------------------------------------
 	 * 					常量配置
 	 * -------------------------------------------------------
 	 */
+	@Value("${cxf.service.url}")
+	private String cxfServiceUrl;
+
+	@Value("${cxf.service.canService}")
+	private boolean canService;
+
+	@Value("${c3p0.jdbcUrl}")
+	private String jdbcUrl;
+
+	@Value("${c3p0.user}")
+	private String user;
+
+	@Value("${c3p0.password}")
+	private String password;
+
+	@Value("${c3p0.driver}")
+	private String driver;
+
+	@Value("${c3p0.acquireIncrement}")
+	private int acquireIncrement;
+
+	@Value("${c3p0.initialPoolSize}")
+	private int initialPoolSize;
+
+	@Value("${c3p0.minPoolSize}")
+	private int minPoolSize;
+
+	@Value("${c3p0.maxPoolSize}")
+	private int maxPoolSize;
+
+	@Value("${c3p0.maxIdleTime}")
+	private int maxIdleTime;
+
 	@Bean
 	public Constant projectConstant() {
 		Constant constant = new Constant();
-		constant.setIsService(true);
-		constant.setPreSerivcePath("http://localhost:8080/dongjun_service/ws/common");
+		constant.setIsService(canService);
+		constant.setPreSerivcePath(cxfServiceUrl);
 		return constant;
 	}
 
@@ -69,20 +106,19 @@ public class Application extends SpringBootServletInitializer {
 	public DataSource dataSource() {
 
 		ComboPooledDataSource ds = new ComboPooledDataSource();
-		ds.setJdbcUrl("jdbc:mysql://localhost:3306/elecon?useUnicode=true&amp;charaterEncoding=utf-8&" +
-				"zeroDateTimeBehavior=convertToNull");
-		ds.setUser("root");
-		ds.setPassword("root");//elecon
+		ds.setJdbcUrl(jdbcUrl);
+		ds.setUser(user);
+		ds.setPassword(password);//elecon
 		try {
-			ds.setDriverClass("com.mysql.jdbc.Driver");
+			ds.setDriverClass(driver);
 		} catch (PropertyVetoException e) {
 			e.printStackTrace();
 		}
-		ds.setAcquireIncrement(5);
-		ds.setInitialPoolSize(10);
-		ds.setMinPoolSize(5);
-		ds.setMaxPoolSize(60);
-		ds.setMaxIdleTime(120);
+		ds.setAcquireIncrement(acquireIncrement);
+		ds.setInitialPoolSize(initialPoolSize);
+		ds.setMinPoolSize(minPoolSize);
+		ds.setMaxPoolSize(maxPoolSize);
+		ds.setMaxIdleTime(maxIdleTime);
 		return ds;
 	}
 

@@ -31,9 +31,13 @@ public class MonitorStartup implements InitializingBean {
 	
 	@Autowired
 	private ProtocolPortMapper protocolPortDAOImpl;
-	
+
 	private static Logger logger = Logger.getLogger(MonitorStartup.class);
 
+	/**
+	 * 在项目启动的时候开启监听端口
+	 * @throws Exception
+     */
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		

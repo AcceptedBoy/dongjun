@@ -9,6 +9,7 @@ import com.gdut.dongjun.webservice.util.JaxrsClientUtil;
 
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -23,22 +24,21 @@ public class CommonAspect {
 
     @Resource
     public void setClient(Constant constant) {
-        this.constant = constant;
         client = (CommonServiceClient)
                 new JaxrsClientUtil().getClient(constant.getPreSerivcePath(), CommonServiceClient.class);
     }
 
+    @Value("${cxf.service.canService}")
+    private boolean canService;
 
     private CommonServiceClient client;
-
-    private Constant constant;
 
     //execution(* AbstractWorkFlow+.executeWorkflow()) && target(ProductionWorkFlow)
 
     @After("execution(* com.gdut.dongjun.service.base.impl.BaseServiceImpl+.deleteByPrimaryKey(String))"
             + " && args(substationId) && target(com.gdut.dongjun.service.impl.SubstationServiceImpl)")
     public void deleteSubstation(String substationId) {
-        if(constant.isService()) {
+        if(canService) {
             client.deleteSubstation(substationId);
         }
     }
@@ -46,7 +46,7 @@ public class CommonAspect {
     @After("execution(* com.gdut.dongjun.service.base.impl.BaseServiceImpl+.deleteByPrimaryKey(String))"
             + " && args(lineId) && target(com.gdut.dongjun.service.impl.LineServiceImpl)")
     public void deleteLine(String lineId) {
-        if(constant.isService()) {
+        if(canService) {
             client.deleteLine(lineId);
         }
     }
@@ -54,7 +54,7 @@ public class CommonAspect {
     @After("execution(* com.gdut.dongjun.service.base.impl.BaseServiceImpl+.deleteByPrimaryKey(String))"
             + " && args(hvswitchId) && target(com.gdut.dongjun.service.impl.HighVoltageSwitchServiceImpl)")
     public void deleteHvswitch(String hvswitchId) {
-        if(constant.isService()) {
+        if(canService) {
             client.deleteHighVoltageSwitch(hvswitchId);
         }
     }
@@ -62,7 +62,7 @@ public class CommonAspect {
     @After("execution(* com.gdut.dongjun.domain.dao.base.impl.SinglePrimaryKeyBaseDAOImpl+.insert(*))"
             + " && args(substation) && target(com.gdut.dongjun.domain.dao.impl.SubstationDAOImpl)")
     public void add(Substation substation) {
-        if(constant.isService()) {
+        if(canService) {
             client.addSubstation(substation);
         }
     }
@@ -70,7 +70,7 @@ public class CommonAspect {
     @After("execution(* com.gdut.dongjun.domain.dao.base.impl.SinglePrimaryKeyBaseDAOImpl+.insert(*))"
             + " && args(line) && target(com.gdut.dongjun.domain.dao.impl.LineDAOImpl)")
     public void add(Line line) {
-        if(constant.isService()) {
+        if(canService) {
             client.addLine(line);
         }
     }
@@ -78,7 +78,7 @@ public class CommonAspect {
     @After("execution(* com.gdut.dongjun.domain.dao.base.impl.SinglePrimaryKeyBaseDAOImpl+.insert(*))"
             + " && args(highVoltageSwitch) && target(com.gdut.dongjun.domain.dao.impl.HighVoltageSwitchDAOImpl)")
     public void add(HighVoltageSwitch highVoltageSwitch) {
-        if(constant.isService()) {
+        if(canService) {
             client.addHighVoltageSwitch(highVoltageSwitch);
         }
     }
@@ -86,7 +86,7 @@ public class CommonAspect {
     @After("execution(* com.gdut.dongjun.domain.dao.base.impl.SinglePrimaryKeyBaseDAOImpl+.updateByPrimaryKey(*))"
             + " && args(substation) && target(com.gdut.dongjun.domain.dao.impl.SubstationDAOImpl)")
     public void update(Substation substation) {
-        if(constant.isService()) {
+        if(canService) {
             client.updateSubstation(substation);
         }
     }
@@ -94,7 +94,7 @@ public class CommonAspect {
     @After("execution(* com.gdut.dongjun.domain.dao.base.impl.SinglePrimaryKeyBaseDAOImpl+.updateByPrimaryKey(*))"
             + " && args(line) && target(com.gdut.dongjun.domain.dao.impl.LineDAOImpl)")
     public void update(Line line) {
-        if(constant.isService()) {
+        if(canService) {
             client.updateLine(line);
         }
     }
@@ -102,7 +102,7 @@ public class CommonAspect {
     @After("execution(* com.gdut.dongjun.domain.dao.base.impl.SinglePrimaryKeyBaseDAOImpl+.updateByPrimaryKey(*))"
             + " && args(highVoltageSwitch) && target(com.gdut.dongjun.domain.dao.impl.HighVoltageSwitchDAOImpl)")
     public void update(HighVoltageSwitch highVoltageSwitch) {
-        if(constant.isService()) {
+        if(canService) {
             client.updateVoltageSwitch(highVoltageSwitch);
         }
     }

@@ -6,6 +6,9 @@ import com.gdut.dongjun.domain.vo.AvailableHighVoltageSwitch;
 import com.gdut.dongjun.service.HighVoltageSwitchService;
 import com.gdut.dongjun.service.rmi.HardwareService;
 import com.gdut.dongjun.util.*;
+import com.gdut.dongjun.webservice.Constant;
+import com.gdut.dongjun.webservice.client.CommonServiceClient;
+import com.gdut.dongjun.webservice.util.JaxrsClientUtil;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +40,17 @@ public class HighVoltageSwitchController {
 	
 	@Resource(name="hardwareService")
 	private HardwareService hardwareService;
+
+	@Resource
+	public void setClient(Constant constant) {
+		this.constant = constant;
+		client = (CommonServiceClient)
+				new JaxrsClientUtil().getClient(constant.getPreSerivcePath(), CommonServiceClient.class);
+	}
+
+	private CommonServiceClient client;
+
+	private Constant constant;
 	
 	private static final Logger logger = Logger.getLogger(HighVoltageHitchEventController.class);
 
@@ -53,20 +67,10 @@ public class HighVoltageSwitchController {
 	@RequestMapping("/high_voltage_switch_manager")
 	public String getLineSwitchList(String lineId, Model model) {
 
-		if (lineId != null) {
-
-			/*model.addAttribute("switches", AvailableHighVoltageSwitch.change2VoList(
-					switchService
-							.selectByParameters(MyBatisMapUtil.warp("line_id", lineId))));*/
-			model.addAttribute("switches",
-					switchService
-							.selectByParameters(MyBatisMapUtil.warp("line_id", lineId)));
-		} else {
-			/*model.addAttribute("switches", AvailableHighVoltageSwitch.change2VoList(
-					switchService.selectByParameters(null)));*/
-			model.addAttribute("switches",
-					switchService.selectByParameters(null));
+		if(constant.isService()) {
+			model.addAttribute("switches", client.switchsOfLine(1, lineId));
 		}
+
 		return "high_voltage_switch_manager";
 	}
 
@@ -83,7 +87,7 @@ public class HighVoltageSwitchController {
 	@ResponseBody
 	public Object getAllLowVoltage_Switch() {
 
-		return switchService.selectByParameters(null);
+		return client.switchsOfLine(1, null);
 	}
 
 	/**
@@ -101,15 +105,14 @@ public class HighVoltageSwitchController {
 	public Object getLineSwitchListByLineId(
 			@RequestParam(required = true) String lineId, Model model) {
 
-		List<HighVoltageSwitch> switchs = switchService
-				.selectByParameters(MyBatisMapUtil.warp("line_id", lineId));
+		List<AvailableHighVoltageSwitch> switchs = client.switchsOfLine(1, lineId);
+
 		HashMap<String, Object> map = (HashMap<String, Object>) MapUtil.warp(
 				"draw", 1);
-		int size = switchs.size();
-		map.put("recordsTotal", size);
+		map.put("recordsTotal", switchs.size());
 		map.put("data", updateDate(switchs));
 		map.put("data", switchs);
-		map.put("recordsFiltered", size);
+		map.put("recordsFiltered", switchs.size());
 		return map;
 	}
 	
@@ -131,10 +134,10 @@ public class HighVoltageSwitchController {
 		return result;
 	}
 	
-	private List<HighVoltageSwitch> updateDate(List<HighVoltageSwitch> switchs) {
+	private List<AvailableHighVoltageSwitch> updateDate(List<AvailableHighVoltageSwitch> switchs) {
 		
 		String date = TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss");
-		for(HighVoltageSwitch hvSwitch : switchs) {
+		for(AvailableHighVoltageSwitch hvSwitch : switchs) {
 			
 			if(search(hvSwitch.getId())) {
 				hvSwitch.setOnlineTime(date);

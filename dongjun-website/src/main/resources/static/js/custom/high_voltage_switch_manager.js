@@ -109,6 +109,7 @@ function reloadDataTable(lineId){
 	        { "data": "simNumber" },
 	        { "data": "inlineIndex" },
 	        { "data": "onlineTime"},
+	        { "data": "isAvailable"},
 	        { "data": null},
             { "data": null},// 设置默认值 null，表示列不会获得数据源对象的信息,否则默认值会被覆盖掉
             { "data": null},// 设置默认值 null，表示列不会获得数据源对象的信息,否则默认值会被覆盖掉

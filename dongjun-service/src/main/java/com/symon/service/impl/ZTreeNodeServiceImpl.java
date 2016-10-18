@@ -150,6 +150,7 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 										n3.setAddress(switchs2.get(k).getAddress());
 										n3.setType(1);
 										n3.setShowName(switchs2.get(k).getShowName());
+										//n3.setAvailTime(switchs2.get(k).getAvailableTime());
 									}
 									switchNodes.add(n3);
 								}

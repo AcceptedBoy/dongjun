@@ -4,9 +4,9 @@ import com.symon.cxf.CommonService;
 import com.symon.cxf.po.InitialParam;
 import com.symon.po.*;
 import com.symon.service.*;
+import com.symon.util.MyBatisMapUtil;
+import com.symon.vo.AvailableHighVoltageSwitch;
 import org.apache.cxf.common.util.StringUtils;
-import org.apache.cxf.jaxrs.provider.BinaryDataProvider;
-import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 
@@ -34,7 +34,7 @@ public class CommonServiceImpl implements CommonService {
     private ZTreeNodeService treeNodeService;
 
     private static final Map<String, Boolean> SUCCESS = new HashMap<String, Boolean>(1) {{
-       put("success", true);
+        put("success", true);
     }};
 
     @Override
@@ -98,18 +98,18 @@ public class CommonServiceImpl implements CommonService {
         List<Line> lineList = initialParam.getLineList();
         List<HighVoltageSwitch> hvswitchList = initialParam.getHvswitchList();
 
-        if(!CollectionUtils.isEmpty(substationList)) {
-            for(Substation substation : substationList) {
+        if (!CollectionUtils.isEmpty(substationList)) {
+            for (Substation substation : substationList) {
                 substationService.updateByPrimaryKey(substation);
             }
         }
-        if(!CollectionUtils.isEmpty(lineList)) {
-            for(Line line : lineList) {
+        if (!CollectionUtils.isEmpty(lineList)) {
+            for (Line line : lineList) {
                 lineService.updateByPrimaryKey(line);
             }
         }
-        if(!CollectionUtils.isEmpty(hvswitchList)) {
-            for(HighVoltageSwitch highVoltageSwitch : hvswitchList) {
+        if (!CollectionUtils.isEmpty(hvswitchList)) {
+            for (HighVoltageSwitch highVoltageSwitch : hvswitchList) {
                 hvSwitchService.updateByPrimaryKey(highVoltageSwitch);
             }
         }
@@ -121,7 +121,7 @@ public class CommonServiceImpl implements CommonService {
 
         Center center = null;
 
-        if(ipAddr == null || StringUtils.isEmpty(macAddr)) {
+        if (ipAddr == null || StringUtils.isEmpty(macAddr)) {
             center.setIpAddr(ipAddr);
             center.setMacAddr(macAddr);
             return center;
@@ -131,7 +131,7 @@ public class CommonServiceImpl implements CommonService {
         check.put("ip_addr", ipAddr);
         check.put("mac_addr", macAddr);
         List<Center> centers = centerService.selectByParameters(check);
-        if(!CollectionUtils.isEmpty(centers) && centers.size() == 1) {
+        if (!CollectionUtils.isEmpty(centers) && centers.size() == 1) {
 
             center = centers.get(0);
             center.setStartCount(center.getStartCount() + 1);
@@ -154,5 +154,24 @@ public class CommonServiceImpl implements CommonService {
     @Override
     public List<ZTreeNode> getSwitchTree(String companyId, String type) {
         return treeNodeService.getSwitchTree(companyId, type);
+    }
+
+    @Override
+    public List<AvailableHighVoltageSwitch> switchsOfLine(Integer type,
+                                 String lineId) {
+        switch (type) {
+            //高压
+            case 1:
+                if (lineId != null) {
+                    return AvailableHighVoltageSwitch.change2VoList(
+                            hvSwitchService
+                                    .selectByParameters(MyBatisMapUtil.warp("line_id", lineId)));
+                } else {
+                    return AvailableHighVoltageSwitch.change2VoList(
+                            hvSwitchService
+                                    .selectByParameters(MyBatisMapUtil.warp(null)));
+                }
+        }
+        return null;
     }
 }
