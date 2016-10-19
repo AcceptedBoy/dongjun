@@ -6,13 +6,20 @@ import com.gdut.dongjun.domain.po.PlatformGroup;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.service.HighVoltageSwitchService;
 import com.gdut.dongjun.service.PlatformGroupService;
+import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.util.MyBatisMapUtil;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpSession;
+import javax.validation.constraints.NotNull;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -27,14 +34,19 @@ public class PlatformGroupController {
     @Autowired
     private HighVoltageSwitchService hvSwitchService;
 
+    @Autowired
+    private UserService userService;
+
     /**
      * 添加一个分组
      * @param group
      * @return
      */
-    @Autowired
     @RequestMapping("/add")
-    private ResponseMessage addGroup(PlatformGroup group) {
+    @ResponseBody
+    public ResponseMessage addGroup(HttpSession session, PlatformGroup group) {
+        group.setIsDefault((byte)0); //添加的都不是默认的
+        group.setCompanyId(userService.getCurrentUser(session).getCompanyId());
         if(groupService.insert(group) != 0) {
             return ResponseMessage.success("添加成功");
         } else {
@@ -43,36 +55,114 @@ public class PlatformGroupController {
     }
 
     /**
-     * 获取一个组的所有开关
+     * 获取一个组的所有开关设备
      * @param groupId
      * @return
      */
-    @Autowired
-    @RequestMapping("/group_list")
-    private ResponseMessage getGroup(@RequestParam(required = true) Integer groupId) {
+    @RequestMapping("/device_list")
+    @ResponseBody
+    public ResponseMessage deviceList(@RequestParam(required = true) Integer groupId) {
         return ResponseMessage.info(hvSwitchService.selectByParameters(
                 MyBatisMapUtil.warp("group_id", groupId)));
     }
 
     /**
+     * 获取某个协议类型的所有分组
+     * @param session
+     * @param type
+     * @return
+     */
+    @RequestMapping("/group_list")
+    @ResponseBody
+    public ResponseMessage groupList(HttpSession session,
+                                     @RequestParam(required = true)Integer type) {
+        User user = userService.getCurrentUser(session);
+        return ResponseMessage.info(groupService.selectByParameters(
+                MyBatisMapUtil.warp(buildMap(userService.getCurrentUser(session).getCompanyId(), type, 0))));
+    }
+
+    /**
+     * 将一个设备移动到另一个分组上
+     * @param groupId
+     * @param deviceId
+     * @param type
+     * @return
+     */
+    @RequestMapping("moveO_new")
+    @ResponseBody
+    public ResponseMessage moveNew(@NotNull Integer groupId, @NotNull String deviceId, @NotNull Integer type) {
+
+        //TODO 只有高压的移动
+        switch (type) {
+            case 1: HighVoltageSwitch hvSwitch = hvSwitchService.selectByPrimaryKey(deviceId);
+                hvSwitch.setGroupId(groupId);
+                hvSwitchService.updateByPrimaryKey(hvSwitch);
+        }
+        return ResponseMessage.success("操作成功");
+    }
+
+    /**
      * 删除分组
      * 注意：不要连分组里面的开关都删掉，应该将其保存到默认的组中
+     * TODO
      * @param groupId
      * @return
      */
-    @Autowired
     @RequestMapping("/delete")
-    private ResponseMessage deleteGroup(HttpSession session,
-                                        @RequestParam(required = true) Integer groupId) {
+    @ResponseBody
+    public ResponseMessage deleteGroup(HttpSession session, @NotNull Integer groupId, @NotNull Integer type) {
         groupService.selectByParameters(MyBatisMapUtil.warp("is_default", 1));
         //TODO 没有做判断
-        PlatformGroup defaultGroup =
-                groupService.getDefaultGroup(((User)session.getAttribute("currentUser")).getCompanyId(), 1);
-
-        if(groupService.deleteByPrimaryKey(String.valueOf(groupId))) {
+        Integer defaultGroupId = groupService.getDefaultGroup(
+                userService.getCurrentUser(session).getCompanyId(), type).getId();
+        switch (type) {
+            case 1:
+                List<HighVoltageSwitch> switchList = hvSwitchService.selectByParameters(
+                        MyBatisMapUtil.warp("group_id", groupId));
+                for(HighVoltageSwitch highVoltageSwitch : switchList) {
+                    highVoltageSwitch.setGroupId(defaultGroupId);
+                    hvSwitchService.updateByPrimaryKey(highVoltageSwitch);
+                }
+        }
+        if(groupService.deleteByPrimaryKey(groupId)) {
             return ResponseMessage.success("删除成功");
         } else {
             return ResponseMessage.danger("系统错误");
         }
+    }
+
+    /**
+     * 更新分组信息
+     * @param group
+     * @return
+     */
+    @RequestMapping("/update")
+    @ResponseBody
+    public ResponseMessage updateGroup(PlatformGroup group) {
+        group.setIsDefault((byte)0);
+        groupService.updateByPrimaryKeySelective(group);
+        return ResponseMessage.success("操作成功");
+    }
+
+    /**
+     * 该controller特定生成查询map
+     * @param companyId
+     * @param type
+     * @param isDefault
+     * @return
+     */
+    private Map<String, Object> buildMap(String companyId, Integer type, Integer isDefault) {
+
+        Map<String, Object> params = new HashMap<>();
+        if(StringUtils.isNotEmpty(companyId)) {
+            params.put("company_id", companyId);
+        }
+        if(type != null) {
+            params.put("type", type);
+        }
+        if(isDefault != null) {
+            params.put("is_default", isDefault);
+        }
+        return params;
     }
 }

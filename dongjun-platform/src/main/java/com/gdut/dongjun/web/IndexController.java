@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpSession;
+import javax.validation.constraints.NotNull;
 
 @Controller
 @RequestMapping("/dongjun")
@@ -90,8 +91,9 @@ public class IndexController {
      */
 	@RequestMapping("/group_tree")
 	@ResponseBody
-	public Object groupTree(String companyId, Integer deviceType) {
-		return zTreeNodeService.groupTree(companyId, deviceType);
+	public Object groupTree(HttpSession session, @NotNull Integer deviceType) {
+		return zTreeNodeService.groupTree(
+				((User)session.getAttribute("currentUser")).getCompanyId(), deviceType);
 	}
 
 	/**

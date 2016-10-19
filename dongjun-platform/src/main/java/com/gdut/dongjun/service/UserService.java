@@ -4,6 +4,8 @@ import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.service.base.BaseService;
 import com.gdut.dongjun.service.impl.enums.LoginResult;
 
+import javax.servlet.http.HttpSession;
+
 /**   
  * @Title: UserService.java 
  * @Package com.gdut.dongjun.service.system 
@@ -25,5 +27,9 @@ public interface UserService extends BaseService<User>{
 	* @throws
 	 */
 	public LoginResult login(String user, String password);
-	
+
+	/**
+	 * symon:获取当前的user，若未登陆返回null
+     */
+	public User getCurrentUser(HttpSession session);
 }

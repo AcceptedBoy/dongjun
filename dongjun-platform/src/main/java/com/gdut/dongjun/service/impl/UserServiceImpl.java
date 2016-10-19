@@ -15,6 +15,8 @@ import com.gdut.dongjun.service.base.impl.BaseServiceImpl;
 import com.gdut.dongjun.service.impl.enums.LoginResult;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 
+import javax.servlet.http.HttpSession;
+
 /**
  * @Title: UserServiceImpl.java
  * @Package com.gdut.dongjun.service.impl.system
@@ -62,6 +64,11 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements
 		}
 		return LoginResult.USER_NO_EXIST;
 
+	}
+
+	@Override
+	public User getCurrentUser(HttpSession session) {
+		return (User)session.getAttribute("currentUser");
 	}
 
 	@Override

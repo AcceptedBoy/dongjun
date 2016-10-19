@@ -1,5 +1,6 @@
 package com.gdut.dongjun.service.base;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +23,7 @@ public interface BaseService<T> {
 	 * @return int
 	 * @throws
 	 */
-	public boolean deleteByPrimaryKey(String id);
+	public boolean deleteByPrimaryKey(Serializable id);
 
 	/**
 	 * 
@@ -55,7 +56,7 @@ public interface BaseService<T> {
 	 * @return T
 	 * @throws
 	 */
-	public T selectByPrimaryKey(String id);
+	public T selectByPrimaryKey(Serializable id);
 
 	/**
 	 * 

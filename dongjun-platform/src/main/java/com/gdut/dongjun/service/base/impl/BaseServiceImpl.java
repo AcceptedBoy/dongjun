@@ -1,5 +1,6 @@
 package com.gdut.dongjun.service.base.impl;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +23,7 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
 	private SinglePrimaryKeyBaseMapper<T> baseMapper;
 
 	@Override
-	public boolean deleteByPrimaryKey(String id) {
+	public boolean deleteByPrimaryKey(Serializable id) {
 
 		if(baseMapper.deleteByPrimaryKey(id) == 1) {
 			return true;
@@ -43,7 +44,7 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
 	}
 
 	@Override
-	public T selectByPrimaryKey(String id) {
+	public T selectByPrimaryKey(Serializable id) {
 		
 		return baseMapper.selectByPrimaryKey(id);
 	}

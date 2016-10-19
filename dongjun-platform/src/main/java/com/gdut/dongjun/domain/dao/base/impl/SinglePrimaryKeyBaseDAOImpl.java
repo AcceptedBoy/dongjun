@@ -1,5 +1,6 @@
 package com.gdut.dongjun.domain.dao.base.impl;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +24,7 @@ public class SinglePrimaryKeyBaseDAOImpl<T> implements
 	@Resource(name = "msg_sqlSessionTemplate")
 	protected SqlSessionTemplate template;
 
-	public int deleteByPrimaryKey(String id) {
+	public int deleteByPrimaryKey(Serializable id) {
 
 		return template.delete(getNamespace("deleteByPrimaryKey"), id);
 	}
@@ -38,7 +39,7 @@ public class SinglePrimaryKeyBaseDAOImpl<T> implements
 		return template.insert(getNamespace("insertSelective"), record);
 	}
 
-	public T selectByPrimaryKey(String id) {
+	public T selectByPrimaryKey(Serializable id) {
 
 		return template.selectOne(getNamespace("selectByPrimaryKey"), id);
 	}
