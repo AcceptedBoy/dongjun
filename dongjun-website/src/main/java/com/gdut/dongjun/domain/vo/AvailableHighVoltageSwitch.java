@@ -1,6 +1,12 @@
 package com.gdut.dongjun.domain.vo;
 
 
+import com.gdut.dongjun.domain.po.HighVoltageSwitch;
+import org.springframework.util.CollectionUtils;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * 高压开关vo类,包含是否激活的字符串
@@ -33,6 +39,34 @@ public class AvailableHighVoltageSwitch {
 
     //包含有三种情况：未验证，已验证，已过期
     private String isAvailable;
+
+    public static List<AvailableHighVoltageSwitch> change2default(List<HighVoltageSwitch> switchList) {
+        if(CollectionUtils.isEmpty(switchList)) {
+            return Collections.emptyList();
+        }
+        List<AvailableHighVoltageSwitch> activeHighSwitchList = new ArrayList<>(switchList.size());
+        for(HighVoltageSwitch highVoltageSwitch : switchList) {
+            activeHighSwitchList.add(change2defaultVo(highVoltageSwitch));
+        }
+        return activeHighSwitchList;
+    }
+
+    private static AvailableHighVoltageSwitch change2defaultVo(HighVoltageSwitch highVoltageSwitch) {
+        AvailableHighVoltageSwitch availableHighVoltageSwitch = new AvailableHighVoltageSwitch();
+        availableHighVoltageSwitch.setName(highVoltageSwitch.getName());
+        availableHighVoltageSwitch.setAddress(highVoltageSwitch.getAddress());
+        availableHighVoltageSwitch.setDeviceNumber(highVoltageSwitch.getDeviceNumber());
+        availableHighVoltageSwitch.setId(highVoltageSwitch.getId());
+        availableHighVoltageSwitch.setInlineIndex(highVoltageSwitch.getInlineIndex());
+        availableHighVoltageSwitch.setIsAvailable("已验证");
+        availableHighVoltageSwitch.setLatitude(highVoltageSwitch.getLatitude());
+        availableHighVoltageSwitch.setLongitude(highVoltageSwitch.getLongitude());
+        availableHighVoltageSwitch.setLineId(highVoltageSwitch.getLineId());
+        availableHighVoltageSwitch.setOnlineTime(highVoltageSwitch.getOnlineTime());
+        availableHighVoltageSwitch.setShowName(highVoltageSwitch.getShowName());
+        availableHighVoltageSwitch.setSimNumber(highVoltageSwitch.getSimNumber());
+        return availableHighVoltageSwitch;
+    }
 
     public String getId() {
         return id;

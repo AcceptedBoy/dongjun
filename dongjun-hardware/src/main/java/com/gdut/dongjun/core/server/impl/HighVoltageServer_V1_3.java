@@ -1,13 +1,5 @@
 package com.gdut.dongjun.core.server.impl;
 
-import java.util.List;
-
-import javax.annotation.Resource;
-
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.core.initializer.ServerInitializer;
@@ -16,6 +8,12 @@ import com.gdut.dongjun.domain.po.HighVoltageSwitch;
 import com.gdut.dongjun.enums.HighCommandControlCode;
 import com.gdut.dongjun.service.HighVoltageSwitchService;
 import com.gdut.dongjun.util.HighVoltageDeviceCommandUtil;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 
 /**
@@ -24,18 +22,18 @@ import com.gdut.dongjun.util.HighVoltageDeviceCommandUtil;
  * @see
  * @since 1.0
  */
-@Service("HighVoltageServer")
-public class HighVoltageServer extends NetServer {
+@Service("HighVoltageServer_V1_3")
+public class HighVoltageServer_V1_3 extends NetServer {
 
-	@Resource(name = "HighVoltageServerInitializer")
+	@Resource(name = "HighVoltageServerInitializer_V1_3")
 	private ServerInitializer initializer;
 	@Autowired
 	private HighVoltageSwitchService lowVoltageSwitchService;
 
 	private static final Logger logger = Logger
-			.getLogger(HighVoltageServer.class);
+			.getLogger(HighVoltageServer_V1_3.class);
 
-	@Resource(name = "HighVoltageServerInitializer")
+	@Resource(name = "HighVoltageServerInitializer_V1_3")
 	public void setInitializer(ServerInitializer initializer) {
 
 		super.initializer = initializer;

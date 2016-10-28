@@ -26,6 +26,7 @@
         <module name="dongjun-company" />
         <module name="dongjun-platform" />
         <module name="dongjun-service" />
+        <module name="dongjun_hardware" />
         <module name="dongjun_simulate" />
       </profile>
     </annotationProcessing>

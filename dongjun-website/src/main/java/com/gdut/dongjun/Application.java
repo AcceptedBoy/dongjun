@@ -3,7 +3,6 @@ package com.gdut.dongjun;
 import com.gdut.dongjun.service.rmi.HardwareService;
 import com.gdut.dongjun.webservice.Constant;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
-import com.sun.xml.internal.ws.api.PropertySet;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.authc.credential.SimpleCredentialsMatcher;
 import org.apache.shiro.realm.jdbc.JdbcRealm;
@@ -51,7 +50,7 @@ public class Application extends SpringBootServletInitializer {
 	 * 					常量配置
 	 * -------------------------------------------------------
 	 */
-	@Value("${cxf.service.url}")
+	/*@Value("${cxf.service.url}")
 	private String cxfServiceUrl;
 
 	@Value("${cxf.service.canService}")
@@ -82,13 +81,13 @@ public class Application extends SpringBootServletInitializer {
 	private int maxPoolSize;
 
 	@Value("${c3p0.maxIdleTime}")
-	private int maxIdleTime;
+	private int maxIdleTime;*/
 
 	@Bean
 	public Constant projectConstant() {
 		Constant constant = new Constant();
-		constant.setIsService(true);
-		constant.setPreSerivcePath("http://localhost:6666/dongjun_service/ws/common");
+		constant.setIsService(false);
+		constant.setPreSerivcePath("http://115.28.7.40:8789/dongjun_service/ws/common");
 		return constant;
 	}
 

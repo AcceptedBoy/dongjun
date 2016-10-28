@@ -10,6 +10,7 @@ import com.gdut.dongjun.webservice.Constant;
 import com.gdut.dongjun.webservice.client.CommonServiceClient;
 import com.gdut.dongjun.webservice.util.JaxrsClientUtil;
 import org.apache.log4j.Logger;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -69,6 +70,9 @@ public class HighVoltageSwitchController {
 
 		if(constant.isService()) {
 			model.addAttribute("switches", client.switchsOfLine(1, lineId));
+		} else {
+			model.addAttribute("switches", switchService.selectByParameters(
+					MyBatisMapUtil.warp("line_id", lineId)));
 		}
 
 		return "high_voltage_switch_manager";
@@ -87,7 +91,11 @@ public class HighVoltageSwitchController {
 	@ResponseBody
 	public Object getAllLowVoltage_Switch() {
 
-		return client.switchsOfLine(1, null);
+		if(constant.isService()) {
+			return client.switchsOfLine(1, null);
+		} else {
+			return switchService.selectByParameters(null);
+		}
 	}
 
 	/**
@@ -105,7 +113,13 @@ public class HighVoltageSwitchController {
 	public Object getLineSwitchListByLineId(
 			@RequestParam(required = true) String lineId, Model model) {
 
-		List<AvailableHighVoltageSwitch> switchs = client.switchsOfLine(1, lineId);
+		List<AvailableHighVoltageSwitch> switchs;
+		if(constant.isService()) {
+			switchs = client.switchsOfLine(1, lineId);
+		} else {
+			switchs = AvailableHighVoltageSwitch.change2default(
+					switchService.selectByParameters(MyBatisMapUtil.warp("line_id", lineId)));
+		}
 
 		HashMap<String, Object> map = (HashMap<String, Object>) MapUtil.warp(
 				"draw", 1);

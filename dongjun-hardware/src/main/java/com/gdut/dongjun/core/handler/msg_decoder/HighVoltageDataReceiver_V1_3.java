@@ -39,16 +39,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * TODO 值得关注的一个类
+ * 高压协议1.3版本 TODO 真的需要重构啊
  * @author Sherlock
- * @author Acceptedboy
  */
 @Service
 @Sharable
-public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
+public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 
 	@Autowired
 	private HighVoltageCurrentService currentService;
@@ -64,12 +62,12 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	@Resource(name="HighVoltageSwitchMessageEngine")
 	private HighVoltageSwitchMessageEngine highVoltageEngine;
 
-	private static final Logger logger = LoggerFactory.getLogger(HighVoltageDataReceiver.class);
+	private static final Logger logger = LoggerFactory.getLogger(HighVoltageDataReceiver_V1_3.class);
 
 	@Autowired
 	private HighVoltageSwitchService switchService;
 
-	public HighVoltageDataReceiver() {
+	public HighVoltageDataReceiver_V1_3() {
 		super();
 	}
 
@@ -277,7 +275,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			s.setPt1_guo_ya(data.substring(52, 54));
 			s.setPt2_guo_ya(data.substring(54, 56));
 
-			String new_status = data.substring(66, 68);
+			String new_status = data.substring(30, 32);
 
 			if ("01".equals(s.getStatus()) && "00".equals(new_status)) {
 
@@ -390,6 +388,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	private void confirmSignalInitialChange(ChannelHandlerContext ctx, String data) {
 		
 		String resu = new HighVoltageDeviceCommandUtil().confirmChangeAffair(data.substring(10, 14));
+		readAllSignal("控制回路", data);
 		logger.info("遥信变位确定---------" + resu);
 		ctx.writeAndFlush(resu);
 	}

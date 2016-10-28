@@ -1,5 +1,7 @@
 package com.gdut.dongjun;
 
+import com.gdut.dongjun.core.server.impl.HighVoltageServer_V1_3;
+import com.gdut.dongjun.domain.po.ProtocolPort;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +11,10 @@ import com.gdut.dongjun.core.server.impl.ControlMeasureServer;
 import com.gdut.dongjun.core.server.impl.HighVoltageServer;
 import com.gdut.dongjun.core.server.impl.LowVoltageServer;
 import com.gdut.dongjun.domain.dao.ProtocolPortMapper;
-import com.gdut.dongjun.domain.po.port.ProtocolPort;
+
+import javax.annotation.Resource;
+
+
 
 /**
  * 这个是应用程序在初始化的时候启动，所以因此可以开启对端口的监听；
@@ -25,6 +30,9 @@ public class MonitorStartup implements InitializingBean {
 	
 	@Autowired
 	private HighVoltageServer highVoltageServer;
+
+	@Resource(name = "HighVoltageServer_V1_3")
+	private HighVoltageServer_V1_3 highVoltageServer_v1_3;
 	
 	@Autowired
 	private ControlMeasureServer controlMeasureServer;
@@ -46,13 +54,17 @@ public class MonitorStartup implements InitializingBean {
 		logger.info("低压开关端口号：" + port.getLvPort());
 		logger.info("高压开关端口号：" + port.getHvPort());
 		logger.info("管控开关端口号：" + port.getConPort());
+		logger.info("高压版本1.3端口号：" + port.getHv13Port());
+
 		lowVoltageServer.setPort(port.getLvPort());
 		highVoltageServer.setPort(port.getHvPort());
 		controlMeasureServer.setPort(port.getConPort());
-		
+		highVoltageServer_v1_3.setPort(port.getHv13Port());
+
 		lowVoltageServer.start();
 		highVoltageServer.start();
 		controlMeasureServer.start();
+		highVoltageServer_v1_3.start();
 	}	
 	
 	
