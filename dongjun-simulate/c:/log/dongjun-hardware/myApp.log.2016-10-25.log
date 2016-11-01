@@ -1,8 +1,0 @@
-2016-10-25 17:38:59.235 [main] INFO  c.g.d.c.d.impl.HighVoltageSwitchMessageEngine -
-				执行分闸
-2016-10-25 17:38:59.245 [main] INFO  c.g.d.c.d.impl.HighVoltageSwitchMessageEngine -
-				执行合闸
-2016-10-25 21:07:56.460 [main] INFO  c.g.d.c.d.impl.HighVoltageSwitchMessageEngine -
-				执行合闸
-2016-10-25 21:07:56.490 [main] INFO  c.g.d.c.d.impl.HighVoltageSwitchMessageEngine -
-				执行分闸
