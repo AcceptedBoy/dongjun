@@ -6,12 +6,12 @@
 		<id column="id" jdbcType="VARCHAR" property="id" />
 		<result column="device_id" jdbcType="VARCHAR" property="deviceId" />
 		<result column="date" jdbcType="TIMESTAMP" property="date" />
-		<result column="tag" jdbcType="INTEGER" property="tag" />
+		<result column="sensor_address" jdbcType="VARCHAR" property="sensorAddress" />
 		<result column="value" jdbcType="VARCHAR" property="value" />
 	</resultMap>
 
 	<sql id="Base_Column_List">
-		id, device_id, date, tag, value
+		id, device_id, date, sensor_address, value
 	</sql>
 
 	<select id="selectByParameters" resultMap="BaseResultMap">
@@ -43,7 +43,7 @@
 		(#{sql})
 		values (#{id,jdbcType=VARCHAR}, #{deviceId,jdbcType=VARCHAR},
 		#{date,jdbcType=TIMESTAMP},
-		#{tag,jdbcType=INTEGER},
+		#{sensorAddress,jdbcType=VARCHAR},
 		#{value,jdbcType=VARCHAR}
 	</insert>
 
@@ -59,8 +59,8 @@
 			<if test="date != null">
 				date,
 			</if>
-			<if test="tag != null">
-				tag,
+			<if test="sensorAddress != null">
+				sensor_address,
 			</if>
 			<if test="value != null">
 				value,
@@ -76,8 +76,8 @@
 			<if test="date != null">
 				#{date,jdbcType=TIMESTAMP},
 			</if>
-			<if test="tag != null">
-				#{tag,jdbcType=INTEGER},
+			<if test="sensorAddress != null">
+				#{sensor_address,jdbcType=VARCHAR},
 			</if>
 			<if test="value != null">
 				#{value,jdbcType=VARCHAR},
@@ -91,8 +91,8 @@
 			<if test="deviceId != null">
 				device_id = #{deviceId,jdbcType=VARCHAR},
 			</if>
-			<if test="tag != null">
-				tag = #{tag,jdbcType=INTEGER},
+			<if test="sensorAddress != null">
+				tag = #{sensor_address,jdbcType=VARCHAR},
 			</if>
 			<if test="date != null">
 				date = #{date,jdbcType=TIMESTAMP},
@@ -108,8 +108,8 @@
 		update
 		temperature_measure_history
 		set device_id = #{deviceId,jdbcType=VARCHAR},
-		tag =
-		#{tag,jdbcType=INTEGER},
+		sensor_address =
+		#{sensorAddress,jdbcType=VARCHAR},
 		date =
 		#{date,jdbcType=TIMESTAMP},
 		value =

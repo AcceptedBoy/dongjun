@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.gdut.dongjun.domain.dao.TemperatureMeasureMapper">
+<mapper namespace="com.gdut.dongjun.domain.dao.TemperatureMeasureHistoryMapper">
 
-	<resultMap id="BaseResultMap" type="com.gdut.dongjun.domain.po.TemperatureMeasure">
+	<resultMap id="BaseResultMap" type="com.gdut.dongjun.domain.po.TemperatureMeasureHistory">
 		<id column="id" jdbcType="VARCHAR" property="id" />
 		<result column="device_id" jdbcType="VARCHAR" property="deviceId" />
 		<result column="date" jdbcType="TIMESTAMP" property="date" />
@@ -11,11 +11,11 @@
 	</resultMap>
 
 	<sql id="Base_Column_List">
-		id, device_id, sensor_address, tag, value
+		id, device_id, date, sensor_address, value
 	</sql>
 
 	<select id="selectByParameters" resultMap="BaseResultMap">
-		select * from temperature_measure where 1 = 1
+		select * from temperature_measure_history where 1 = 1
 		<if test="map != null">
 			<foreach item="item" index="key" collection="map.entrySet()">
 				and ${key} =
@@ -28,18 +28,18 @@
 		resultMap="BaseResultMap">
 		select
 		<include refid="Base_Column_List" />
-		from temperature_measure
+		from temperature_measure_history
 		where id = #{id,jdbcType=VARCHAR}
 	</select>
 
 	<delete id="deleteByPrimaryKey" parameterType="java.lang.String">
 		delete from
-		temperature_measure
+		temperature_measure_history
 		where id = #{id,jdbcType=VARCHAR}
 	</delete>
 
-	<insert id="insert" parameterType="com.gdut.dongjun.domain.po.TemperatureMeasure">
-		insert into temperature_measure
+	<insert id="insert" parameterType="com.gdut.dongjun.domain.po.TemperatureMeasureHistory">
+		insert into temperature_measure_history
 		(#{sql})
 		values (#{id,jdbcType=VARCHAR}, #{deviceId,jdbcType=VARCHAR},
 		#{date,jdbcType=TIMESTAMP},
@@ -47,8 +47,8 @@
 		#{value,jdbcType=VARCHAR}
 	</insert>
 
-	<insert id="insertSelective" parameterType="com.gdut.dongjun.domain.po.TemperatureMeasure">
-		insert into temperature_measure
+	<insert id="insertSelective" parameterType="com.gdut.dongjun.domain.po.TemperatureMeasureHistory">
+		insert into temperature_measure_history
 		<trim prefix="(" suffix=")" suffixOverrides=",">
 			<if test="id != null">
 				id,
@@ -77,7 +77,7 @@
 				#{date,jdbcType=TIMESTAMP},
 			</if>
 			<if test="sensorAddress != null">
-				#{sensorAddress,jdbcType=VARCHAR},
+				#{sensor_address,jdbcType=VARCHAR},
 			</if>
 			<if test="value != null">
 				#{value,jdbcType=VARCHAR},
@@ -85,14 +85,14 @@
 		</trim>
 	</insert>
 
-	<update id="updateByPrimaryKeySelective" parameterType="com.gdut.dongjun.domain.po.TemperatureMeasure">
-		update temperature_measure
+	<update id="updateByPrimaryKeySelective" parameterType="com.gdut.dongjun.domain.po.TemperatureMeasureHistory">
+		update temperature_measure_history
 		<set>
 			<if test="deviceId != null">
 				device_id = #{deviceId,jdbcType=VARCHAR},
 			</if>
-			<if test="tag != null">
-				sensor_address = #{sensorAddress,jdbcType=VARCHAR},
+			<if test="sensorAddress != null">
+				tag = #{sensor_address,jdbcType=VARCHAR},
 			</if>
 			<if test="date != null">
 				date = #{date,jdbcType=TIMESTAMP},
@@ -104,9 +104,9 @@
 		where id = #{id,jdbcType=VARCHAR}
 	</update>
 
-	<update id="updateByPrimaryKey" parameterType="com.gdut.dongjun.domain.po.TemperatureMeasure">
+	<update id="updateByPrimaryKey" parameterType="com.gdut.dongjun.domain.po.TemperatureMeasureHistory">
 		update
-		temperature_measure
+		temperature_measure_history
 		set device_id = #{deviceId,jdbcType=VARCHAR},
 		sensor_address =
 		#{sensorAddress,jdbcType=VARCHAR},
@@ -116,5 +116,13 @@
 		#{value,jdbcType=VARCHAR}
 		where id = #{id,jdbcType=VARCHAR}
 	</update>
+	
+	<select id="selectByTime" resultMap="BaseResultMap">
+		select * from temperature_measure_history
+		where device_id = #{deviceId}
+		and sensor_address = #{sensorAddress}
+		and time between #{beginDate} and #{endDate}
+		order By time Asc
+	</select>
 
 </mapper>
