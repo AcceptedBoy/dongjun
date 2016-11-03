@@ -1,6 +1,7 @@
 package com.gdut.dongjun.core.handler.msg_decoder;
 
 import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,17 +13,19 @@ import org.springframework.stereotype.Service;
 
 import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.SwitchGPRS;
-import com.gdut.dongjun.core.server.impl.TemperatureServer;
+import com.gdut.dongjun.core.server.TemperatureServer;
 import com.gdut.dongjun.domain.po.TemperatureDevice;
 import com.gdut.dongjun.domain.po.TemperatureMeasure;
 import com.gdut.dongjun.domain.po.TemperatureMeasureHistory;
+import com.gdut.dongjun.domain.po.TemperatureSensor;
 import com.gdut.dongjun.service.TemperatureDeviceService;
-import com.gdut.dongjun.service.TemperatureHitchEventService;
 import com.gdut.dongjun.service.TemperatureMeasureHistoryService;
 import com.gdut.dongjun.service.TemperatureMeasureService;
+import com.gdut.dongjun.service.TemperatureSensorService;
 import com.gdut.dongjun.service.TemperatureSignalService;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.TemperatureDeviceCommandUtil;
+import com.gdut.dongjun.util.UUIDUtil;
 
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
@@ -40,6 +43,8 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	private TemperatureSignalService signalService;
 	@Autowired
 	private TemperatureMeasureHistoryService measureHistoryService;
+	@Autowired
+	private TemperatureSensorService sensorService;
 
 	private static final Logger logger = LoggerFactory.getLogger(TemperatureDataReceiver.class);
 
@@ -192,7 +197,8 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		logger.info("温度遥测-------" + data);
 		String variable = data.substring(16, 18);
 		logger.info("测归一化值-------" + variable);
-		String signalAddress = data.substring(26, 30);// 信息对象地址
+		//TODO 不知道信息对象地址有何用
+//		String signalAddress = data.substring(26, 30);// 信息对象地址
 		String dataList = data.substring(30, data.length() - 4);
 		String address = TemperatureDeviceCommandUtil.reverseString(data.substring(10, 14));
 		if (variable.equals("92")) {
@@ -205,33 +211,33 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 				String temp = dataList.substring(i, i + 6);
 				buffer[i / 6] = TemperatureDeviceCommandUtil.reverseString(temp);
 			}
-			String value = parseInt(buffer);
-			TemperatureMeasure measure = new TemperatureMeasure(address, new Timestamp(System.currentTimeMillis()), 0,
-					value);
-			Map<String, Object> map = new HashMap<String, Object>();
-			map.put("address", address);
 			String deviceId = CtxStore.getIdbyAddress(address);
-			map.put("deviceId", deviceId);
-			measure.setId(deviceId);
-			List<TemperatureMeasure> measureList = measureService.selectByParameters(MyBatisMapUtil.warp(map));
-			if (measureList.size() == 0 && measureList == null)
-				measureService.insert(measure);
-			else
-				measureService.updateByPrimaryKey(measure);
-			measureHistoryService.insert(changeToMeasureHistory(measure));
-
+			saveTemperatureMeasure(buffer, deviceId);
+//			String value = parseInt(buffer);
+//			TemperatureMeasure measure = new TemperatureMeasure(address, new Timestamp(System.currentTimeMillis()), 0,
+//					value);
+//			Map<String, Object> map = new HashMap<String, Object>();
+//			map.put("address", address);
+//			String deviceId = CtxStore.getIdbyAddress(address);
+//			map.put("deviceId", deviceId);
+//			measure.setId(deviceId);
+//			List<TemperatureMeasure> measureList = measureService.selectByParameters(MyBatisMapUtil.warp(map));
+//			if (measureList.size() == 0 && measureList == null)
+//				measureService.insert(measure);
+//			else
+//				measureService.updateByPrimaryKey(measure);
+//			measureHistoryService.insert(changeToMeasureHistory(measure));
 		} else {
 			/**
 			 * 处理遥测变化
 			 */
 			logger.info("解析遥测变位-------" + data);
 			String value = TemperatureDeviceCommandUtil.reverseString(dataList);
+			String sensorAddresss = value.substring(0, 4);
 			String[] newList = new String[1];
 			newList[0] = value;
-			value = parseInt(newList);
-			TemperatureMeasure measure = new TemperatureMeasure(address, new Timestamp(System.currentTimeMillis()),
-					changeSignalAddress(signalAddress), value);
-			measureService.insert(measure);
+			String deviceId = CtxStore.getIdbyAddress(address);
+			saveTemperatureMeasureChange(deviceId, value);
 		}
 	}
 
@@ -408,7 +414,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		TemperatureMeasureHistory history = new TemperatureMeasureHistory();
 		history.setDate(measure.getDate());
 		history.setDeviceId(measure.getDeviceId());
-		history.setTag(measure.getTag());
+		history.setSensorAddress(measure.getSensorAddress());
 		history.setValue(measure.getValue());
 		history.setId(measure.getId());
 		return history;
@@ -420,5 +426,69 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	private void string_Array(String dataList) {
 		String[] buffer = new String[dataList.length() / 2];
 	}
+	
+	/**
+	 * 保存遥测值
+	 * @param buffer
+	 * @param address
+	 */
+	private void saveTemperatureMeasure(String[] buffer, String deviceId) {
+		for (String value : buffer) {
+			doSaveMeasure(value, deviceId);
+		}
+	}
 
+	/**
+	 * 保存遥测变位
+	 * @param deviceId
+	 * @param value
+	 */
+	private void saveTemperatureMeasureChange(String deviceId, String value) {
+		doSaveMeasure(value, deviceId);
+	}
+
+	/**
+	 * 检查传感器在数据库中是否已经有记录，检查传感器的外键是否指向当前温度设备
+	 * @param sensorAddress
+	 * @param deviceId
+	 */
+	private void isSensorExist(String sensorAddress, String deviceId) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("address", sensorAddress);
+		List<TemperatureSensor> list = sensorService.selectByParameters(MyBatisMapUtil.warp(map));
+		if(list.size() == 0) 
+			sensorService.insert(new TemperatureSensor(UUIDUtil.getUUID(), sensorAddress, deviceId));
+		else {
+			TemperatureSensor sensor = list.get(0);
+			if (!sensor.getDeviceId().equals(deviceId)){
+				sensor.setDeviceId(deviceId);
+				sensorService.updateByPrimaryKey(sensor);
+			}
+		}
+	}
+	
+	/**
+	 * 保存遥测数据
+	 * @param value
+	 * @param deviceId
+	 */
+	public void doSaveMeasure(String value, String deviceId) {
+		Map<String, Object> qureyMap = new HashMap<String, Object>();
+		Calendar cal = Calendar.getInstance();
+		String sensorAddress = value.substring(0, 4);
+		String sensorValue = value.substring(4, 6);
+		isSensorExist(sensorAddress, deviceId);
+		qureyMap.put("id", deviceId);
+		qureyMap.put("sensor_address", sensorAddress);
+		List<TemperatureMeasure> measureList = measureService.selectByParameters(MyBatisMapUtil.warp(qureyMap));
+		if (measureList.size() == 0) {
+			measureService.insert(new TemperatureMeasure(UUIDUtil.getUUID(), deviceId, new Timestamp(cal.getTimeInMillis()), sensorAddress, sensorValue));
+		}
+		else {
+			TemperatureMeasure measure = measureList.get(0);
+			measure.setValue(sensorValue);
+			measureService.updateByPrimaryKey(measure);
+		}
+		measureHistoryService.insert(new TemperatureMeasureHistory(UUIDUtil.getUUID(), deviceId, new Timestamp(cal.getTimeInMillis()), sensorAddress, sensorValue));
+	}
 }

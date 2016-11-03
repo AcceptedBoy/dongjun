@@ -10,9 +10,22 @@ public class TemperatureMeasureHistory {
 
 	Timestamp date;
 
-	int tag;
+	String sensorAddress;
 
 	String value;
+
+	public TemperatureMeasureHistory() {
+		super();
+	}
+
+	public TemperatureMeasureHistory(String id, String deviceId, Timestamp date, String sensorAddress, String value) {
+		super();
+		this.id = id;
+		this.deviceId = deviceId;
+		this.date = date;
+		this.sensorAddress = sensorAddress;
+		this.value = value;
+	}
 
 	public String getId() {
 		return id;
@@ -38,12 +51,12 @@ public class TemperatureMeasureHistory {
 		this.date = date;
 	}
 
-	public int getTag() {
-		return tag;
+	public String getSensorAddress() {
+		return sensorAddress;
 	}
 
-	public void setTag(int tag) {
-		this.tag = tag;
+	public void setSensorAddress(String sensorAddress) {
+		this.sensorAddress = sensorAddress;
 	}
 
 	public String getValue() {
