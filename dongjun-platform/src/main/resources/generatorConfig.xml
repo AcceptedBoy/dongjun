@@ -24,7 +24,7 @@
 			   enableSelectByExample="false" selectByExampleQueryId="false" /> -->
 
 		<table schema="root" tableName="platform_group"
-			   domainObjectName="platform_group" enableCountByExample="false"
+			   domainObjectName="PlatformGroup" enableCountByExample="false"
 			   enableUpdateByExample="false" enableDeleteByExample="false"
 			   enableSelectByExample="false" selectByExampleQueryId="false" />
 	</context>
