@@ -1,8 +1,13 @@
 package com.gdut.dongjun;
 
-import com.gdut.dongjun.service.rmi.HardwareService;
-import com.gdut.dongjun.webservice.Constant;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
+import java.beans.PropertyVetoException;
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import javax.servlet.DispatcherType;
+import javax.sql.DataSource;
+
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.authc.credential.SimpleCredentialsMatcher;
 import org.apache.shiro.realm.jdbc.JdbcRealm;
@@ -19,7 +24,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.DependsOn;
@@ -33,12 +37,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
-import javax.servlet.DispatcherType;
-import javax.sql.DataSource;
-import java.beans.PropertyVetoException;
-import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import com.gdut.dongjun.service.rmi.HardwareService;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 @SpringBootApplication
 @EnableAspectJAutoProxy
@@ -91,7 +91,7 @@ public class Application extends SpringBootServletInitializer {
 		return constant;
 	}
 
-
+	
 	/*--------------------------------------------------------
 	 * 					数据库配置
 	 * -------------------------------------------------------
