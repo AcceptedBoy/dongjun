@@ -10,7 +10,7 @@ public class TemperatureDevice {
 	
 	String address;
 	
-	Timestamp addTime;
+	String addTime;
 	
 	String onlineTime;
 	
@@ -42,14 +42,6 @@ public class TemperatureDevice {
 		this.address = address;
 	}
 
-	public Timestamp getAddTime() {
-		return addTime;
-	}
-
-	public void setAddTime(Timestamp addTime) {
-		this.addTime = addTime;
-	}
-
 	public String getAvailableTime() {
 		return availableTime;
 	}
@@ -72,6 +64,14 @@ public class TemperatureDevice {
 
 	public void setOnlineTime(String onlineTime) {
 		this.onlineTime = onlineTime;
+	}
+
+	public String getAddTime() {
+		return addTime;
+	}
+
+	public void setAddTime(String addTime) {
+		this.addTime = addTime;
 	}
 	
 	

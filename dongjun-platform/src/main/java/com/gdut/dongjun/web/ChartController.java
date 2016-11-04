@@ -229,13 +229,12 @@ public class ChartController {
 	 */
 	@RequestMapping("/select_chart_by_device_id")
 	@ResponseBody
-	public TemperatureChartData getJsonChart(String id, String beginDate, String endDate, String sensorAddress) {
+	public TemperatureChartData getJsonChart(String id, String beginDate, String endDate, String tagList) {
 		TemperatureChartData chartData = new TemperatureChartData();
 		Map<String, Object> measureMap = new HashMap<String, Object>();
-		String[] sensors = sensorAddress.split(",=");
-		for (String aSensorAddress : sensors) {
-			Map<String, Object> queryMap = new HashMap<String, Object>();
-			measureMap.put(aSensorAddress, measureHistoryService.selectByTime(id, aSensorAddress, beginDate, endDate));
+		String[] tags = tagList.split(",=");
+		for (String tag : tags) {
+			measureMap.put(tag, measureHistoryService.selectByTime(id, Integer.parseInt(tag), beginDate, endDate));
 		}
 		return chartData.getJsonChart(measureMap);
 	}

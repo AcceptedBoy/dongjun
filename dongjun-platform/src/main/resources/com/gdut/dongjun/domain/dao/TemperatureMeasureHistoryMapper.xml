@@ -120,7 +120,7 @@
 	<select id="selectByTime" resultMap="BaseResultMap">
 		select * from temperature_measure_history
 		where device_id = #{deviceId}
-		and sensor_address = #{sensorAddress}
+		and tag = #{tag}
 		and time between #{beginDate} and #{endDate}
 		order By time Asc
 	</select>

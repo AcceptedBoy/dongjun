@@ -6,7 +6,7 @@
 		<id column="id" jdbcType="VARCHAR" property="id" />
 		<result column="name" jdbcType="VARCHAR" property="name" />
 		<result column="address" jdbcType="VARCHAR" property="address" />
-		<result column="add_time" jdbcType="TIMESTAMP" property="addTime" />
+		<result column="add_time" jdbcType="VARCHAR" property="addTime" />
 		<result column="available_time" jdbcType="VARCHAR" property="availableTime" />
 		<result column="group_id" jdbcType="INTEGER" property="groupId" />
 	</resultMap>
@@ -44,7 +44,7 @@
 		(#{sql})
 		values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
 		#{address,jdbcType=VARCHAR},
-		#{addTime, jdbcTpye=TIMESTAMP},
+		#{addTime, jdbcType=VARCHAR},
 		#{availableTime, jdbcType=VARCHAR},
 		#{groupId, jdbcType=INTEGER}
 	</insert>
@@ -82,7 +82,7 @@
 				#{address,jdbcType=VARCHAR},
 			</if>
 			<if test="addTime != null">
-				#{addTime, jdbcType=TIMESTAMP},
+				#{addTime, jdbcType=VARCHAR},
 			</if>
 			<if test="availableTime != null">
 				#{availableTime,jdbcType=VARCHAR},
@@ -103,7 +103,7 @@
 				address = #{address,jdbcType=VARCHAR},
 			</if>
 			<if test="addTime != null">
-				add_time = #{addTime, jdbcType=TIMESTAMP},
+				add_time = #{addTime, jdbcType=VARCHAR},
 			</if>
 			<if test="availableTime != null">
 				available_time = #{availableTime,jdbcTpye=VARCHAR}
@@ -119,7 +119,7 @@
 		update temperature_device
 		set name = #{name,jdbcType=VARCHAR},
 		address = #{address,jdbcType=VARCHAR},
-		add_time = #{addTime, jdbcType=TIMESTAMP},
+		add_time = #{addTime, jdbcType=VARCHAR},
 		available_time = #{availableTime, jdbcType=VARCHAR},
 		group_id = #{groupId, jdbcType=INTEGER}
 		where id = #{id,jdbcType=VARCHAR}

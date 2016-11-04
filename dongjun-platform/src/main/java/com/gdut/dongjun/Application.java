@@ -83,13 +83,13 @@ public class Application extends SpringBootServletInitializer {
 	@Value("${c3p0.maxIdleTime}")
 	private int maxIdleTime;
 
-	@Bean
-	public Constant projectConstant() {
-		Constant constant = new Constant();
-		constant.setIsService(true);
-		constant.setPreSerivcePath("http://localhost:6666/dongjun_service/ws/common");
-		return constant;
-	}
+//	@Bean
+//	public Constant projectConstant() {
+//		Constant constant = new Constant();
+//		constant.setIsService(true);
+//		constant.setPreSerivcePath("http://localhost:6666/dongjun_service/ws/common");
+//		return constant;
+//	}
 
 	
 	/*--------------------------------------------------------

@@ -10,9 +10,11 @@ public class TemperatureDevice {
 	
 	String address;
 	
-	Timestamp addTime;
+	String addTime;
 	
-	String available_time;
+	String onlineTime;
+	
+	String availableTime;
 	
 	int groupId;
 
@@ -40,20 +42,12 @@ public class TemperatureDevice {
 		this.address = address;
 	}
 
-	public Timestamp getAddTime() {
-		return addTime;
+	public String getAvailableTime() {
+		return availableTime;
 	}
 
-	public void setAddTime(Timestamp addTime) {
-		this.addTime = addTime;
-	}
-
-	public String getAvailable_time() {
-		return available_time;
-	}
-
-	public void setAvailable_time(String available_time) {
-		this.available_time = available_time;
+	public void setAvailableTime(String available_time) {
+		this.availableTime = available_time;
 	}
 
 	public int getGroupId() {
@@ -63,6 +57,24 @@ public class TemperatureDevice {
 	public void setGroupId(int groupId) {
 		this.groupId = groupId;
 	}
+
+	public String getOnlineTime() {
+		return onlineTime;
+	}
+
+	public void setOnlineTime(String onlineTime) {
+		this.onlineTime = onlineTime;
+	}
+
+	public String getAddTime() {
+		return addTime;
+	}
+
+	public void setAddTime(String addTime) {
+		this.addTime = addTime;
+	}
+	
+	
 	
 	
 	

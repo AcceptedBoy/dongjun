@@ -2,7 +2,7 @@ package com.gdut.dongjun.domain.po;
 
 public class TemperatureSignal {
 	int id;
-	int device_id;
+	String device_id;
 	String date;
 	String value;
 
@@ -14,11 +14,11 @@ public class TemperatureSignal {
 		this.id = id;
 	}
 
-	public int getDevice_id() {
+	public String getDevice_id() {
 		return device_id;
 	}
 
-	public void setDevice_id(int device_id) {
+	public void setDevice_id(String device_id) {
 		this.device_id = device_id;
 	}
 
@@ -38,7 +38,7 @@ public class TemperatureSignal {
 		this.value = value;
 	}
 
-	public TemperatureSignal(int id, int device_id, String date, String value) {
+	public TemperatureSignal(int id, String device_id, String date, String value) {
 		super();
 		this.id = id;
 		this.device_id = device_id;

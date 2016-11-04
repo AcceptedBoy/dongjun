@@ -8,30 +8,21 @@ public class TemperatureMeasure {
 	
 	String deviceId;
 	
-	Timestamp date;
+	String date;
 	
-	String sensorAddress;
+	int tag;
 	
 	String value;
-
+	
 	public TemperatureMeasure() {
 		super();
 	}
 
-	public TemperatureMeasure(String id, String deviceId, Timestamp date, String sensorAddress, String value) {
-		super();
-		this.id = id;
-		this.deviceId = deviceId;
-		this.date = date;
-		this.sensorAddress = sensorAddress;
-		this.value = value;
-	}
-
-	public TemperatureMeasure(String deviceId, Timestamp date, String sensorAddress, String value) {
+	public TemperatureMeasure(String deviceId, String date, int tag, String value) {
 		super();
 		this.deviceId = deviceId;
 		this.date = date;
-		this.sensorAddress = sensorAddress;
+		this.tag = tag;
 		this.value = value;
 	}
 
@@ -51,20 +42,20 @@ public class TemperatureMeasure {
 		this.deviceId = deviceId;
 	}
 
-	public Timestamp getDate() {
+	public String getDate() {
 		return date;
 	}
 
-	public void setDate(Timestamp date) {
+	public void setDate(String date) {
 		this.date = date;
 	}
 
-	public String getSensorAddress() {
-		return sensorAddress;
+	public int getTag() {
+		return tag;
 	}
 
-	public void setSensorAddress(String sensorAddress) {
-		this.sensorAddress = sensorAddress;
+	public void setTag(int tag) {
+		this.tag = tag;
 	}
 
 	public String getValue() {
@@ -74,7 +65,6 @@ public class TemperatureMeasure {
 	public void setValue(String value) {
 		this.value = value;
 	}
-	
-	
+
 	
 }

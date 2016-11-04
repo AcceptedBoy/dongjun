@@ -26,11 +26,11 @@ public class TemperatureMeasureHistoryServiceImpl extends BaseServiceImpl<Temper
 	}
 
 	@Override
-	public List<TemperatureMeasureHistory> selectByTime(String id, String aSensorAddress, String beginDate,
+	public List<TemperatureMeasureHistory> selectByTime(String id, int tag, String beginDate,
 			String endDate) {
 		Map<String, Object> xx = new HashMap<String, Object>();
 		xx.put("deviceId", id);
-		xx.put("sensorAddress", aSensorAddress);
+		xx.put("tag", tag);
 		xx.put("beginDate", beginDate);
 		xx.put("endDate", endDate);
 		return measureHistoryMapper.selectByTime(xx);

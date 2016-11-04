@@ -1,7 +1,7 @@
 package com.gdut.dongjun;
 
-import com.gdut.dongjun.core.server.impl.HighVoltageServer_V1_3;
-import com.gdut.dongjun.domain.po.ProtocolPort;
+import javax.annotation.Resource;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,10 +9,11 @@ import org.springframework.stereotype.Component;
 
 import com.gdut.dongjun.core.server.impl.ControlMeasureServer;
 import com.gdut.dongjun.core.server.impl.HighVoltageServer;
+import com.gdut.dongjun.core.server.impl.HighVoltageServer_V1_3;
 import com.gdut.dongjun.core.server.impl.LowVoltageServer;
+import com.gdut.dongjun.core.server.impl.TemperatureServer;
 import com.gdut.dongjun.domain.dao.ProtocolPortMapper;
-
-import javax.annotation.Resource;
+import com.gdut.dongjun.domain.po.ProtocolPort;
 
 
 
@@ -38,6 +39,9 @@ public class MonitorStartup implements InitializingBean {
 	private ControlMeasureServer controlMeasureServer;
 	
 	@Autowired
+	private TemperatureServer temperatureServer;
+	
+	@Autowired
 	private ProtocolPortMapper protocolPortDAOImpl;
 
 	private static Logger logger = Logger.getLogger(MonitorStartup.class);
@@ -55,16 +59,19 @@ public class MonitorStartup implements InitializingBean {
 		logger.info("高压开关端口号：" + port.getHvPort());
 		logger.info("管控开关端口号：" + port.getConPort());
 		logger.info("高压版本1.3端口号：" + port.getHv13Port());
+		logger.info("温度设备端口号：" + port.getTemPort());
 
 		lowVoltageServer.setPort(port.getLvPort());
 		highVoltageServer.setPort(port.getHvPort());
 		controlMeasureServer.setPort(port.getConPort());
 		highVoltageServer_v1_3.setPort(port.getHv13Port());
+		temperatureServer.setPort(port.getTemPort());
 
 		lowVoltageServer.start();
 		highVoltageServer.start();
 		controlMeasureServer.start();
 		highVoltageServer_v1_3.start();
+		temperatureServer.start();
 	}	
 	
 	
