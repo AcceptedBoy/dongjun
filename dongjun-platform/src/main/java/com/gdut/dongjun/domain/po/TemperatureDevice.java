@@ -16,7 +16,7 @@ public class TemperatureDevice {
 	
 	String availableTime;
 	
-	int groupId;
+	Integer groupId;
 
 	public String getId() {
 		return id;
@@ -50,11 +50,11 @@ public class TemperatureDevice {
 		this.availableTime = available_time;
 	}
 
-	public int getGroupId() {
+	public Integer getGroupId() {
 		return groupId;
 	}
 
-	public void setGroupId(int groupId) {
+	public void setGroupId(Integer groupId) {
 		this.groupId = groupId;
 	}
 

@@ -57,6 +57,7 @@ public class TemperatureDeviceController {
 		} else {
 			model.addAttribute("devices", deviceService.selectByParameters(null));
 		}
+		//TODO 通知前端需要返回的模板
 		return "temperature_device_manager";
 	}
 
@@ -69,15 +70,15 @@ public class TemperatureDeviceController {
 	 */
 	@RequestMapping("/temperature_device_list_by_platform_group_id")
 	@ResponseBody
-	public Object getLineSwitchListByLineId(@RequestParam(required = true) String platformGroupId, Model model) {
+	public Object getDeviceByPlatforxmGroupId(@RequestParam(required = true) String platformGroupId, Model model) {
 
-		List<TemperatureDevice> switchs = deviceService
+		List<TemperatureDevice> devices = deviceService
 				.selectByParameters(MyBatisMapUtil.warp("group_id", platformGroupId));
 		HashMap<String, Object> map = (HashMap<String, Object>) MapUtil.warp("draw", 1);
-		int size = switchs.size();
+		int size = devices.size();
 		map.put("recordsTotal", size);
-		map.put("data", updateDate(switchs));
-		map.put("data", switchs);
+		map.put("data", updateDate(devices));
+		map.put("data", devices);
 		map.put("recordsFiltered", size);
 		return map;
 	}
@@ -86,9 +87,9 @@ public class TemperatureDeviceController {
 
 		String date = TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss");
 		for (TemperatureDevice device : devices) {
-
 			if (search(device.getId())) {
 				device.setOnlineTime(date);
+				deviceService.updateByPrimaryKey(device);
 			}
 		}
 		return devices;
@@ -216,8 +217,32 @@ public class TemperatureDeviceController {
 		return DownloadAndUploadUtil.download(request, targetFile, fileName);
 	}
 	
-	@RequestMapping(value = "/uploadtemSwitchExcel")
-	public Object uploadlvSwitchExcel(
+
+	@RequestMapping(value = "/downloadtemExcel")
+	public ResponseEntity<byte[]> downloadtemExcel(HttpServletRequest request,
+			HttpServletResponse respone, String clazzId) throws Exception {
+
+		List<TemperatureDevice> sapis = deviceService.selectByParameters(null);
+
+		// 3.处理目标文件路径
+		String fileName = "温度设备信息";
+		String relativePath = ClassLoaderUtil.getExtendResource("../",
+				"spring-boot_mybatis_bootstrap").toString();
+		String realPath = relativePath.replace("/", "\\");
+		File file = new File(realPath);
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+		String filePath = realPath + "\\" + fileName;
+		// 4.生成excel文件
+		deviceService.createDeviceExcel(filePath, sapis);
+
+		File targetFile = new File(filePath);
+		return DownloadAndUploadUtil.download(request, targetFile, fileName);
+	}
+	
+	@RequestMapping(value = "/uploadtemDeviceExcel")
+	public Object uploadtemDeviceExcel(
 			@RequestParam("file") MultipartFile file,
 			Model model, 
 			HttpServletRequest request, 
@@ -240,7 +265,7 @@ public class TemperatureDeviceController {
 			return false;
 		} else {
 			//TODO
-			deviceService.uploadSwitch(f, platformGroupId);
+			deviceService.uploadDevice(f, platformGroupId);
 		}
 		// 3.数据读取完后删除掉文件
 		new File(f).delete();

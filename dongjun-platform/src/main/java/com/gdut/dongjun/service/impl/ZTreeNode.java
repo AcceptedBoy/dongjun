@@ -22,9 +22,7 @@ public class ZTreeNode {
 	private boolean open = true; // 是否展开节点
 	private List<ZTreeNode> children;// 子节点
 	private String parentName;
-	private String lineId;//线路Id
-	private String longitude;// 结合百度地图使用 ,经度
-	private String latitude;// 纬度
+	private String platformGroupId;//小组id
 	private int type;//类型标志
 	private String address;
 	private String showName;
@@ -53,28 +51,12 @@ public class ZTreeNode {
 		this.open = open;
 	}
 
-	public String getLineId() {
-		return lineId;
+	public String getPlatformGroupId() {
+		return platformGroupId;
 	}
 
-	public void setLineId(String lineId) {
-		this.lineId = lineId;
-	}
-
-	public String getLongitude() {
-		return longitude;
-	}
-
-	public void setLongitude(String longitude) {
-		this.longitude = longitude;
-	}
-
-	public String getLatitude() {
-		return latitude;
-	}
-
-	public void setLatitude(String latitude) {
-		this.latitude = latitude;
+	public void setPlatformGroupId(String platformGroupId) {
+		this.platformGroupId = platformGroupId;
 	}
 
 	public List<ZTreeNode> getChildren() {

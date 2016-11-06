@@ -72,11 +72,7 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 								n3.setId(lowSwitchs.get(k).getId());
 								n3.setName(lowSwitchs.get(k).getName());
 								n3.setParentName(pgList.get(j).getName());
-								n3.setLongitude(lowSwitchs.get(k)
-										.getLongitude().toString());
-								n3.setLatitude(lowSwitchs.get(k)
-										.getLatitude().toString());
-								n3.setLineId(lowSwitchs.get(k).getLineId());
+								n3.setPlatformGroupId(lowSwitchs.get(k).getGroupId() + "");
 								n3.setAddress(lowSwitchs.get(k).getAddress());
 								n3.setType(0);
 								n3.setShowName(lowSwitchs.get(k).getShowName());
@@ -98,12 +94,7 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 								n3.setId(highSwitches.get(k).getId());
 								n3.setName(highSwitches.get(k).getName());
 								n3.setParentName(pgList.get(j).getName());
-								//n3.setParentName(switchs2.get(k).getName());
-								n3.setLongitude(highSwitches.get(k)
-										.getLongitude().toString());
-								n3.setLatitude(highSwitches.get(k)
-										.getLatitude().toString());
-								n3.setLineId(highSwitches.get(k).getLineId());
+								n3.setPlatformGroupId(highSwitches.get(k).getGroupId() + "");
 								n3.setAddress(highSwitches.get(k).getAddress());
 								n3.setType(1);
 								n3.setShowName(highSwitches.get(k).getShowName());
@@ -125,11 +116,7 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 								n3.setId(controlSwitchs.get(k).getId());
 								n3.setName(controlSwitchs.get(k).getName());
 								n3.setParentName(pgList.get(j).getName());
-								n3.setLongitude(controlSwitchs.get(k)
-										.getLongitude().toString());
-								n3.setLatitude(controlSwitchs.get(k)
-										.getLatitude().toString());
-								n3.setLineId(controlSwitchs.get(k).getLineId());
+								n3.setPlatformGroupId(controlSwitchs.get(k).getGroupId() + "");
 								n3.setAddress(controlSwitchs.get(k).getAddress());
 								n3.setType(2);
 								n3.setShowName(controlSwitchs.get(k).getShowName());
@@ -150,11 +137,7 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 								n3.setId(devices.get(k).getId());
 								n3.setName(devices.get(k).getName());
 								n3.setParentName(pgList.get(j).getName());
-//								n3.setLongitude(devices.get(k)
-//										.getLongitude().toString());
-//								n3.setLatitude(devices.get(k)
-//										.getLatitude().toString());
-//								n3.setLineId(devices.get(k).getLineId());
+								n3.setPlatformGroupId(devices.get(k).getGroupId() + "");
 								n3.setAddress(devices.get(k).getAddress());
 								n3.setType(3);
 //								n3.setShowName(devices.get(k).getShowName());
