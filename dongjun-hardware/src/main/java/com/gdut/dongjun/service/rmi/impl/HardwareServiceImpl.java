@@ -3,9 +3,14 @@ package com.gdut.dongjun.service.rmi.impl;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 import javax.annotation.Resource;
 
+import com.gdut.dongjun.core.device.HighVoltageDevice;
+import com.gdut.dongjun.core.device_message_engine.impl.HighVoltageSwitchMessageEngine;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.gdut.dongjun.core.CtxStore;
@@ -17,12 +22,13 @@ import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
 import com.gdut.dongjun.service.HighVoltageHitchEventService;
 import com.gdut.dongjun.service.rmi.HardwareService;
 
-/**
- * 在远程方法实现类中，如果是spring配置rmi的话一定不能继承  {@code UnicastRemoteObject},否则会出现如下提示：
- * {@code Caused by: java.rmi.server.ExportException: object already exported}
- * @author link xiaoMian <972192420@qq.com>
- */
 public class HardwareServiceImpl implements HardwareService {
+
+	/**
+	 * 总召池
+	 */
+	private static ExecutorService callerPool = Executors.newFixedThreadPool(
+			Runtime.getRuntime().availableProcessors() * 2);
 
 	public HardwareServiceImpl() throws RemoteException {
 		super();
@@ -39,28 +45,29 @@ public class HardwareServiceImpl implements HardwareService {
 	
 	@Autowired
 	private HighVoltageHitchEventService eventService;
+
+	@Autowired
+	private HighVoltageSwitchMessageEngine messageEngine;
 	
 	/* (non-Javadoc)
 	 * @see com.gdut.dongjun.service.rmi.HardwareService#generateOpenSwitchMessage(java.lang.String, int)
 	 */
 	@Override
-	public String generateOpenSwitchMessage(String address, int type) throws RemoteException {
+	public String generateOpenSwitchMessage(final String address, int type) throws RemoteException {
 	
 		if(address == null) {
 			return null;
 		}
 		String msg = null;
 		SwitchGPRS gprs = null;
+		String callMsg = null;
 		switch (type) {
 		case 0:// 低压开关
 			msg = lowVoltageDevice.generateOpenSwitchMessage(address);
 			break;
 		case 1:// 高压开关
-			gprs = CtxStore.getByAddress(address);
-			if(gprs != null) {
-				gprs.setPrepareType(2);
-			}
 			msg = highVoltageDevice.generateOpenSwitchMessage(address);
+			callMsg = messageEngine.generateTotalCallMsg(address);
 			break;
 		case 2:// 管控开关
 			msg = controlMeasureDevice.generateOpenSwitchMessage(address);
@@ -71,6 +78,19 @@ public class HardwareServiceImpl implements HardwareService {
 		if (msg != null && CtxStore.getCtxByAddress(address) != null) {
 			
 			CtxStore.getCtxByAddress(address).writeAndFlush(msg);
+			final String callMsg0 = callMsg;
+			callerPool.execute(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						Thread.sleep(1000 * 5);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					} finally{
+						CtxStore.getCtxByAddress(address).writeAndFlush(callMsg0);
+					}
+				}
+			});
 			return msg;
 		}
 		return null;
@@ -80,22 +100,20 @@ public class HardwareServiceImpl implements HardwareService {
 	 * @see com.gdut.dongjun.service.rmi.HardwareService#generateCloseSwitchMessage(java.lang.String, int)
 	 */
 	@Override
-	public String generateCloseSwitchMessage(String address, int type) throws RemoteException { 
+	public String generateCloseSwitchMessage(final String address, int type) throws RemoteException {
 		if(address == null) {
 			return null;
 		}
 		String msg = null;
+		String callMsg = null; //总召报文
 		SwitchGPRS gprs = null;
 		switch (type) {
 		case 0:// 低压开关
 			msg = lowVoltageDevice.generateCloseSwitchMessage(address);
 			break;
 		case 1:// 高压开关
-			gprs = CtxStore.getByAddress(address);
-			if(gprs != null) {
-				gprs.setPrepareType(1);
-			}
 			msg = highVoltageDevice.generateCloseSwitchMessage(address);
+			callMsg = messageEngine.generateTotalCallMsg(address);
 			break;
 		case 2:// 管控开关
 			msg = controlMeasureDevice.generateCloseSwitchMessage(address);
@@ -105,6 +123,19 @@ public class HardwareServiceImpl implements HardwareService {
 		}
 		if (msg != null && CtxStore.getCtxByAddress(address) != null) {
 			CtxStore.getCtxByAddress(address).writeAndFlush(msg);
+			final String callMsg0 = callMsg;
+			callerPool.execute(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						Thread.sleep(1000 * 5);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					} finally{
+						CtxStore.getCtxByAddress(address).writeAndFlush(callMsg0);
+					}
+				}
+			});
 		}
 		return msg;
 	}
