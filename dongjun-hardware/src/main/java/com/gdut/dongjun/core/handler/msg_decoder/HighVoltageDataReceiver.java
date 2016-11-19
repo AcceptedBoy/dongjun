@@ -385,7 +385,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		}
 		String resu = new HighVoltageDeviceCommandUtil().confirmChangeAffair(address);
 		logger.info("遥信变位事件确定---------" + resu);
-		ctx.writeAndFlush(resu);
+		ctx.writeAndFlush(resu, ctx.voidPromise());
 	}
 
 	/**
@@ -397,7 +397,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		
 		String resu = new HighVoltageDeviceCommandUtil().confirmChangeAffair(data.substring(10, 14));
 		logger.info("遥信变位确定---------" + resu);
-		ctx.writeAndFlush(resu);
+		ctx.writeAndFlush(resu, ctx.voidPromise());
 	}
 
 	private void changeState(String address, String code, String value) {
