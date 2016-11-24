@@ -258,7 +258,7 @@ public class Application extends SpringBootServletInitializer {
 		Map<String, String> map = new LinkedHashMap<>();
 		map.put("/dongjun/elecon/*", "anon");
 		map.put("/dongjun/admin/**", "roles[super_admin]");
-		map.put("/dongjun/**", "authc");
+		//map.put("/dongjun/**", "authc");
 		return map;
 	}
 
