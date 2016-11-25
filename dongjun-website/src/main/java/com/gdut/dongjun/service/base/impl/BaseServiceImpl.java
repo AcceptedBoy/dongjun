@@ -53,6 +53,11 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
 		
 		return baseMapper.selectByParameters(map);
 	}
+	
+	@Override
+	public int deleteByParameters(Map<String, Object> map) {
+		return baseMapper.deleteByParameters(map);
+	}
 
 	@Override
 	public int updateByPrimaryKey(T record) {

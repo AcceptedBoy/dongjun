@@ -162,4 +162,16 @@ public class HistoryHighVoltageVoltage {
     public void setSwitchId(String switchId) {
         this.switchId = switchId;
     }
+    public HistoryHighVoltageVoltage(String id, Date time, String phase, Integer value, String switchId) {
+ 		super();
+ 		this.id = id;
+ 		this.time = time;
+ 		this.phase = phase;
+ 		this.value = value;
+ 		this.switchId = switchId;
+ 	}
+
+ 	public HistoryHighVoltageVoltage() {
+ 		super();
+ 	}
 }

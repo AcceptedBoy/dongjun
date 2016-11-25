@@ -1,11 +1,12 @@
 package com.gdut.dongjun.web;
 
-import com.gdut.dongjun.domain.HighVoltageStatus;
-import com.gdut.dongjun.domain.po.*;
-import com.gdut.dongjun.service.*;
-import com.gdut.dongjun.service.rmi.HardwareService;
-import com.gdut.dongjun.thread.manager.DefaultThreadManager;
-import com.gdut.dongjun.thread.manager.MsgPushThreadManager;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpSession;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.MessagingException;
@@ -16,10 +17,28 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpSession;
-import java.rmi.RemoteException;
-import java.util.List;
+import com.gdut.dongjun.domain.HighVoltageStatus;
+import com.gdut.dongjun.domain.po.ControlMearsureCurrent;
+import com.gdut.dongjun.domain.po.ControlMearsureVoltage;
+import com.gdut.dongjun.domain.po.HighVoltageCurrent;
+import com.gdut.dongjun.domain.po.HighVoltageSwitch;
+import com.gdut.dongjun.domain.po.HighVoltageVoltage;
+import com.gdut.dongjun.domain.po.LowVoltageCurrent;
+import com.gdut.dongjun.domain.po.LowVoltageVoltage;
+import com.gdut.dongjun.domain.po.User;
+import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
+import com.gdut.dongjun.service.ControlMearsureCurrentService;
+import com.gdut.dongjun.service.ControlMearsureVoltageService;
+import com.gdut.dongjun.service.HighSwitchUserService;
+import com.gdut.dongjun.service.HighVoltageCurrentService;
+import com.gdut.dongjun.service.HighVoltageHitchEventService;
+import com.gdut.dongjun.service.HighVoltageSwitchService;
+import com.gdut.dongjun.service.HighVoltageVoltageService;
+import com.gdut.dongjun.service.LowVoltageCurrentService;
+import com.gdut.dongjun.service.LowVoltageVoltageService;
+import com.gdut.dongjun.service.rmi.HardwareService;
+import com.gdut.dongjun.thread.manager.DefaultThreadManager;
+import com.gdut.dongjun.thread.manager.MsgPushThreadManager;
 
 @Controller
 @RequestMapping("/dongjun")
@@ -42,6 +61,9 @@ public class CommandController {
 	private HighVoltageHitchEventService eventService;
 	@Autowired
 	private HighSwitchUserService highOperatorService;
+	
+	@Autowired
+	private HighVoltageSwitchService SwitchService;
 	
 	@Resource(name="hardwareService")
 	private HardwareService hardwareService;
@@ -121,6 +143,33 @@ public class CommandController {
 		}
 		return "success";
 	}
+	
+	public List<ActiveHighSwitch> getActive() {
+		List<ActiveHighSwitch> list = new ArrayList<ActiveHighSwitch>();
+		
+		for(int i=0;i<100;i++){
+			//HighVoltageSwitch a1=SwitchService.selectByPrimaryKey(i+"");
+			if(i%2==0){
+				ActiveHighSwitch active3 = new ActiveHighSwitch();
+				active3.setOpen(true);
+				active3.setStatus("01");
+				active3.setHitchEventId(null);
+				active3.setId(i+"");
+				list.add(active3);
+			}else{
+				ActiveHighSwitch active3 = new ActiveHighSwitch();
+				active3.setOpen(false);
+				active3.setStatus("00");
+				active3.setHitchEventId(null);
+				active3.setId(i+"");
+				list.add(active3);
+			}
+		}
+		
+		return list;
+	}
+	
+
 	
 	@RequestMapping("/read_voltage")
 	@ResponseBody

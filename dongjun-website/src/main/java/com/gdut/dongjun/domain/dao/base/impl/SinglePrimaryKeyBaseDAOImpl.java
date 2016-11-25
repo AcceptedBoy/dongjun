@@ -47,6 +47,11 @@ public class SinglePrimaryKeyBaseDAOImpl<T> implements
 
 		return template.selectList(getNamespace("selectByParameters"), map);
 	}
+	
+	@Override
+	public int deleteByParameters(Map<String, Object> map) {
+		return template.delete(getNamespace("deleteByParameters"), map);
+	}
 
 	public int updateByPrimaryKey(T record) {
 
@@ -87,5 +92,7 @@ public class SinglePrimaryKeyBaseDAOImpl<T> implements
 
 		return getFirstInterface() + "." + methodName;
 	}
+
+	
 
 }

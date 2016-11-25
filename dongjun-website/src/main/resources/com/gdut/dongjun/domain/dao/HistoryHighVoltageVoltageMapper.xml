@@ -21,6 +21,26 @@
     -->
     id, time, phase, value, switch_id
   </sql>
+  <select id="selectByParameters" resultMap="BaseResultMap">
+		select * from history_high_voltage_voltage where 1 = 1
+		<if test="map != null">
+			<foreach item="item" index="key" collection="map.entrySet()">
+				and ${key} =
+				#{item}
+			</foreach>
+		</if>
+	</select>
+  
+  <select id="deleteByParameters" resultMap="BaseResultMap">
+	    delete from history_high_voltage_voltage where 1 = 1
+	    <if test="map != null">
+	      <foreach item="item" index="key" collection="map.entrySet()">
+	        and ${key} =
+	        #{item}
+	      </foreach>
+	    </if>
+  	</select>
+  
   <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.String" >
     <!--
       WARNING - @mbggenerated

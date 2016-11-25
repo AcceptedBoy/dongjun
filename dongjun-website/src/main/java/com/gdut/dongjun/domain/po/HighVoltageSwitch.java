@@ -352,4 +352,25 @@ public class HighVoltageSwitch {
     public void setOnlineTime(String onlineTime) {
         this.onlineTime = onlineTime;
     }
+    
+    public HighVoltageSwitch(String id, String name, String address,String simNumber, String deviceNumber,
+			Float longitude, Float latitude, Integer inlineIndex, String lineId, String showName, String onlineTime) {
+		super();
+		this.showName = showName;
+		this.id = id;
+		this.name = name;
+		this.address = address;
+		this.simNumber = simNumber;
+		this.deviceNumber = deviceNumber;
+		this.longitude = longitude;
+		this.latitude = latitude;
+		this.inlineIndex = inlineIndex;
+		this.lineId = lineId;
+		this.onlineTime = onlineTime;
+	}
+
+	public HighVoltageSwitch() {
+		super();
+	}
+    
 }

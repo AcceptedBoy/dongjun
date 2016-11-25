@@ -65,6 +65,18 @@ public interface SinglePrimaryKeyBaseMapper<T> {
 	 */
 	public List<T> selectByParameters(Map<String, Object> map);
 
+	
+	/**
+	 * 
+	 * @Title: deleteByParameters
+	 * @Description: TODO
+	 * @param 
+	 * @return int
+	 * @throws
+	 */
+	public int deleteByParameters(Map<String, Object> map);
+	
+	
 	/**
 	 * 
 	 * @Title: updateByPrimaryKeySelective
@@ -86,5 +98,7 @@ public interface SinglePrimaryKeyBaseMapper<T> {
 	 * @throws
 	 */
 	public int updateByPrimaryKey(T record);
+
+	
 
 }

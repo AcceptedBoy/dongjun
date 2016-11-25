@@ -173,4 +173,17 @@ public class HighVoltageVoltage {
     	voltage.setValue(this.getValue());
     	return voltage;
     }
+    public HighVoltageVoltage(String id, Date time, String phase, Integer value, String switchId) {
+		super();
+		this.id = id;
+		this.time = time;
+		this.phase = phase;
+		this.value = value;
+		this.switchId = switchId;
+	}
+
+	public HighVoltageVoltage() {
+		super();
+	}
+    
 }

@@ -173,4 +173,18 @@ public class HighVoltageCurrent {
     	current.setValue(this.getValue());
     	return current;
     }
+    
+    public HighVoltageCurrent(String id, Date time, String phase, Integer value, String switchId) {
+		super();
+		this.id = id;
+		this.time = time;
+		this.phase = phase;
+		this.value = value;
+		this.switchId = switchId;
+	}
+
+	public HighVoltageCurrent() {
+		super();
+	}
+    
 }
