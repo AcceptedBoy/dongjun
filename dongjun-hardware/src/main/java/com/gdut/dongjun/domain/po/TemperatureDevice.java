@@ -8,7 +8,11 @@ public class TemperatureDevice {
 	
 	String name;
 	
+	String deviceNumber;
+	
 	String address;
+	
+	String simNumber;
 	
 	String addTime;
 	
@@ -16,7 +20,9 @@ public class TemperatureDevice {
 	
 	String availableTime;
 	
-	int groupId;
+	String showName;
+	
+	Integer groupId;
 
 	public String getId() {
 		return id;
@@ -50,11 +56,11 @@ public class TemperatureDevice {
 		this.availableTime = available_time;
 	}
 
-	public int getGroupId() {
+	public Integer getGroupId() {
 		return groupId;
 	}
 
-	public void setGroupId(int groupId) {
+	public void setGroupId(Integer groupId) {
 		this.groupId = groupId;
 	}
 
@@ -72,6 +78,30 @@ public class TemperatureDevice {
 
 	public void setAddTime(String addTime) {
 		this.addTime = addTime;
+	}
+
+	public String getDeviceNumber() {
+		return deviceNumber;
+	}
+
+	public void setDeviceNumber(String deviceNumber) {
+		this.deviceNumber = deviceNumber;
+	}
+
+	public String getSimNumber() {
+		return simNumber;
+	}
+
+	public void setSimNumber(String simNumber) {
+		this.simNumber = simNumber;
+	}
+
+	public String getShowName() {
+		return showName;
+	}
+
+	public void setShowName(String showName) {
+		this.showName = showName;
 	}
 	
 	

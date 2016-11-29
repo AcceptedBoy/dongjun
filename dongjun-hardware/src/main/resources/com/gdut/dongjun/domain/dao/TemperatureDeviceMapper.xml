@@ -6,13 +6,16 @@
 		<id column="id" jdbcType="VARCHAR" property="id" />
 		<result column="name" jdbcType="VARCHAR" property="name" />
 		<result column="address" jdbcType="VARCHAR" property="address" />
+		<result column="sim_number" jdbcType="VARCHAR" property="simNumber" />
+		<result column="device_number" jdbcType="VARCHAR" property="deviceNumber" />
 		<result column="add_time" jdbcType="VARCHAR" property="addTime" />
 		<result column="available_time" jdbcType="VARCHAR" property="availableTime" />
+		<result column="online_time" jdbcType="VARCHAR" property="onlineTime" />
 		<result column="group_id" jdbcType="INTEGER" property="groupId" />
 	</resultMap>
 
 	<sql id="Base_Column_List">
-		id, name. address, add_time, available_time, group_id
+		id, name, address, sim_number, device_number, add_time, available_time, online_time, group_id
 	</sql>
 
 	<select id="selectByParameters" resultMap="BaseResultMap">
@@ -44,14 +47,26 @@
 		(#{sql})
 		values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
 		#{address,jdbcType=VARCHAR},
-		#{addTime, jdbcTpye=VARCHAR},
+		#{simNumber, jdbcType=VARCHAR},
+		#{deviceNumber, jdbcType=VARCHAR},
+		#{addTime, jdbcType=VARCHAR},
 		#{availableTime, jdbcType=VARCHAR},
+		#{onlineTime, jdbcType=VARCHAR},
 		#{groupId, jdbcType=INTEGER}
 	</insert>
 
 	<insert id="insertSelective" parameterType="com.gdut.dongjun.domain.po.TemperatureDevice">
 		insert into temperature_device
 		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="deviceNumber != null">
+				device_number,
+			</if>
+			<if test="onlineTime != null">
+				online_time,
+			</if>
+			<if test="simNumber != null">
+				sim_number,
+			</if>
 			<if test="id != null">
 				id,
 			</if>
@@ -72,6 +87,15 @@
 			</if>
 		</trim>
 		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="deviceNumber != null">
+				#{deviceNumber, jdbcType=VARCHAR},
+			</if>
+			<if test="onlineTime != null">
+				#{onlieTime, jdbcType=VARCHAR},
+			</if>
+			<if test="simNumber != null">
+				#{simNumber, jdbcType=VARCHAR},
+			</if>
 			<if test="id != null">
 				#{id,jdbcType=VARCHAR},
 			</if>
@@ -111,6 +135,15 @@
 			<if test="groupId != null">
 				group_id = #{groupId, jdbcType=INTEGER}
 			</if>
+			<if test="onlineTime != null">
+				online_time = #{onlieTime, jdbcType=VARCHAR},
+			</if>
+			<if test="simNumber != null">
+				sim_number = #{simNumber, jdbcType=VARCHAR},
+			</if>
+			<if test="deviceNumber != null">
+				device_number = #{deviceNumber, jdbcType=VARCHAR},
+			</if>
 		</set>
 		where id = #{id,jdbcType=VARCHAR}
 	</update>
@@ -121,7 +154,10 @@
 		address = #{address,jdbcType=VARCHAR},
 		add_time = #{addTime, jdbcType=VARCHAR},
 		available_time = #{availableTime, jdbcType=VARCHAR},
-		group_id = #{groupId, jdbcType=INTEGER}
+		group_id = #{groupId, jdbcType=INTEGER},
+		sim_number = #{simNumber, jdbcType=VARCHAR},
+		online_time = #{onlieTime, jdbcType=VARCHAR},
+		device_number = #{deviceNumber, jdbcType=VARCHAR}
 		where id = #{id,jdbcType=VARCHAR}
 	</update>
 

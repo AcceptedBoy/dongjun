@@ -57,6 +57,14 @@ public class TemperatureDeviceCommandUtil extends StringCommonUtil {
 	public String getConnection() {
 		return "" + TemperatureControlCode.CONNECTION;
 	}
+	
+	/**
+	 * 返回确认链接
+	 * @return
+	 */
+	public String getConnection0() {
+		return "EB90EB90EB90" + address + "16";
+	}
 
 	/**
 	 * 总召
@@ -64,7 +72,7 @@ public class TemperatureDeviceCommandUtil extends StringCommonUtil {
 	 * @return
 	 */
 	public String getTotalCall() {
-		String msg = TemperatureControlCode.CONTROL + address + TemperatureControlCode.TOTALCALL + "000014";
+		String msg = TemperatureControlCode.CONTROL + address + TemperatureControlCode.TOTALCALL + address + "000014";
 		this.setData(msg);
 		return "68" + this.dataLength + this.dataLength + "68" + msg + this.check + "16";
 	}
