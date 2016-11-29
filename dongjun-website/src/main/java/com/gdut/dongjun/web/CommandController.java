@@ -1,8 +1,10 @@
 package com.gdut.dongjun.web;
 
 import java.rmi.RemoteException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
@@ -21,7 +23,6 @@ import com.gdut.dongjun.domain.HighVoltageStatus;
 import com.gdut.dongjun.domain.po.ControlMearsureCurrent;
 import com.gdut.dongjun.domain.po.ControlMearsureVoltage;
 import com.gdut.dongjun.domain.po.HighVoltageCurrent;
-import com.gdut.dongjun.domain.po.HighVoltageSwitch;
 import com.gdut.dongjun.domain.po.HighVoltageVoltage;
 import com.gdut.dongjun.domain.po.LowVoltageCurrent;
 import com.gdut.dongjun.domain.po.LowVoltageVoltage;
@@ -32,10 +33,10 @@ import com.gdut.dongjun.service.ControlMearsureVoltageService;
 import com.gdut.dongjun.service.HighSwitchUserService;
 import com.gdut.dongjun.service.HighVoltageCurrentService;
 import com.gdut.dongjun.service.HighVoltageHitchEventService;
-import com.gdut.dongjun.service.HighVoltageSwitchService;
 import com.gdut.dongjun.service.HighVoltageVoltageService;
 import com.gdut.dongjun.service.LowVoltageCurrentService;
 import com.gdut.dongjun.service.LowVoltageVoltageService;
+import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.rmi.HardwareService;
 import com.gdut.dongjun.thread.manager.DefaultThreadManager;
 import com.gdut.dongjun.thread.manager.MsgPushThreadManager;
@@ -44,6 +45,12 @@ import com.gdut.dongjun.thread.manager.MsgPushThreadManager;
 @RequestMapping("/dongjun")
 @SessionAttributes("currentUser")
 public class CommandController {
+	
+	static List<ActiveHighSwitch> delSwitch = new ArrayList<ActiveHighSwitch>();
+	
+	static List<ActiveHighSwitch> switches = new ArrayList<ActiveHighSwitch>();
+	
+	static boolean isExcute = false;
 
 	@Autowired
 	private LowVoltageCurrentService currentService;
@@ -61,9 +68,8 @@ public class CommandController {
 	private HighVoltageHitchEventService eventService;
 	@Autowired
 	private HighSwitchUserService highOperatorService;
-	
 	@Autowired
-	private HighVoltageSwitchService SwitchService;
+	private UserService userService;
 	
 	@Resource(name="hardwareService")
 	private HardwareService hardwareService;
@@ -106,47 +112,107 @@ public class CommandController {
 	@RequestMapping("/get_active_switch_ignore_change")
 	@ResponseBody
 	public void getActiveSwitchIgnoreChange(HttpSession session) throws MessagingException, RemoteException {
-		
+		final User _user = (User)session.getAttribute("currentUser");
 		DefaultThreadManager.delayExecute(new Runnable() {
 			@Override
 			public void run() {
 				try {
+					if (!isExcute) {
+						getActive();
+						delActive(_user);
+						addActive(_user);
+						changeActive(_user);
+						isExcute = true;
+					}
 					template.convertAndSend("/topic/get_active_switch_status", 
-							hardwareService.getActiveSwitchStatus());
-				} catch (MessagingException | RemoteException e) {
+//							hardwareService.getActiveSwitchStatus());
+							switches);
+				} catch (MessagingException e) {
 					e.printStackTrace();
 				}
 			}
 		}, 8);
 	}
 	
+	public void delActive(User user) {
+		MsgPushThreadManager.createScheduledPoolDaemonThread(
+				new Runnable() {
 
-	@RequestMapping("/control_switch")
-	@ResponseBody
-	public String controlSwitch(@RequestParam(required = true) String switchId,
-			int sign, int type) throws RemoteException {
-		
-		String address = hardwareService.getOnlineAddressById(switchId);
-		String msg = null;
-
-		if(sign == 0) { //开
-			msg = hardwareService.generateOpenSwitchMessage(address, type);
-		} else { //合
-			msg = hardwareService.generateCloseSwitchMessage(address, type);
-		}
-		
-		// 发送报文
-		if (msg != null) {
-			logger.info("发送开合闸报文" + msg);
-		} else {
-			return "error";
-		}
-		return "success";
+					@Override
+					public void run() {
+						DecimalFormat format = new DecimalFormat("0");
+						int index = Integer.parseInt(format.format(Math.random()*2));
+						delSwitch.add(switches.get(index));
+						switches.remove(index);
+					}
+					
+				}, 8, user.getId());
 	}
 	
-	public List<ActiveHighSwitch> getActive() {
-		List<ActiveHighSwitch> list = new ArrayList<ActiveHighSwitch>();
+	public void changeActive(User user) {
 		
+		MsgPushThreadManager.createScheduledPoolDaemonThread(
+				new Runnable() {
+
+					@Override
+					public void run() {
+						DecimalFormat format = new DecimalFormat("0");
+						int index = Integer.parseInt(format.format(Math.random()*10));
+						ActiveHighSwitch active = switches.get(2);
+						if (active.getStatus().equals("00")) {
+							active.setOpen(true);
+							active.setStatus("01");
+						}
+						else {
+							active.setStatus("00");
+							active.setOpen(false);
+						}
+					}
+					
+				}, 10, user.getId());
+	}
+	
+	public void addActive(User user) {
+		MsgPushThreadManager.createScheduledPoolDaemonThread(
+				new Runnable() {
+
+					@Override
+					public void run() {
+						if (!delSwitch.isEmpty()) {
+							switches.add(delSwitch.get(0));
+							delSwitch.remove(0);
+						}
+					}
+					
+				}, 15, user.getId());
+	}
+	
+	public void getActive() {
+		List<ActiveHighSwitch> list = new ArrayList<ActiveHighSwitch>();
+//		ActiveHighSwitch active = new ActiveHighSwitch();
+//		active.setOpen(true);
+//		active.setStatus("01");
+//		active.setHitchEventId(null);
+//		active.setId("03");
+//		list.add(active);
+//		ActiveHighSwitch active1 = new ActiveHighSwitch();
+//		active1.setOpen(true);
+//		active1.setStatus("01");
+//		active1.setHitchEventId(null);
+//		active1.setId("028d7316cbd94221857264dcd0be643f");
+//		list.add(active1);
+//		ActiveHighSwitch active2 = new ActiveHighSwitch();
+//		active2.setOpen(false);
+//		active2.setStatus("00");
+//		active2.setHitchEventId(null);
+//		active2.setId("25a4d5f3752443c78e2dfe6189704e95");
+//		list.add(active2);
+//		ActiveHighSwitch active3 = new ActiveHighSwitch();
+//		active3.setOpen(true);
+//		active3.setStatus("01");
+//		active3.setHitchEventId(null);
+//		active3.setId("cb2f0e23c0284064ac0faba9f7dc303a");
+//		list.add(active3);
 		for(int i=0;i<100;i++){
 			//HighVoltageSwitch a1=SwitchService.selectByPrimaryKey(i+"");
 			if(i%2==0){
@@ -165,11 +231,44 @@ public class CommandController {
 				list.add(active3);
 			}
 		}
-		
-		return list;
+//		ActiveHighSwitch active2 = new ActiveHighSwitch();
+//		active2.setOpen(true);
+//		active2.setStatus("00");
+//		active2.setHitchEventId(null);
+//		active2.setId("25a4d5f3752443c78e2dfe6189704e95");
+//		list.add(active2);
+		this.switches.addAll(list);
 	}
 	
 
+	@RequestMapping("/control_switch")
+	@ResponseBody
+	public String controlSwitch(@RequestParam(required = true) String switchId,
+			int sign, int type) throws RemoteException {
+		
+		String address = hardwareService.getOnlineAddressById(switchId);
+		String msg = null;
+		
+		switch (sign) {
+		case 0:// 开
+			msg = hardwareService.generateOpenSwitchMessage(address, type);
+			break;
+		case 1:// 合
+			msg = hardwareService.generateCloseSwitchMessage(address, type);
+			break;
+		default:
+			break;
+		}
+		
+		// 发送报文
+		if (msg != null) {
+
+			logger.info("发送开合闸报文" + msg);
+		} else {
+			return "error";
+		}
+		return "success";
+	}
 	
 	@RequestMapping("/read_voltage")
 	@ResponseBody
@@ -208,10 +307,10 @@ public class CommandController {
 			final String type, final String switchId) {
 		return new Runnable() {
 			public void run() {
+//				template.convertAndSendToUser(userName, "/queue/read_voltage", 
+//						getVoltage(type, switchId));
 				template.convertAndSendToUser(userName, "/queue/read_voltage", 
-						getVoltage(type, switchId));
-				/*template.convertAndSendToUser(userName, "/queue/read_voltage", 
-						getVoltVisual());*/
+						getVoltVisual());
 			}
 		};
 	}
@@ -284,6 +383,7 @@ public class CommandController {
 						break;
 					}
 				}
+
 			}
 			break;
 		default:
@@ -315,10 +415,10 @@ public class CommandController {
 			final String type, final String switchId) {
 		return new Runnable() {
 			public void run() {
+//				template.convertAndSendToUser(userName, "/queue/read_current", 
+//						getCurrent(type, switchId));
 				template.convertAndSendToUser(userName, "/queue/read_current", 
-						getCurrent(type, switchId));
-				/*template.convertAndSendToUser(userName, "/queue/read_current", 
-						getCurrVisual());*/
+						getCurrVisual());
 			}
 		};
 	}
@@ -434,14 +534,14 @@ public class CommandController {
 						try {
 							
 							//TODO
-							HighVoltageStatus status = hardwareService.getStatusbyId(id);
-							if(status != null) {
-								template.convertAndSendToUser(user.getName(), 
-										"/queue/read_hv_status", status);
-							}
-							/*template.convertAndSendToUser(user.getName(), 
-									"/queue/read_hv_status", getStatusVisual());*/
-						} catch (MessagingException | RemoteException e1) {
+//							HighVoltageStatus status = hardwareService.getStatusbyId(id);
+//							if(status != null) {
+//								template.convertAndSendToUser(user.getName(), 
+//										"/queue/read_hv_status", status);
+//							}
+							template.convertAndSendToUser(user.getName(), 
+									"/queue/read_hv_status", getStatusVisual());
+						} catch (MessagingException e1) {
 							e1.printStackTrace();
 						}
 					}
@@ -453,7 +553,7 @@ public class CommandController {
 	// TODO 虚拟数据获取
 	//**************************************
 	
-	/*public HighVoltageStatus getStatusVisual() {
+	public HighVoltageStatus getStatusVisual() {
 		
 		int i = new Random().nextInt(4);
 		if(i == 1) {
@@ -464,6 +564,17 @@ public class CommandController {
 			status.setLing_xu_guo_liu_("01");
 			status.setGuo_liu_san_duan("00");
 			status.setStatus("00");
+			status.setPt1_guo_ya("01");
+			status.setPt1_you_ya("00");
+			status.setPt2_guo_ya("00");
+			status.setPt2_you_ya("01");
+			status.setJiao_liu_shi_dian("10");
+			status.setLing_xu_guo_liu_("20");
+			status.setShou_dong_fen_zha("01");
+			status.setShou_dong_he_zha("01");
+			status.setYao_kong_fen_zha("01");
+			status.setYao_kong_he_zha("01");
+			status.setYao_kong_fu_gui("01");
 			return status;
 		} else if(i == 2){
 			HighVoltageStatus status = new HighVoltageStatus();
@@ -473,6 +584,17 @@ public class CommandController {
 			status.setLing_xu_guo_liu_("00");
 			status.setGuo_liu_san_duan("00");
 			status.setStatus("01");
+			status.setPt1_guo_ya("01");
+			status.setPt1_you_ya("00");
+			status.setPt2_guo_ya("00");
+			status.setPt2_you_ya("01");
+			status.setJiao_liu_shi_dian("10");
+			status.setLing_xu_guo_liu_("20");
+			status.setShou_dong_fen_zha("01");
+			status.setShou_dong_he_zha("01");
+			status.setYao_kong_fen_zha("01");
+			status.setYao_kong_he_zha("01");
+			status.setYao_kong_fu_gui("01");
 			return status;
 		} else {
 			HighVoltageStatus status = new HighVoltageStatus();
@@ -482,6 +604,17 @@ public class CommandController {
 			status.setLing_xu_guo_liu_("00");
 			status.setGuo_liu_san_duan("01");
 			status.setStatus("00");
+			status.setPt1_guo_ya("01");
+			status.setPt1_you_ya("00");
+			status.setPt2_guo_ya("00");
+			status.setPt2_you_ya("01");
+			status.setJiao_liu_shi_dian("10");
+			status.setLing_xu_guo_liu_("20");
+			status.setShou_dong_fen_zha("01");
+			status.setShou_dong_he_zha("01");
+			status.setYao_kong_fen_zha("01");
+			status.setYao_kong_he_zha("01");
+			status.setYao_kong_fu_gui("01");
 			return status;
 		}
 	}
@@ -510,7 +643,7 @@ public class CommandController {
     	} else {
     		return new Integer[] {16726, 0, 0};
     	}
-    }*/
+    }
 
 }
 

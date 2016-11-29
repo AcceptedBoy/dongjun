@@ -109,7 +109,6 @@ function reloadDataTable(lineId){
 	        { "data": "simNumber" },
 	        { "data": "inlineIndex" },
 	        { "data": "onlineTime"},
-	        { "data": "isAvailable"},
 	        { "data": null},
             { "data": null},// 设置默认值 null，表示列不会获得数据源对象的信息,否则默认值会被覆盖掉
             { "data": null},// 设置默认值 null，表示列不会获得数据源对象的信息,否则默认值会被覆盖掉
@@ -200,18 +199,17 @@ function editSwitch() {
 
 	var column = $(this).parent("td").prevAll();
 	console.log(column);
-
-	$("#editDeviceNumber").val(column[12].innerHTML);
-	$("#editName").val(column[11].innerHTML);
-	$("#editShowName").val(column[10].innerHTML);
-	$("#editId").val(column[9].innerHTML);
-	$("#editLineId").val(column[8].innerHTML);
-	$("#editAddress").val(column[7].innerHTML);
-	$("#editLongitude").val(column[6].innerHTML);
-	$("#editLatitude").val(column[5].innerHTML);
+	$("#editDeviceNumber").val(column[11].innerHTML);
+	$("#editName").val(column[10].innerHTML);
+	$("#editShowName").val(column[9].innerHTML);
+	$("#editId").val(column[8].innerHTML);
+	$("#editLineId").val(column[7].innerHTML);
+	$("#editAddress").val(column[6].innerHTML);
+	$("#editLongitude").val(column[5].innerHTML);
+	$("#editLatitude").val(column[4].innerHTML);
 	$('#inLineTime').val(column[1].innerHTML);
-	$("#editSim").val(column[4].innerHTML);
-	$("#editinlineIndex").val(column[3].innerHTML);
+	$("#editSim").val(column[3].innerHTML);
+	$("#editinlineIndex").val(column[2].innerHTML);
 }
 
 
@@ -227,15 +225,15 @@ function delSwitch() {
 
 	var column = $(this).parent("td").prevAll();
 	$("#del_confirm_btn").click(function() {
-
 		$.ajax({
 			type : "post",
 			url : "del_high_voltage_switch",
 			async : false,
 			data : {
-				"switchId" : column[10].innerHTML,
+				"switchId" : column[9].innerHTML,
 			},
 			success : function(data) {
+
 				if(data!=null){
 					
 					reloadDataTable(data);
