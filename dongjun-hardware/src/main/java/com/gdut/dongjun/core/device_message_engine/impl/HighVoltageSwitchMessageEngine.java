@@ -9,10 +9,13 @@ import com.gdut.dongjun.core.device_message_engine.EventMessageEngine;
 import com.gdut.dongjun.enums.HighCommandControlCode;
 import com.gdut.dongjun.util.HighVoltageDeviceCommandUtil;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 /**
  * @author Sherlock-lee
  * @date 2015年11月11日 下午3:19:32
- * @see TODO
+ * @see
  * @since 1.0
  */
 @Service("HighVoltageSwitchMessageEngine")
@@ -20,7 +23,7 @@ public class HighVoltageSwitchMessageEngine implements ControlMessageEngine,
 		DataMessageEngine, EventMessageEngine {
 
 	private HighVoltageDeviceCommandUtil util = new HighVoltageDeviceCommandUtil();
-	
+
 	public String generatePreparedCloseSwitchMesg(String address) {
 		
 		return util.closeSwitchPre(address,
@@ -34,13 +37,26 @@ public class HighVoltageSwitchMessageEngine implements ControlMessageEngine,
 		return util.closeSwitchPre(address,
 				HighCommandControlCode.PRE_CLOSE_SWITCH.toString())
 				+ util.closeSwitch(address,
+				HighCommandControlCode.CLOSE_SWITCH.toString());
+		/*return util.closeSwitchPre(address,
+				HighCommandControlCode.PRE_CLOSE_SWITCH.toString())
+				+ util.closeSwitch(address,
 						HighCommandControlCode.CLOSE_SWITCH.toString())
 				+ util.readVoltageAndCurrent(address,
-						HighCommandControlCode.READ_VOLTAGE_CURRENT.toString());
+						HighCommandControlCode.READ_VOLTAGE_CURRENT.toString());*/
 		/*return util.closeSwitch(address,
 				HighCommandControlCode.CLOSE_SWITCH.toString())
 				+ util.readVoltageAndCurrent(address,
 				HighCommandControlCode.READ_VOLTAGE_CURRENT.toString());*/
+	}
+
+	/*public static void main(String[] args) {
+		System.out.println(new HighVoltageSwitchMessageEngine().generateOpenSwitchMessage("7700"));
+	}*/
+
+	public String generateTotalCallMsg(String address) {
+		return util.readVoltageAndCurrent(address,
+				HighCommandControlCode.READ_VOLTAGE_CURRENT.toString());
 	}
 	
 	public String generatePreparedOpenSwitchMesg(String address) {
@@ -56,9 +72,13 @@ public class HighVoltageSwitchMessageEngine implements ControlMessageEngine,
 		return util.openSwitchPre(address,
 				HighCommandControlCode.PRE_OPEN_SWITCH.toString())
 				+ util.openSwitch(address,
+				HighCommandControlCode.OPEN_SWITCH.toString());
+		/*return util.openSwitchPre(address,
+				HighCommandControlCode.PRE_OPEN_SWITCH.toString())
+				+ util.openSwitch(address,
 						HighCommandControlCode.OPEN_SWITCH.toString())
 				+ util.readVoltageAndCurrent(address,
-						HighCommandControlCode.READ_VOLTAGE_CURRENT.toString());
+						HighCommandControlCode.READ_VOLTAGE_CURRENT.toString());*/
 		/*return util.openSwitch(address,
 						HighCommandControlCode.OPEN_SWITCH.toString())
 				+ util.readVoltageAndCurrent(address,

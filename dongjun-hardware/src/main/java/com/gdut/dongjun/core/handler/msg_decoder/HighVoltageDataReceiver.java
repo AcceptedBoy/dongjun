@@ -29,6 +29,7 @@ import com.gdut.dongjun.util.*;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.nio.NioEventLoopGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * TODO 值得关注的一个类
@@ -330,13 +333,6 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		}
 	}
 
-	/*public static void main(String[] args) {
-		String str0 = "68 53 53 68 F4 04 00 01 C8 14 01 04 00 01 00 01 00 00 01 00 00 00 01 00 01 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 01 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 E2 16 68 0C 0C 68 F4 04 00 64 01 0A 01 04 00 00 00 14 80 16".replace(" ", "");
-		String str1 = "68 53 53 68 F4 04 00 01 C8 14 01 04 00 01 00 00 00 00 01 00 00 00 01 00 01 00 00 00 00 00 00 00 00 00 00 00 00 01 00 00 00 00 00 00 00 00 01 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 E1 16 68 0C 0C 68 F4 04 00 64 01 0A 01 04 00 00 00 14 80 16".replace(" ", "");
-		System.out.println(str0.substring(30, 32));
-		System.out.println(str1.substring(30, 32));
-	}*/
-
 	/**
 	 * 遥测归一值获取（遥测中的变化数据）
 	 * @param data
@@ -373,11 +369,21 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	 * @param data
 	 */
 	private void confirmSignalChangeInfo(ChannelHandlerContext ctx, String data) {
-		
-		for(int i = 26, j = Integer.valueOf(data.substring(16, 18)); j > 0; i += 6, --j) {
+
+		//>>>>>>>>>>>>> 修正bug:不能显示合闸分分闸：双点遥信
+		/*for(int i = 26, j = Integer.valueOf(data.substring(16, 18)); j > 0; i += 6, --j) {
 			changeState(data.substring(22, 26), data.substring(i, i + 4), data.substring(i + 4, i + 6));
+		}*/
+		//测试报文：68 13 13 68 F3 01 00 1F 01 03 01 01 00 05 00 01 A3 D7 06 0D B3 03 0A 70 16
+
+		String address = data.substring(10, 14);
+		HighVoltageStatus s = CtxStore.getStatusbyId(CtxStore.getIdbyAddress(address));
+		if(data.substring(30, 32).equals("01")) {
+			//遥信
+		} else {
+
 		}
-		String resu = new HighVoltageDeviceCommandUtil().confirmChangeAffair(data.substring(10, 14));
+		String resu = new HighVoltageDeviceCommandUtil().confirmChangeAffair(address);
 		logger.info("遥信变位事件确定---------" + resu);
 		ctx.writeAndFlush(resu);
 	}
