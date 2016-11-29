@@ -1,10 +1,8 @@
 package com.gdut.dongjun.web;
 
-import com.gdut.dongjun.domain.model.ResponseMessage;
-import com.gdut.dongjun.domain.po.User;
-import com.gdut.dongjun.service.ZTreeNodeService;
-import com.gdut.dongjun.util.EncoderUtil;
-import com.gdut.dongjun.util.VoiceFixUtil;
+import javax.servlet.http.HttpSession;
+import javax.validation.constraints.NotNull;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,10 +10,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.servlet.http.HttpSession;
-import javax.validation.constraints.NotNull;
+import com.gdut.dongjun.domain.po.User;
+import com.gdut.dongjun.service.ZTreeNodeService;
+import com.gdut.dongjun.util.EncoderUtil;
+import com.gdut.dongjun.util.VoiceFixUtil;
 
 @Controller
 @RequestMapping("/dongjun")
@@ -38,8 +37,13 @@ public class IndexController {
 	 */
 	@RequestMapping("/index")
 	public String forwardIndex() {
-		return "index";
+		return "manager/index";
 	}
+	
+//	@RequestMapping("/monitor")
+//	public String forwardMonitor() {
+//		return "monitor";
+//	}
 	
 	@RequestMapping("/characterPower")
 	public String forwardCharacterPower() {
@@ -120,5 +124,11 @@ public class IndexController {
 		String httpArg = "text=" + EncoderUtil.getUrlEncode
 				("开关" + name + "已经报警，请及时处理") +"&ctp=1&per=0";
 		return VoiceFixUtil.request(httpUrl, httpArg);
+	}
+	
+	@RequestMapping("/switch_tree")
+	@ResponseBody
+	public Object getSwtichTree(HttpSession session, Integer deviceType) {
+		return zTreeNodeService.getSwitchTree(null, null);
 	}
 }

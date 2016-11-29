@@ -1,0 +1,293 @@
+<div id="upload_modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal"
+                    aria-hidden="true">×</button>
+            <h3 id="myModalLabel">上传excel</h3>
+        </div>
+        <div class="modal-body">
+            <!-- <form id="upload_form" class="form-horizontal"
+                  action="uploadhvSwitchExcel" enctype="multipart/form-data"
+                  method="post"> -->
+            <form class="form-horizontal" enctype="multipart/form-data" onsubmit="return false">
+<!--                 <div class="control-group">
+                    <label class="control-label">公司:</label>
+                    <div class="controls">
+                        <select class='companys' name="platformId"></select>
+                    </div>
+                </div> -->
+                <div class="control-group">
+                    <label class="control-label" for="file">文件位置</label>
+                    <div class="controls">
+                        <input type="file" id="file" name="file" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+                    <button id="uploadxls_btn" class="btn btn-primary" onclick="modal.uploadFile()">添加</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add_Switch_Modal -->
+<div id="add_switch_modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"
+                aria-hidden="true">×</button>
+        <h3>添加开关</h3>
+    </div>
+    <div class="modal-body">
+        <div id="add_switch_form" class="form-horizontal">
+            <!-- action="edit_switch" -->
+            <div class="control-group">
+                <label class="control-label" for="inputDeviceNumber">设备号码</label>
+                <div class="controls">
+                    <input type="text" id="inputDeviceNumber" name="deviceNumber" />
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="inputName">开关名称</label>
+                <div class="controls">
+                    <input type="text" id="inputName" name="name" />
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label" for="inputAddress">地址</label>
+                <div class="controls">
+                    <input type="text" id="inputAddress" name="address" />
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="inputSim">SIM</label>
+                <div class="controls">
+                    <input type="text" id="inputSim" name="simNumber" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+                <button id="add_switch_confirm_btn" class="btn btn-primary"
+                        aria-hidden="true" onclick="modal.save(true)">添加</button>
+            </div>
+        </div>
+    </div>
+</div>
+    <!-- <addSwitchModal></addSwitchModal> -->
+
+    <!-- Edit_Switch_Modal -->
+<div id="edit_switch_modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"
+                aria-hidden="true">×</button>
+        <h3>编辑开关</h3>
+    </div>
+    <div class="modal-body">
+        <div id="edit_switch_form" class="form-horizontal">
+            <!-- action="edit_switch" -->
+            <div class="control-group">
+                <label class="control-label" for="editDeviceNumber">设备号码</label>
+                <div class="controls">
+                    <input type="text" id="editDeviceNumber" name="deviceNumber" readOnly="true" />
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="editName">开关名称</label>
+                <div class="controls">
+                    <input type="text" id="editName" name="name" />
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="editAddress">地址</label>
+                <div class="controls">
+                    <input type="text" id="editAddress" name="address" />
+                </div>
+            </div>
+
+            <div class="control-group">
+                <label class="control-label" for="editSim">SIM</label>
+                <div class="controls">
+                    <input type="text" id="editSim" name="simNumber" />
+                </div>
+            </div>
+            <div class="hide control-group">
+                <label class="control-label" for="editId">Id</label>
+                <div class="controls">
+                    <input type="text" id="editId" name="id" />
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+                <button id="edit_switch_confirm_btn" class="btn btn-primary"
+                        aria-hidden="true" onclick="modal.save(false)">确定</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!--delete Modal -->
+<div id="del_switch_modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"
+                aria-hidden="true">×</button>
+        <h3 id="myModalLabel">警告</h3>
+    </div>
+    <div class="modal-body">
+        <p>您确定要删除这个开关吗？请慎重考虑</p>
+    </div>
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
+        <a id="del_confirm_btn" class="btn btn-danger" data-dismiss="modal"
+           aria-hidden="true" onclick="modal.sureDel()">删除</a>
+    </div>
+</div>
+
+<script>
+  var modal = function(){
+    var urls = {};
+    var completeFnc = null;
+    var nowTargetId = -1;
+    var status;
+    return {
+      setOption: function(o) {
+        completeFnc = o.completeFnc
+        urls = {
+          add: o.url.add,
+          edit: o.url.edit,
+          del: o.url.del,
+          upload: o.url.upload
+        }
+        status = o.status
+      },
+      addSwitch: function(line) {
+        var inputs = $('#add_switch_modal').find('input')
+        for (var i = inputs.length - 1; i >= 0; i--) {
+          var input = inputs[i]
+          input.value = ''
+        }
+      },
+      save: function(isAdd) {
+        var addModal = isAdd ? $('#add_switch_modal') : $('#edit_switch_modal')
+        var inputs = addModal.find('input')
+        var data = {}
+        for (var i = inputs.length - 1; i >= 0; i--) {
+          var input = inputs[i]
+          if(!$.trim(input.value)) {
+            if(input.id != 'inputId') {
+              input.focus()
+              console.log(input.id)
+              alert('您还有选项暂未填写')
+              return
+            }
+          }
+          var dataName = (input.id).replace(/(input|edit)(\w)/, function(match, $1, $2) {
+            return $2.toLowerCase()
+          })
+          data[dataName] = input.value
+        }
+
+        var params = {
+          'name' : data.name,
+          'platformId' : selectManager.getCompany(),
+          'address' : data.address,
+          'simNumber' : data.sim,
+          'deviceNumber': data.deviceNumber
+        };
+        
+        if(!isAdd) {
+        	params['id'] = data.id
+        }
+
+        console.log(params)
+        $.ajax({
+          type : 'post',
+          url : isAdd ? urls.add : urls.edit,
+          async : false,
+          data : params,
+          success : function(data) {
+
+            if(data.success){
+              addModal.find('.close').click()
+              completeFnc(parseInt(data.text))
+            } else {
+              alert(data.text)
+            }
+          }
+        })
+      },
+      editSwitch: function(target) {
+        var inputs = $('#edit_switch_modal').find('input')
+        var colums = target.closest('tr').find('td')
+        for (var i = inputs.length - 1; i >= 0; i--) {
+          var input = inputs[i]
+          input.value = colums[i].innerHTML
+        }
+      },
+      delSwitch: function(targetId) {
+        nowTargetId = targetId
+      },
+      sureDel: function() {
+        $.ajax({
+          type: 'post',
+          url: urls.del,
+          data: {
+            'switchId': nowTargetId
+          },
+          success: function(data) {
+            if(data.success) {
+              alert('操作成功')
+              completeFnc(data.text)
+            } else {
+              alert(data.text)
+            }
+          }
+        })
+      },
+      uploadFile: function(e) {
+        var ev = e || window.event
+        ev.preventDefault()
+        var uploadModal = $('#upload_modal')
+        var platformId = selectManager.getCompany()
+        var file = uploadModal.find('#file')[0].files[0]
+        if(!file) {
+          alert('请选择文件')
+          return
+        }
+        var fD = new FormData()
+        // fD.append('substationId', substationId)
+        fD.append('platformId', platformId)
+        fD.append('file', file)
+        // test
+        for (var key of fD.keys()) {
+           console.log(key);
+        }
+
+        $.ajax({
+          url: urls.upload,
+          type: 'POST',
+          data: fD,
+          processData: false,
+          contentType: false,
+          beforeSend: function(data) {
+            console.log(`发送...`)
+            console.log(data)
+          },
+          success: function(data) {
+            console.log(data)
+            if(data.success){
+            	completeFnc(parseInt(data.text))
+            	uploadModal.find('.close').click()
+            	alert('操作成功')
+            } else {
+            	alert('失败')
+            }
+            
+          },
+          error: function(data) {
+            console.log(data)
+            alert('出错了')
+          }
+        })
+      }
+    }
+  }()
+</script>

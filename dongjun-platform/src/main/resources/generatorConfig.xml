@@ -3,30 +3,31 @@
 		"-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
 		"http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
 <generatorConfiguration>
-	<classPathEntry location="E:\\new_localRepository\\mysql\\mysql-connector-java\\5.1.35\\mysql-connector-java-5.1.35.jar" />
+	<classPathEntry location="D:\\WORKING\\plug-in\\mysql-connector-java-5.1.38\\mysql-connector-java-5.1.38\\mysql-connector-java-5.1.38-bin.jar" />
 	<context id="context1" targetRuntime="MyBatis3">
 		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
 						connectionURL="jdbc:mysql://115.28.7.40:3306/elecon_platform" userId="root"
 						password="root">
 		</jdbcConnection>
 		<javaModelGenerator targetPackage="com.gdut.dongjun.domain.po"
-							targetProject="D:\\JAVA学习\\Dongjun\\dongjun2\\dongjun\\dongjun-platform" />
+							targetProject="D:\\WORKING\\git\\dongjun_project\\dongjun-platform" />
 
 		<sqlMapGenerator targetPackage="com.gdut.dongjun.domain.dao"
-						 targetProject="D:\\JAVA学习\\Dongjun\\dongjun2\\dongjun\\dongjun-platform" />
+						 targetProject="D:\\WORKING\\git\\dongjun_project\\dongjun-platform" />
 
 		<javaClientGenerator targetPackage="com.gdut.dongjun.domain.dao"
-							 targetProject="D:\\JAVA学习\\Dongjun\\dongjun2\\dongjun\\dongjun-platform" type="XMLMAPPER" />
+							 targetProject="D:\\WORKING\\git\\dongjun_project\\dongjun-platform" type="XMLMAPPER" />
 
 		<!-- <table schema="root" tableName="high_voltage_switch"
 			   domainObjectName="HighVoltageSwitch" enableCountByExample="false"
 			   enableUpdateByExample="false" enableDeleteByExample="false"
 			   enableSelectByExample="false" selectByExampleQueryId="false" /> -->
 
-		<table schema="root" tableName="platform_group"
-			   domainObjectName="PlatformGroup" enableCountByExample="false"
+		<table schema="root" tableName="temperature_sensor"
+			   domainObjectName="TemperatureSensor" enableCountByExample="false"
 			   enableUpdateByExample="false" enableDeleteByExample="false"
 			   enableSelectByExample="false" selectByExampleQueryId="false" />
 	</context>
+	<!-- mybatis-generator:generate -->
 </generatorConfiguration>
 

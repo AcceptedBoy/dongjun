@@ -1,0 +1,56 @@
+<div class="hero-unit">
+	<div class="row-fluid">
+		<div class="span5">
+			<h2>
+				<img src="../../img/logo.png" style="height: 65px" />电网智能监控系统
+          <span class="label label-default">1.00</span>
+			</h2>
+		</div>
+		<div class="span6 MENU">
+			<a href="../monitor/index.html" class="btn banner-btn btn-primary"><i class="fa fa-map-marker"></i>监控</a>
+      <a href="../manager/index.html" class="btn banner-btn btn-primary"><i class="fa fa-cog"></i>管理</a>
+      <a href="../event/index.html" class="btn banner-btn btn-primary" id="event"><i class="fa fa-user"></i>事件</a>
+		</div>
+    <div class="span1 log_out">
+        <button class="btn btn-danger" onclick="logOut()">退出</button>
+    </div>
+	</div>
+</div>
+<script>
+	(function(){
+
+		$.ajax({
+			url: '/dongjun/islogin',
+			type: 'POST',
+			success: function(res) {
+				if(res == 'false' || res == false) {
+					location.href = '/dongjun/login'
+				}
+			},
+			error: function(res) {
+				location.href = '/dongjun/login'
+			}
+		})
+
+		var navPaths = [];
+		var links = $('.span6.MENU').find('a');
+		links = Array.prototype.slice.call(links);
+		links.forEach(function(item) {
+			var path = item.href;
+			navPaths.push(path);
+		})
+		var nowPath = location.href.split('#')[0];
+		var pos = navPaths.indexOf(nowPath);
+		$(links[pos]).addClass('btn-success');
+	})()
+
+	function logOut(e){
+		$.ajax({
+			url: '/dongjun/logout',
+			type: 'POST',
+			success: function () {
+				location.href = '/dongjun/login'
+			}
+		})
+	}
+</script>

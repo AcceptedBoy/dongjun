@@ -8,13 +8,19 @@ public class TemperatureDevice {
 	
 	String name;
 	
+	String deviceNumber;
+	
 	String address;
+	
+	String simNumber;
 	
 	String addTime;
 	
 	String onlineTime;
 	
 	String availableTime;
+	
+	String showName;
 	
 	Integer groupId;
 
@@ -72,6 +78,30 @@ public class TemperatureDevice {
 
 	public void setAddTime(String addTime) {
 		this.addTime = addTime;
+	}
+
+	public String getDeviceNumber() {
+		return deviceNumber;
+	}
+
+	public void setDeviceNumber(String deviceNumber) {
+		this.deviceNumber = deviceNumber;
+	}
+
+	public String getSimNumber() {
+		return simNumber;
+	}
+
+	public void setSimNumber(String simNumber) {
+		this.simNumber = simNumber;
+	}
+
+	public String getShowName() {
+		return showName;
+	}
+
+	public void setShowName(String showName) {
+		this.showName = showName;
 	}
 	
 	

@@ -1,0 +1,55 @@
+<div class="row-fluid">
+
+	<div class="span2 container-fluid well sidebar-nav">
+		<ul class="nav nav-list bs-docs-sidenav">
+			<li class="nav-header">事件管理</li>
+      <li><a href="#all_event">所有事件</a></li>
+			<li><a href="#low_voltage">低压开关故障事件</a></li>
+			<li><a href="#high_voltage">高压开关故障事件</a></li>
+      <li><a href="#control_measure">无功补偿开关故障事件</a></li>
+		</ul>
+	</div>
+
+	<div class="span10 container"></div>
+</div>
+
+<script>
+
+(function(){
+	// 根据地址高亮左边栏按钮, 默认'low_voltage'
+	$('a[href*=#' + (location.href.split('#')[1] || 'low_voltage')+']').addClass('btn-success')
+
+	// 点击时改变高亮按钮
+	var navLinks = $('.nav').find('a')
+	navLinks.click(function(){
+		navLinks.removeClass('btn-success')
+		$(this).addClass('btn-success')
+	})
+
+
+	// 路由
+	var router = new dj.Router()
+
+	router.start({
+		'': load('low_voltage.html'),
+		'low_voltage': load('low_voltage.html'),
+		'high_voltage': load('high_voltage.html'),
+		'all_event': load('all_switch_event.html'),
+		'control_measure': load('control_measure.html')
+	})
+
+	// 闭包
+	function load(url) {
+		return function() {
+			if(!url.match(/all.*event/)) {
+				dj.jsLoad('../../js/event/selectManager.js', function(){
+					dj.inserCmp(url, $('.span10.container').get(0))
+				})
+			} else {
+				dj.inserCmp(url, $('.span10.container').get(0))
+			}
+		}
+	}
+})()
+
+</script>

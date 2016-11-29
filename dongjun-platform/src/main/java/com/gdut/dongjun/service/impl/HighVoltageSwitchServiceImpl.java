@@ -153,10 +153,7 @@ public class HighVoltageSwitchServiceImpl extends
 		headList.add("设备号码");
 		headList.add("名称");
 		headList.add("地址");
-		headList.add("经度");
-		headList.add("纬度");
 		headList.add("SIM号");
-		headList.add("线路内序号");
 		return headList;
 	}
 
@@ -170,15 +167,12 @@ public class HighVoltageSwitchServiceImpl extends
 		map.put("设备号码", "deviceNumber");
 		map.put("名称", "name");
 		map.put("地址", "address");
-		map.put("经度", "longitude");
-		map.put("纬度", "latitude");
 		map.put("SIM号", "simNumber");
-		map.put("线路内序号", "inlineIndex");
 		return map;
 	}
 
 	@Override
-	public boolean uploadSwitch(String realPath, String lineId) {
+	public boolean uploadSwitch(String realPath, String platformId) {
 
 		List<String> headList = createHeadList();// 生成表头
 		Map<String, String> map = createHeadListMap();// 生成映射关系
@@ -200,12 +194,12 @@ public class HighVoltageSwitchServiceImpl extends
 			switch1.setAddress(s.getAddress());
 			switch1.setDeviceNumber(s.getDeviceNumber());
 			switch1.setId(UUIDUtil.getUUID());
-			switch1.setInlineIndex(Integer.parseInt(s.getInlineIndex()));
-			switch1.setLatitude(LatitudeLongitudeMathUtil.latlong2float(s
-					.getLatitude()));
-			switch1.setLongitude(LatitudeLongitudeMathUtil.latlong2float(s
-					.getLongitude()));
-			switch1.setLineId(lineId);
+//			switch1.setInlineIndex(Integer.parseInt(s.getInlineIndex()));
+//			switch1.setLatitude(LatitudeLongitudeMathUtil.latlong2float(s
+//					.getLatitude()));
+//			switch1.setLongitude(LatitudeLongitudeMathUtil.latlong2float(s
+//					.getLongitude()));
+			switch1.setGroupId(Integer.parseInt(platformId));
 			switch1.setName(s.getName());
 			switch1.setSimNumber(s.getSimNumber());
 

@@ -1,0 +1,137 @@
+<div class="form-inline">
+	<div class="form-group span4">
+		<label class="span2">组别:</label>
+		<select class="substations span10"></select>
+	</div>
+	<div class="form-group span4">
+		<label class="span2">公司:</label>
+		<select class='lines span10'></select>
+	</div>
+	<div class="form-group span4">
+		<label class="span2">开关:</label>
+		<select id='switchs' class='span10'></select>
+	</div>
+</div>
+
+<table id="hitch_event_list" class="table table-bordered table-striped table-hover table-condensed success" width="100%">
+	<thead>
+		<td>故障时间</td>
+		<td>故障原因</td>
+	</thead>
+</table>
+
+<script>
+
+  var controlMeasureTable = function() {
+    var table = null;
+
+    return {
+      getTable: function(){
+        return table;
+        var url = '';
+      },
+      init: function(o) {
+        var _self = this;
+        url = o.url;
+        table = $('#hitch_event_list').DataTable({
+          'destroy': true,// destroy之后才能重新加载
+          'ajax': {
+            'url': o.url,
+            'type': 'POST',
+            'data': o.data
+          },
+          'columns': [
+            {
+              'data': 'hitchTime',
+              'render': this.renderTime
+            },
+            {
+              'data': 'hitchReason',
+              'render': this.renderReason
+            }
+          ],
+          'language': {
+            'paginate': {
+              'next': '下一页',
+              'previous': '上一页'
+            },
+            'emptyTable': '找不到相关数据',
+            'zeroRecords': '找不到相关数据'
+          },
+        })
+      },
+      redraw: function(id) {
+        // get
+        // url += '?switchId=' + id;
+        // table.ajax.url('http://127.0.0.1:8080/templates/event/refresh').load();
+
+        if(id == -1){
+          table.clear().draw()
+          return
+        }
+
+        // post
+        table.ajax.url(url);
+        var param = {
+          switchId: id
+        };
+        table.settings()[0].ajax.data = param; // param because the seleteManager, maybe i should get a better idea
+        table.ajax.reload();
+      },
+      renderReason(data) {
+        var reason = data;
+        switch(parseInt(data)) {
+          case 1: reason = 'A相电压过压'; break;
+          case 2: reason = 'B相电压过压'; break;
+          case 3: reason = 'C相电压过压'; break;
+          case 4: reason = 'A相电压欠压'; break;
+          case 5: reason = 'B相电压欠压'; break;
+          case 6: reason = 'C相电压欠压'; break;
+          case 7: reason = 'A相电压谐波超限'; break;
+          case 8: reason = 'B相电压谐波超限'; break;
+          case 9: reason = 'C相电压谐波超限'; break;
+          case 10: reason = 'A相缺相'; break;
+          case 11: reason = 'B相缺相'; break;
+          case 12: reason = 'C相缺相'; break;
+          case 13: reason = '零序电流超限'; break;
+          case 14: reason = '停电'; break;
+        }
+        return reason;
+      },
+      renderTime(time) {
+        var date = new Date(time);
+        var y = date.getFullYear();
+        var mt = date.getMonth() + 1;
+        mt = mt < 10 ? ('0' + mt) : mt;
+        console.log(`month: ${m}`)
+        var d = date.getDate();
+        d = d < 10 ? ('0' + d) : d;
+        var h = date.getHours();
+        h = h < 10 ? ('0' + h) : h;
+        var m = date.getMinutes();
+        m = m < 10 ? ('0' + m) : m;
+        var s = date.getSeconds()
+        s = s < 10 ? ('0' + s) : s;
+        return y + '-' + mt + '-' + d + ' ' + h + ':' + m + ':' + s
+      }
+    }
+  }()
+
+  selectManager.setOption({
+    url: {
+      switch: '/dongjun/control_measure_switch_list_by_platform_id',
+      lineChange: '/dongjun/control_measure_switch_list_by_platform_id'
+    },
+    node: {},
+    completeFnc: controlMeasureTable.redraw
+  });
+
+  selectManager.loadSubstations();  // 加载选择项
+  selectManager.autoListen();
+  controlMeasureTable.init({
+    url: '/dongjun/get_control_measure_hitch_event_by_switch_id',
+    data: {
+      switchId: $('#switchs').val()
+    }
+  });       // 初始化表格
+</script>

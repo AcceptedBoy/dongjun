@@ -1,6 +1,8 @@
 package com.gdut.dongjun.service.impl;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,12 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.gdut.dongjun.domain.dao.TemperatureDeviceMapper;
-import com.gdut.dongjun.domain.po.HighVoltageSwitch;
 import com.gdut.dongjun.domain.po.TemperatureDevice;
 import com.gdut.dongjun.service.TemperatureDeviceService;
 import com.gdut.dongjun.service.base.impl.BaseServiceImpl;
 import com.gdut.dongjun.util.ExcelUtil;
-import com.gdut.dongjun.util.LatitudeLongitudeMathUtil;
 import com.gdut.dongjun.util.UUIDUtil;
 
 @Service
@@ -48,7 +48,7 @@ public class TemperatureDeviceServiceImpl extends BaseServiceImpl<TemperatureDev
 		}
 	}
 
-	public boolean uploadDevice(String realPath, String platformGroupId) {
+	public boolean uploadDevice(String realPath, String platformId) {
 
 		List<String> headList = createHeadList();// 生成表头
 		Map<String, String> map = createHeadListMap();// 生成映射关系
@@ -63,18 +63,18 @@ public class TemperatureDeviceServiceImpl extends BaseServiceImpl<TemperatureDev
 			e.printStackTrace();
 			return false;
 		}
-
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		for (TemperatureDevice t : result) {
 			
 			TemperatureDevice device = new TemperatureDevice();
-			device.setId(t.getId());
+			device.setId(UUIDUtil.getUUID());
 			device.setAddress(t.getAddress());
-			device.setAddTime(t.getAddTime());
-			device.setAvailableTime(t.getAvailableTime());
-			device.setGroupId(t.getGroupId());
+			device.setDeviceNumber(t.getDeviceNumber());
+			device.setGroupId(Integer.parseInt(platformId));
+			device.setSimNumber(t.getSimNumber());
 			device.setName(t.getName());
-			device.setOnlineTime(t.getOnlineTime());
-			mapper.insert(device);
+			device.setAddTime(format.format(new Date()));
+			mapper.insertSelective(device);
 		}
 		return true;
 	}
@@ -90,16 +90,13 @@ public class TemperatureDeviceServiceImpl extends BaseServiceImpl<TemperatureDev
 		headList.add("设备号码");
 		headList.add("名称");
 		headList.add("地址");
-		headList.add("经度");
-		headList.add("纬度");
 		headList.add("SIM号");
-		headList.add("线路内序号");
 		return headList;
 	}
 	
 	/**
 	 * 声明列头与数据集合的对应关系
-	 * 
+	 * TODO
 	 * @return
 	 */
 	private Map<String, String> createHeadListMap() {
@@ -107,10 +104,7 @@ public class TemperatureDeviceServiceImpl extends BaseServiceImpl<TemperatureDev
 		map.put("设备号码", "deviceNumber");
 		map.put("名称", "name");
 		map.put("地址", "address");
-		map.put("经度", "longitude");
-		map.put("纬度", "latitude");
 		map.put("SIM号", "simNumber");
-		map.put("线路内序号", "inlineIndex");
 		return map;
 	}
 

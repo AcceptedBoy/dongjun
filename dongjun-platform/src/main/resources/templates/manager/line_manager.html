@@ -1,0 +1,117 @@
+<div class="form-inline">
+	<div class="form-group span3">
+		<label class="span3">组别:</label> <select
+			class="substations span9"></select>
+	</div>
+	<div class="form-group span3">
+		<a href="#add_switch_modal" class="btn btn-primary"
+			id="add_switch_btn" data-toggle="modal" data-backdrop="static" onclick="clickManager.addSwitch()">添加公司</a>
+	</div>
+</div>
+
+<table id="switch_list"
+	class="table table-bordered table-striped table-hover table-condensed success">
+	<thead>
+		<td>名称</td>
+		<td class="hidden">Id</td>
+		<td class="hidden">线路ID</td>
+		<td>名称修改</td>
+		<td>组别修改</td>
+		<td>删除</td>
+	</thead>
+
+</table>
+
+<script>
+	var clickManager = clickManagers(true);
+	var lineManager = function() {
+		var table = null;
+		var myUrl = '/dongjun/platform_group/platform_group_list_by_group_id';
+
+		return {
+			init: function() {
+				// load多选框
+				this.loadSubstationSet();
+				var self = this;
+				
+				$(".substations").change(function(){
+					self.redraw(this.value);
+					$('.groups').val(this.value)
+				});
+			},
+			redraw: function(data) {
+				table.ajax.url(myUrl);
+				if(data) {
+					var param = {
+							"groupId": data
+					};
+					table.settings()[0].ajax.data = param;
+				}
+		        table.ajax.reload();
+			},
+			loadSubstationSet: function() {
+				$.ajax({
+					type : "post",
+					// url : "substation_list_by_company_id",
+					url: "/dongjun/group/gruop_list",
+					// async : false,
+					data : {},
+					success : function(data) {
+						console.log(data);
+						var options = "";
+						for (var i = 0; i < data.data.length; i++) {
+							options += "<option value='" + data.data[i].id + "'>" + data.data[i].name
+									+ "</option>";
+						}
+						$(".substations").append(options);
+						$("#inputLineId").append(options);
+						$(".groups").html(options);					// 移至分组选项
+						table = $('#switch_list').DataTable({
+							"destroy": true,// destroy之后才能重新加载
+					        "ajax": {
+								url : myUrl,
+								type: 'POST',
+								async: false,
+								data: {
+									"groupId": $('.substations').first().val()
+								}
+							},
+					        "columns": [
+					            { "data": "name" },
+					            { "data": "id",
+					            	"sClass": "dpass"},
+					            { "data": "groupId",
+					              "sClass": "dpass"},
+					            { "data": null},// 设置默认值 null，表示列不会获得数据源对象的信息,否则默认值会被覆盖掉
+					            { "data": null},// 设置默认值 null，表示列不会获得数据源对象的信息,否则默认值会被覆盖掉
+					            { "data": null }// 设置默认值 null，表示列不会获得数据源对象的信息,否则默认值会被覆盖掉
+					        ],
+					        // 为下面的列设置默认值
+					        "columnDefs": [ {
+					            "targets": -3,
+					            "data": null,
+					            "defaultContent": '<a href="#edit_switch_modal" role="button" class="edit_switch_btn btn" data-toggle="modal" onclick="clickManager.editSwitch(this)">修改 &raquo;</a>'
+					        },
+					        {
+					            "targets": -2,
+					            "data": null,
+					            "defaultContent": '<a href="#move_switch_modal" role="button" class="edit_switch_btn btn" data-toggle="modal" onclick="clickManager.moveSwitch(this)">修改 &raquo;</a>'
+					        },
+					        {
+					            "targets": -1,
+					            "data": null,
+					            "defaultContent": '<a href="#del_switch_modal" class="del_switch_btn btn btn-danger" data-toggle="modal" data-backdrop="static" onclick="clickManager.delSwitch(this)">删除&raquo; </a>'
+					        }],
+					    });
+					}
+				})
+			},
+			// ..
+		};
+	}();
+
+	clickManager.setOption({
+		fn: lineManager.redraw,
+	});
+	lineManager.init();
+</script>

@@ -1,9 +1,12 @@
 package com.gdut.dongjun.web;
 
 import java.io.File;
+import java.rmi.RemoteException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -18,12 +21,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.gdut.dongjun.core.SwitchGPRS;
+import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.LowVoltageSwitch;
 import com.gdut.dongjun.service.LowVoltageSwitchService;
+import com.gdut.dongjun.service.rmi.HardwareService;
 import com.gdut.dongjun.util.ClassLoaderUtil;
 import com.gdut.dongjun.util.DownloadAndUploadUtil;
 import com.gdut.dongjun.util.MapUtil;
 import com.gdut.dongjun.util.MyBatisMapUtil;
+import com.gdut.dongjun.util.TimeUtil;
 import com.gdut.dongjun.util.UUIDUtil;
 
 @Controller
@@ -32,6 +39,9 @@ public class LowVoltageSwitchController {
 
 	@Autowired
 	private LowVoltageSwitchService switchService;
+	
+	@Resource(name="hardwareService")
+	private HardwareService hardwareService;
 	
 	private static final Logger logger = Logger
 			.getLogger(LowVoltageHitchEventController.class);
@@ -47,12 +57,12 @@ public class LowVoltageSwitchController {
 	 * @throws high_voltage_
 	 */
 	@RequestMapping("/low_voltage_switch_manager")
-	public String getLineSwitchList(String lineId, Model model) {
+	public String getLineSwitchList(String platformId, Model model) {
 
-		if (lineId != null) {
+		if (platformId != null) {
 
 			model.addAttribute("switches", switchService
-					.selectByParameters(MyBatisMapUtil.warp("line_id", lineId)));
+					.selectByParameters(MyBatisMapUtil.warp("group_id", platformId)));
 		} else {
 			model.addAttribute("switches",
 					switchService.selectByParameters(null));
@@ -86,21 +96,51 @@ public class LowVoltageSwitchController {
 	 * @return String
 	 * @throws
 	 */
-	@RequestMapping("/switch_list_by_line_id")
+	@RequestMapping("/switch_list_by_platform_id")
 	@ResponseBody
-	public Object getLineSwitchListByLineId(
-			@RequestParam(required = true) String lineId, Model model) {
-
-		System.out.println(lineId);
+	public Object getLineSwitchListByLineId(String platformId, Model model) {
+		if (null == platformId || "".equals(platformId)) {
+			return "";
+		}
 		List<LowVoltageSwitch> switchs = switchService
-				.selectByParameters(MyBatisMapUtil.warp("line_id", lineId));
+				.selectByParameters(MyBatisMapUtil.warp("group_id", platformId));
 		HashMap<String, Object> map = (HashMap<String, Object>) MapUtil.warp(
 				"draw", 1);
 		int size = switchs.size();
 		map.put("recordsTotal", size);
+//		updateDate(switchs);
 		map.put("data", switchs);
 		map.put("recordsFiltered", size);
 		return map;
+	}
+	
+	private List<LowVoltageSwitch> updateDate(List<LowVoltageSwitch> switchs) {
+		
+		String date = TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss");
+		for(LowVoltageSwitch lvSwitch : switchs) {
+			
+			if(search(lvSwitch.getId())) {
+				lvSwitch.setOnlineTime(date);
+			}
+		}
+		return switchs;
+	}
+
+	private boolean search(String id) {
+		if(id == null) {
+			return false;
+		}
+		try {
+			List<SwitchGPRS> list = hardwareService.getCtxInstance();
+			for(SwitchGPRS gprs : list) {
+				if(gprs.getId() != null && gprs.getId().equals(id)) {
+					return true;
+				}
+			}
+		} catch (RemoteException e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 	/**
@@ -113,13 +153,13 @@ public class LowVoltageSwitchController {
 	 * @return Object
 	 * @throws
 	 */
-	@RequestMapping("/selectLVByLineIdInAsc")
+	@RequestMapping("/selectLVByPlatformIdInAsc")
 	@ResponseBody
 	public Object selectByLineIdInAsc(
-			@RequestParam(required = true) String lineId, Model model) {
+			@RequestParam(required = true) String platformId, Model model) {
 
 		List<LowVoltageSwitch> switchs = switchService
-				.selectByParameters(MyBatisMapUtil.warp("line_id", lineId));
+				.selectByParameters(MyBatisMapUtil.warp("group_id", platformId));
 
 		return switchs;
 	}
@@ -137,18 +177,19 @@ public class LowVoltageSwitchController {
 	 */
 	@RequestMapping("/del_switch")
 	@ResponseBody
-	public String delSwitch(@RequestParam(required = true) String switchId,
+	public ResponseMessage delSwitch(
+			@RequestParam(required = true) String switchId,
 			Model model, RedirectAttributes redirectAttributes) {
 
-		String lineId = switchService.selectByPrimaryKey(switchId).getLineId();
+		Integer platformId = switchService.selectByPrimaryKey(switchId).getGroupId();
 		try {
-
 			switchService.deleteByPrimaryKey(switchId);// 删除这个开关
 		} catch (Exception e) {
-			logger.error("删除开关失败！");
-			return null;
+			logger.error("删除低压开关失败");
+			e.printStackTrace();
+			return ResponseMessage.danger("删除低压开关失败");
 		}
-		return lineId;
+		return ResponseMessage.success(platformId);
 	}
 
 	/**
@@ -164,23 +205,26 @@ public class LowVoltageSwitchController {
 	 */
 	@RequestMapping("/edit_switch")
 	@ResponseBody
-	public String editSwitch(LowVoltageSwitch switch1, Model model,
+	public ResponseMessage editSwitch(
+			LowVoltageSwitch switch1, 
+			String platformId,
+			Model model,
 			RedirectAttributes redirectAttributes) {
 
 		// @RequestParam(required = true)
 		// 进不来
-		if (switch1.getId() == "") {
+		if (null == switch1.getId() || "".equals(switch1.getId())) {
 			switch1.setId(UUIDUtil.getUUID());
 		}
 		try {
-
-			switchService.updateByPrimaryKey(switch1);
+			switch1.setGroupId(Integer.parseInt(platformId));
+			switchService.updateByPrimaryKeySelective(switch1);
 		} catch (Exception e) {
-
-			logger.error("修改开关失败！");
-			return null;
+			logger.error("修改低压开关失败");
+			e.printStackTrace();
+			return ResponseMessage.danger("修改低压开关失败");
 		}
-		return switch1.getLineId();
+		return ResponseMessage.success(platformId);
 	}
 
 	/**
@@ -205,10 +249,10 @@ public class LowVoltageSwitchController {
 		String relativePath = ClassLoaderUtil.getExtendResource("../",
 				"spring-boot_mybatis_bootstrap").toString();
 
-		if ("".equals(relativePath)) {
-
-			return null;
-		}
+//		if ("".equals(relativePath)) {
+//
+//			return null;
+//		}
 
 		String realPath = relativePath.replace("/", "\\");
 		File file = new File(realPath);
@@ -270,9 +314,10 @@ public class LowVoltageSwitchController {
 	 * @return String
 	 * @throws
 	 */
+	@ResponseBody
 	@RequestMapping(value = "/uploadlvSwitchExcel")
 	public Object uploadlvSwitchExcel(@RequestParam("file") MultipartFile file,
-			Model model, HttpServletRequest request, String lineId)
+			Model model, HttpServletRequest request, String platformId)
 			throws Exception {
 
 		MultipartFile[] files = { file };
@@ -286,16 +331,16 @@ public class LowVoltageSwitchController {
 		String f = realPath + "\\" + fileNames[0];
 
 		// 2.解析excel并保存到数据库
-		if (lineId == null || "".equals(lineId)) {
+		if (platformId == null || "".equals(platformId)) {
 
 			return false;
 		} else {
 
-			switchService.uploadSwitch(f, lineId);
+			switchService.uploadSwitch(f, platformId);
 		}
 		// 3.数据读取完后删除掉文件
 		new File(f).delete();
-		return "redirect:low_voltage_switch_manager";
+		return ResponseMessage.success(platformId);
 	}
 
 }

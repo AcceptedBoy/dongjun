@@ -1,0 +1,129 @@
+<!-- Add_Switch_Modal -->
+<div id="add_switch_modal" class="modal hide fade" tabindex="-1"
+	role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal"
+			aria-hidden="true">×</button>
+		<h3>添加公司小组</h3>
+	</div>
+	<div class="modal-body">
+		<div id="add_switch_form" class="form-horizontal">
+			<!-- action="edit_switch" -->
+			<div class="control-group">
+				<label class="control-label" for="inputName">名称</label>
+				<div class="controls">
+					<input type="text" id="inputName" name="name" />
+				</div>
+			</div>
+			<div class="hide control-group">
+				<label class="control-label" for="inputId">Id</label>
+				<div class="controls">
+					<input type="text" id="inputId" name="id" />
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="inputLineId">所属组别</label>
+				<div class="controls">
+					<!--  <input type="text" id="inputLineId" name="substationId" />-->
+					<select id='inputLineId' class='span2' name="substationId"></select>
+				</div>
+			</div>
+
+			<div class="modal-footer">
+				<button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+				<button id="add_switch_confirm_btn" class="btn btn-primary"
+					data-dismiss="modal" aria-hidden="true" onclick="clickManager.addConfirm()">添加</button>
+				<!--  btn-primary -->
+			</div>
+		</div>
+
+	</div>
+</div>
+
+<!-- Edit_Switch_Modal -->
+<div id="edit_switch_modal" class="modal hide fade" tabindex="-1"
+	role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal"
+			aria-hidden="true">×</button>
+		<h3>编辑线路</h3>
+	</div>
+	<div class="modal-body">
+		<div id="edit_switch_form" class="form-horizontal">
+			<!-- action="edit_switch" -->
+			<div class="control-group">
+				<label class="control-label" for="editName">名称</label>
+				<div class="controls">
+					<input type="text" id="editName" name="name" />
+				</div>
+			</div>
+			<div class="hide control-group">
+				<label class="control-label" for="editId">Id</label>
+				<div class="controls">
+					<input type="text" id="editId" name="id" />
+				</div>
+			</div>
+			<div class="hide control-group">
+				<label class="control-label" for="editLineId">所属组别</label>
+				<div class="controls">
+					<input type="text" id="editLineId" name="substationId" />
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+				<button id="edit_switch_confirm_btn" class="btn btn-primary"
+					data-dismiss="modal" aria-hidden="true" onclick="clickManager.editConfirm()">确定</button>
+				<!--  btn-primary -->
+			</div>
+		</div>
+
+	</div>
+</div>
+<!-- Modal -->
+<div id="del_switch_modal" class="modal hide fade" tabindex="-1"
+	role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal"
+			aria-hidden="true">×</button>
+		<h3 id="myModalLabel">警告</h3>
+	</div>
+	<div class="modal-body">
+		<p>您确定要删除这个开关吗？请慎重考虑</p>
+	</div>
+	<div class="modal-footer">
+		<button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
+		<a id="del_confirm_btn" class="btn btn-danger" data-dismiss="modal"
+			aria-hidden="true" onclick="clickManager.delConfirm()">删除</a>
+	</div>
+</div>
+
+<div id="move_switch_modal" class="modal hide fade" tabindex="-1"
+	role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal"
+			aria-hidden="true">×</button>
+		<h3>修改分组</h3>
+	</div>
+	<div class="modal-body">
+		<div id="edit_switch_form" class="form-horizontal">
+			<!-- action="edit_switch" -->
+			<div class="control-group">
+				<label class="control-label" for="moveTo">移至: </label>
+				<div class="controls">
+					<select class="groups" id="moveTo"></select>
+        </div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+				<button id="edit_switch_confirm_btn" class="btn btn-primary"
+					data-dismiss="modal" aria-hidden="true" onclick="clickManager.moveConfirm()">确定</button>
+				<!--  btn-primary -->
+			</div>
+		</div>
+
+	</div>
+</div>
+
+<script>
+
+</script>

@@ -1,0 +1,206 @@
+<div class="input-append">
+	<input id="search_node_key" class="span10" type="text" placeholder="请输入..." />
+	<button id="searchNode" class="btn btn-primary" type="button"><i class="fa fa-search"></i></button>
+</div>
+<div class="well sidebar-nav">
+	<ul id="treeDemo" class="ztree"></ul>
+</div>
+
+
+<script>
+
+	(function() {
+		var chartView = chart.chartView || null;
+		var chartManager = chart.chartManager || null;
+		var chartController = chart.chartController || null;
+		var chartNodes = chart.chartNodes || null;
+
+		var treeModel = function() {
+			// 记录上一个节点
+			var LastNode = -1;
+
+			return {
+				// 管理上一个点击的节点类型的方法
+				getLast: function() {
+					return LastNode;
+				},
+				setLast: function(node) {
+					LastNode = node;
+				}
+			};
+		}();
+
+		var treeSet = function() {
+			var last_value;
+
+			return {
+				data_filter: function(treeId, parentNode, childNodes) {
+					if (!childNodes)
+						return null;
+					for (var i = 0, l = childNodes.length; i < l; i++) {
+						childNodes[i].name = childNodes[i].name.replace(/\.n/g, '.');
+					}
+					return childNodes;
+				},
+				update: function(nodes, highlight) {
+					var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+
+					for (var i = 0, l = nodes.length; i < l; i++) {
+						nodes[i].highlight = highlight;
+						zTree.updateNode(nodes[i]);// 调用库函数，高亮显示
+					}
+				},
+				zTreeSearch: function(value) {
+					var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+					var nodeList;
+					if (last_value != null) {
+						nodeList = zTree.getNodesByParamFuzzy("name", last_value);
+						this.update(nodeList, false);// 重置状态
+					}
+					last_value = value;
+
+					nodeList = zTree.getNodesByParamFuzzy("name", value);
+					treeSet.update(nodeList, true);
+				},
+				getFontCss: function(treeId, treeNode) {
+					return (!!treeNode.highlight) ? {
+							color : "#5C297F",
+							"font-weight" : "bold"
+						} : {
+							color : "#999999",
+							"font-weight" : "bold"
+						};
+				},
+				setTree: function(zTreeNodeType) {
+					var setting = {
+						async: {
+							enable : true,
+							type: 'get',
+							url : "/dongjun/switch_tree",// 数据源
+							// url: 'http://127.0.0.1:8080/templates/manager/loadTree',
+							autoParam : [ "id", "name=n", "level=lv" ],
+							/*otherParam : {
+							 	"type" : zTreeNodeType,// 0低压 1高压 2管测
+							},*/
+							dataFilter : treeSet.data_filter,// 添加节点名称过滤器
+						},
+						callback: {
+							onAsyncSuccess : treeSet.zTreeOnAsyncSuccess,// 添加动态加载成功回调函数
+							onCheck: treeSet.zTreeOnCheck,
+							// beforeCheck: treeSet.zTreeBeforeCheck
+						},
+						view: {
+							showLine : false,
+							fontCss : treeSet.getFontCss
+						},
+						check: {
+							enable: true,
+							chkboxType: {'Y':'', 'N':''}
+						}
+					};
+					return setting;
+				},
+				zTreeOnAsyncSuccess: function(event, treeId, treeNode, msg) {
+					// chartView.hideParent($.fn.zTree.getZTreeObj("treeDemo"));
+					chartController.initListener();
+				},
+				zTreeOnClick: function(event, treeId, treeNode) {
+					var node = treeNode;
+					chartManager.show_table(node, 1, 'v_data_list');
+					chartManager.show_table(node, 0, 'c_data_list');
+					$('#showVExcal').unbind().click(function () {
+						chartManager.show_table(node, 1, 'v_data_list');
+						$("#search_btn").unbind().click(function () {
+							chartManager.show_table(node, 1, 'v_data_list');
+						});
+					});
+					$('#showCExcal').unbind().click(function () {
+						chartManager.show_table(node, 0, 'c_data_list');
+						$("#search_btn").unbind().click(function () {
+							chartManager.show_table(node, 0, 'c_data_list');
+						});
+					})
+				},
+				zTreeOnCheck: function(event, treeId, treeNode) {
+					var cov = 0;
+					var tablename = '';
+					var tab = chartManager.getActive();
+					switch(tab._dom.id) {
+						case 'VoltageChart': cov = 1; tablename = 'v_data_list'; break;
+						case 'current': cov = 0; tablename = 'c_data_list'; break;
+						case 'power': cov = 2; tablename = 'p_data_list'; break;
+					}
+					if(treeNode.checked) {
+						if(treeNode.type == 10) {
+							// chartNodes.addcheck(treeNode);
+							chartNodes.addTem(treeNode);
+							chartManager.handleTemSearch(chartManager.get('tem'), 't_data_list');
+						} else {
+							chartNodes.addCheck(treeNode);
+							chartManager.handleSearch(tab, cov, tablename);
+						}
+					}
+					else {
+						if(treeNode.type == 10) {
+							chartNodes.delTem(treeNode);
+							chartManager.removeOption(treeNode, chartManager.get('tem'), 't_data_list', 1);
+						}
+						else {
+							chartNodes.delCheck(treeNode);
+							console.log(chartManager.getActive()._dom.id);
+							chartManager.removeOption(treeNode, tab, tablename, 3);	
+						}
+					}
+				},
+				zTreeBeforeCheck: function(treeId, treeNode) {
+					if(!treeNode.checked && treeModel.getLast() !== -1) {
+						console.warn('inbeforecheck')
+						if(treeNode.type !== treeModel.getLast()) {
+							var treeObj = $.fn.zTree.getZTreeObj(treeId);
+							console.error(treeObj);
+							chartNodes.clearArr(); 
+							var nodes = treeObj.getCheckedNodes();
+					    	if(nodes.length != 0) {
+								for(var i = 0; i<nodes.length; i++) {
+									nodes[i].checked = false;
+									treeObj.updateNode(nodes[i]);
+					          	}
+					        }
+					        if(treeNode.type == 3) {
+					        	chartView.changeChart('temperature')
+					        }
+					        else if(treeModel.getLast() == 3) {
+					        	chartView.changeChart();
+					        }
+						}
+					}
+					treeModel.setLast(treeNode.type);
+					console.warn(treeModel.getLast());
+				},
+				init: function() {
+					$.fn.zTree.init($("#treeDemo"), this.setTree(0));
+
+					$("#searchNode").click(function() {
+						treeSet.zTreeSearch($("#search_node_key").val());
+					});
+
+					// 添加回车事件
+					$(document).keydown(function(event) {
+						var e = event || window.event;
+						if(e.keyCode == 13 && !!$('#search_node_key').val()) {
+							treeSet.zTreeSearch($("#search_node_key").val());
+						}
+					});
+
+					// $("#zTree_node_type").change(function() {
+					// 	$.fn.zTree.getZTreeObj("treeDemo").destroy();
+					// 	$.fn.zTree.init($("#treeDemo"), treeSet.set_tree(this.value));
+					// });
+				}
+			};
+		}();
+		
+		treeSet.init();
+	}());
+	
+</script>

@@ -1,11 +1,18 @@
 package com.gdut.dongjun.web;
 
-import com.gdut.dongjun.core.SwitchGPRS;
-import com.gdut.dongjun.domain.po.HighVoltageSwitch;
-import com.gdut.dongjun.domain.vo.AvailableHighVoltageSwitch;
-import com.gdut.dongjun.service.HighVoltageSwitchService;
-import com.gdut.dongjun.service.rmi.HardwareService;
-import com.gdut.dongjun.util.*;
+import java.io.File;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,16 +24,20 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-import java.io.File;
-import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import com.gdut.dongjun.core.SwitchGPRS;
+import com.gdut.dongjun.domain.model.ResponseMessage;
+import com.gdut.dongjun.domain.po.HighVoltageSwitch;
+import com.gdut.dongjun.domain.po.User;
+import com.gdut.dongjun.dto.util.SwitchStatusUtil;
+import com.gdut.dongjun.service.HighVoltageSwitchService;
+import com.gdut.dongjun.service.UserService;
+import com.gdut.dongjun.service.rmi.HardwareService;
+import com.gdut.dongjun.util.ClassLoaderUtil;
+import com.gdut.dongjun.util.DownloadAndUploadUtil;
+import com.gdut.dongjun.util.MapUtil;
+import com.gdut.dongjun.util.MyBatisMapUtil;
+import com.gdut.dongjun.util.TimeUtil;
+import com.gdut.dongjun.util.UUIDUtil;
 
 @Controller
 @RequestMapping("/dongjun")
@@ -37,6 +48,9 @@ public class HighVoltageSwitchController {
 	
 	@Resource(name="hardwareService")
 	private HardwareService hardwareService;
+	
+	@Autowired
+	private UserService userService;
 	
 	private static final Logger logger = Logger.getLogger(HighVoltageHitchEventController.class);
 
@@ -51,16 +65,16 @@ public class HighVoltageSwitchController {
 	 * @throws
 	 */
 	@RequestMapping("/high_voltage_switch_manager")
-	public String getLineSwitchList(String lineId, Model model) {
+	public String getLineSwitchList(String platformId, Model model) {
 
-		if (lineId != null) {
+		if (platformId != null) {
 
 			/*model.addAttribute("switches", AvailableHighVoltageSwitch.change2VoList(
 					switchService
 							.selectByParameters(MyBatisMapUtil.warp("line_id", lineId))));*/
 			model.addAttribute("switches",
 					switchService
-							.selectByParameters(MyBatisMapUtil.warp("line_id", lineId)));
+							.selectByParameters(MyBatisMapUtil.warp("group_id", platformId)));
 		} else {
 			/*model.addAttribute("switches", AvailableHighVoltageSwitch.change2VoList(
 					switchService.selectByParameters(null)));*/
@@ -70,7 +84,7 @@ public class HighVoltageSwitchController {
 		return "high_voltage_switch_manager";
 	}
 
-	/**
+	/** ResponseMessage
 	 * 
 	 * @Title: getAllLowVoltage_Switch
 	 * @Description: TODO
@@ -87,6 +101,7 @@ public class HighVoltageSwitchController {
 	}
 
 	/**
+	 * @throws  
 	 * 
 	 * @Title: getLineSwitchList
 	 * @Description: TODO
@@ -96,30 +111,38 @@ public class HighVoltageSwitchController {
 	 * @return String
 	 * @throws
 	 */
-	@RequestMapping("/high_voltage_switch_list_by_line_id")
+	@RequestMapping("/high_voltage_switch_list_by_platform_id")
 	@ResponseBody
-	public Object getLineSwitchListByLineId(
-			@RequestParam(required = true) String lineId, Model model) {
-
+	public Object getLineSwitchListByLineId(String platformId, Model model) {
+		if (null == platformId || "".equals(platformId)) {
+			return "";
+		}
 		List<HighVoltageSwitch> switchs = switchService
-				.selectByParameters(MyBatisMapUtil.warp("line_id", lineId));
+				.selectByParameters(MyBatisMapUtil.warp("group_id", platformId));
 		HashMap<String, Object> map = (HashMap<String, Object>) MapUtil.warp(
 				"draw", 1);
+
 		int size = switchs.size();
 		map.put("recordsTotal", size);
-		map.put("data", updateDate(switchs));
-		map.put("data", switchs);
+//		map.put("data", updateDate(switchs));
+		try {
+			map.put("data", new SwitchStatusUtil().wrap(switchs));
+		} catch (RemoteException e) {
+			logger.info("获取硬件系统开关信息失败");
+			e.printStackTrace();
+			return ResponseMessage.danger("获取硬件系统开关信息失败");
+		}
 		map.put("recordsFiltered", size);
 		return map;
 	}
 	
 	@RequestMapping("/online_order")
 	@ResponseBody
-	public Object getOnlineOrder(@RequestParam(required = false) String lineId) {
+	public Object getOnlineOrder(@RequestParam(required = false) String platformId) {
 		
 		int[] result = new int[20];
 		List<HighVoltageSwitch> switchs = switchService
-				.selectByParameters(MyBatisMapUtil.warp("line_id", lineId));
+				.selectByParameters(MyBatisMapUtil.warp("group_id", platformId));
 		
 		for(int length = switchs.size(), i = 0, j = 0; i < length; ++i) {
 			
@@ -190,13 +213,13 @@ public class HighVoltageSwitchController {
 	 * @return Object
 	 * @throws
 	 */
-	@RequestMapping("/selectHVByLineIdInAsc")
+	@RequestMapping("/selectHVByPlatformIdInAsc")
 	@ResponseBody
 	public Object selectHVByLineIdInAsc(
-			@RequestParam(required = true) String lineId, Model model) {
+			@RequestParam(required = true) String platformId, Model model) {
 
 		List<HighVoltageSwitch> switchs = switchService
-				.selectByParameters(MyBatisMapUtil.warp("line_id", lineId));
+				.selectByParameters(MyBatisMapUtil.warp("group_id", platformId));
 
 		return switchs;
 	}
@@ -214,7 +237,8 @@ public class HighVoltageSwitchController {
 	 */
 	@RequestMapping("/del_high_voltage_switch")
 	@ResponseBody
-	public String delSwitch(@RequestParam(required = true) String switchId,
+	public ResponseMessage delSwitch(
+			@RequestParam(required = true) String switchId,
 			Model model, RedirectAttributes redirectAttributes) {
 
 		HighVoltageSwitch delSwitch = switchService.selectByPrimaryKey(switchId);
@@ -224,10 +248,11 @@ public class HighVoltageSwitchController {
 				switchService.deleteByPrimaryKey(switchId);
 			}
 		} catch (Exception e) {
-			logger.error("删除开关失败！");
-			return null;
+			logger.error("删除高压开关失败");
+			e.printStackTrace();
+			return ResponseMessage.danger("删除高压开关失败");
 		}
-		return delSwitch != null ? delSwitch.getLineId() : "";
+		return ResponseMessage.success(delSwitch != null ? delSwitch.getGroupId() + "" : "");
 	}
 
 	/**
@@ -243,24 +268,32 @@ public class HighVoltageSwitchController {
 	 */
 	@RequestMapping("/edit_high_voltage_switch")
 	@ResponseBody
-	public Object editSwitch(@Valid HighVoltageSwitch switch1,
-			Model model, RedirectAttributes redirectAttributes) {
+	public Object editSwitch(
+			@Valid HighVoltageSwitch switch1,
+			String platformId,
+			Model model, 
+			RedirectAttributes redirectAttributes) {
 
+		try {
+		switch1.setGroupId(Integer.parseInt(platformId));
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ResponseMessage.danger("小组id必须是数字！");
+		}
 		// @RequestParam(required = true)
 		// 进不来
-		if (switch1.getId().equals("")) {
+		if (null == switch1.getId() || switch1.getId().equals("")) {
 			switch1.setId(UUIDUtil.getUUID());
 		}
 		
 		try {
-			
-			switchService.updateByPrimaryKey(switch1);
+			switchService.updateByPrimaryKeySelective(switch1);
 		} catch (Exception e) {
-			
-			logger.error("修改开关失败！");
-			return null;
+			logger.info("修改高压开关失败");
+			e.printStackTrace();
+			return ResponseMessage.danger("修改高压开关失败");
 		}
-		return switch1.getLineId();
+		return ResponseMessage.success(switch1.getGroupId());
 	}
 
 	/**
@@ -285,10 +318,10 @@ public class HighVoltageSwitchController {
 		String relativePath = ClassLoaderUtil.getExtendResource("../",
 				"spring-boot_mybatis_bootstrap").toString();
 
-		if ("".equals(relativePath)) {
-
-			return null;
-		}
+//		if ("".equals(relativePath)) {
+//
+//			return null;
+//		}
 
 		String realPath = relativePath.replace("/", "\\");
 		File file = new File(realPath);
@@ -350,9 +383,10 @@ public class HighVoltageSwitchController {
 	 * @return Object
 	 * @throws
 	 */
+	@ResponseBody
 	@RequestMapping(value = "/uploadhvSwitchExcel")
 	public Object uploadlvSwitchExcel(@RequestParam("file") MultipartFile file,
-			Model model, HttpServletRequest request, String lineId)
+			Model model, HttpServletRequest request, String platformId)
 			throws Exception {
 
 		MultipartFile[] files = { file };
@@ -366,16 +400,27 @@ public class HighVoltageSwitchController {
 		String f = realPath + "\\" + fileNames[0];
 
 		// 2.解析excel并保存到数据库
-		if (lineId == null || "".equals(lineId)) {
+		if (platformId == null || "".equals(platformId)) {
 
 			return false;
 		} else {
 
-			switchService.uploadSwitch(f, lineId);
+			switchService.uploadSwitch(f, platformId);
 		}
 		// 3.数据读取完后删除掉文件
 		new File(f).delete();
-		return "redirect:high_voltage_switch_manager";
+		return ResponseMessage.success(platformId);
+	}
+	
+	@RequestMapping("/close_switch")
+	@ResponseBody
+	public ResponseMessage closeSwitch(String id, String controlCode, HttpSession session) {
+		User user = userService.getCurrentUser(session);
+		if (user.getControlCode().equals(controlCode)) {
+			
+			return ResponseMessage.success("操作成功");
+		}
+		return ResponseMessage.warning("控制码输入错误");
 	}
 
 }

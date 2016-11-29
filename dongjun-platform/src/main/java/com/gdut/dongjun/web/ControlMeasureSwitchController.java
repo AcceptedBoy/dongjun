@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.ControlMearsureSwitch;
 import com.gdut.dongjun.service.ControlMearsureSwitchService;
 import com.gdut.dongjun.util.MapUtil;
@@ -39,12 +40,12 @@ public class ControlMeasureSwitchController {
 	 * @throws high_voltage_
 	 */
 	@RequestMapping("/control_measure_switch_manager")
-	public String getLineSwitchList(String lineId, Model model) {
+	public String getLineSwitchList(String platformId, Model model) {
 
-		if (lineId != null) {
+		if (platformId != null) {
 
 			model.addAttribute("switches", switchService
-					.selectByParameters(MyBatisMapUtil.warp("line_id", lineId)));
+					.selectByParameters(MyBatisMapUtil.warp("group_id", platformId)));
 		} else {
 			model.addAttribute("switches",
 					switchService.selectByParameters(null));
@@ -78,14 +79,15 @@ public class ControlMeasureSwitchController {
 	 * @return String
 	 * @throws
 	 */
-	@RequestMapping("/control_measure_switch_list_by_line_id")
+	@RequestMapping("/control_measure_switch_list_by_platform_id")
 	@ResponseBody
-	public Object getLineSwitchListByLineId(
-			@RequestParam(required = true) String lineId, Model model) {
+	public Object getLineSwitchListByLineId(String platformId, Model model) {
+		if (null == platformId && "".equals(platformId)) {
+			return "";
+		}
 
-		System.out.println(lineId);
 		List<ControlMearsureSwitch> switchs = switchService
-				.selectByParameters(MyBatisMapUtil.warp("line_id", lineId));
+				.selectByParameters(MyBatisMapUtil.warp("group_id", platformId));
 		HashMap<String, Object> map = (HashMap<String, Object>) MapUtil.warp(
 				"draw", 1);
 		int size = switchs.size();
@@ -105,13 +107,13 @@ public class ControlMeasureSwitchController {
 	 * @return Object
 	 * @throws
 	 */
-	@RequestMapping("/selectCMByLineIdInAsc")
+	@RequestMapping("/selectCMByPlatformIdInAsc")
 	@ResponseBody
 	public Object selectCMByLineIdInAsc(
-			@RequestParam(required = true) String lineId, Model model) {
+			@RequestParam(required = true) String platformId, Model model) {
 
 		List<ControlMearsureSwitch> switchs = switchService
-				.selectByParameters(MyBatisMapUtil.warp("line_id", lineId));
+				.selectByParameters(MyBatisMapUtil.warp("group_id", platformId));
 
 		return switchs;
 	}
@@ -129,18 +131,19 @@ public class ControlMeasureSwitchController {
 	 */
 	@RequestMapping("/del_control_measure_switch")
 	@ResponseBody
-	public String delSwitch(@RequestParam(required = true) String switchId,
+	public ResponseMessage delSwitch(@RequestParam(required = true) String switchId,
 			Model model, RedirectAttributes redirectAttributes) {
 
-		String lineId = switchService.selectByPrimaryKey(switchId).getLineId();
+		int platformId = switchService.selectByPrimaryKey(switchId).getGroupId();
 		try {
 
 			switchService.deleteByPrimaryKey(switchId);// 删除这个开关
 		} catch (Exception e) {
-			logger.error("删除开关失败！");
-			return null;
+			logger.info("删除管控开关失败");
+			e.printStackTrace();
+			return ResponseMessage.danger("删除管控开关失败");
 		}
-		return lineId;
+		return ResponseMessage.success(platformId);
 	}
 
 	/**
@@ -156,23 +159,26 @@ public class ControlMeasureSwitchController {
 	 */
 	@RequestMapping("/edit_control_measure_switch")
 	@ResponseBody
-	public String editSwitch(ControlMearsureSwitch switch1, Model model,
+	public ResponseMessage editSwitch(
+			ControlMearsureSwitch switch1, 
+			Model model,
+			String platformId,
 			RedirectAttributes redirectAttributes) {
 
 		// @RequestParam(required = true)
 		// 进不来
-		if (switch1.getId() != null && "".equals(switch1.getId())) {
+		if (switch1.getId() == null || "".equals(switch1.getId())) {
 			switch1.setId(UUIDUtil.getUUID());
 		}
+		switch1.setGroupId(Integer.parseInt(platformId));
 		try {
-
-			switchService.updateByPrimaryKey(switch1);
+			switchService.updateByPrimaryKeySelective(switch1);
 		} catch (Exception e) {
-
-			logger.error("修改开关失败！");
-			return null;
+			logger.info("修改管控开关失败");
+			e.printStackTrace();
+			return ResponseMessage.danger("修改管控开关失败");
 		}
-		return switch1.getLineId();
+		return ResponseMessage.success(switch1.getGroupId());
 	}
 
 }

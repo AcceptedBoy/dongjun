@@ -1,0 +1,143 @@
+<div class="form-inline">
+	<div class="form-group span3">
+		<label class="span3">组别:</label>
+		<select class="groups span9"></select>
+	</div>
+	<div class="form-group span3">
+		<label class="span3">公司:</label>
+		<select class='companys span9'></select>
+	</div>
+	<div class="form-group span5">
+      <a href="#add_switch_modal" class="btn btn-primary" id="add_switch_btn" data-toggle="modal" data-backdrop="static" onclick="modal.addSwitch()">添加开关</a>
+      <a href="/dongjun/downloadEmptytemExcel" class="btn btn-primary" id="export_model_btn" data-backdrop="static">导出模板</a>
+      <a href="#upload_modal" class="btn btn-primary" id="add_switch_btn" data-toggle="modal" data-backdrop="static">批量导入</a>
+      <a href="/dongjun/downloadtemExcel" class="btn btn-primary" id="export_switch_btn" data-backdrop="static">导出excel</a>
+    </div>
+</div>
+
+<table id="switch_list" class="table table-bordered table-striped table-hover table-condensed success">
+	<thead>
+    <td>设备号码</td>
+    <td>名称</td>
+    <td>地址</td>
+    <td>sim</td>
+    <td class="hidden"></td>
+		<td>在线时间</td>
+		<td>修改</td>
+		<td>删除</td>
+	</thead>
+</table>
+
+<script>
+
+  var managerTable = function() {
+    var table = null;
+    var defUrl = '/dongjun/temperature_device_list_by_platform_group_id';
+    // var defUrl = 'test.json';
+    return {
+      getTable: function(){
+        return table;
+      },
+      init: function(o) {
+        var _self = this;
+        table = $('#switch_list').DataTable({
+          'ajax': {
+            'url': defUrl,
+            'type': 'POST',
+            'data': o.data
+          },
+          'columns': [
+            { 'data': 'deviceNumber' },
+            { 'data': 'name' },
+            { 'data': 'address' },
+            { 'data': 'simNumber'},
+            { 'data': 'id', 'sClass': 'dpass'},
+            { 'data': 'onlineTime' },
+            { 'data': null},// 设置默认值 null，表示列不会获得数据源对象的信息,否则默认值会被覆盖掉
+            { 'data': null},// 设置默认值 null，表示列不会获得数据源对象的信息,否则默认值会被覆盖掉
+          ],
+          'columnDefs': [{
+              'targets': -2,
+              'data': null,
+              'defaultContent': '<a href="#edit_switch_modal" role="button" class="edit_switch_btn btn" data-toggle="modal">修改 &raquo;</a>'
+            }, {
+              'targets': -1,
+              'data': null,
+              'defaultContent': '<a href="#del_switch_modal" class="del_switch_btn btn btn-danger" data-toggle="modal" data-backdrop="static">删除&raquo; </a>'
+            }],
+          'language': {
+          	'paginate': {
+          		'next': '下一页',
+          		'previous': '上一页'
+          	},
+          	'emptyTable': '找不到相关数据',
+            'zeroRecords': '找不到相关数据'
+          },
+          'initComplete': function() {
+
+            $(this[0]).click(function(event) {
+              var target = $(event.target)
+
+              if(target.hasClass('edit_switch_btn')) {
+                modal.editSwitch(target)
+              } else if(target.hasClass('del_switch_btn')) {
+                var deviceId = target.closest('tr').find('.dpass')[0].innerHTML
+                modal.delSwitch(deviceId)
+              }
+            })
+          }
+        })
+      },
+      redraw: function(id) {
+        // get
+        // url += '?switchId=' + id;
+        // table.ajax.url('http://127.0.0.1:8080/templates/event/refresh').load();
+				console.log('redraw:'+ id)
+        if(id == -1){
+        	console.log('clear')
+        	table.clear().draw()
+        	return
+        }
+				
+		    // post
+        table.ajax.url(defUrl);
+        var param = {
+          platformId: selectManager.getCompany()
+        };
+        table.settings()[0].ajax.data = param;
+        table.ajax.reload();
+      }
+    }
+  }()
+
+  modal.setOption({
+    url: {
+      add: '/dongjun/edit_temperature_device',
+      edit: '/dongjun/edit_temperature_device',
+      del: '/dongjun/del_temperature_device',
+      upload: '/dongjun/uploadtemDeviceExcel'
+    },
+    completeFnc: managerTable.redraw
+  })
+
+  selectManager.setOption({
+  	url: {
+      'group': '/dongjun/group/gruop_list',
+      'company': '/dongjun/platform_group/platform_group_list_by_group_id'
+    },
+  	node: {
+      'group': '.groups',
+      'company': '.companys'
+    },
+  	completeFnc: managerTable.redraw
+  })
+
+  selectManager.loadGroups()
+  selectManager.autoListen()
+  
+  managerTable.init({
+  	data: {
+  		platformId: selectManager.getCompany()
+  	}
+  })
+</script>

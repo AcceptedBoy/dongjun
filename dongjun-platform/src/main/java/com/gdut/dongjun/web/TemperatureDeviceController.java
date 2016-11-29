@@ -13,6 +13,7 @@ import javax.validation.Valid;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,7 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.gdut.dongjun.core.SwitchGPRS;
-import com.gdut.dongjun.domain.po.HighVoltageSwitch;
+import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.TemperatureDevice;
 import com.gdut.dongjun.service.TemperatureDeviceService;
 import com.gdut.dongjun.service.rmi.HardwareService;
@@ -32,6 +33,8 @@ import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.TimeUtil;
 import com.gdut.dongjun.util.UUIDUtil;
 
+@Controller
+@RequestMapping("/dongjun")
 public class TemperatureDeviceController {
 
 	@Autowired
@@ -42,6 +45,20 @@ public class TemperatureDeviceController {
 	
 	private static final Logger logger = Logger.getLogger(TemperatureDeviceController.class);
 
+	
+	@RequestMapping("/temperature")
+	public String getTemperature(String platformId, Model model) {
+
+		if (platformId != null) {
+			model.addAttribute("devices",
+					deviceService.selectByParameters(MyBatisMapUtil.warp("group_id", platformId)));
+		} else {
+			model.addAttribute("devices", deviceService.selectByParameters(null));
+		}
+		//TODO 通知前端需要返回的模板
+		return "temperature";
+	}
+	
 	/**
 	 * 
 	 * @param platformGroupId
@@ -49,11 +66,11 @@ public class TemperatureDeviceController {
 	 * @return
 	 */
 	@RequestMapping("/temperature_device_manager")
-	public String getLineSwitchList(String platformGroupId, Model model) {
+	public String getLineSwitchList(String platformId, Model model) {
 
-		if (platformGroupId != null) {
+		if (platformId != null) {
 			model.addAttribute("devices",
-					deviceService.selectByParameters(MyBatisMapUtil.warp("group_id", platformGroupId)));
+					deviceService.selectByParameters(MyBatisMapUtil.warp("group_id", platformId)));
 		} else {
 			model.addAttribute("devices", deviceService.selectByParameters(null));
 		}
@@ -70,14 +87,20 @@ public class TemperatureDeviceController {
 	 */
 	@RequestMapping("/temperature_device_list_by_platform_group_id")
 	@ResponseBody
-	public Object getDeviceByPlatforxmGroupId(@RequestParam(required = true) String platformGroupId, Model model) {
-
-		List<TemperatureDevice> devices = deviceService
-				.selectByParameters(MyBatisMapUtil.warp("group_id", platformGroupId));
+	public Object getDeviceByPlatforxmGroupId(String platformId) {
+		List<TemperatureDevice> devices;
+		
+		if (platformId == null || platformId.equals("")) {
+			return "";
+		}
+		else
+			devices = deviceService
+			.selectByParameters(MyBatisMapUtil.warp("group_id", platformId));
+		
 		HashMap<String, Object> map = (HashMap<String, Object>) MapUtil.warp("draw", 1);
 		int size = devices.size();
 		map.put("recordsTotal", size);
-		map.put("data", updateDate(devices));
+//		map.put("data", updateDate(devices));
 		map.put("data", devices);
 		map.put("recordsFiltered", size);
 		return map;
@@ -89,7 +112,6 @@ public class TemperatureDeviceController {
 		for (TemperatureDevice device : devices) {
 			if (search(device.getId())) {
 				device.setOnlineTime(date);
-				deviceService.updateByPrimaryKey(device);
 			}
 		}
 		return devices;
@@ -113,22 +135,22 @@ public class TemperatureDeviceController {
 		return false;
 	}
 
-	@RequestMapping("/online_order")
-	@ResponseBody
-	public Object getOnlineOrder(@RequestParam(required = false) String platformId) {
-
-		int[] result = new int[20];
-		List<TemperatureDevice> devices = deviceService.selectByParameters(MyBatisMapUtil.warp("group_id", platformId));
-
-		for (int length = devices.size(), i = 0, j = 0; i < length; ++i) {
-
-			if (search(devices.get(i).getId())) {
-				result[j] = i + 1;
-				++j;
-			}
-		}
-		return result;
-	}
+//	@RequestMapping("/online_order")
+//	@ResponseBody
+//	public Object getOnlineOrder(@RequestParam(required = false) String platformId) {
+//
+//		int[] result = new int[20];
+//		List<TemperatureDevice> devices = deviceService.selectByParameters(MyBatisMapUtil.warp("group_id", platformId));
+//
+//		for (int length = devices.size(), i = 0, j = 0; i < length; ++i) {
+//
+//			if (search(devices.get(i).getId())) {
+//				result[j] = i + 1;
+//				++j;
+//			}
+//		}
+//		return result;
+//	}
 	
 	/**
 	 * 删除温度设备
@@ -139,7 +161,7 @@ public class TemperatureDeviceController {
 	 */
 	@RequestMapping("/del_temperature_device")
 	@ResponseBody
-	public String delDevice(
+	public ResponseMessage delDevice(
 			@RequestParam(required = true) String deviceId,
 			Model model, RedirectAttributes redirectAttributes) {
 
@@ -150,10 +172,11 @@ public class TemperatureDeviceController {
 				deviceService.deleteByPrimaryKey(deviceId);
 			}
 		} catch (Exception e) {
-			logger.error("删除开关失败！");
-			return null;
+			logger.error("删除温度路由器");
+			e.printStackTrace();
+			return ResponseMessage.danger("删除温度路由器");
 		}
-		return delDevice != null ? "" + delDevice.getGroupId() : "";
+		return new ResponseMessage(ResponseMessage.Type.SUCCESS, delDevice != null ? "" + delDevice.getGroupId() : "", true);
 	}
 	
 	/**
@@ -167,24 +190,22 @@ public class TemperatureDeviceController {
 	@ResponseBody
 	public Object editDevice(
 			@Valid TemperatureDevice device,
+			String platformId,
 			Model model, 
 			RedirectAttributes redirectAttributes) {
-
-		// @RequestParam(required = true)
-		// 进不来
-		if (device.getId().equals("")) {
+		
+		if (device.getId() == null || device.getId().equals("")) {
 			device.setId(UUIDUtil.getUUID());
 		}
-		
+		device.setGroupId(Integer.parseInt(platformId));
 		try {
-			
-			deviceService.updateByPrimaryKey(device);
+			deviceService.updateByPrimaryKeySelective(device);
 		} catch (Exception e) {
-			
-			logger.error("修改开关失败！");
-			return null;
+			logger.error("修改温度路由器失败");
+			e.printStackTrace();
+			return ResponseMessage.danger("修改温度路由器失败");
 		}
-		return device.getGroupId();
+		return new ResponseMessage(ResponseMessage.Type.SUCCESS, device.getGroupId(), true);
 	}
 
 	@RequestMapping(value = "/downloadEmptytemExcel")
@@ -198,10 +219,10 @@ public class TemperatureDeviceController {
 		String relativePath = ClassLoaderUtil.getExtendResource("../",
 				"spring-boot_mybatis_bootstrap").toString();
 
-		if ("".equals(relativePath)) {
-
-			return null;
-		}
+//		if ("".equals(relativePath)) {
+//
+//			return null;
+//		}
 
 		String realPath = relativePath.replace("/", "\\");
 		File file = new File(realPath);
@@ -210,7 +231,7 @@ public class TemperatureDeviceController {
 		}
 		String filePath = realPath + "\\" + fileName;
 		// 4.生成excel文件
-		//TODO
+
 		deviceService.createDeviceExcel(filePath, null);
 
 		File targetFile = new File(filePath);
@@ -241,18 +262,19 @@ public class TemperatureDeviceController {
 		return DownloadAndUploadUtil.download(request, targetFile, fileName);
 	}
 	
+	@ResponseBody
 	@RequestMapping(value = "/uploadtemDeviceExcel")
 	public Object uploadtemDeviceExcel(
 			@RequestParam("file") MultipartFile file,
 			Model model, 
 			HttpServletRequest request, 
-			String platformGroupId)
+			String platformId)
 			throws Exception {
 
 		MultipartFile[] files = { file };
 
 		String realPath = request.getSession().getServletContext()
-				.getRealPath("/uploadhvSwitchExcel");
+				.getRealPath("/uploadtemDeviceExcel");
 		realPath = realPath.replace("/", "\\");
 
 		// 1.保存文件到服务器
@@ -260,15 +282,13 @@ public class TemperatureDeviceController {
 		String f = realPath + "\\" + fileNames[0];
 
 		// 2.解析excel并保存到数据库
-		if (platformGroupId == null || "".equals(platformGroupId)) {
-
+		if (platformId == null || "".equals(platformId)) {
 			return false;
 		} else {
-			//TODO
-			deviceService.uploadDevice(f, platformGroupId);
+			deviceService.uploadDevice(f, platformId);
 		}
 		// 3.数据读取完后删除掉文件
 		new File(f).delete();
-		return "redirect:high_voltage_switch_manager";
+		return ResponseMessage.success(platformId);
 	}
 }

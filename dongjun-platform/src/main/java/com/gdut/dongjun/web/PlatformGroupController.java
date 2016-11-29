@@ -2,15 +2,18 @@ package com.gdut.dongjun.web;
 
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.HighVoltageSwitch;
+import com.gdut.dongjun.domain.po.Line;
 import com.gdut.dongjun.domain.po.PlatformGroup;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.service.HighVoltageSwitchService;
 import com.gdut.dongjun.service.PlatformGroupService;
 import com.gdut.dongjun.service.UserService;
+import com.gdut.dongjun.util.MapUtil;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -100,6 +103,22 @@ public class PlatformGroupController {
         }
         return ResponseMessage.success("操作成功");
     }
+    
+    /**
+     * 将一个设备移动到另一个分组上
+     * @param groupId
+     * @param deviceId
+     * @param type
+     * @return
+     */
+    @RequestMapping("/move_new_group")
+    @ResponseBody
+    public Integer moveNewGroup(@NotNull Integer groupId, @NotNull String id) {
+    	PlatformGroup group = groupService.selectByPrimaryKey(id);
+    	group.setGroupId(groupId);
+    	groupService.updateByPrimaryKey(group);
+        return groupId;
+    }
 
     /**
      * 删除分组
@@ -110,7 +129,7 @@ public class PlatformGroupController {
      */
     @RequestMapping("/delete")
     @ResponseBody
-    public ResponseMessage deleteGroup(HttpSession session, @NotNull Integer groupId, @NotNull Integer type) {
+    public ResponseMessage deleteGroup(HttpSession session, @NotNull Integer id, @NotNull Integer type) {
         groupService.selectByParameters(MyBatisMapUtil.warp("is_default", 1));
         //TODO 没有做判断
         Integer defaultGroupId = groupService.getDefaultGroup(
@@ -118,13 +137,13 @@ public class PlatformGroupController {
         switch (type) {
             case 1:
                 List<HighVoltageSwitch> switchList = hvSwitchService.selectByParameters(
-                        MyBatisMapUtil.warp("group_id", groupId));
+                        MyBatisMapUtil.warp("group_id", id));
                 for(HighVoltageSwitch highVoltageSwitch : switchList) {
                     highVoltageSwitch.setGroupId(defaultGroupId);
                     hvSwitchService.updateByPrimaryKey(highVoltageSwitch);
                 }
         }
-        if(groupService.deleteByPrimaryKey(groupId)) {
+        if(groupService.deleteByPrimaryKey(id)) {
             return ResponseMessage.success("删除成功");
         } else {
             return ResponseMessage.danger("系统错误");
@@ -165,4 +184,29 @@ public class PlatformGroupController {
         }
         return params;
     }
+    
+    /**
+	 * 
+	 * @Title: getLineSwitchList
+	 * @Description: TODO
+	 * @param @param lineId
+	 * @param @param model
+	 * @param @return
+	 * @return String
+	 * @throws
+	 */
+	@RequestMapping("/platform_group_list_by_group_id")
+	@ResponseBody
+	public Object getLineSwitchListByLineId(String groupId,
+			HttpSession session, Model model) {
+		
+		List<PlatformGroup> list = groupService.selectByParameters(MyBatisMapUtil.warp("group_id", groupId));
+		int size = list.size();
+		HashMap<String, Object> map = (HashMap<String, Object>) MapUtil.warp(
+				"draw", 1);
+		map.put("recordsTotal", size);
+		map.put("data", list);
+		map.put("recordsFiltered", size);
+		return map;
+	}
 }

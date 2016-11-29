@@ -3,7 +3,6 @@ package com.gdut.dongjun.domain.vo;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,6 +11,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.gdut.dongjun.domain.po.TemperatureMeasure;
+import com.gdut.dongjun.domain.po.TemperatureMeasureHistory;
 import com.gdut.dongjun.util.TimeUtil;
 
 public class TemperatureChartData {
@@ -118,25 +118,7 @@ public class TemperatureChartData {
 	}
 
 	public TemperatureChartData getJsonChart(Map<String, Object> data) {
-		// TemperatureChartData chartData = new TemperatureChartData();
-		// List<ChaseData> list = chartData.getSeries();
-		// Object chase;
-		//
-		// List<String> xData = new ArrayList<String>();
-		// for (Entry<String, Object> entry : data.entrySet()) {
-		// ChaseData chaseData = new ChaseData(entry.getKey());
-		// List<Float> floatList = chaseData.getData();
-		// List<TemperatureMeasure> measureList =
-		// (List<TemperatureMeasure>)(entry.getValue());
-		// for (TemperatureMeasure measure : measureList) {
-		// xData.add(TimeUtil.timeFormat(measure.getDate()));
-		// floatList.add(getFloatValue(Integer.valueOf(measure.getValue())));
-		// }
-		// this.series.add(chaseData);
-		// }
-		// chartData.getxAxis().get(0).setData(xData);
-		// return chartData;
-
+		List<String> legendData = new ArrayList<String>();
 		TemperatureChartData chartData = new TemperatureChartData();
 		HashSet<Timestamp> set = new HashSet<Timestamp>();
 		List<String> xData = new ArrayList<String>();
@@ -144,22 +126,14 @@ public class TemperatureChartData {
 		//初始化x轴
 		for (Entry<String, Object> entry : data.entrySet()) {
 
-			List<TemperatureMeasure> measureList = (List<TemperatureMeasure>) (entry.getValue());
+			List<TemperatureMeasureHistory> measureList = (List<TemperatureMeasureHistory>) (entry.getValue());
 
-			for (TemperatureMeasure measure : measureList) {
+			for (TemperatureMeasureHistory measure : measureList) {
 				set.add(measure.getDate());
 			}
 			Map<String, Float> map = new HashMap<String, Float>();
 			valueMap.put(entry.getKey(), map);
 		}
-		//新建空值map
-//		for (Entry<String, Object> entry : data.entrySet()) {
-//
-//			Map<String, Float> map = valueMap.get(entry.getKey());
-//			for (Timestamp time : set) {
-//				map.put(TimeUtil.timeFormat(transformToDate(time)), null);
-//			}
-//		}
 		
 		for (Entry<String, Object> entry : data.entrySet()) {
 			Map<String, Float> map = valueMap.get(entry.getKey());
@@ -168,13 +142,14 @@ public class TemperatureChartData {
 				map.put(TimeUtil.timeFormat(transformToDate(time)), null);
 			}
 			//赋值
-			List<TemperatureMeasure> measureList = (List<TemperatureMeasure>) (entry.getValue());
-			for (TemperatureMeasure measure : measureList) {
+			List<TemperatureMeasureHistory> measureList = (List<TemperatureMeasureHistory>) (entry.getValue());
+			for (TemperatureMeasureHistory measure : measureList) {
 				map.put(TimeUtil.timeFormat(transformToDate(measure.getDate())), 
 						getFloatValue(Integer.valueOf(measure.getValue())));
 			}
 			//转换为List
 			ChaseData chaseData = new ChaseData(entry.getKey() + "号");
+			legendData.add(entry.getKey() + "号");
 			List<Float> floatList = new ArrayList<Float>();
 			for (Timestamp time : set) {
 				floatList.add(map.get(TimeUtil.timeFormat(transformToDate(time))));
@@ -182,22 +157,13 @@ public class TemperatureChartData {
 			chaseData.setData(floatList);
 			chartData.series.add(chaseData);
 		}
-		//转换为List
-//		for (Entry<String, Object> entry : data.entrySet()) {
-//			Map<String, Float> map = valueMap.get(entry.getKey());
-//			ChaseData chaseData = new ChaseData(entry.getKey() + "号");
-//			List<Float> floatList = new ArrayList<Float>();
-//			for (Timestamp time : set) {
-//				floatList.add(map.get(TimeUtil.timeFormat(transformToDate(time))));
-//			}
-//			chaseData.setData(floatList);
-//			chartData.series.add(chaseData);
-//		}
+		
 		//构建xData
 		for (Timestamp time : set) {
 			xData.add(TimeUtil.timeFormat(transformToDate(time)));
 		}
 		chartData.getxAxis().get(0).setData(xData);
+		chartData.legend.put("data", legendData);
 		return chartData;
 	}
 
@@ -253,18 +219,18 @@ public class TemperatureChartData {
 
 		private String type = "line";
 
-		private String stack = "容量";
+//		private String stack = "";
 
-		private Map<String, Object> areaStyle = new HashMap<>(1);
+//		private Map<String, Object> areaStyle = new HashMap<>(1);
 
 		private List<Float> data = new ArrayList<>();
 
 		public ChaseData() {
-			areaStyle.put("normal", new HashMap<>());
+//			areaStyle.put("normal", new HashMap<>());
 		}
 
 		public ChaseData(String name) {
-			areaStyle.put("normal", new HashMap<>());
+//			areaStyle.put("normal", new HashMap<>());
 			this.name = name;
 		}
 
@@ -284,21 +250,13 @@ public class TemperatureChartData {
 			this.type = type;
 		}
 
-		public String getStack() {
-			return stack;
-		}
-
-		public void setStack(String stack) {
-			this.stack = stack;
-		}
-
-		public Map<String, Object> getAreaStyle() {
-			return areaStyle;
-		}
-
-		public void setAreaStyle(Map<String, Object> areaStyle) {
-			this.areaStyle = areaStyle;
-		}
+//		public Map<String, Object> getAreaStyle() {
+//			return areaStyle;
+//		}
+//
+//		public void setAreaStyle(Map<String, Object> areaStyle) {
+//			this.areaStyle = areaStyle;
+//		}
 
 		public List<Float> getData() {
 			return data;

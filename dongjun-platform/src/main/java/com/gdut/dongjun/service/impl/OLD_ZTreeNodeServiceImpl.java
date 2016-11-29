@@ -16,10 +16,8 @@ import com.gdut.dongjun.domain.po.PlatformGroup;
 import com.gdut.dongjun.domain.po.Substation;
 import com.gdut.dongjun.service.ControlMearsureSwitchService;
 import com.gdut.dongjun.service.HighVoltageSwitchService;
-import com.gdut.dongjun.service.LineService;
 import com.gdut.dongjun.service.LowVoltageSwitchService;
 import com.gdut.dongjun.service.PlatformGroupService;
-import com.gdut.dongjun.service.SubstationService;
 import com.gdut.dongjun.service.ZTreeNodeService;
 import com.gdut.dongjun.service.base.BaseService;
 import com.gdut.dongjun.util.MyBatisMapUtil;
@@ -35,19 +33,19 @@ import com.gdut.dongjun.util.MyBatisMapUtil;
 
 public class OLD_ZTreeNodeServiceImpl implements ZTreeNodeService {
 
-	@Autowired
-	private SubstationService substationService;
-	@Autowired
-	private LineService lineService;
-	@Autowired
-	private LowVoltageSwitchService switchService;
-	@Autowired
-	private HighVoltageSwitchService switchService2;
-	@Autowired
-	private ControlMearsureSwitchService switchService3;
-
-	@Autowired
-	private PlatformGroupService groupService;
+//	@Autowired
+//	private SubstationService substationService;
+//	@Autowired
+//	private LineService lineService;
+//	@Autowired
+//	private LowVoltageSwitchService switchService;
+//	@Autowired
+//	private HighVoltageSwitchService switchService2;
+//	@Autowired
+//	private ControlMearsureSwitchService switchService3;
+//
+//	@Autowired
+//	private PlatformGroupService groupService;
 
 	@Override
 	public List<ZTreeNode> getSwitchTree(String company_id, String type) {
@@ -218,7 +216,7 @@ public class OLD_ZTreeNodeServiceImpl implements ZTreeNodeService {
 		params.put("company_id", companyId);
 		params.put("type", deviceType);
 		List<PlatformGroup> groupList =
-				groupService.selectByParameters(MyBatisMapUtil.warp(params));
+				BigGroupService.selectByParameters(MyBatisMapUtil.warp(params));
 
 		Map<Integer, List<ZTreeNode>> zTreeMap = new HashMap<>();
 		List<ZTreeNode> result = new LinkedList<ZTreeNode>();

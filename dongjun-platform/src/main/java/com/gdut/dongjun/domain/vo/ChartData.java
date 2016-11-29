@@ -1,9 +1,13 @@
 package com.gdut.dongjun.domain.vo;
 
 import java.math.BigDecimal;
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +39,10 @@ public class ChartData {
 	
 	private List<ChaseData> series = new ArrayList<>();
 	
+	private List<Date> timeList = new ArrayList<Date>();
+	
+	private String switchName;
+	
 	public ChartData() {
 		
 		title.put("text", "");
@@ -53,18 +61,39 @@ public class ChartData {
 		grid.put("containLabel", true);
 		xAxis.add(new XAxis());
 		yAxis.add(new YAxis());
-		series.add(new ChaseData("A相"));
-		series.add(new ChaseData("B相"));
-		series.add(new ChaseData("C相"));
 	}
 	
-	public <T> ChartData getJsonChart(List<T> data) throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, InstantiationException {
+	public ChartData(String switchName) {
 		
-		ChartData chartData = new ChartData();
+		title.put("text", "");
+		tooltip.put("trigger", "axis");
+		List<String> data = new ArrayList<>();
+		data.add(switchName + "A相"); 
+		data.add(switchName + "B相");
+		data.add(switchName + "C相");
+		legend.put("data", data);
+		Map<String, Object> feature = new HashMap<>(1);
+		feature.put("saveAsImage", new HashMap<>());
+		toolbox.put("feature", feature);
+		grid.put("left", "");
+		grid.put("right", "");
+		grid.put("buttom", "");
+		grid.put("containLabel", true);
+		xAxis.add(new XAxis());
+		yAxis.add(new YAxis());
+		this.switchName = switchName;
+		series.add(new ChaseData(switchName + "A相"));
+		series.add(new ChaseData(switchName + "B相"));
+		series.add(new ChaseData(switchName + "C相"));
+	}
+	
+	public <T> ChartData getJsonChart(List<T> data) throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, InstantiationException, ParseException {
+		SimpleDateFormat  format = new SimpleDateFormat ("yyyy-MM-dd HH:mm");
+		ChartData chartData = new ChartData(this.switchName);
 		List<ChaseData> list = chartData.getSeries();
 		List<Float> chaseA = list.get(0).getData();
 		List<Float> chaseB = list.get(1).getData();
-		List<Float> chaseC = list.get(2).getData();
+		List<Float> chaseC = list.get(2).getData(); 
 		List<String> xData = new ArrayList<>();
 		Object chase;
 		
@@ -76,14 +105,27 @@ public class ChartData {
 				return null;
 			}
 			switch(chase.toString().charAt(0)) {
-			case 'A' : chaseA.add(getFloatValue(
-					GenericUtil.getPrivatyIntegerValue(o, "value")));break;
-			case 'B' : chaseB.add(getFloatValue(
-					GenericUtil.getPrivatyIntegerValue(o, "value")));break;
-			case 'C' : chaseC.add(getFloatValue(
-					GenericUtil.getPrivatyIntegerValue(o, "value")));break;
+			case 'A' : 
+				chaseA.add(getFloatValue(
+					GenericUtil.getPrivatyIntegerValue(o, "value")));
+				chaseB.add(null);
+				chaseC.add(null);
+				break;
+			case 'B' : 
+				chaseB.add(getFloatValue(
+					GenericUtil.getPrivatyIntegerValue(o, "value")));
+				chaseA.add(null);
+				chaseC.add(null);
+				break;
+			case 'C' : 
+				chaseC.add(getFloatValue(
+					GenericUtil.getPrivatyIntegerValue(o, "value")));
+				chaseA.add(null);
+				chaseB.add(null);
+				break;
 			}
-			
+			chartData.getTimeList().add(format.parse(TimeUtil.timeFormat((Date)GenericUtil.getPrivateObjectValue(o, "time"))));
+//			timeList.add((Date)GenericUtil.getPrivateObjectValue(o, "time"));
 			xData.add(TimeUtil.timeFormat((Date)GenericUtil.getPrivateObjectValue(o, "time")));
 		}
 		chartData.getxAxis().get(0).setData(xData);
@@ -160,6 +202,14 @@ public class ChartData {
 		this.legend = legend;
 	}
 	
+	public List<Date> getTimeList() {
+		return timeList;
+	}
+
+	public void setTimeList(List<Date> timeList) {
+		this.timeList = timeList;
+	}
+
 	class XAxis {
 		
 		private String type = "category";
@@ -206,65 +256,4 @@ public class ChartData {
 		}
 	}
 	
-	public class ChaseData {
-		
-		private String name;
-		
-		private String type = "line";
-		
-		private String stack = "容量";
-		
-		private Map<String, Object> areaStyle = new HashMap<>(1);
-		
-		private List<Float> data = new ArrayList<>();
-		
-		public ChaseData() {
-			areaStyle.put("normal", new HashMap<>());
-		}
-		
-		public ChaseData(String name) {
-			areaStyle.put("normal", new HashMap<>());
-			this.name = name;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public void setName(String name) {
-			this.name = name;
-		}
-
-		public String getType() {
-			return type;
-		}
-
-		public void setType(String type) {
-			this.type = type;
-		}
-
-		public String getStack() {
-			return stack;
-		}
-
-		public void setStack(String stack) {
-			this.stack = stack;
-		}
-
-		public Map<String, Object> getAreaStyle() {
-			return areaStyle;
-		}
-
-		public void setAreaStyle(Map<String, Object> areaStyle) {
-			this.areaStyle = areaStyle;
-		}
-
-		public List<Float> getData() {
-			return data;
-		}
-
-		public void setData(List<Float> data) {
-			this.data = data;
-		}
-	}
 }

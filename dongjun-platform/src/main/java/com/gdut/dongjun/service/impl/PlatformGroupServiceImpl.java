@@ -28,7 +28,7 @@ public class PlatformGroupServiceImpl extends BaseServiceImpl<PlatformGroup>
     @Override
     protected boolean isExist(PlatformGroup record) {
         if (record != null
-                && groupMapper.selectByPrimaryKey(String.valueOf(record.getId())) != null) {
+                && groupMapper.selectByPrimaryKey(record.getId()) != null) {
 
             return true;
         } else {

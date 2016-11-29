@@ -17,6 +17,8 @@
     <result column="inline_index" jdbcType="INTEGER" property="inlineIndex" />
     <result column="line_id" jdbcType="VARCHAR" property="lineId" />
     <result column="show_name" jdbcType="VARCHAR" property="showName" />
+    <result column="group_id" jdbcType="INTEGER" property="groupId" />
+    <result column="online_time" jdbcType="VARCHAR" property="onlineTime" />
   </resultMap>
   <sql id="Base_Column_List">
     <!--
@@ -25,7 +27,7 @@
       This element was generated on Sat Feb 27 22:32:01 CST 2016.
     -->
     id, name, address, sim_number, device_number, longitude, latitude, inline_index, 
-    line_id, show_name
+    line_id, show_name, group_id, online_time
   </sql>
   
   <select id="selectByParameters" resultMap="BaseResultMap">
@@ -77,11 +79,11 @@
     insert into low_voltage_switch (id, name, address, 
       sim_number, device_number, longitude, 
       latitude, inline_index, line_id, 
-      show_name)
+      show_name, group_id, online_time)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{address,jdbcType=VARCHAR}, 
       #{simNumber,jdbcType=VARCHAR}, #{deviceNumber,jdbcType=VARCHAR}, #{longitude,jdbcType=REAL}, 
       #{latitude,jdbcType=REAL}, #{inlineIndex,jdbcType=INTEGER}, #{lineId,jdbcType=VARCHAR}, 
-      #{showName,jdbcType=VARCHAR})
+      #{showName,jdbcType=VARCHAR}, #{groupId, jdbcType=INTEGER}, #{onlineTime, jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.gdut.dongjun.domain.po.LowVoltageSwitch">
     <!--
@@ -121,6 +123,12 @@
       <if test="showName != null">
         show_name,
       </if>
+      <if test="groupId != null">
+      	group_id,
+      </if>
+      <if test="onlineTime != null">
+      	online_time,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -152,6 +160,12 @@
       </if>
       <if test="showName != null">
         #{showName,jdbcType=VARCHAR},
+      </if>
+      <if test="groupId != null">
+      	#{groupId, jdbcType=INTEGER},
+      </if>
+      <if test="onlineTime != null">
+      	#{onlineTime, jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -190,6 +204,12 @@
       <if test="showName != null">
         show_name = #{showName,jdbcType=VARCHAR},
       </if>
+      <if test="groupId != null">
+      	group_id = #{groupId, jdbcType=INTEGER},
+      </if>
+      <if test="onlineTime != null">
+      	online_time = #{onlineTime, jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -208,7 +228,9 @@
       latitude = #{latitude,jdbcType=REAL},
       inline_index = #{inlineIndex,jdbcType=INTEGER},
       line_id = #{lineId,jdbcType=VARCHAR},
-      show_name = #{showName,jdbcType=VARCHAR}
+      show_name = #{showName,jdbcType=VARCHAR},
+      group_id = #{groupId, jdbcType=INTEGER},
+      onlineTime = #{onlineTime, jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

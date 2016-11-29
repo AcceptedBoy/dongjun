@@ -6,12 +6,12 @@
 		<id column="id" jdbcType="VARCHAR" property="id" />
 		<result column="device_id" jdbcType="VARCHAR" property="deviceId" />
 		<result column="date" jdbcType="TIMESTAMP" property="date" />
-		<result column="sensor_address" jdbcType="VARCHAR" property="sensorAddress" />
+		<result column="tag" jdbcType="INTEGER" property="tag" />
 		<result column="value" jdbcType="VARCHAR" property="value" />
 	</resultMap>
 
 	<sql id="Base_Column_List">
-		id, device_id, date, sensor_address, value
+		id, device_id, date, tag, value
 	</sql>
 
 	<select id="selectByParameters" resultMap="BaseResultMap">
@@ -43,8 +43,8 @@
 		(#{sql})
 		values (#{id,jdbcType=VARCHAR}, #{deviceId,jdbcType=VARCHAR},
 		#{date,jdbcType=TIMESTAMP},
-		#{sensorAddress,jdbcType=VARCHAR},
-		#{value,jdbcType=VARCHAR}
+		#{tag,jdbcType=INTEGER},
+		#{value,jdbcType=VARCHAR})
 	</insert>
 
 	<insert id="insertSelective" parameterType="com.gdut.dongjun.domain.po.TemperatureMeasureHistory">
@@ -59,8 +59,8 @@
 			<if test="date != null">
 				date,
 			</if>
-			<if test="sensorAddress != null">
-				sensor_address,
+			<if test="tag != null">
+				tag,
 			</if>
 			<if test="value != null">
 				value,
@@ -76,8 +76,8 @@
 			<if test="date != null">
 				#{date,jdbcType=TIMESTAMP},
 			</if>
-			<if test="sensorAddress != null">
-				#{sensor_address,jdbcType=VARCHAR},
+			<if test="tag != null">
+				#{tag,jdbcType=INTEGER},
 			</if>
 			<if test="value != null">
 				#{value,jdbcType=VARCHAR},
@@ -91,8 +91,8 @@
 			<if test="deviceId != null">
 				device_id = #{deviceId,jdbcType=VARCHAR},
 			</if>
-			<if test="sensorAddress != null">
-				tag = #{sensor_address,jdbcType=VARCHAR},
+			<if test="tag != null">
+				tag = #{tag,jdbcType=INTEGER},
 			</if>
 			<if test="date != null">
 				date = #{date,jdbcType=TIMESTAMP},
@@ -108,8 +108,8 @@
 		update
 		temperature_measure_history
 		set device_id = #{deviceId,jdbcType=VARCHAR},
-		sensor_address =
-		#{sensorAddress,jdbcType=VARCHAR},
+		tag =
+		#{tag,jdbcType=INTEGER},
 		date =
 		#{date,jdbcType=TIMESTAMP},
 		value =
@@ -121,8 +121,8 @@
 		select * from temperature_measure_history
 		where device_id = #{deviceId}
 		and tag = #{tag}
-		and time between #{beginDate} and #{endDate}
-		order By time Asc
+		and date between #{beginDate} and #{endDate}
+		order By date Asc
 	</select>
 
 </mapper>

@@ -1,0 +1,52 @@
+<div class="span9" style="height: 100%;">
+  <div style="font-size: 18px">
+    <i class="fa fa-home" id="Center"></i>
+    &nbsp;
+    当前位置：<span id="show_line"></span>
+  </div>
+  <div id="baidu_map" style="width: 100%; height: 98%; margin-top: 10px;"></div>
+</div>
+
+<script type="text/javascript">
+	function init() {
+		var map = new BMap.Map("baidu_map");            			// 创建Map实例
+		var point = new BMap.Point(113.404383, 23.041555); 		// 创建点坐标
+		map.centerAndZoom(point, 20);
+		map.enableScrollWheelZoom();                				 	//启用滚轮放大缩小
+
+		var mapType1 = new BMap.MapTypeControl({
+			mapTypes : [ BMAP_NORMAL_MAP, BMAP_HYBRID_MAP ]
+		});
+		var mapType2 = new BMap.MapTypeControl({
+			anchor : BMAP_ANCHOR_TOP_LEFT
+		});
+
+		var overView = new BMap.OverviewMapControl();
+		var overViewOpen = new BMap.OverviewMapControl({
+			isOpen : true,
+			anchor : BMAP_ANCHOR_BOTTOM_RIGHT
+		});
+
+		map.addControl(mapType1); 			// 2D图，卫星图
+		map.addControl(mapType2); 			// 左上角，默认地图控件
+		map.addControl(overView); 			// 添加默认缩略地图控件
+		map.addControl(overViewOpen); 	// 右下角，打开
+
+// icons !
+var worning_switch = '../../ico/tuDing.gif'; // 更新报警图标，为动图
+var close_switch_high = '../../ico/highvoltage-close.jpg'; // 更新合闸图标
+var open_switch_high = '../../ico/highvoltage-open.jpg';  // 更新开闸图标
+
+var close_switch_low = '../../ico/lowvoltage-close.jpg';
+var open_switch_low = '../../ico/lowvoltage-open.jpg';
+
+var close_switch = '../../ico/voltage-close.jpg';
+
+var voltage_switch_icon_low = "../../ico/voltage-outLine_low.jpg";// 低压开关的图标
+var voltage_switch_icon_high = "../../ico/voltage-outLine_high.jpg";// 高压开关的图标
+var control_measure_switch_icon = "../../ico/control_measure_switch.jpg";// 低压开关的图标
+
+	}
+	init()
+</script>
+
