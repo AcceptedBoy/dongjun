@@ -1,6 +1,6 @@
 package com.gdut.dongjun.core.handler.msg_decoder;
 
-import java.util.Calendar;
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -13,22 +13,25 @@ import org.springframework.stereotype.Service;
 
 import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.SwitchGPRS;
-import com.gdut.dongjun.core.server.impl.TemperatureServer;
 import com.gdut.dongjun.domain.po.TemperatureDevice;
 import com.gdut.dongjun.domain.po.TemperatureMeasure;
 import com.gdut.dongjun.domain.po.TemperatureMeasureHistory;
+import com.gdut.dongjun.domain.po.TemperatureSensor;
 import com.gdut.dongjun.service.TemperatureDeviceService;
 import com.gdut.dongjun.service.TemperatureMeasureHistoryService;
 import com.gdut.dongjun.service.TemperatureMeasureService;
 import com.gdut.dongjun.service.TemperatureSensorService;
-import com.gdut.dongjun.service.TemperatureSignalService;
+import com.gdut.dongjun.util.HighVoltageDeviceCommandUtil;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.TemperatureDeviceCommandUtil;
 import com.gdut.dongjun.util.TimeUtil;
+import com.gdut.dongjun.util.UUIDUtil;
 
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.util.Attribute;
+import io.netty.util.AttributeKey;
 
 @Service
 @Sharable
@@ -38,8 +41,6 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	private TemperatureDeviceService deviceService;
 	@Autowired
 	private TemperatureMeasureService measureService;
-	@Autowired
-	private TemperatureSignalService signalService;
 	@Autowired
 	private TemperatureMeasureHistoryService measureHistoryService;
 	@Autowired
@@ -54,11 +55,20 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		if (CtxStore.get(ctx) == null) {
 			CtxStore.add(gprs);
 		}
+//		ctx.channel().writeAndFlush(new TemperatureDeviceCommandUtil().getConnection()); //发送确认报文，新版gprs不用，新版gprs直接上传总召
 	}
 
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-		CtxStore.remove(ctx);// 从Store中移除这个context
+		SwitchGPRS gprs = CtxStore.get(ctx);
+		if (gprs != null) {
+			CtxStore.remove(ctx);// 从Store中移除这个context
+			if(gprs.getId() != null) {
+				TemperatureDevice device = deviceService.selectByPrimaryKey(gprs.getId());
+				device.setOnlineTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
+				deviceService.updateByPrimaryKey(device);
+			}
+		}
 		CtxStore.printCtxStore();
 	}
 
@@ -77,21 +87,43 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	}
 
 	public void handleIdenCode(ChannelHandlerContext ctx, String data) {
-		String controlCode = data.substring(14, 16);
+		if (data.startsWith("00") && data.substring(6, 8).equals("01")) {
+			String gprsNumber = data.substring(12, 20);
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i <= 6; i+=2) {
+				String address = gprsNumber.substring(i, i+2);
+				sb.append((char)Integer.parseInt(address, 16));
+			}
+			logger.info(sb.toString() + " GPRS模块登录成功");
+			return ;
+		}
+		if (data.startsWith("00") && data.substring(6, 8).equals("03")) {
+			String gprsNumber = data.substring(12, 20);
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i <= 6; i+=2) {
+				String address = gprsNumber.substring(i, i+2);
+				sb.append((char)Integer.parseInt(address, 16));
+			}
+			logger.info(sb.toString() + " GPRS模块在线");
+			return ;
+		}
+//		if (data.startsWith("1007")) {
+//			logger.info("终端开始连接");
+//			return;
+//		}
+		if (data.length() < 20) {
+			logger.info("undefine message received!");
+			logger.error("接收到的非法数据--------------------" + data);
+			return ;
+		}
+		String controlCode = data.substring(18, 20);
 		if (data.startsWith("EB90EB90EB90") || data.startsWith("eb90eb90eb90")) {
 			/*
 			 * 读通信地址并将地址反转,确认连接
 			 */
 			logger.info("主站接收到连接");
-		}
-
-		else if (data.startsWith("1007")) {
-			/*
-			 * 终端开始连接
-			 */
-			logger.info("终端开始连接");
 			getOnlineAddress(ctx, data);
-			return;
+			ctx.channel().writeAndFlush("EB90EB90EB90" + data.substring(12, 16) + "16");
 		}
 
 		else if (controlCode.equals("64") && data.endsWith("7716")) {
@@ -154,36 +186,41 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	 * @param data
 	 */
 	private void getOnlineAddress(ChannelHandlerContext ctx, String data) {
-
+		
 		SwitchGPRS gprs = CtxStore.get(ctx);
 		/*
-		 * 当注册的高压开关的地址不为空，说明已经注册过了，不再进行相关操作
+		 * 当注册的温度开关的地址不为空，说明已经注册过了，不再进行相关操作
 		 */
-		if (gprs != null && gprs.getAddress() != null) {
+		if(gprs != null && gprs.getAddress() != null) {
 			ctx.channel().writeAndFlush(data);
 			return;
 		}
-		String address = data.substring(12, 16);
+		String address = data.substring(10, 18);
 		gprs.setAddress(address);
 
+		address = TemperatureDeviceCommandUtil.reverseString(address);
+		
 		if (gprs != null) {
-			List<TemperatureDevice> devices = deviceService
-					.selectByParameters(MyBatisMapUtil.warp("address", Integer.parseInt(address, 16)));
-			TemperatureDevice device = null;
+			/*
+			 * 根据反转后的地址查询得到TemperatureDevice的集合
+			 */
+			List<TemperatureDevice> list = deviceService
+					.selectByParameters(MyBatisMapUtil.warp("device_number", Integer.parseInt(address, 16)));
+			if (list != null && list.size() != 0) {
 
-			if (devices != null && devices.size() != 0) {
-				device = devices.get(0);
+				TemperatureDevice device = list.get(0);
 				String id = device.getId();
 				gprs.setId(id);
-				if (CtxStore.get(id) != null) {
+				
+//				TemperatureServer.totalCall(id);  //新版控制器自动上传总召报文，不用我们再发送总召报文
+				if(CtxStore.get(id) != null) {
 					CtxStore.remove(id);
 					CtxStore.add(gprs);
 				}
+			} else {
+				logger.info("this device is not registered!!");
 			}
-		} else
-			logger.info("this device is not registered!");
-		TemperatureServer.totalCall(gprs.getId()); // 连接成功后发送一次总召
-		// ctx.channel().writeAndFlush(data); //返回链接确认的报文
+		}
 	}
 
 	/**
@@ -194,45 +231,46 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	 */
 	public void handleRemoteMeasure(ChannelHandlerContext ctx, String data) {
 		logger.info("温度遥测-------" + data);
-		String variable = data.substring(16, 18);
+		String variable = data.substring(20, 22);
 		logger.info("测归一化值-------" + variable);
-		String signalAddress = data.substring(26, 30);// 信息对象地址
-		String dataList = data.substring(30, data.length() - 4);
-		String address = TemperatureDeviceCommandUtil.reverseString(data.substring(10, 14));
+		String address = data.substring(10, 18);  //地址域
+		//因为现在温度协议是直接总召报文上来，所以要在全遥测的时候检测ctx是否注册过
+		 AttributeKey<Integer> key = AttributeKey.valueOf("isRegisted");
+		 Attribute<Integer> attr = ctx.attr(key);
+		 if (null == attr.get()) {
+			 logger.info("设备上线！！！！！！！！！");
+				getOnlineAddress(ctx, data);
+				attr.set(1);
+		 }
+		 
 		String deviceId = CtxStore.getIdbyAddress(address);
-		if (variable.equals("92")) {
-			/**
-			 * 处理全遥测
-			 */
-			logger.info("解析全遥测-------" + data);
-			String[] buffer = new String[dataList.length() / 6];
-			for (int i = 0; i < dataList.length(); i += 6) {
-				String temp = dataList.substring(i, i + 6);
-				buffer[i / 6] = TemperatureDeviceCommandUtil.reverseString(temp);
-			}
-			doSaveMeasure(buffer, deviceId);
-//			String value = parseInt(buffer);
-//			TemperatureMeasure measure = new TemperatureMeasure(address, new Timestamp(System.currentTimeMillis()), 0,
-//					value);
-//			Map<String, Object> map = new HashMap<String, Object>();
-//			map.put("address", address);
-//			String deviceId = CtxStore.getIdbyAddress(address);
-//			map.put("deviceId", deviceId);
-//			measure.setId(deviceId);
-//			List<TemperatureMeasure> measureList = measureService.selectByParameters(MyBatisMapUtil.warp(map));
-//			if (measureList.size() == 0 && measureList == null)
-//				measureService.insert(measure);
-//			else
-//				measureService.updateByPrimaryKey(measure);
-//			measureHistoryService.insert(changeToMeasureHistory(measure));
-		} else {
+		if (null == deviceId || "".equals(deviceId)) {
+			return ;
+		}
+//		String deviceId = "0100";
+		if (variable.equals("01")) {
 			/**
 			 * 处理遥测变化
 			 */
 			logger.info("解析遥测变位-------" + data);
-			String value = TemperatureDeviceCommandUtil.reverseString(dataList);
+			String signalAddress = data.substring(34, 38);
+			String value = data.substring(38, 38+6);
+			value = value.substring(0, 4);
 			int tag = changeSignalAddress(signalAddress);
-			doSaveMeasureChange(value, deviceId, tag);
+			doSaveMeasure(value, deviceId, tag);
+		} else {
+			/**
+			 * 处理全遥测
+			 */
+			logger.info("解析全遥测-------" + data);
+			String dataList = data.substring(52, 16*6 + 52);  //信息元素集
+			String[] buffer = new String[dataList.length() / 6];
+			for (int i = 0; i < dataList.length(); i += 6) {
+				String temp = dataList.substring(i, i + 6);
+				buffer[i/6] = temp.substring(0, 4);
+			}
+			doSaveMeasure(buffer, deviceId);
+			ctx.channel().writeAndFlush("eb90eb90eb90" + data.substring(10, 18) + "16");	  //全遥测确认报文，提示控制器发送全遥信
 		}
 	}
 
@@ -338,160 +376,114 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	}
 
 	public Integer changeSignalAddress(String signalAddress) {
-		int address;
-		switch (signalAddress) {
-		case "4001":
-			address = 1;
-			break;
-		case "4002":
-			address = 2;
-			break;
-		case "4003":
-			address = 3;
-			break;
-		case "4004":
-			address = 4;
-			break;
-		case "4005":
-			address = 5;
-			break;
-		case "4006":
-			address = 6;
-			break;
-		case "4007":
-			address = 7;
-			break;
-		case "4008":
-			address = 8;
-			break;
-		case "4009":
-			address = 9;
-			break;
-		case "400a":
-		case "400A":
-			address = 10;
-			break;
-		case "400b":
-		case "400B":
-			address = 11;
-			break;
-		case "400c":
-		case "400C":
-			address = 12;
-			break;
-		case "400d":
-		case "400D":
-			address = 13;
-			break;
-		case "400e":
-		case "400E":
-			address = 14;
-			break;
-		case "400f":
-		case "400F":
-			address = 15;
-			break;
-		case "4010":
-			address = 16;
-			break;
-		default:
-			return null;
-		}
-		return address;
-	}
-
-//	/**
-//	 * 把遥信的开关值从字符串变为数组,为了返回给前端的
-//	 */
-//	private void string_Array(String dataList) {
-//		String[] buffer = new String[dataList.length() / 2];
-//	}
-//	
-//	/**
-//	 * 保存遥测值
-//	 * @param buffer
-//	 * @param address
-//	 */
-//	private void saveTemperatureMeasure(String[] buffer, String deviceId) {
-//		for (String value : buffer) {
-//			doSaveMeasure(value, deviceId);
+		return Integer.parseInt(signalAddress.substring(2, 4), 16);
+//		int address;
+//		switch (signalAddress) {
+//		case "4001":
+//			address = 1;
+//			break;
+//		case "4002":
+//			address = 2;
+//			break;
+//		case "4003":
+//			address = 3;
+//			break;
+//		case "4004":
+//			address = 4;
+//			break;
+//		case "4005":
+//			address = 5;
+//			break;
+//		case "4006":
+//			address = 6;
+//			break;
+//		case "4007":
+//			address = 7;
+//			break;
+//		case "4008":
+//			address = 8;
+//			break;
+//		case "4009":
+//			address = 9;
+//			break;
+//		case "400a":
+//		case "400A":
+//			address = 10;
+//			break;
+//		case "400b":
+//		case "400B":
+//			address = 11;
+//			break;
+//		case "400c":
+//		case "400C":
+//			address = 12;
+//			break;
+//		case "400d":
+//		case "400D":
+//			address = 13;
+//			break;
+//		case "400e":
+//		case "400E":
+//			address = 14;
+//			break;
+//		case "400f":
+//		case "400F":
+//			address = 15;
+//			break;
+//		case "4010":
+//			address = 16;
+//			break;
+//		default:
+//			return null;
 //		}
-//	}
+//		return address;
+	}
 
 	/**
 	 * 保存遥测变位
 	 * @param deviceId
 	 * @param value
 	 */
-	private void doSaveMeasureChange(String value, String deviceId, int tag) {
-		measureHistoryService.insert(new TemperatureMeasureHistory(deviceId, TimeUtil.timeFormat(new Date()), tag, value.substring(2,  6)));
+	private void doSaveMeasure(String value, String deviceId, int tag) {
+		measureHistoryService.insert(new TemperatureMeasureHistory(UUIDUtil.getUUID(), deviceId, new Timestamp(System.currentTimeMillis()), tag, Integer.parseInt(value, 16)*10 + ""));
 		doSaveMeasure0(value, deviceId, tag);
 	}
-
-//	/**
-//	 * 检查传感器在数据库中是否已经有记录，检查传感器的外键是否指向当前温度设备
-//	 * @param sensorAddress
-//	 * @param deviceId
-//	 */
-//	private void isSensorExist(String sensorAddress, String deviceId) {
-//		Map<String, Object> map = new HashMap<String, Object>();
-//		map.put("address", sensorAddress);
-//		List<TemperatureSensor> list = sensorService.selectByParameters(MyBatisMapUtil.warp(map));
-//		if(list.size() == 0) 
-//			sensorService.insert(new TemperatureSensor(UUIDUtil.getUUID(), sensorAddress, deviceId));
-//		else {
-//			TemperatureSensor sensor = list.get(0);
-//			if (!sensor.getDeviceId().equals(deviceId)){
-//				sensor.setDeviceId(deviceId);
-//				sensorService.updateByPrimaryKey(sensor);
-//			}
-//		}
-//	}
-	
-//	/**
-//	 * 保存遥测数据
-//	 * @param value
-//	 * @param deviceId
-//	 */
-//	public void doSaveMeasure(String value, String deviceId) {
-//		Map<String, Object> qureyMap = new HashMap<String, Object>();
-//		Calendar cal = Calendar.getInstance();
-//		String sensorAddress = value.substring(0, 4);
-//		String sensorValue = value.substring(4, 6);
-//		isSensorExist(sensorAddress, deviceId);
-//		qureyMap.put("id", deviceId);
-//		qureyMap.put("sensor_address", sensorAddress);
-//		List<TemperatureMeasure> measureList = measureService.selectByParameters(MyBatisMapUtil.warp(qureyMap));
-//		if (measureList.size() == 0) {
-//			measureService.insert(new TemperatureMeasure(UUIDUtil.getUUID(), deviceId, new Timestamp(cal.getTimeInMillis()), sensorAddress, sensorValue));
-//		}
-//		else {
-//			TemperatureMeasure measure = measureList.get(0);
-//			measure.setValue(sensorValue);
-//			measureService.updateByPrimaryKey(measure);
-//		}
-//		measureHistoryService.insert(new TemperatureMeasureHistory(UUIDUtil.getUUID(), deviceId, new Timestamp(cal.getTimeInMillis()), sensorAddress, sensorValue));
-//	}
 	
 	public void doSaveMeasure(String[] value, String deviceId) {
+		List<TemperatureSensor> sensorList = sensorService.selectByParameters(MyBatisMapUtil.warp("device_id", deviceId));
+		
 		for (int i = 1; i <= value.length; i++) {
-			measureHistoryService.insert(new TemperatureMeasureHistory(deviceId, TimeUtil.timeFormat(new Date()), i, value[i-1].substring(4,  6)));
+			if (value.equals("0000"))
+				continue;
+			isSensorExist(sensorList, i, deviceId);
+			measureHistoryService.insert(
+					new TemperatureMeasureHistory(UUIDUtil.getUUID(), deviceId, new Timestamp(System.currentTimeMillis()), i, Integer.parseInt(value[i-1], 16)*10 + ""));
 			doSaveMeasure0(value[i-1], deviceId, i);
 		}
 	}
 	
+	public void isSensorExist(List<TemperatureSensor> sensorList, int tag, String deviceId) {
+		for (TemperatureSensor sensor : sensorList) {
+			if (sensor.getTag() == tag) {
+				return ;
+			}
+		}
+		sensorService.insert(new TemperatureSensor(UUIDUtil.getUUID(), tag, deviceId, tag + "号传感器"));
+	}
+	
 	public void doSaveMeasure0(String value, String deviceId, int tag) {
+
 		Map<String, Object> queryMap = new HashMap<String, Object>();
 		queryMap.put("device_id", deviceId);
 		queryMap.put("tag", tag);
 		List<TemperatureMeasure> list = measureService.selectByParameters(MyBatisMapUtil.warp(queryMap));
 		if (list.size() == 0) {
-			measureService.insert(new TemperatureMeasure(deviceId, TimeUtil.timeFormat(new Date()), tag, value.substring(2, 6)));
+			measureService.insert(new TemperatureMeasure(UUIDUtil.getUUID(), deviceId, new Timestamp(System.currentTimeMillis()), tag, Integer.parseInt(value, 16)*10 + ""));
 		}
 		else {
 			TemperatureMeasure measure = list.get(0);
-			measure.setDate(TimeUtil.timeFormat(new Date()));
-			measure.setValue(value.substring(2, 6));
+			measure.setDate(new Timestamp(System.currentTimeMillis()));
+			measure.setValue("" + Integer.parseInt(value, 16)*10);
 			measureService.updateByPrimaryKey(measure);
 		}
 	}

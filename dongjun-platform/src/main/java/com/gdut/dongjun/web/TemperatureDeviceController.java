@@ -219,10 +219,10 @@ public class TemperatureDeviceController {
 		String relativePath = ClassLoaderUtil.getExtendResource("../",
 				"spring-boot_mybatis_bootstrap").toString();
 
-//		if ("".equals(relativePath)) {
-//
-//			return null;
-//		}
+		if ("".equals(relativePath)) {
+
+			return null;
+		}
 
 		String realPath = relativePath.replace("/", "\\");
 		File file = new File(realPath);

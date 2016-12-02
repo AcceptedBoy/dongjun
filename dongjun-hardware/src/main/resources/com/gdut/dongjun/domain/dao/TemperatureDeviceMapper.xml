@@ -44,7 +44,7 @@
 
 	<insert id="insert" parameterType="com.gdut.dongjun.domain.po.TemperatureDevice">
 		insert into temperature_device
-		(#{sql})
+		(id, name, address, sim_number, device_number, add_time, available_time, online_time, group_id)
 		values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
 		#{address,jdbcType=VARCHAR},
 		#{simNumber, jdbcType=VARCHAR},
@@ -91,7 +91,7 @@
 				#{deviceNumber, jdbcType=VARCHAR},
 			</if>
 			<if test="onlineTime != null">
-				#{onlieTime, jdbcType=VARCHAR},
+				#{onlineTime, jdbcType=VARCHAR},
 			</if>
 			<if test="simNumber != null">
 				#{simNumber, jdbcType=VARCHAR},
@@ -136,7 +136,7 @@
 				group_id = #{groupId, jdbcType=INTEGER}
 			</if>
 			<if test="onlineTime != null">
-				online_time = #{onlieTime, jdbcType=VARCHAR},
+				online_time = #{onlineTime, jdbcType=VARCHAR},
 			</if>
 			<if test="simNumber != null">
 				sim_number = #{simNumber, jdbcType=VARCHAR},
@@ -156,7 +156,7 @@
 		available_time = #{availableTime, jdbcType=VARCHAR},
 		group_id = #{groupId, jdbcType=INTEGER},
 		sim_number = #{simNumber, jdbcType=VARCHAR},
-		online_time = #{onlieTime, jdbcType=VARCHAR},
+		online_time = #{onlineTime, jdbcType=VARCHAR},
 		device_number = #{deviceNumber, jdbcType=VARCHAR}
 		where id = #{id,jdbcType=VARCHAR}
 	</update>

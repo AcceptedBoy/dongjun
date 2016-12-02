@@ -300,7 +300,7 @@ public class HighVoltageSwitchController {
 		// 3.处理目标文件路径
 		String fileName = "高压开关信息";
 		String relativePath = ClassLoaderUtil.getExtendResource("../",
-				"spring-boot_mybatis_bootstrap").toString();
+				"dongjun-website").toString();
 
 		if ("".equals(relativePath)) {
 
@@ -340,7 +340,7 @@ public class HighVoltageSwitchController {
 		// 3.处理目标文件路径
 		String fileName = "高压开关信息";
 		String relativePath = ClassLoaderUtil.getExtendResource("../",
-				"spring-boot_mybatis_bootstrap").toString();
+				"dongjun-website").toString();
 		String realPath = relativePath.replace("/", "\\");
 		File file = new File(realPath);
 		if (!file.exists()) {

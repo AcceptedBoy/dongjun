@@ -36,31 +36,31 @@ public class TemperatureServer extends NetServer {
 	}
 
 	/**
-	 * 设置报警事件监听，每30分钟发送一次总召
+	 * 设置报警事件监听，每30分钟发送一次总召，因为新的协约不要求主动发总召报文，故删去
 	 */
 	@Override
 	protected void hitchEventSpy() {
-		List<TemperatureDevice> devices = temperatureDeviceService.selectByParameters(null);
-		if (devices != null) {
-			for (TemperatureDevice device : devices) {
-				if (device.getId() != null && CtxStore.isReady(device.getId())) {
-					totalCall(device);
-				}
-			}
-		}
+//		List<TemperatureDevice> devices = temperatureDeviceService.selectByParameters(null);
+//		if (devices != null) {
+//			for (TemperatureDevice device : devices) {
+//				if (device.getId() != null && CtxStore.isReady(device.getId())) {
+//					totalCall(device);
+//				}
+//			}
+//		}
 	}
 
-	public static String totalCall(TemperatureDevice device) {
-		return totalCall(device.getId());
-	}
-
-	public static String totalCall(String id) {
-		SwitchGPRS gprs = CtxStore.get(id);
-		String msg = new TemperatureDeviceCommandUtil(gprs.getAddress()).getTotalCall();
-		logger.info("总召激活地址：" + gprs.getAddress() + "---" + msg);
-		gprs.getCtx().writeAndFlush(msg);
-		return msg;
-	}
+//	public static String totalCall(TemperatureDevice device) {
+//		return totalCall(device.getId());
+//	}
+//
+//	public static String totalCall(String id) {
+//		SwitchGPRS gprs = CtxStore.get(id);
+//		String msg = new TemperatureDeviceCommandUtil(gprs.getAddress()).getTotalCall();
+//		logger.info("总召激活地址：" + gprs.getAddress() + "---" + msg);
+//		gprs.getCtx().writeAndFlush(msg);
+//		return msg;
+//	}
 
 	@Override
 	protected void timedCVReadTask() {
