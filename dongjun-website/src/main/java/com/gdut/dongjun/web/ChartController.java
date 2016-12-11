@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.gdut.dongjun.service.device.current.HighVoltageCurrentService;
+import com.gdut.dongjun.service.device.voltage.HighVoltageVoltageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,12 +15,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.gdut.dongjun.domain.vo.ChartData;
 import com.gdut.dongjun.domain.vo.SwitchTableData;
-import com.gdut.dongjun.service.ControlMearsureCurrentService;
-import com.gdut.dongjun.service.ControlMearsureVoltageService;
-import com.gdut.dongjun.service.HighVoltageCurrentService;
-import com.gdut.dongjun.service.HighVoltageVoltageService;
-import com.gdut.dongjun.service.LowVoltageCurrentService;
-import com.gdut.dongjun.service.LowVoltageVoltageService;
+import com.gdut.dongjun.service.device.current.ControlMearsureCurrentService;
+import com.gdut.dongjun.service.device.voltage.ControlMearsureVoltageService;
+
+import com.gdut.dongjun.service.device.current.LowVoltageCurrentService;
+import com.gdut.dongjun.service.device.voltage.LowVoltageVoltageService;
 import com.gdut.dongjun.util.MapUtil;
 
 @Controller

@@ -3,9 +3,17 @@ package com.gdut.dongjun.web;
 import com.gdut.dongjun.domain.HighVoltageStatus;
 import com.gdut.dongjun.domain.po.*;
 import com.gdut.dongjun.service.*;
-import com.gdut.dongjun.service.rmi.HardwareService;
+import com.gdut.dongjun.service.common.DeviceBinding;
+import com.gdut.dongjun.service.device.DeviceCommonService;
+import com.gdut.dongjun.service.device.current.ControlMearsureCurrentService;
+import com.gdut.dongjun.service.device.current.HighVoltageCurrentService;
+import com.gdut.dongjun.service.device.current.LowVoltageCurrentService;
+import com.gdut.dongjun.service.device.event.HighVoltageHitchEventService;
+import com.gdut.dongjun.service.device.voltage.ControlMearsureVoltageService;
+import com.gdut.dongjun.service.device.voltage.HighVoltageVoltageService;
+import com.gdut.dongjun.service.device.voltage.LowVoltageVoltageService;
+import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 import com.gdut.dongjun.thread.manager.DefaultThreadManager;
-import com.gdut.dongjun.thread.manager.MsgPushThreadManager;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.MessagingException;
@@ -16,10 +24,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
-import java.rmi.RemoteException;
-import java.util.List;
+
 
 @Controller
 @RequestMapping("/dongjun")
@@ -27,24 +33,10 @@ import java.util.List;
 public class CommandController {
 
 	@Autowired
-	private LowVoltageCurrentService currentService;
+	private DeviceCommonService deviceCommonService;
+
 	@Autowired
-	private LowVoltageVoltageService voltageService;
-	@Autowired
-	private HighVoltageCurrentService currentService2;
-	@Autowired
-	private HighVoltageVoltageService voltageService2;
-	@Autowired
-	private ControlMearsureCurrentService currentService3;
-	@Autowired
-	private ControlMearsureVoltageService voltageService3;
-	@Autowired
-	private HighVoltageHitchEventService eventService;
-	@Autowired
-	private HighSwitchUserService highOperatorService;
-	
-	@Resource(name="hardwareService")
-	private HardwareService hardwareService;
+	private HardwareServiceClient hardwareClient;
 	
 	private final SimpMessagingTemplate template;
 
@@ -83,15 +75,16 @@ public class CommandController {
 	 */
 	@RequestMapping("/get_active_switch_ignore_change")
 	@ResponseBody
-	public void getActiveSwitchIgnoreChange(HttpSession session) throws MessagingException, RemoteException {
+	public void getActiveSwitchIgnoreChange(HttpSession session) throws MessagingException {
 		
 		DefaultThreadManager.delayExecute(new Runnable() {
 			@Override
 			public void run() {
 				try {
 					template.convertAndSend("/topic/get_active_switch_status", 
-							hardwareService.getActiveSwitchStatus());
-				} catch (MessagingException | RemoteException e) {
+							//hardwareService.getActiveSwitchStatus());
+							hardwareClient.getService().getActiveSwitchStatus());
+				} catch (MessagingException e) {
 					e.printStackTrace();
 				}
 			}
@@ -102,15 +95,15 @@ public class CommandController {
 	@RequestMapping("/control_switch")
 	@ResponseBody
 	public String controlSwitch(@RequestParam(required = true) String switchId,
-			int sign, int type) throws RemoteException {
+			int sign, int type) {
 		
-		String address = hardwareService.getOnlineAddressById(switchId);
+		String address = hardwareClient.getService().getOnlineAddressById(switchId);
 		String msg = null;
 
 		if(sign == 0) { //开
-			msg = hardwareService.generateOpenSwitchMessage(address, type);
+			msg = hardwareClient.getService().generateOpenSwitchMessage(address, type);
 		} else { //合
-			msg = hardwareService.generateCloseSwitchMessage(address, type);
+			msg = hardwareClient.getService().generateCloseSwitchMessage(address, type);
 		}
 		
 		// 发送报文
@@ -124,8 +117,8 @@ public class CommandController {
 	
 	@RequestMapping("/read_voltage")
 	@ResponseBody
-	public void readVoltage(@RequestParam(required = true) final String switchId,
-			final String type, HttpSession session) {
+	public void readVoltage(@RequestParam(required = true) String switchId,
+			 String type, HttpSession session) {
 		
 		User user = null;
 		if(session.getAttribute("currentUser") != null) {
@@ -135,38 +128,34 @@ public class CommandController {
 		}
 		/*MsgPushThreadManager.createScheduledPoolDaemonThread(
 				getVoltageRunnable(user.getName(), type, switchId), 6, user.getId());*/
-		MsgPushThreadManager.createScheduledPoolDaemonThread(
-				getVoltageRunnable(user.getName(), type, switchId), 6, user.getId());
+		template.convertAndSendToUser(user.getName(), "/queue/read_voltage",
+				deviceCommonService.getVoltageService(Integer.valueOf(type)).getVoltage(switchId));
 	}
 	
 	@RequestMapping("/stop_read_param")
 	@ResponseBody
-	public void stopReadVoltage(HttpSession session) {
-		
-		User user = null;
+	public void stopReadParam(HttpSession session) {
+
 		if(session.getAttribute("currentUser") != null) {
-			user = (User) session.getAttribute("currentUser");
-		} else {
-			return;
+			DeviceBinding.unbinding((User) session.getAttribute("currentUser"));
 		}
-		MsgPushThreadManager.finishScheduledByUser(user.getId());
 	}
 
 	/**
 	 * TODO 
 	 */
-	private Runnable getVoltageRunnable(final String userName, 
+	/*private Runnable getVoltageRunnable(final String userName,
 			final String type, final String switchId) {
 		return new Runnable() {
 			public void run() {
 				template.convertAndSendToUser(userName, "/queue/read_voltage", 
 						getVoltage(type, switchId));
-				/*template.convertAndSendToUser(userName, "/queue/read_voltage", 
-						getVoltVisual());*/
+				*//*template.convertAndSendToUser(userName, "/queue/read_voltage",
+						getVoltVisual());*//*
 			}
 		};
-	}
-	
+	}*/
+	/*
 	private Integer[] getVoltage(String type, String switchId) {
 		Integer[] deStrings = new Integer[3];
 		switch (type) {
@@ -242,7 +231,7 @@ public class CommandController {
 		}
 		return deStrings;
 	}
-
+*/
 	/**
 	 * 通过前端发送请求，获取开关的id，从而读取开关电压之，再根据socket的订阅，定点推送到特定的人
 	 */
@@ -255,25 +244,27 @@ public class CommandController {
 		if(session.getAttribute("currentUser") != null) {
 			user = (User) session.getAttribute("currentUser");
 		}
-		MsgPushThreadManager.createScheduledPoolDaemonThread(
-				getCurrentRunnable(user.getName(), type, switchId), 6, user.getId());
+		template.convertAndSendToUser(user.getName(), "/queue/read_current",
+				deviceCommonService.getCurrentService(Integer.valueOf(type)).readCurrent(switchId));
+		//MsgPushThreadManager.createScheduledPoolDaemonThread(
+		//		getCurrentRunnable(user.getName(), type, switchId), 6, user.getId());
 	}
 	
 	/**
 	 * TODO
 	 */
-	private Runnable getCurrentRunnable(final String userName,
+	/*private Runnable getCurrentRunnable(final String userName,
 			final String type, final String switchId) {
 		return new Runnable() {
 			public void run() {
 				template.convertAndSendToUser(userName, "/queue/read_current", 
 						getCurrent(type, switchId));
-				/*template.convertAndSendToUser(userName, "/queue/read_current", 
-						getCurrVisual());*/
+				*//*template.convertAndSendToUser(userName, "/queue/read_current",
+						getCurrVisual());*//*
 			}
 		};
-	}
-	
+	}*/
+	/*
 	private Integer[] getCurrent(String type, String switchId) {
 		Integer[] deStrings = new Integer[3];
 		switch (type) {
@@ -302,22 +293,7 @@ public class CommandController {
 			}
 			break;
 		case "1":// 高压开关
-			// 从数据库中查询结果
-			List<HighVoltageCurrent> cliList2 = currentService2
-					.getRecentlyCurrent(switchId, "A");
-			if(cliList2 != null && cliList2.size() != 0) {
-				deStrings[0] = cliList2.get(0).getValue();
-			}
-			cliList2 = currentService2
-					.getRecentlyCurrent(switchId, "B");
-			if(cliList2 != null && cliList2.size() != 0) {
-				deStrings[1] = cliList2.get(0).getValue();
-			}
-			cliList2 = currentService2
-					.getRecentlyCurrent(switchId, "C");
-			if(cliList2 != null && cliList2.size() != 0) {
-				deStrings[2] = cliList2.get(0).getValue();
-			}
+
 			break;
 		case "2":// 管控开关
 			// 从数据库中查询结果
@@ -348,13 +324,12 @@ public class CommandController {
 			break;
 		}
 		return deStrings;
-	}
+	}*/
 
 	@RequestMapping("/read_lvswitch_status")
 	@ResponseBody
-	public Object read_lvswitch_status(String id) throws RemoteException {
-
-		return hardwareService.getSwitchGPRS(id);
+	public Object read_lvswitch_status(String id) {
+		return hardwareClient.getService().getSwitchGPRS(id);
 	}
 
 	/**
@@ -369,15 +344,23 @@ public class CommandController {
 	@RequestMapping("/read_hvswitch_status")
 	@ResponseBody
 	public void read_hvswitch_status(final String id, HttpSession session) {
-		
+
 		final User user;
-		if(session.getAttribute("currentUser") != null) {
+		if (session.getAttribute("currentUser") != null) {
 			user = (User) session.getAttribute("currentUser");
 		} else {
 			return;
 		}
-		
-		MsgPushThreadManager.createScheduledPoolDaemonThread(
+
+		HighVoltageStatus status = hardwareClient.getService().getStatusbyId(id);
+		if (status != null) {
+			template.convertAndSendToUser(user.getName(),
+					"/queue/read_hv_status", status);
+		}
+
+		DeviceBinding.binding(user, id);
+	}
+		/*MsgPushThreadManager.createScheduledPoolDaemonThread(
 				new Runnable() {
 
 					@Override
@@ -385,24 +368,24 @@ public class CommandController {
 						try {
 							
 							//TODO
-							HighVoltageStatus status = hardwareService.getStatusbyId(id);
+							HighVoltageStatus status = hardwareClient.getService().getStatusbyId(id);
 							if(status != null) {
 								template.convertAndSendToUser(user.getName(), 
 										"/queue/read_hv_status", status);
 							}
-							/*template.convertAndSendToUser(user.getName(), 
-									"/queue/read_hv_status", getStatusVisual());*/
-						} catch (MessagingException | RemoteException e1) {
+							*//*template.convertAndSendToUser(user.getName(),
+									"/queue/read_hv_status", getStatusVisual());*//*
+						} catch (MessagingException e1) {
 							e1.printStackTrace();
 						}
 					}
 				}, 6, user.getId());
 		
-	}
-	
-	//**************************************
-	// TODO 虚拟数据获取
-	//**************************************
+	}*/
+
+		//**************************************
+		// TODO 虚拟数据获取
+		//**************************************
 	
 	/*public HighVoltageStatus getStatusVisual() {
 		

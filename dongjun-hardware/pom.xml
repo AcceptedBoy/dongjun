@@ -3,12 +3,12 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.gdut</groupId>
-	<artifactId>dongjun_hardware</artifactId>
+	<artifactId>dongjun-hardware</artifactId>
 	<version>1.0-SNAPSHOT</version>
 
     <packaging>jar</packaging>
 
-	<name>dongjun_hardware</name>
+	<name>dongjun-hardware</name>
 	<url>http://maven.apache.org</url>
 
 	<parent>
@@ -16,6 +16,11 @@
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>1.2.5.RELEASE</version>
 	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<cxf.version>3.1.6</cxf.version>
+	</properties>
 
 	<!-- 控制统一的版本号 -->
 	<dependencyManagement>
@@ -163,6 +168,40 @@
 		    <artifactId>jedis</artifactId>
 		    <type>jar</type>
 		    <scope>compile</scope>
+		</dependency>
+
+		<!-- Apache CXF -->
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-frontend-jaxws</artifactId>
+			<version>${cxf.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-transports-http</artifactId>
+			<version>${cxf.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-frontend-jaxrs</artifactId>
+			<version>3.1.7</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-jaxrs</artifactId>
+			<version>1.9.13</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-rs-client</artifactId>
+			<version>RELEASE</version>
+		</dependency>
+
+		<!-- ehcache -->
+		<dependency>
+			<groupId>net.sf.ehcache</groupId>
+			<artifactId>ehcache</artifactId>
+			<version>2.10.1</version>
 		</dependency>
 	</dependencies>
 

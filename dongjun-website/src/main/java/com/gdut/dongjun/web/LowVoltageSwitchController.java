@@ -19,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.gdut.dongjun.domain.po.LowVoltageSwitch;
-import com.gdut.dongjun.service.LowVoltageSwitchService;
+import com.gdut.dongjun.service.device.LowVoltageSwitchService;
 import com.gdut.dongjun.util.ClassLoaderUtil;
 import com.gdut.dongjun.util.DownloadAndUploadUtil;
 import com.gdut.dongjun.util.MapUtil;

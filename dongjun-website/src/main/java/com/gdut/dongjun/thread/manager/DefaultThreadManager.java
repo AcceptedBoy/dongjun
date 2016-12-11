@@ -6,11 +6,13 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import com.gdut.dongjun.thread.factory.SimpleThreadFactory;
 
-public class DefaultThreadManager {
+public final class DefaultThreadManager {
 
-	protected static ScheduledExecutorService scheduledPool = Executors.newScheduledThreadPool(15);
+	protected static ScheduledExecutorService scheduledPool =
+			Executors.newScheduledThreadPool(Runtime.getRuntime().availableProcessors() + 1);
 	
-	protected static ExecutorService fixedPool = Executors.newFixedThreadPool(20);
+	protected static ExecutorService fixedPool = Executors.newFixedThreadPool(
+			Runtime.getRuntime().availableProcessors() + 1);
 	
 	protected static SimpleThreadFactory factory = new SimpleThreadFactory();
 	

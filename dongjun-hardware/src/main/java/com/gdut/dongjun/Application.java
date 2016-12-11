@@ -1,33 +1,37 @@
 package com.gdut.dongjun;
 
-import com.gdut.dongjun.service.rmi.HardwareService;
-import com.gdut.dongjun.service.rmi.impl.HardwareServiceImpl;
+import com.gdut.dongjun.service.webservice.server.HardwareService;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import org.apache.cxf.transport.servlet.CXFServlet;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
+import org.springframework.beans.factory.parsing.Location;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
+import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.context.annotation.ImportResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.remoting.rmi.RmiServiceExporter;
+import org.springframework.remoting.rmi.RmiProxyFactoryBean;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
 import javax.sql.DataSource;
 import java.beans.PropertyVetoException;
 import java.io.IOException;
-import java.rmi.RemoteException;
 
 @SpringBootApplication
 @EnableAspectJAutoProxy
+@ImportResource("classpath:hardware-service.xml")
 public class Application extends SpringBootServletInitializer {
 	
 	@Autowired
@@ -143,34 +147,11 @@ public class Application extends SpringBootServletInitializer {
 		}
 		return sst;
 	}
-	
-    // Configure the embedded tomcat to use same settings as default standalone tomcat deploy
-    @Bean
-    public EmbeddedServletContainerFactory embeddedServletContainerFactory() {
-        // Made to match the context path when deploying to standalone tomcat- can easily be kept in sync w/ properties
-        TomcatEmbeddedServletContainerFactory factory = new TomcatEmbeddedServletContainerFactory("/ws-server-1.0", 8080);
-        return factory;
-    }
-    
-    /**
-     * rmi 配置
-     * @throws RemoteException 
-     */
-    @Bean
-    public HardwareService hardwareService() throws RemoteException {
-    	return new HardwareServiceImpl();
-    }
-    
-    @Bean
-    public RmiServiceExporter rmiServiceExporter() throws RemoteException {
-    	RmiServiceExporter exporter = new RmiServiceExporter();
-    	exporter.setServiceName("HardwareService");
-    	exporter.setRegistryPort(9998);
-    	exporter.setServicePort(9999);	//不指定就随机
-    	exporter.setServiceInterface(HardwareService.class);
-    	exporter.setService(hardwareService());
-    	return exporter;
-    }
+
+	@Bean
+	public ServletRegistrationBean cxfServlet() {
+		return new ServletRegistrationBean(new CXFServlet(), "/dongjun-hardware/ws/*");
+	}
 
 	public static void main(String[] args) throws Exception {
 		//System.setProperty("java.rmi.server.hostname", "115.28.7.40");

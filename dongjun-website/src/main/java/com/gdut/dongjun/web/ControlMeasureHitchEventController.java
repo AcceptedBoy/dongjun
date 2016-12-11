@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.gdut.dongjun.domain.po.ControlMearsureHitchEvent;
-import com.gdut.dongjun.service.ControlMearsureHitchEventService;
+import com.gdut.dongjun.service.device.event.ControlMearsureHitchEventService;
 import com.gdut.dongjun.util.MapUtil;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 

@@ -6,9 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 
+import com.gdut.dongjun.service.device.HighVoltageSwitchService;
+import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,9 +20,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.gdut.dongjun.domain.po.HighVoltageHitchEvent;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.vo.HighVoltageHitchEventVo;
-import com.gdut.dongjun.service.HighVoltageHitchEventService;
-import com.gdut.dongjun.service.HighVoltageSwitchService;
-import com.gdut.dongjun.service.rmi.HardwareService;
+import com.gdut.dongjun.service.device.event.HighVoltageHitchEventService;
+
 import com.gdut.dongjun.util.MapUtil;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.TimeUtil;
@@ -36,13 +36,13 @@ public class HighVoltageHitchEventController {
 	@Autowired
 	private HighVoltageSwitchService switchService;
 
-	@Resource(name="hardwareService")
-	private HardwareService hardwareService;
-
 	@RequestMapping("/all_switch_event")
 	public String forwardEvent() {
 		return "all_switch_event";
 	}
+
+	@Autowired
+	private HardwareServiceClient hardwareClient;
 
 	/**
 	 * 
@@ -126,7 +126,7 @@ public class HighVoltageHitchEventController {
 	@ResponseBody
 	public Object ignoreHitchEvent(@RequestParam(required = true)String switchId, HttpSession session) throws RemoteException {
 		
-		if(hardwareService.changeCtxOpen(switchId)) {
+		if(hardwareClient.getService().changeCtxOpen(switchId)) {
 			HighVoltageHitchEvent event = hitchEventService.getRecentHitchEvent(switchId);
 			if(event != null) {
 				event.setSolveWay("����");

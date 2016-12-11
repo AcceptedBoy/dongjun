@@ -6,11 +6,13 @@ import java.util.Map;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import static com.gdut.dongjun.thread.manager.DefaultThreadManager.scheduledPool;
+
 /**
  * @author AcceptedBoy
  *
  */
-public class MsgPushThreadManager extends DefaultThreadManager {
+public class MsgPushThreadManager {
 
 	/**
 	 * 因为在业务中，一个用户id可能有多个线程同时运行，所以值采用list容器
@@ -82,7 +84,7 @@ public class MsgPushThreadManager extends DefaultThreadManager {
 	private static void removeScheduledByUser(String userId) {
 		scheduledMap.put(userId, new LinkedList<ScheduledFuture<?>>());
 	}
-	
+
 	public static void shutdown() {
 		scheduledMap = null; //help GC
 		scheduledPool.shutdown();
@@ -90,11 +92,5 @@ public class MsgPushThreadManager extends DefaultThreadManager {
 	
 	public int getIntervalSecond() {
 		return intervalSecond;
-	}
-	
-	@Override
-	protected void finalize() throws Throwable {
-		shutdown();
-		super.finalize();
 	}
 }

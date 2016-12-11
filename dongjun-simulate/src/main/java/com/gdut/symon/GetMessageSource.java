@@ -74,7 +74,7 @@ public class GetMessageSource {
 
     private static void getSource() throws IOException {
         BufferedReader br = new BufferedReader(
-                new InputStreamReader(new FileInputStream("/home/symon/myApp.log.2016-11-07.log"),
+                new InputStreamReader(new FileInputStream("myApp.log.2016-11-07.log"),
                         "gb2312"));
         /*BufferedWriter bw = new BufferedWriter(
                 new OutputStreamWriter(new FileOutputStream("/home/symon/1.txt"),

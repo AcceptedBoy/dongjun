@@ -25,6 +25,7 @@ import com.gdut.dongjun.domain.po.HighVoltageHitchEvent;
 import com.gdut.dongjun.domain.po.HighVoltageSwitch;
 import com.gdut.dongjun.domain.po.HighVoltageVoltage;
 import com.gdut.dongjun.service.*;
+import com.gdut.dongjun.service.webservice.client.WebsiteServiceClient;
 import com.gdut.dongjun.util.*;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
@@ -88,6 +89,9 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 
 	@Autowired
 	private HighVoltageSwitchService switchService;
+
+	@Autowired
+	private WebsiteServiceClient websiteClient;
 
 
 	public HighVoltageDataReceiver() {
@@ -351,7 +355,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			s.setYao_kong_fu_gui(getStr0Or01(data, 88, 90));
 
 			logger.info("状态变为-----------" + new_status);
-
+			websiteClient.getService().callbackDeviceChange(id, 1);
 		} else {
 			logger.error("there is an error in catching hitch event!");
 		}
@@ -396,6 +400,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		String id = CtxStore.getIdbyAddress(address);
 		if (id != null) {
 			saveCV(id, String.valueOf(data));
+			websiteClient.getService().callbackDeviceChange(id, 1);
 		} else {
 			logger.error("there is an error in saving CV!");
 		}
@@ -533,7 +538,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 				s = list.get(0);
 				String id = s.getId();
 				gprs.setId(id);
-				
+				websiteClient.getService().callbackDeviceChange(id, 1);
 				/*
 				 * 这个地方是开始对bug的一个测试，当开关从跳闸到合闸的时候，无法及时获取，只能
 				 * 这样替换ctx才能进行状态更新

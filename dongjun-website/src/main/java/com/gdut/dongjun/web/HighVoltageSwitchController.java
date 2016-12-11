@@ -3,14 +3,14 @@ package com.gdut.dongjun.web;
 import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.domain.po.HighVoltageSwitch;
 import com.gdut.dongjun.domain.vo.AvailableHighVoltageSwitch;
-import com.gdut.dongjun.service.HighVoltageSwitchService;
-import com.gdut.dongjun.service.rmi.HardwareService;
+
+import com.gdut.dongjun.service.device.HighVoltageSwitchService;
+import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 import com.gdut.dongjun.util.*;
 import com.gdut.dongjun.webservice.Constant;
 import com.gdut.dongjun.webservice.client.CommonServiceClient;
 import com.gdut.dongjun.webservice.util.JaxrsClientUtil;
 import org.apache.log4j.Logger;
-import org.apache.poi.ss.formula.functions.T;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.io.File;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -38,9 +37,9 @@ public class HighVoltageSwitchController {
 
 	@Autowired
 	private HighVoltageSwitchService switchService;
-	
-	@Resource(name="hardwareService")
-	private HardwareService hardwareService;
+
+	@Autowired
+	private HardwareServiceClient hardwareClient;
 
 	@Resource
 	public void setClient(Constant constant) {
@@ -165,16 +164,15 @@ public class HighVoltageSwitchController {
 		if(id == null) {
 			return false;
 		}
-		try {
-			List<SwitchGPRS> list = hardwareService.getCtxInstance();
-			for(SwitchGPRS gprs : list) {
-				if(gprs.getId() != null && gprs.getId().equals(id)) {
-					return true;
-				}
+
+		//List<SwitchGPRS> list = hardwareService.getCtxInstance();
+		List<SwitchGPRS> list = hardwareClient.getService().getCtxInstance();
+		for(SwitchGPRS gprs : list) {
+			if(gprs.getId() != null && gprs.getId().equals(id)) {
+				return true;
 			}
-		} catch (RemoteException e) {
-			e.printStackTrace();
 		}
+
 		return false;
  	}
 	

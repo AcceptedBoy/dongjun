@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.gdut.dongjun.domain.po.ControlMearsureSwitch;
-import com.gdut.dongjun.service.ControlMearsureSwitchService;
+import com.gdut.dongjun.service.device.ControlMearsureSwitchService;
 import com.gdut.dongjun.util.MapUtil;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.UUIDUtil;
