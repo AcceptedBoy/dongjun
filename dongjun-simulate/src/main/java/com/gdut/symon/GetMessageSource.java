@@ -13,6 +13,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static java.net.InetAddress.getLocalHost;
+import static javafx.scene.input.KeyCode.G;
 
 /**
  * Created by symon on 16-11-15.
@@ -73,8 +74,10 @@ public class GetMessageSource {
     }
 
     private static void getSource() throws IOException {
+        String filePath = GetMessageSource.class.getResource("/file/myApp.log.2016-11-07.log").getPath();
         BufferedReader br = new BufferedReader(
-                new InputStreamReader(new FileInputStream("myApp.log.2016-11-07.log"),
+                new InputStreamReader(new FileInputStream(
+                        filePath),
                         "gb2312"));
         /*BufferedWriter bw = new BufferedWriter(
                 new OutputStreamWriter(new FileOutputStream("/home/symon/1.txt"),
