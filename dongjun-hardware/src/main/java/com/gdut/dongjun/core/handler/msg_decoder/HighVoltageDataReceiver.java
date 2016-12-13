@@ -229,6 +229,9 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			if(index != -1) {
 				handleIdenCode(ctx, ArrayUtils.subarray(data, 0, index));
 				data = ArrayUtils.subarray(data, index, data.length);
+			} else {
+				//permit the unsolved str like "681680" that could cause endless loop.
+				break;
 			}
 		}
 	}
