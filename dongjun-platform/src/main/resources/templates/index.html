@@ -18,7 +18,7 @@
   <![endif]-->
 
 <!-- Fav and touch icons -->
-<link rel="shortcut icon" href="../../ico/favicon.png" />
+<link rel="shortcut icon" href="../../img/logo.png" />
 <link
 	href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"
 	rel="stylesheet" />
@@ -32,7 +32,7 @@
 				<div class="span5">
 					<h2>
 						<img src="../../img/logo.png" style="height: 65px" />电网智能监控系统
-              <span class="label label-default">1.04</span>
+              <span class="label label-default">1.05</span>
 					</h2>
 				</div>
 				<div class="span6 MENU">
@@ -73,10 +73,10 @@
         <div id="baidu_map" style="width: 100%"></div>
 			</div>
 		</div>
-		
-		
-		
-		
+
+
+
+
 		<div id="security_modal" class="modal hide fade" tabindex="-1"
 			role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 			<div class="modal-header">
@@ -94,40 +94,40 @@
 						</div>
 					</div>
 					<div class="modal-footer">
-						<button id='cancel_control' class="btn" data-dismiss="modal" aria-hidden="true" onClick='cancel()'>取消</button>
+						<button id='cancel_control' class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
 						<button id="secu_confirm_btn" class="btn btn-primary">执行</button><!--  onClick='timer()' -->
 					</div>
 				</div>
 			</div>
 		</div>
 
-		<!--<div id="alarm_modal" class="modal hide fade" tabindex="-1"-->
-			<!--role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">-->
-			<!--<div class="modal-header">-->
-				<!--<button type="button" class="close" data-dismiss="modal"-->
-					<!--aria-hidden="true">×</button>-->
-				<!--<h3 id="myModalLabel">报警登记处理</h3>-->
-			<!--</div>-->
-			<!--<div class="modal-body">-->
-				<!--<div id="upload_form" class="form-horizontal">-->
-					<!--<div class="control-group">-->
-            <!--<input type="hidden" id="hiddenSwitchId" />-->
-						<!--<label class="control-label" for="handleName">处理人:</label>-->
-						<!--<div class="controls">-->
-							<!--<input type="text" id="handleName" name="handleName" />-->
-						<!--</div>-->
-            <!--<br />-->
-						<!--<label class="control-label" for="handleTime">处理时间:</label>-->
-						<!--<div class="controls">-->
-							<!--<input type="text" id="handleTime" name="handleTime" />-->
-						<!--</div>-->
-					<!--</div>-->
-					<!--<div class="modal-footer">-->
-						<!--<button id="alarm_confirm_btn" class="btn btn-primary" onClick="submitAlarmEvent()">确定</button>-->
-					<!--</div>-->
-				<!--</div>-->
-			<!--</div>-->
-		<!--</div>-->
+		<div id="alarm_modal" class="modal hide fade" tabindex="-1"
+			role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal"
+					aria-hidden="true">×</button>
+				<h3 id="myModalLabel">报警登记处理</h3>
+			</div>
+			<div class="modal-body">
+				<div id="upload_form" class="form-horizontal">
+					<div class="control-group">
+		            <input type="hidden" id="hiddenSwitchId" />
+						<label class="control-label" for="handleName">处理人:</label>
+						<div class="controls">
+							<input type="text" id="handleName" name="handleName" />
+						</div>
+		            <br />
+						<label class="control-label" for="handleTime">处理时间:</label>
+						<div class="controls">
+							<input type="text" id="handleTime" name="handleTime" />
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button id="alarm_confirm_btn" class="btn btn-primary">确定</button>
+					</div>
+				</div>
+			</div>
+		</div>
 
 		<footer>
 			<p>&copy; Company 2013</p>
@@ -150,16 +150,23 @@
 
 	<!-- 树状图 和 百度地图 -->
 	<script src="../../js/ZTree/jquery.ztree.core-3.5.js"></script>
+	<script type="text/javascript" src="../../js/ZTree/jquery.ztree.excheck.js"></script>
 	<script
 		src="http://api.map.baidu.com/api?v=1.5&amp;ak=KdwNinCQXF9C7Cu8GOWK0nuM"></script>
-	<script src="../../js/custom/index.js"></script>
-	<script src="../../js/custom/switch_detail.js"></script>
-	
+<!-- 	<script src="../../js/custom/index.js"></script>
+	<script src="../../js/custom/switch_detail.js"></script> -->
+
 	<!-- sockjs, storm -->
 	<script src="../../js/websocket/sockjs.min.js"></script>
 	<script src="../../js/websocket/storm.js"></script>
-	
+
   <!-- 引入全局函数 -->
   <script src="../../js/custom/gobal.js"></script>
+
+  <script src="../../js/custom/monitor/djMap.js"></script>
+	<script src="../../js/custom/monitor/infoWin.js"></script>
+	<script src="../../js/custom/monitor/tree.js"></script>
+	<script src="../../js/custom/monitor/switch.js"></script>
+	<script src="../../js/custom/monitor/sockClient.js"></script>
 </body>
 </html>

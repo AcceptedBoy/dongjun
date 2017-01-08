@@ -35,5 +35,17 @@ public enum TemperatureControlCode {
 		}
 		return null;
 	}
+	
+
+	@Override
+	public String toString() {
+		// TODO Auto-generated method stub
+		return this.code;
+	}
+
+	public int value() {
+		// TODO Auto-generated method stub
+		return Integer.parseInt(sign);
+	}
 
 }

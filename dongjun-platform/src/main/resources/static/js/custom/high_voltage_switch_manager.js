@@ -253,8 +253,8 @@ function delSwitch() {
  */
 function enterMap() {
 
-	var longitude = $(this).parent("td").prevAll()[2].innerHTML;
-	var latitude = $(this).parent("td").prevAll()[1].innerHTML;
+	var longitude = $(this).parent("td").prevAll()[4].innerHTML;
+	var latitude = $(this).parent("td").prevAll()[3].innerHTML;
 	localStorage.setItem('longitude', longitude);
 	localStorage.setItem('latitude', latitude);
 	location.href = "index";
@@ -268,8 +268,9 @@ function locateSwitch() {
 		url : "edit_location",
 		async : false,
 		data : {
-			"switchId" : column[9].innerHTML,
-			"type" : 1
+			"switchId" : column[10].innerHTML,
+			"type" : 1,
+			"scale": 12
 		},
 		success : function(data) {
 

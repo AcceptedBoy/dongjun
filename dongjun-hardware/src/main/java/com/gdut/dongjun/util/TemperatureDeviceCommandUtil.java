@@ -26,9 +26,9 @@ public class TemperatureDeviceCommandUtil extends StringCommonUtil {
 
 	public void setData(String data) {
 		int sum = 0, length = 0;
-
-		for (int i = 0; i < data.replace(" ", "").length(); i = i + 2) {
-			sum += Integer.parseInt(data.replace(" ", "").substring(i, i + 2), 16);
+		data = data.replace(" ", "");
+		for (int i = 0; i < data.length(); i = i + 2) {
+			sum += Integer.parseInt(data.substring(i, i + 2), 16);
 			length++;
 		}
 		sum %= 256;
@@ -84,10 +84,10 @@ public class TemperatureDeviceCommandUtil extends StringCommonUtil {
 	 * @return
 	 */
 	public String getTimeCheck(String time) {
-		String msg = TemperatureControlCode.CONTROL + address + TemperatureControlCode.TIME + address + "0000" + time;
+		String msg = TemperatureControlCode.FIXED_VALUE_CONTROL2.toString() + address + TemperatureControlCode.TIME.toString() + address + "0000" + time;
 		this.setData(msg);
 
-		return "68121268" + msg + this.check + "16";
+		return "68161668" + msg + this.check + "16";
 	}
 
 	/**

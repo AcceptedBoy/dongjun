@@ -34,7 +34,6 @@ import com.gdut.dongjun.util.MyBatisMapUtil;
 @SessionAttributes("test")
 public class InsertTestController extends DefaultThreadManager {
 
-	
 	@Autowired
 	public HistoryHighVoltageCurrentService HistoryCurrentService;
 	@Autowired

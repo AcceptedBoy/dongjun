@@ -1,6 +1,7 @@
 package com.gdut.dongjun.core.handler.msg_decoder;
 
 import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +22,6 @@ import com.gdut.dongjun.service.TemperatureDeviceService;
 import com.gdut.dongjun.service.TemperatureMeasureHistoryService;
 import com.gdut.dongjun.service.TemperatureMeasureService;
 import com.gdut.dongjun.service.TemperatureSensorService;
-import com.gdut.dongjun.util.HighVoltageDeviceCommandUtil;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.TemperatureDeviceCommandUtil;
 import com.gdut.dongjun.util.TimeUtil;
@@ -107,10 +107,6 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			logger.info(sb.toString() + " GPRS模块在线");
 			return ;
 		}
-//		if (data.startsWith("1007")) {
-//			logger.info("终端开始连接");
-//			return;
-//		}
 		if (data.length() < 20) {
 			logger.info("undefine message received!");
 			logger.error("接收到的非法数据--------------------" + data);
@@ -199,6 +195,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		gprs.setAddress(address);
 
 		address = TemperatureDeviceCommandUtil.reverseString(address);
+		System.out.println("deviceNumer-------" + Integer.parseInt(address, 16));
 		
 		if (gprs != null) {
 			/*
@@ -241,6 +238,8 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			 logger.info("设备上线！！！！！！！！！");
 				getOnlineAddress(ctx, data);
 				attr.set(1);
+				//发送对时命令，第一次总召的时间其实是不对的
+				ctx.writeAndFlush(doMatchTime(data.substring(10, 18)));
 		 }
 		 
 		String deviceId = CtxStore.getIdbyAddress(address);
@@ -453,8 +452,10 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		List<TemperatureSensor> sensorList = sensorService.selectByParameters(MyBatisMapUtil.warp("device_id", deviceId));
 		
 		for (int i = 1; i <= value.length; i++) {
-			if (value.equals("0000"))
+			if (value[i-1].equals("0000")) {
 				continue;
+			}
+
 			isSensorExist(sensorList, i, deviceId);
 			measureHistoryService.insert(
 					new TemperatureMeasureHistory(UUIDUtil.getUUID(), deviceId, new Timestamp(System.currentTimeMillis()), i, Integer.parseInt(value[i-1], 16)*10 + ""));
@@ -486,5 +487,26 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			measure.setValue("" + Integer.parseInt(value, 16)*10);
 			measureService.updateByPrimaryKey(measure);
 		}
+	}
+	
+	public String doMatchTime(String address) {
+		Calendar cal = Calendar.getInstance();
+		String second = Integer.toHexString(cal.get(Calendar.SECOND));
+		String minute = Integer.toHexString(cal.get(Calendar.MINUTE));
+		String hour = Integer.toHexString(cal.get(Calendar.HOUR));
+		String day = Integer.toHexString(cal.get(Calendar.DATE));
+		String month = Integer.toHexString(cal.get(Calendar.MONTH) + 1);
+		String year = cal.get(Calendar.YEAR) + "";
+		year = year.substring(2, 4);
+		year = Integer.toHexString(Integer.parseInt(year));
+		String time = "00" + 
+				((second.length() == 1) ? "0" + second : second) + 
+				((minute.length() == 1) ? "0" + minute : minute) + 
+				((hour.length() == 1) ? "0" + hour : hour) + 
+				((day.length() == 1) ? "0" + day : day) + 
+				((month.length() == 1) ? "0" + month : month) + 
+				((year.length() == 1) ? "0" + year : year);
+		TemperatureDeviceCommandUtil td = new TemperatureDeviceCommandUtil(address);
+		return td.getTimeCheck(time);
 	}
 }

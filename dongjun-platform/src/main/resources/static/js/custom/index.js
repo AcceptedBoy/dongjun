@@ -69,6 +69,8 @@ function initSock() {
 				function(message) {
 					var zTree = $.fn.zTree.getZTreeObj("treeDemo");
 					var node = JSON.parse(message.body);
+					console.log('/topic/get_active_switch_status')
+					console.log(node)
 					for(var length = oldList.length - 1; length >= 0; --length) {
 						switchs_drawByTye(oldList[length], voltage_switch_icon_high, voltage_switch_icon_low, click_high_voltage_switch_out);
 						update(oldList[length], 0);
@@ -81,10 +83,13 @@ function initSock() {
 					node.forEach(function(node) {
 						if(node.id != null) {
 							var nodeList = zTree.getNodesByParamFuzzy("id", node.id);
-
+							console.log('nodeList', nodeList[0])
+							console.log('node', node)
 							if(nodeList.length != 0) {
 								oldList.push(nodeList);
+								console.log('status', node.status)
 								if(node.status == "00") { // '00' 开闸 ， '01'合闸
+									nodeList[0].status = '00'	// ronk new
 									switchs_drawByTye(nodeList[0], open_switch_high, open_switch_low, click_high_voltage_switch_open);
 									if(node.open == true) {//status与open同时符合才报警
 										alarmList.push(nodeList[0].id);
@@ -94,6 +99,7 @@ function initSock() {
 									}
 								} else {
 									deleteAlarmSwitch(nodeList);
+									nodeList[0].status = '01'	// ronk new
 									switchs_drawByTye(nodeList[0], close_switch_high, close_switch_low, click_high_voltage_switch_close);
 								}
 							}
@@ -104,6 +110,7 @@ function initSock() {
 				function(message) {
 					var data = message.body;
 					data = JSON.parse(data);
+					console.log('/user/queue/read_voltage', data)
 					$("#a_phase_voltage").text(data[0] / volacc);
 
 					$("#b_phase_voltage").text(data[1] / volacc);
@@ -114,6 +121,7 @@ function initSock() {
 				function(message) {
 					var data = message.body;
 					data = JSON.parse(data)
+					console.log('/user/queue/read_current', data)
 					$("#a_phase_current").text(data[0] / curacc);
 					$("#b_phase_current").text(data[1] / curacc);
 					$("#c_phase_current").text(data[2] / curacc);
@@ -121,47 +129,61 @@ function initSock() {
 		});
 		stompClient.subscribe('/user/queue/read_hv_status',
 				function(message) {
+
+					var green_or_red = function(sign) {
+						if(sign == '00') {
+							return 'green_point';
+						}
+						else if(sign == '01') {
+							return 'red_point';
+						}
+					}
 					var data = message.body
 					data = JSON.parse(data)
+					var mapInfoWin = $('#mapInfoWin')
+					var cloneWin = mapInfoWin.clone()
+					console.log(cloneWin)
+					console.log('/user/queue/read_hv_status', data)
 					if (data == null || data == "") {
-						$("#status").text("离线");
+						cloneWin.find("#status").text("离线");
 					} else {
-						$("#guo_liu_yi_duan").addClass(
+						cloneWin.find("#guo_liu_yi_duan").addClass(
 							green_or_red(data.guo_liu_yi_duan));
-						$("#guo_liu_er_duan").addClass(
+						cloneWin.find("#guo_liu_er_duan").addClass(
 							green_or_red(data.guo_liu_er_duan));
-						$("#guo_liu_san_duan").addClass(
+						cloneWin.find("#guo_liu_san_duan").addClass(
 							green_or_red(data.guo_liu_san_duan));
 
-						$("#pt1_you_ya").addClass(green_or_red(data.pt1_you_ya));
-						$("#pt2_you_ya").addClass(green_or_red(data.pt2_you_ya));
-						$("#pt1_guo_ya").addClass(green_or_red(data.pt1_guo_ya));
-						$("#pt2_guo_ya").addClass(green_or_red(data.pt2_guo_ya));
+						cloneWin.find("#pt1_you_ya").addClass(green_or_red(data.pt1_you_ya));
+						cloneWin.find("#pt2_you_ya").addClass(green_or_red(data.pt2_you_ya));
+						cloneWin.find("#pt1_guo_ya").addClass(green_or_red(data.pt1_guo_ya));
+						cloneWin.find("#pt2_guo_ya").addClass(green_or_red(data.pt2_guo_ya));
 
-						$("#shou_dong_he_zha").addClass(
+						cloneWin.find("#shou_dong_he_zha").addClass(
 							green_or_red(data.shou_dong_he_zha));
-						$("#shou_dong_fen_zha").addClass(
+						cloneWin.find("#shou_dong_fen_zha").addClass(
 							green_or_red(data.shou_dong_fen_zha));
 
-						$("#yao_kong_fu_gui").addClass(
+						cloneWin.find("#yao_kong_fu_gui").addClass(
 							green_or_red(data.yao_kong_fu_gui));
-						$("#yao_kong_fen_zha").addClass(
+						cloneWin.find("#yao_kong_fen_zha").addClass(
 							green_or_red(data.yao_kong_fen_zha));
-						$("#yao_kong_he_zha").addClass(
+						cloneWin.find("#yao_kong_he_zha").addClass(
 							green_or_red(data.yao_kong_he_zha));
 
-						$("#jiao_liu_shi_dian").addClass(
+						cloneWin.find("#jiao_liu_shi_dian").addClass(
 							green_or_red(data.jiao_liu_shi_dian));
-						$("#chong_he_zha").addClass(green_or_red(data.chong_he_zha));
-						$("#ling_xu_guo_liu_").addClass(
+						cloneWin.find("#chong_he_zha").addClass(green_or_red(data.chong_he_zha));
+						cloneWin.find("#ling_xu_guo_liu_").addClass(
 							green_or_red(data.ling_xu_guo_liu_));
 						if (data.status == '00') {
-							$("#status").text("分");
+							cloneWin.find("#status").text("分");
 						} else if (data.status == "01") {
-							$("#status").text("合");
+							cloneWin.find("#status").text("合");
 						}
 
 					}
+					mapInfoWin.html(cloneWin.html())
 			//alert(JSON.parse(message.body));
 		});
 	});
@@ -505,7 +527,7 @@ function zTreeOnAsyncSuccess(event, treeId, treeNode, msg) {
 		});
 	}
 	
-	if(sessionStorage.longtitude && sessionStorage.latitude) {
+	/*if(sessionStorage.longtitude && sessionStorage.latitude) {
 		point = new BMap.Point(sessionStorage.longtitude, sessionStorage.latitude);
 	} else {
 		if (nodeList != null && nodeList.length != 0 && nodeList[0].longitude != null
@@ -516,10 +538,11 @@ function zTreeOnAsyncSuccess(event, treeId, treeNode, msg) {
 			point = new BMap.Point(107.979, 22.156); // 创建点坐标
 		}
 	}
-	 map.centerAndZoom(point, location_scale? location_scale : 12); // 初始化地图，设置中心点坐标和地图级别
-	/*//企业版定位到南宁市
+	 map.centerAndZoom(point, location_scale? location_scale : 4); // 初始化地图，设置中心点坐标和地图级别
+	*/
+	//企业版定位到南宁市
 	point = new BMap.Point(108.386287, 22.82277);
-	map.centerAndZoom(point, 11); // 地图级别*/
+	map.centerAndZoom(point, 11); // 地图级别
 
 	map.enableScrollWheelZoom();// 启滑轮缩放
 
@@ -697,33 +720,19 @@ function switchs_draw(node, switch_icon, click_switch) {
 	marker2.id = node.id;// 设置id
 	marker2.type = node.type;
 	marker2.name = node.name;
+	console.log('switchs_draw', node.open)
 	// mraker2.isWorning = false;//设置报警标志
 	// ****************************************************************
 
 	map.addOverlay(marker2); // 将标注添加到地图中
 
-
-//	var label;
-//	if(node.showName == null || node.showName == "") {
-//		label = new BMap.Label(node.name, {
-//			offset : new BMap.Size(20, -18)
-//		});
-//	} else {
-//		label = new BMap.Label(node.showName, {
-//			offset : new BMap.Size(20, -18)
-//		});
-//	}
-	// 添加文字提示
-	 
-	//marker2.setLabel(label);
-
 	// **************************************************************************
 	// 添加图标点击事件,弹出窗口
 	var marker = marker2;
 	var NODE = node;
-	marker2.addEventListener("click", function() {
-		click_switch(NODE, marker)
-	});
+	// marker2.addEventListener("click", function() {
+	// 	click_switch(NODE, marker)
+	// });
 	// **************************************************************************
 
 }
@@ -775,7 +784,7 @@ function stopRead() {
 	})
 }
 
-function click_high_voltage_switch_open(node,marker) {
+function click_high_voltage_switch_open(node, marker) {
 	stopRead()
 	PreHandlerNode = node;
 	obj_high = marker;
@@ -886,7 +895,7 @@ function click_high_voltage_switch_close(node, marker) {
 	obj_high = marker;
 	sessionStorage.longtitude = marker.point.lng;
 	sessionStorage.latitude = marker.point.lat;
-	var content = "<div class='BDM_custom_popup'>" + "<h4>"
+	var content = "<div class='BDM_custom_popup' id='mapInfoWin'>" + "<h4>"
 			+ marker.name + '&nbsp;&nbsp;'
 			+ '<button class="btn btn-info btn-mini" onclick="SetCenterPoint_high()">设为中心点</button>'
 			+ '<button type="button" class="close" data-dismiss="modal" aria-label="Close" onclick="CloseinfoWin_high()">'
@@ -982,8 +991,8 @@ function click_high_voltage_switch_close(node, marker) {
 //	readCurrentVoltage(marker.id, marker.type);// 读取实时数据。。
 
 	// 添加窗口关闭监听，停止读取实时数据
-	//startSubscribe(stompClient);
-//	startSubscribe(stompClient);
+	// startSubscribe(stompClient);
+	// startSubscribe(stompClient);
 	hvswitchStatusSpy(marker.id);
 	readCurrentVoltage(marker.id, marker.type);// 读取实时数据。。
 	infoWindow.addEventListener("close", function() {
@@ -1045,7 +1054,8 @@ function click_high_voltage_switch_out(node ,marker) {
 	hvswitchStatusSpy(marker.id);
 	// 添加窗口关闭监听，停止读取实时数据
 	infoWindow.addEventListener("close", function() {
-		stopSubscribe(stompClient)
+		//stopSubscribe(stompClient)
+		stopRead()
 	});
 
 }
@@ -1082,6 +1092,7 @@ function Refresh() {
 					if(nodeList.length != 0) {
 						oldList.push(nodeList[0].id);
 						if(data[i].status == "00") {
+							nodeList[0].status = '00'	// ronk new
 							switchs_drawByTye(nodeList[0], open_switch_high, open_switch_low, click_high_voltage_switch_open);
 							if(data[i].open == true) {//status与open同时符合才报警
 								alarmList.push(nodeList[0].id);
@@ -1093,6 +1104,7 @@ function Refresh() {
 							}
 						} else {
 							deleteAlarmSwitch(nodeList);
+							nodeList[0].status = '01'	// new ronk
 							switchs_drawByTye(nodeList[0], close_switch_high, close_switch_low, click_high_voltage_switch_close);
 						}
 					}
@@ -1460,6 +1472,7 @@ function hitchEventSpy() {
 					if(nodeList.length != 0) {
 						oldList.push(nodeList[0].id);
 						if(data[i].status == "00") { // '00' 开闸 ， '01'合闸
+							nodeList[0].status = '00'	// new ronk
 							switchs_drawByTye(nodeList[0], open_switch_high, open_switch_low, click_high_voltage_switch_open);
 							if(data[i].open == true) {//status与open同时符合才报警
 								alarmList.push(nodeList[0].id);
@@ -1469,6 +1482,7 @@ function hitchEventSpy() {
 							}
 						} else {
 							deleteAlarmSwitch(nodeList);
+							nodeList[0].status = '01'	// new ronk
 							switchs_drawByTye(nodeList[0], close_switch_high, close_switch_low, click_high_voltage_switch_close);
 						}
 					}
@@ -1495,6 +1509,15 @@ function switchs_drawByTye(node, switch_icon1, switch_icon2, click_switch) {
 	marker2.id = node.id;// 设置id
 	marker2.type = node.type;
 	marker2.name = node.name;
+	// console.log('switchs_drawByTye', node.open)
+
+	if(node.status) {
+		console.log('node status', node.status)
+		marker2.status = node.status
+		if(node.status == '00') {
+			marker2.node = node
+		}
+	}
 	marker2.setZIndex(9);
 	map.addOverlay(marker2); // 将标注添加到地图中
 //	var label;
@@ -1509,9 +1532,9 @@ function switchs_drawByTye(node, switch_icon1, switch_icon2, click_switch) {
 //	}
 	var marker = marker2;
 	var NODE = node;
-	marker2.addEventListener("click", function () {
+/*	marker2.addEventListener("click", function () {
 		click_switch(NODE, marker);
-	});
+	});*/
 
 }
 
@@ -1583,17 +1606,17 @@ function playVoice(data) {
  * @return String
  * @throws
  */
-function green_or_red(sign) {
+// function green_or_red(sign) {
 
-	if (sign == "00") {
+// 	if (sign == "00") {
 
-		return "green_point";
-	} else if (sign == "01") {
+// 		return "green_point";
+// 	} else if (sign == "01") {
 
-		return "red_point";
-	}
+// 		return "red_point";
+// 	}
 
-}
+// }
 
 /**
  * 
@@ -1618,18 +1641,19 @@ function worning_switchs_draw(node) {
   map.addOverlay(marker2); // 将标注添加到地图中,覆盖原有的图标
   map.panTo(pt);  // 将报警地点移到地图中间
   map.zoomTo(map.getZoom() + 3);
-
+  marker2.status = '02'
+  marker2.node = node
   // 不用添加文字提示
   // 需要重复添加点击事件
 
 	//$("body").append( "<audio src='../../audio/wornning.wav' autoplay='true' loop=true></audio>");
 	oldMarker.push(marker2);
-	var warmIcon = marker2;
-  marker2.addEventListener("click", function (e) {
-    map.removeOverlay(warmIcon); // remove the alarm icon
-    $('audio').remove(); // remove the audio
-    handleAlarm(node); // pop up a handle window
-  });
+	// var warmIcon = marker2;
+ //  marker2.addEventListener("click", function (e) {
+ //    map.removeOverlay(warmIcon); // remove the alarm icon
+ //    $('audio').remove(); // remove the audio
+ //    handleAlarm(node); // pop up a handle window
+ //  });
 }
 
 function close_switchs_draw(node) {  // 把在线的，合闸的点改为特定的图标
@@ -1738,3 +1762,27 @@ function submitAlarmEvent () {
 // var myZoomCtrl = new ZoomControl();
 // //添加到地图当中
 // map.addControl(myZoomCtrl);
+// 
+map.addEventListener('click', function(e) {
+	if(e.overlay instanceof BMap.Marker) {
+		var marker = e.overlay
+		console.log(e.overlay)
+		if(marker.status) {
+			switch(marker.status) {
+				case '00': 	// 分闸
+					click_high_voltage_switch_open(marker.node, marker);
+					break;
+				case '01': 	// 合闸
+					click_high_voltage_switch_close(null, marker);
+					break;
+				case '02': 	// 报警
+					map.removeOverlay(marker); 	// remove the alarm icon
+			    $('audio').remove(); 				// remove the audio
+			    handleAlarm(marker.node); 	// pop up a handle window
+					break;
+			}
+		}else {
+			click_high_voltage_switch_out(null, marker)
+		}
+	}
+}) 
