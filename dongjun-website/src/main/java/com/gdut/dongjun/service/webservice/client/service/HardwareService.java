@@ -3,7 +3,7 @@ package com.gdut.dongjun.service.webservice.client.service;
 
 import com.gdut.dongjun.domain.HighVoltageStatus;
 import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
-import com.gdut.dongjun.service.webservice.client.centor.po.SwitchGPRS;
+import com.gdut.dongjun.service.webservice.client.po.SwitchGPRS;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;

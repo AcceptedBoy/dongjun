@@ -4,9 +4,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
-/**
- * @author AcceptedBoy
- */
+@Deprecated
 public class SimpleThreadFactory implements ThreadFactory  {
 
 	protected static ExecutorService fixedPool = Executors.newFixedThreadPool(

@@ -6,6 +6,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+@Deprecated
 public final class DefaultThreadManager {
 
 	protected static ScheduledExecutorService scheduledPool =

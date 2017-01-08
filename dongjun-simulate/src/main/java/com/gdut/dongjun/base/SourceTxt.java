@@ -6,7 +6,6 @@ import java.io.*;
 
 /**
  * 根据项目日志转化为报文txt
- * Created by AcceptedBoy on 2016/8/27.
  */
 public class SourceTxt {
 

@@ -6,7 +6,6 @@ import java.io.IOException;
 
 /**
  * 开始发送模拟数据的类，有main方法
- * Created by AcceptedBoy on 2016/8/28.
  */
 public class SimulateClient {
 

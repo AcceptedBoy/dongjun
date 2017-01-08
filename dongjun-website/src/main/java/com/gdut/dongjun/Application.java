@@ -1,6 +1,6 @@
 package com.gdut.dongjun;
 
-import com.gdut.dongjun.service.webservice.client.centor.po.Constant;
+import com.gdut.dongjun.service.common.CommonSwitch;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
@@ -44,11 +44,8 @@ import java.util.Map;
 public class Application extends SpringBootServletInitializer {
 
 	@Bean
-	public Constant projectConstant() {
-		Constant constant = new Constant();
-		constant.setIsService(false);
-		constant.setPreSerivcePath("http://115.28.7.40:8789/dongjun_service/ws/common");
-		return constant;
+	public CommonSwitch projectConstant() {
+		return new CommonSwitch();
 	}
 	
 	/*--------------------------------------------------------

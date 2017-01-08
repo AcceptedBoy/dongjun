@@ -96,6 +96,5 @@
     <orderEntry type="library" name="Maven: javax.annotation:javax.annotation-api:1.2" level="project" />
     <orderEntry type="library" name="Maven: org.codehaus.jackson:jackson-jaxrs:1.9.13" level="project" />
     <orderEntry type="library" name="Maven: org.apache.cxf:cxf-rt-rs-client:3.1.9" level="project" />
-    <orderEntry type="library" name="Maven: net.sf.ehcache:ehcache:2.10.1" level="project" />
   </component>
 </module>

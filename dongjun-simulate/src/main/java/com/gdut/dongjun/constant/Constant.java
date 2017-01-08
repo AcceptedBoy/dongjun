@@ -2,7 +2,6 @@ package com.gdut.dongjun.constant;
 
 /**
  * 常量
- * Created by AcceptedBoy on 2016/8/27.
  */
 public class Constant {
 

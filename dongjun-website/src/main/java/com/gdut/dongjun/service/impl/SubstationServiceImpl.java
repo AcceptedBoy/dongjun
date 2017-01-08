@@ -4,9 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.gdut.dongjun.service.webservice.client.centor.po.Constant;
-import com.gdut.dongjun.service.webservice.client.centor.client.CommonServiceClient;
-import com.gdut.dongjun.service.webservice.client.centor.util.JaxrsClientUtil;
+import com.gdut.dongjun.service.common.CommonSwitch;
+import com.gdut.dongjun.service.webservice.client.CentorServiceClient;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,7 +36,10 @@ public class SubstationServiceImpl extends BaseServiceImpl<Substation>
 	private SubstationMapper substationMapper;
 
 	@Autowired
-	private Constant constant;
+	private CommonSwitch commonSwitch;
+
+	@Autowired
+	private CentorServiceClient centorServiceClient;
 
 	@Override
 	public List<Substation> selectByCompanyId(String companyId) {
@@ -61,11 +63,8 @@ public class SubstationServiceImpl extends BaseServiceImpl<Substation>
 
 		substationMapper.deleteByPrimaryKey(switchId);
 
-		if(constant.isService()) {
-			CommonServiceClient client = (CommonServiceClient)
-					new JaxrsClientUtil().getClient(constant.getPreSerivcePath() + "/" + switchId,
-							CommonServiceClient.class);
-			client.deleteSubstation(switchId);
+		if(commonSwitch.canService()) {
+			centorServiceClient.getService().deleteSubstation(switchId);
 		}
 	}
 
