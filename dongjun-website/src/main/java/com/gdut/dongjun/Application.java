@@ -1,8 +1,8 @@
 package com.gdut.dongjun;
 
-import com.gdut.dongjun.service.rmi.HardwareService;
 import com.gdut.dongjun.webservice.Constant;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+import org.apache.cxf.transport.servlet.CXFServlet;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.authc.credential.SimpleCredentialsMatcher;
 import org.apache.shiro.realm.jdbc.JdbcRealm;
@@ -14,20 +14,16 @@ import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
-import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.DependsOn;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.context.annotation.*;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.remoting.rmi.RmiProxyFactoryBean;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
@@ -44,6 +40,7 @@ import java.util.Map;
 @EnableAspectJAutoProxy
 @EnableAsync
 @EnableScheduling
+@ImportResource("classpath:website-service.xml")
 public class Application extends SpringBootServletInitializer {
 
 	/*--------------------------------------------------------
@@ -303,27 +300,7 @@ public class Application extends SpringBootServletInitializer {
 		realm.setPermissionsLookupEnabled(true);
 		return realm;
 	}
-	
-	/*--------------------------------------------------------
-	 * 					远程方法调用
-	 * -------------------------------------------------------
-	 */
-	
-	/**
-	 * rmi 远程调用方法，获取与硬件交互的方法
-	 */
-	@Bean
-	public RmiProxyFactoryBean hardwareService() {
-		RmiProxyFactoryBean proxy = new RmiProxyFactoryBean();
-		//proxy.setServiceUrl("rmi://115.28.7.40:9998/HardwareService");
-		proxy.setServiceUrl("rmi://localhost:9998/HardwareService");
-		proxy.setServiceInterface(HardwareService.class);
-		//解决重启 rmi 的服务器后会出现拒绝连接或找不到服务对象的错误
-		proxy.setLookupStubOnStartup(false);
-		proxy.setRefreshStubOnConnectFailure(true);
-		return proxy;
-	}
-	
+
 	/**
 	 * {@code @Autowired
      * private Validator validator;}
@@ -341,5 +318,10 @@ public class Application extends SpringBootServletInitializer {
 	
 	public static void main(String[] args) throws Exception {
 		SpringApplication.run(Application.class, args);
+	}
+
+	@Bean//fix bug: 上次的名字是dispatcherServlet，搞得那些请求都没办法处理了
+	public ServletRegistrationBean cxfServlet() {
+		return new ServletRegistrationBean(new CXFServlet(), "/dongjun-website/ws/*");
 	}
 }

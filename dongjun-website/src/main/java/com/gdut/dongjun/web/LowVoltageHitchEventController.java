@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.gdut.dongjun.domain.po.LowVoltageHitchEvent;
-import com.gdut.dongjun.service.LowVoltageHitchEventService;
+import com.gdut.dongjun.service.device.event.LowVoltageHitchEventService;
 import com.gdut.dongjun.util.MapUtil;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 

@@ -33,8 +33,6 @@ public class DemoCase extends BaseMvcMock {
 	 */
 	@Test
 	public void controllerCase() {
-        MockHttpServletRequest request = new MockHttpServletRequest();  
-        request.setMethod("POST");  
         System.out.println(switchController.getAllLowVoltage_Switch());
 	}
 }

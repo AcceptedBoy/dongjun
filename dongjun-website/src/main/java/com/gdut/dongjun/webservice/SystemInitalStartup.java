@@ -1,9 +1,8 @@
 package com.gdut.dongjun.webservice;
 
-
-import com.gdut.dongjun.service.HighVoltageSwitchService;
 import com.gdut.dongjun.service.LineService;
 import com.gdut.dongjun.service.SubstationService;
+import com.gdut.dongjun.service.device.HighVoltageSwitchService;
 import com.gdut.dongjun.util.NetUtil;
 import com.gdut.dongjun.webservice.client.CommonServiceClient;
 import com.gdut.dongjun.webservice.po.InitialParam;

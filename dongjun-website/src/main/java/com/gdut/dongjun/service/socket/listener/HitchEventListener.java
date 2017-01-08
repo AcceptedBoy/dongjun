@@ -1,7 +1,7 @@
 package com.gdut.dongjun.service.socket.listener;
 
-import com.gdut.dongjun.service.HighVoltageHitchEventService;
-import com.gdut.dongjun.service.rmi.HardwareService;
+import com.gdut.dongjun.service.device.event.HighVoltageHitchEventService;
+import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.MessagingException;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -9,7 +9,6 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import javax.servlet.ServletException;
 import java.rmi.RemoteException;
 
@@ -31,8 +30,8 @@ public class HitchEventListener {
 		this.template = messagingTemplate;
 	}
 	
-	@Resource(name="hardwareService")
-	private HardwareService hardwareService;
+	@Autowired
+	private HardwareServiceClient hardwareClient;
 
 	/**
 	 * 每15秒就询问硬件系统，若硬件信息有变化，则将硬件信息推送出去
@@ -40,10 +39,10 @@ public class HitchEventListener {
 	@Scheduled(initialDelay=3000, fixedRate=15000)
 	@Async
 	public void activeSwitchStatusScheduled() throws ServletException, MessagingException, RemoteException {
-		if(hardwareService.whetherChangeInfo()) {
-			this.template.convertAndSend("/topic/get_active_switch_status", 
-					hardwareService.getActiveSwitchStatus());
-		}
+		/*if(hardwareClient.getService().whetherChangeInfo()) {
+			this.template.convertAndSend("/topic/get_active_switch_status",
+					hardwareClient.getService().getActiveSwitchStatus());
+		}*/
 		/*this.template.convertAndSend("/topic/get_active_switch_status", 
 				getVisualData());*/
 	}

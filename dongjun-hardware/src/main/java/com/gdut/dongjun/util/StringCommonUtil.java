@@ -11,8 +11,12 @@ public class StringCommonUtil extends StringUtils {
 	 * @return
 	 */
 	public static int getFirstIndexOfEndTag(String str, String endTag) {
-		
-		char[] strChar = str.toCharArray();
+
+		return getFirstIndexOfEndTag(str.toCharArray(), endTag);
+	}
+
+	public static int getFirstIndexOfEndTag(char[] strChar, String endTag) {
+
 		char[] endTagChar = endTag.toCharArray();
 		for(int length = strChar.length, i = 0; i < length; i++) {
 			if(strChar[i] == endTagChar[0]) {

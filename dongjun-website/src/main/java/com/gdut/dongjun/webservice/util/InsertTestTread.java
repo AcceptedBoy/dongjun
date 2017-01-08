@@ -4,16 +4,15 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import com.gdut.dongjun.domain.po.HighVoltageCurrent;
 import com.gdut.dongjun.domain.po.HighVoltageVoltage;
 import com.gdut.dongjun.domain.po.HistoryHighVoltageCurrent;
 import com.gdut.dongjun.domain.po.HistoryHighVoltageVoltage;
-import com.gdut.dongjun.service.HighVoltageCurrentService;
-import com.gdut.dongjun.service.HighVoltageVoltageService;
 import com.gdut.dongjun.service.HistoryHighVoltageCurrentService;
 import com.gdut.dongjun.service.HistoryHighVoltageVoltageService;
+import com.gdut.dongjun.service.device.current.HighVoltageCurrentService;
+import com.gdut.dongjun.service.device.voltage.HighVoltageVoltageService;
 
 /**
  * 循环插入数据库线程

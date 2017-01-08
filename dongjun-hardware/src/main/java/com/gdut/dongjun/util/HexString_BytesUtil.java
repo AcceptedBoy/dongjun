@@ -36,6 +36,23 @@ public class HexString_BytesUtil {
 	}
 
 	/**
+	 * symon: 与{@code bytesToHexString}不同的是:
+	 * <p>返回的是char数组
+	 * <p>不包含空格
+	 * @param src
+	 * @return
+     */
+	public static char[] bytesToHexCharsWithTrim(byte[] src) {
+
+		String result = bytesToHexString(src);
+		if(result.contains(" ")) {
+			return result.replace(" ", "").toCharArray();
+		} else {
+			return result.toCharArray();
+		}
+	}
+
+	/**
 	 * 
 	 * @Title: hexStringToBytes
 	 * @Description: TODO

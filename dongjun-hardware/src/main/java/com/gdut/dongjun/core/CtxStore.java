@@ -1,12 +1,25 @@
 package com.gdut.dongjun.core;
 
 import com.gdut.dongjun.domain.HighVoltageStatus;
+import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
+import com.gdut.dongjun.service.webservice.client.WebsiteServiceClient;
+import com.gdut.dongjun.service.webservice.server.HardwareService;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.log4j.Logger;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.context.support.FileSystemXmlApplicationContext;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @Title: ClientList.java
@@ -18,23 +31,48 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @see {@link SwitchGPRS}
  */
 @Component
-public abstract class CtxStore {
+@Lazy(false)
+public class CtxStore implements InitializingBean, ApplicationContextAware {
+
+	private static WebsiteServiceClient websiteServiceClient;
+
+	private ApplicationContext applicationContext;
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		CtxStore.websiteServiceClient = (WebsiteServiceClient)
+				applicationContext.getBean("websiteServiceClient");
+	}
+
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		this.applicationContext = applicationContext;
+	}
+
 	/**
 	 * Logger for this class
 	 */
 	private static final Logger logger = Logger.getLogger(CtxStore.class);
 	private static final List<SwitchGPRS> ctxlist = new CopyOnWriteArrayList<>();
 	private static final List<HighVoltageStatus> hstalist = new CopyOnWriteArrayList<HighVoltageStatus>();
+
+	//*****************************
+	//  异步操作不需要这些标志位和方法了
+	//*****************************
+	@Deprecated
 	private static volatile boolean changeInfo = false;
-	
+
+	@Deprecated
 	public static void trueChange() {
 		changeInfo = true;
 	}
-	
+
+	@Deprecated
 	public static void falseChange() {
 		changeInfo = false;
 	}
-	
+
+	@Deprecated
 	public static boolean whetherChangeInfo() {
 		return changeInfo;
 	}
@@ -231,7 +269,9 @@ public abstract class CtxStore {
 		}
 
 		if(ctx != null) {
-			trueChange();
+
+			//TODO 采用新的
+			websiteServiceClient.getService().callbackCtxChange();
 			ctxlist.add(ctx);
 		}
 		printCtxStore();
@@ -255,7 +295,7 @@ public abstract class CtxStore {
 		}
 
 		hstalist.add(ctx);
-		trueChange();
+		websiteServiceClient.getService().callbackCtxChange();// TODO trueChange();
 		
 		if (logger.isDebugEnabled()) {
 			logger.debug("add(SwitchGPRS) - end");
@@ -284,7 +324,7 @@ public abstract class CtxStore {
 					ctxlist.remove(gprs);	
 				}
 			}
-			trueChange();
+			websiteServiceClient.getService().callbackCtxChange();// TODO trueChange();
 		} else {
 			logger.info("ctxlist is empty, no gprs has bean remove!");
 		}
@@ -307,7 +347,7 @@ public abstract class CtxStore {
 		}
 
 		ctxlist.clear();
-		trueChange();
+		websiteServiceClient.getService().callbackCtxChange(); // TODO trueChange();
 		if (logger.isDebugEnabled()) {
 			logger.debug("clear() - end");
 		}
@@ -327,7 +367,7 @@ public abstract class CtxStore {
 		if (gprs != null && id.equals(gprs.getId())) {
 			gprs.setOpen(true);
 			printCtxStore();
-			trueChange();
+			websiteServiceClient.getService().callbackCtxChange(); // TODO trueChange();
 		} else {
 			logger.info("ctxlist is empty!");
 		}
@@ -436,7 +476,7 @@ public abstract class CtxStore {
 				list.remove(i);
 			}
 		}
-		trueChange();
+		websiteServiceClient.getService().callbackCtxChange(); // TODO trueChange();
 	}
 
 	public static boolean changeOpen(String switchId) {
@@ -444,7 +484,7 @@ public abstract class CtxStore {
 		SwitchGPRS gprs = CtxStore.get(switchId);
 		if(gprs != null) {
 			gprs.setOpen(gprs.isOpen() == true ? false : true);
-			trueChange();
+			websiteServiceClient.getService().callbackCtxChange(); // TODO trueChange();
 			return true;
 		} else {
 			return false;

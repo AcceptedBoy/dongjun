@@ -53,7 +53,7 @@ public class CommonAspect {
     }
 
     @After("execution(* com.gdut.dongjun.service.base.impl.BaseServiceImpl+.deleteByPrimaryKey(String))"
-            + " && args(hvswitchId) && target(com.gdut.dongjun.service.impl.HighVoltageSwitchServiceImpl)")
+            + " && args(hvswitchId) && target(com.gdut.dongjun.service.device.impl.HighVoltageSwitchServiceImpl)")
     public void deleteHvswitch(String hvswitchId) {
         if(constant.isService()) {
             client.deleteHighVoltageSwitch(hvswitchId);

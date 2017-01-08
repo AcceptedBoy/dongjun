@@ -38,62 +38,9 @@ public class SimpleBootCxfApplication {
     }
 
     @Bean
-    public ServletRegistrationBean dispatcherServlet() {
+    public ServletRegistrationBean cxfServlet() {
         return new ServletRegistrationBean(new CXFServlet(), "/dongjun_service/ws/*");
     }
-
-    /*// Configure the embedded tomcat to use same settings as default standalone tomcat deploy
-    @Bean
-    public EmbeddedServletContainerFactory embeddedServletContainerFactory() {
-        // Made to match the context path when deploying to standalone tomcat- can easily be kept in sync w/ properties
-        TomcatEmbeddedServletContainerFactory factory = new TomcatEmbeddedServletContainerFactory("/ws-server-1.0", 8080);
-        return factory;
-    }*/
-
-   /* private void setProviders(JAXRSServerFactoryBean factoryBean) {
-        JacksonJsonProvider jsonProvider = new JacksonJsonProvider();
-        BinaryDataProvider<InputStream> binaryDataProvider = new BinaryDataProvider<>();
-        factoryBean.setProviders(Arrays.asList(jsonProvider, binaryDataProvider));
-    }
-
-    @Bean
-    public Server jaxRsServer() {
-        List<ResourceProvider> resourceProviders = new LinkedList<>();
-        for (String beanName : ctx.getBeanDefinitionNames()) {
-            if (ctx.findAnnotationOnBean(beanName, Path.class) != null) {
-                SpringResourceFactory factory = new SpringResourceFactory(beanName);
-                factory.setApplicationContext(ctx);
-                resourceProviders.add(factory);
-            }
-        }
-        if (resourceProviders.size() > 0) {
-            JAXRSServerFactoryBean factoryBean = new JAXRSServerFactoryBean();
-            factoryBean.setBus(ctx.getBean(SpringBus.class));
-            factoryBean.setResourceProviders(resourceProviders);
-            setProviders(factoryBean);
-            return factoryBean.create();
-        } else {
-            return null;
-        }
-    }*/
-
-    /*@Bean(name = Bus.DEFAULT_BUS_ID)
-    public SpringBus springBus() {
-        return new SpringBus();
-    }
-
-    @Bean
-    public CommonService commonService() {
-        return new CommonServiceImpl();
-    }
-
-    @Bean
-    public Endpoint endpoint() {
-        EndpointImpl endpoint = new EndpointImpl(springBus(), commonService());
-        endpoint.publish("/common");
-        endpoint.setWsdlLocation("common.wsdl");
-        return endpoint;
-    }*/
 
     @Bean
     public DataSource dataSource() {
