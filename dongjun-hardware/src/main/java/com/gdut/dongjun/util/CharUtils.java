@@ -110,4 +110,24 @@ public class CharUtils {
     public static boolean startWith(char[] src, String pre) {
         return String.valueOf(src).startsWith(pre);
     }
+    
+    /**
+     * {@code src}是否以{@code end}结尾
+     * @param src
+     * @param pre
+     * @return
+     */
+    public static boolean endsWith(char[] src, char[] end) {
+        return equals(src, src.length - end.length, end.length, end);
+    }
+    
+    /**
+     * {@code src}是否以{@code end}结尾
+     * @param src
+     * @param pre
+     * @return
+     */
+    public static boolean endsWith(char[] src, String pre) {
+    	return String.valueOf(src).endsWith(pre);
+    }
 }

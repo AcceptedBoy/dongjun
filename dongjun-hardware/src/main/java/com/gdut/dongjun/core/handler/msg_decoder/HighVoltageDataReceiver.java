@@ -31,13 +31,9 @@ import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.nio.NioEventLoopGroup;
-<<<<<<< Updated upstream
 import org.apache.commons.lang.ArrayUtils;
-=======
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
-
->>>>>>> Stashed changes
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,6 +69,8 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
     private static final char[] CODE_OO = new char[]{'0', '0'}; //OO
     private static final char[] CODE_01 = new char[]{'0', '1'}; //OO
     private static final char[] CODE_47 = new char[]{'4', '7'}; //47
+    private static final char[] CODE_16 = new char[]{'1', '6'}; //16
+    private static final char[] CODE_68 = new char[]{'6', '8'}; //68
 
     private static final String STR_00 = "00".intern();
     private static final String STR_01 = "01".intern();
@@ -158,29 +156,27 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	}
 	
 	private void handleIdenCode(ChannelHandlerContext ctx, char[] data) {
-		//String data = datas.toString();
+
 		if(data.length < 16) {
 			return;
 		}
 
-<<<<<<< Updated upstream
 		char[] infoIdenCode = ArrayUtils.subarray(data, 14, 16);
 
-=======
-		String infoIdenCode = data.substring(14, 16);
-		
-		if (!(data.startsWith("EB90") || data.startsWith("eb90")) && data.startsWith("68")) {
+		/*
+		 * 这里做一个设备的注册，以免系统重启后设备不再发送eb90报文，出现设备不上线的情况
+		 */
+		if (!(CharUtils.startWith(data, EB_UP) || CharUtils.startWith(data, EB_DOWN)) && CharUtils.endsWith(data, CODE_16)) {
 			AttributeKey<Integer> key = AttributeKey.valueOf("isRegisted");
 			Attribute<Integer> attr = ctx.attr(key);
 			if (null == attr.get()) {
-				int address = Integer.parseInt(data.substring(12, 16), 16);
-				logger.info(address + "号设备上线");
+				//int address = Integer.parseInt(data.substring(12, 16), 16);
+				//logger.info(address + "号设备上线");
 				getOnlineAddress(ctx, data);
 				attr.set(1);
 			}
 		}
-		
->>>>>>> Stashed changes
+
 		/*
 		 * 将接收到的客户端信息分类处理
 		 * 读通信地址并将地址反转
@@ -546,16 +542,12 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			ctx.channel().writeAndFlush(data);
 			return;
 		}
-<<<<<<< Updated upstream
-		String address = CharUtils.newString(data, 12, 16).intern();
-=======
 		String address;
-		if (data.startsWith("68")) {
-			address = data.substring(10, 14);
+		if (CharUtils.startWith(data, CODE_68)) {
+			address = CharUtils.newString(data, 10, 14).intern();
 		}
 		else
-			address = data.substring(12, 16);
->>>>>>> Stashed changes
+			address = CharUtils.newString(data, 12, 16).intern();
 		gprs.setAddress(address);
 
 		address = new HighVoltageDeviceCommandUtil().reverseString(address);
