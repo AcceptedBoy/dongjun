@@ -4,14 +4,13 @@
 ---
 
 ## 项目结构
-
-| 目录 | 功能 |
-|--|--|
-|`dongjun-hardware`| 设备报文硬件解析端 |
-|`dongjun-platform`| 网页web端的平台版 |
-|`dongjun-website`| 网页web端的企业版 |
-|`dongjun-service`| 部署在阿里云上的中央管理 |
-|`dongjun-simulate`| 可模拟数据报文的发送 |
+目录|功能
+----|----
+`dongjun-hardware`| 设备报文硬件解析端 
+`dongjun-platform`| 网页web端的平台版 
+`dongjun-website`| 网页web端的企业版 
+`dongjun-service`| 部署在阿里云上的中央管理 
+`dongjun-simulate`| 可模拟数据报文的发送 
 
 
 ## dongjun-service
