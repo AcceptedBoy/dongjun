@@ -2,11 +2,12 @@ package com.gdut.dongjun.web;
 
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.service.ZTreeNodeService;
+import com.gdut.dongjun.service.webservice.client.centor.po.Constant;
+import com.gdut.dongjun.service.webservice.client.centor.client.CommonServiceClient;
+import com.gdut.dongjun.service.webservice.client.centor.util.JaxrsClientUtil;
 import com.gdut.dongjun.util.EncoderUtil;
 import com.gdut.dongjun.util.VoiceFixUtil;
-import com.gdut.dongjun.webservice.Constant;
-import com.gdut.dongjun.webservice.client.CommonServiceClient;
-import com.gdut.dongjun.webservice.util.JaxrsClientUtil;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

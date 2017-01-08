@@ -1,15 +1,15 @@
 package com.gdut.dongjun.web;
 
-import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.domain.po.HighVoltageSwitch;
 import com.gdut.dongjun.domain.vo.AvailableHighVoltageSwitch;
 
 import com.gdut.dongjun.service.device.HighVoltageSwitchService;
 import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
+import com.gdut.dongjun.service.webservice.client.centor.po.Constant;
+import com.gdut.dongjun.service.webservice.client.centor.client.CommonServiceClient;
+import com.gdut.dongjun.service.webservice.client.centor.po.SwitchGPRS;
+import com.gdut.dongjun.service.webservice.client.centor.util.JaxrsClientUtil;
 import com.gdut.dongjun.util.*;
-import com.gdut.dongjun.webservice.Constant;
-import com.gdut.dongjun.webservice.client.CommonServiceClient;
-import com.gdut.dongjun.webservice.util.JaxrsClientUtil;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

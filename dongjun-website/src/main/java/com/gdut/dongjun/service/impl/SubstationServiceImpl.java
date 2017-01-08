@@ -1,14 +1,13 @@
 package com.gdut.dongjun.service.impl;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.gdut.dongjun.webservice.Constant;
-import com.gdut.dongjun.webservice.client.CommonServiceClient;
-import com.gdut.dongjun.webservice.util.JaxrsClientUtil;
-import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
+import com.gdut.dongjun.service.webservice.client.centor.po.Constant;
+import com.gdut.dongjun.service.webservice.client.centor.client.CommonServiceClient;
+import com.gdut.dongjun.service.webservice.client.centor.util.JaxrsClientUtil;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

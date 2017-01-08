@@ -1,4 +1,4 @@
-package com.gdut.dongjun.webservice.po;
+package com.gdut.dongjun.service.webservice.client.centor.po;
 
 
 import com.gdut.dongjun.domain.po.HighVoltageSwitch;
@@ -7,9 +7,6 @@ import com.gdut.dongjun.domain.po.Substation;
 
 import java.util.List;
 
-/**
- * Created by symon on 16-9-29.
- */
 public class InitialParam {
 
     private List<Substation> substationList;

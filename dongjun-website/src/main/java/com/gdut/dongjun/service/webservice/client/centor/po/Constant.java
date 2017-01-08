@@ -1,8 +1,5 @@
-package com.gdut.dongjun.webservice;
+package com.gdut.dongjun.service.webservice.client.centor.po;
 
-/**
- * Created by symon on 16-9-28.
- */
 public class Constant {
 
     private boolean isService;

@@ -1,24 +1,19 @@
-package com.gdut.dongjun.webservice.aspect;
+package com.gdut.dongjun.service.webservice.client.centor.aspect;
 
 import com.gdut.dongjun.domain.po.HighVoltageSwitch;
 import com.gdut.dongjun.domain.po.Line;
 import com.gdut.dongjun.domain.po.Substation;
-import com.gdut.dongjun.webservice.Constant;
-import com.gdut.dongjun.webservice.client.CommonServiceClient;
-import com.gdut.dongjun.webservice.util.JaxrsClientUtil;
-
+import com.gdut.dongjun.service.webservice.client.centor.po.Constant;
+import com.gdut.dongjun.service.webservice.client.centor.client.CommonServiceClient;
+import com.gdut.dongjun.service.webservice.client.centor.util.JaxrsClientUtil;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 
 
-/**
- * Created by symon on 16-9-29.
- */
 @Aspect
 @Component
 public class CommonAspect {

@@ -1,4 +1,4 @@
-package com.gdut.dongjun.core;
+package com.gdut.dongjun.service.webservice.client.centor.po;
 
 import java.io.Serializable;
 

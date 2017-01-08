@@ -1,4 +1,4 @@
-package com.gdut.dongjun.webservice.po;
+package com.gdut.dongjun.service.webservice.client.centor.po;
 
 
 import javax.xml.bind.annotation.XmlElement;

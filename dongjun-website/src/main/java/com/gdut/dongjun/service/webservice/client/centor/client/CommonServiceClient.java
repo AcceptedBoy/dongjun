@@ -1,28 +1,17 @@
-package com.gdut.dongjun.webservice.client;
-
-import javax.ws.rs.Produces;
+package com.gdut.dongjun.service.webservice.client.centor.client;
 
 import com.gdut.dongjun.domain.po.HighVoltageSwitch;
 import com.gdut.dongjun.domain.po.Line;
 import com.gdut.dongjun.domain.po.Substation;
 import com.gdut.dongjun.domain.vo.AvailableHighVoltageSwitch;
-import com.gdut.dongjun.service.impl.ZTreeNode;
-import com.gdut.dongjun.webservice.po.Center;
-import com.gdut.dongjun.webservice.po.InitialParam;
-
+import com.gdut.dongjun.service.webservice.client.centor.po.InitialParam;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.io.Serializable;
-
 import java.util.List;
-import java.util.Map;
 
 
-/**
- * 暴露commonService服务
- * Created by symon on 16-9-27.
- */
 @Produces({MediaType.APPLICATION_JSON})
 public interface CommonServiceClient extends Serializable {
 

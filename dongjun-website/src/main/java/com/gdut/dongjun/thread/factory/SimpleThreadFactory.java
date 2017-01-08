@@ -1,5 +1,7 @@
 package com.gdut.dongjun.thread.factory;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
 /**
@@ -7,6 +9,14 @@ import java.util.concurrent.ThreadFactory;
  */
 public class SimpleThreadFactory implements ThreadFactory  {
 
+	protected static ExecutorService fixedPool = Executors.newFixedThreadPool(
+			Runtime.getRuntime().availableProcessors() + 1);
+
+	/**
+	 * TODO 为线程命名
+	 * @param r
+	 * @return
+     */
 	@Override
 	public Thread newThread(Runnable r) {
 		return new Thread(r);
@@ -34,9 +44,5 @@ public class SimpleThreadFactory implements ThreadFactory  {
 				}
 			}
 		};
-	}
-	
-	public Thread createDelayDaemonThread(Runnable r, int delay) {
-		return newDaemonThread(createDelayThread(r, delay));
 	}
 }

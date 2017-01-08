@@ -1,22 +1,20 @@
-package com.gdut.dongjun.webservice;
+package com.gdut.dongjun.service.webservice.client.centor;
 
 import com.gdut.dongjun.service.LineService;
 import com.gdut.dongjun.service.SubstationService;
 import com.gdut.dongjun.service.device.HighVoltageSwitchService;
+import com.gdut.dongjun.service.webservice.client.centor.client.CommonServiceClient;
+import com.gdut.dongjun.service.webservice.client.centor.po.Constant;
+import com.gdut.dongjun.service.webservice.client.centor.po.InitialParam;
+import com.gdut.dongjun.service.webservice.client.centor.util.JaxrsClientUtil;
 import com.gdut.dongjun.util.NetUtil;
-import com.gdut.dongjun.webservice.client.CommonServiceClient;
-import com.gdut.dongjun.webservice.po.InitialParam;
-import com.gdut.dongjun.webservice.util.JaxrsClientUtil;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.net.*;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 
-
-/**
- * Created by symon on 16-9-29.
- */
 @Component
 public class SystemInitalStartup implements InitializingBean {
 
