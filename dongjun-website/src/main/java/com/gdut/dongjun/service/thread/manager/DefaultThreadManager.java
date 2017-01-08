@@ -1,10 +1,10 @@
-package com.gdut.dongjun.thread.manager;
+package com.gdut.dongjun.service.thread.manager;
+
+import com.gdut.dongjun.service.thread.factory.SimpleThreadFactory;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-
-import com.gdut.dongjun.thread.factory.SimpleThreadFactory;
 
 public final class DefaultThreadManager {
 
