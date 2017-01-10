@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gdut.dongjun.domain.dao.TemperatureMeasureMapper">
+
+	<resultMap id="BaseResultMap" type="com.gdut.dongjun.domain.po.TemperatureMeasure">
+		<id column="id" jdbcType="VARCHAR" property="id" />
+		<result column="device_id" jdbcType="VARCHAR" property="deviceId" />
+		<result column="date" jdbcType="TIMESTAMP" property="date" />
+		<result column="tag" jdbcType="INTEGER" property="tag" />
+		<result column="value" jdbcType="VARCHAR" property="value" />
+	</resultMap>
+
+	<sql id="Base_Column_List">
+		id, device_id, date, tag, value
+	</sql>
+
+	<select id="selectByParameters" resultMap="BaseResultMap">
+		select * from temperature_measure where 1 = 1
+		<if test="map != null">
+			<foreach item="item" index="key" collection="map.entrySet()">
+				and ${key} =
+				#{item}
+			</foreach>
+		</if>
+	</select>
+
+	<select id="selectByPrimaryKey" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List" />
+		from temperature_measure
+		where id = #{id,jdbcType=VARCHAR}
+	</select>
+
+	<delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+		delete from
+		temperature_measure
+		where id = #{id,jdbcType=VARCHAR}
+	</delete>
+
+	<insert id="insert" parameterType="com.gdut.dongjun.domain.po.TemperatureMeasure">
+		insert into temperature_measure
+		(id, device_id, date, tag, value)
+		values (#{id,jdbcType=VARCHAR}, #{deviceId,jdbcType=VARCHAR},
+		#{date,jdbcType=TIMESTAMP},
+		#{tag,jdbcType=INTEGER},
+		#{value,jdbcType=VARCHAR})
+	</insert>
+
+	<insert id="insertSelective" parameterType="com.gdut.dongjun.domain.po.TemperatureMeasure">
+		insert into temperature_measure
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				id,
+			</if>
+			<if test="deviceId != null">
+				device_id,
+			</if>
+			<if test="date != null">
+				date,
+			</if>
+			<if test="tag != null">
+				tag,
+			</if>
+			<if test="value != null">
+				value,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=VARCHAR},
+			</if>
+			<if test="deviceId != null">
+				#{deviceId,jdbcType=VARCHAR},
+			</if>
+			<if test="date != null">
+				#{date,jdbcType=TIMESTAMP},
+			</if>
+			<if test="tag != null">
+				#{tag,jdbcType=INTEGER},
+			</if>
+			<if test="value != null">
+				#{value,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+
+	<update id="updateByPrimaryKeySelective" parameterType="com.gdut.dongjun.domain.po.TemperatureMeasure">
+		update temperature_measure
+		<set>
+			<if test="deviceId != null">
+				device_id = #{deviceId,jdbcType=VARCHAR},
+			</if>
+			<if test="tag != null">
+				tag = #{tag,jdbcType=INTEGER},
+			</if>
+			<if test="date != null">
+				date = #{date,jdbcType=TIMESTAMP},
+			</if>
+			<if test="value != null">
+				value = #{value,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where id = #{id,jdbcType=VARCHAR}
+	</update>
+
+	<update id="updateByPrimaryKey" parameterType="com.gdut.dongjun.domain.po.TemperatureMeasure">
+		update
+		temperature_measure
+		set device_id = #{deviceId,jdbcType=VARCHAR},
+		tag =
+		#{tag,jdbcType=INTEGER},
+		date =
+		#{date,jdbcType=TIMESTAMP},
+		value =
+		#{value,jdbcType=VARCHAR}
+		where id = #{id,jdbcType=VARCHAR}
+	</update>
+
+</mapper>

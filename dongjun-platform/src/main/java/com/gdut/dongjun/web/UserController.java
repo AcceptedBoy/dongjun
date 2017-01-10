@@ -54,10 +54,8 @@ public class UserController {
 	@ResponseBody
 	public Object loginForm(String name, String password, Model model,
 			RedirectAttributes redirectAttributes, HttpSession session) {
-
 		SecurityUtils.setSecurityManager(manager);
 		Subject currentUser = SecurityUtils.getSubject();
-
 		UsernamePasswordToken token = new UsernamePasswordToken(name, password);
 		token.setRememberMe(true);
 
@@ -127,5 +125,15 @@ public class UserController {
 			return "false";
 		}
 		return "ture";
+	}
+	
+	@RequestMapping("/test111")
+	@ResponseBody
+	public boolean test111(HttpSession session) {
+		List<User> users = userService.selectByParameters(null);
+		if (users == null) {
+			return false;
+		}
+		return true;
 	}
 }

@@ -52,8 +52,8 @@ djMap.Model = function(){
 	var location = {
 		switchId: -1,
 		scale: 12,
-		lng: 0,
-		lat: 0
+		lng: 108.386287,
+		lat: 22.82277
 	}
 	// var oldMarkerList = []
 	// var PreHandlerNode
@@ -163,7 +163,7 @@ djMap.Model = function(){
 					history.polyline[item.id] = item
 				} else if(name == 'activeMarkers') {
 					try{
-						for(let k in item) {
+						for(var k in item) {
 							history.activeMarkers[k] = item[k]
 						}
 					} catch(e) {
@@ -293,7 +293,8 @@ djMap.View = function(_map) {
 		initMap: function(lng, lat) {
 			map = model.getMap()
 			map.centerAndZoom(new BMap.Point(lng, lat), 12);
-			map.enableScrollWheelZoom();                				 	//启用滚轮放大缩小
+			this.addMarker({lng: lng, lat: lat})									// 添加marker
+			map.enableScrollWheelZoom();                				 	// 启用滚轮放大缩小
 
 			var mapType1 = new BMap.MapTypeControl({
 				mapTypes: [ BMAP_NORMAL_MAP, BMAP_HYBRID_MAP ]
@@ -529,11 +530,15 @@ djMap.Control = function(_map) {
 		init: function(initData) {
 			var map = new BMap.Map('baidu_map', {enableMapClick: false})
 			model.setMap(map)
-			view.initMap(108.386287, 22.82277)
-/*			model.location({
-				lng: initData.longitude,
-				lat: initData.latitude
-			})*/
+			var lng = 108.386287,
+					lat = 22.82277
+			if(localStorage.getItem('longitude')){
+				lng = localStorage.getItem('longitude')
+				lat = localStorage.getItem('latitude')
+				localStorage.removeItem('longitude')
+				localStorage.removeItem('latitude')
+			}
+			view.initMap(lng, lat)
 			this.initAllSwitch()
 			this.startListen(map)
 		},

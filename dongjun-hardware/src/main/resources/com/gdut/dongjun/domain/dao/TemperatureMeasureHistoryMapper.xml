@@ -40,7 +40,7 @@
 
 	<insert id="insert" parameterType="com.gdut.dongjun.domain.po.TemperatureMeasureHistory">
 		insert into temperature_measure_history
-		(id, device_id, date, tag, value)
+		(#{sql})
 		values (#{id,jdbcType=VARCHAR}, #{deviceId,jdbcType=VARCHAR},
 		#{date,jdbcType=TIMESTAMP},
 		#{tag,jdbcType=INTEGER},

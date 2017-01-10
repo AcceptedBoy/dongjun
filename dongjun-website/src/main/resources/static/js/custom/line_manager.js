@@ -127,6 +127,14 @@ function reloadDataTable(id){
             "data": null,
             "defaultContent": '<a href="#del_switch_modal" class="del_switch_btn btn btn-danger" data-toggle="modal" data-backdrop="static">删除&raquo; </a>'
         }], 	
+        'language': {
+            'paginate': {
+              'next': '下一页',
+              'previous': '上一页'
+            },
+            'emptyTable': '找不到相关数据',
+            'zeroRecords': '找不到相关数据'
+          },
         "fnInitComplete": function(oSettings, json) { 
 
         	$(".edit_switch_btn").click(editSwitch);

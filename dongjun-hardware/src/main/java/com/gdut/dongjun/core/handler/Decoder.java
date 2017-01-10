@@ -28,11 +28,12 @@ public class Decoder extends ByteToMessageDecoder {
 	@Override
 	protected void decode(ChannelHandlerContext ctx, ByteBuf in,
 			List<Object> out) {
-
+		
 		if (in.readableBytes() < 6) {
 			return;
 		}
-		byte[] bytes = new byte[in.writerIndex()];
+		int count = in.writerIndex();
+		byte[] bytes = new byte[count];
 		in.readBytes(bytes);
 		out.add(HexString_BytesUtil.bytesToHexString(bytes));
 	}

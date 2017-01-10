@@ -24,8 +24,8 @@ import com.gdut.dongjun.util.MyBatisMapUtil;
 /**
  *
  */
-@Controller
-@RequestMapping("/dongjun/group")
+//@Controller
+//@RequestMapping("/dongjun/group")
 public class GroupController {
 
 	@Autowired

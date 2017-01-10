@@ -37,7 +37,7 @@ public class IndexController {
 	 */
 	@RequestMapping("/index")
 	public String forwardIndex() {
-		return "manager/index";
+		return "/monitor/index";
 	}
 	
 //	@RequestMapping("/monitor")

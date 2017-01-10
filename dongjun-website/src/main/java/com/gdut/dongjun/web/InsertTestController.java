@@ -29,9 +29,9 @@ import com.gdut.dongjun.util.MyBatisMapUtil;
  * @author yzh
  *
  */
-@Controller
-@RequestMapping("/dongjun")
-@SessionAttributes("test")
+//@Controller
+//@RequestMapping("/dongjun")
+//@SessionAttributes("test")
 public class InsertTestController extends DefaultThreadManager {
 
 	@Autowired

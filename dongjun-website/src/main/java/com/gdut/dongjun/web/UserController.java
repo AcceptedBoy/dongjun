@@ -53,7 +53,7 @@ public class UserController {
 	@ResponseBody
 	public Object loginForm(String name, String password, Model model,
 			RedirectAttributes redirectAttributes, HttpSession session) {
-
+		
 		SecurityUtils.setSecurityManager(manager);
 		Subject currentUser = SecurityUtils.getSubject();
 

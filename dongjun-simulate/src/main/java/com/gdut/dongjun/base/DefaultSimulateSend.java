@@ -35,7 +35,7 @@ public class DefaultSimulateSend extends AbstractSimulateSend {
              OutputStream os = socket.getOutputStream();
              os.write(HexString_BytesUtil.hexStringToBytes(cache.get(i)));
              os.flush();
-             Thread.sleep(1000);
+             Thread.sleep(200);
          }
      }
  }

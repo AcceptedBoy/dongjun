@@ -83,8 +83,8 @@ public class ChartData {
 			case 'C' : chaseC.add(getFloatValue(
 					GenericUtil.getPrivatyIntegerValue(o, "value")));break;
 			}
-			
-			xData.add(TimeUtil.timeFormat((Date)GenericUtil.getPrivateObjectValue(o, "time")));
+			String aTime = TimeUtil.timeFormat((Date)GenericUtil.getPrivateObjectValue(o, "time"));
+			xData.add(aTime.replace(" ", " \n "));
 		}
 		chartData.getxAxis().get(0).setData(xData);
 		return chartData;

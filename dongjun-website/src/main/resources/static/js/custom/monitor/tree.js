@@ -9,7 +9,7 @@ var treeModel = function() {
 				node: node,
 				tag: 0
 			});
-			console.log(checkNodes);
+			// console.log(checkNodes);
 		},
 		delCheck: function(node) {
 			for(var i = 0; i < checkNodes.length; i++) {
@@ -18,7 +18,7 @@ var treeModel = function() {
 					break;
 				}
 			}
-			console.log(checkNodes);
+			// console.log(checkNodes);
 		},
 		clearTag: function() {
 			if(checkNodes.length != 0) {
@@ -44,7 +44,7 @@ var treeSet = function() {
 			}
 		},
 		set: function(ztree) {
-			console.log(ztree)
+			// console.log(ztree)
 			if(ztree && typeof ztree == 'object') {
 				zTree = ztree;
 			} else {
@@ -157,10 +157,13 @@ var treeSet = function() {
 				if(locationId != -1) {
 					var locateNode = zTree.getNodesByParamFuzzy("id", locationId)[0]
 					// console.log(locateNode)
-					djMap.Model.location({
-						lng: locateNode.longitude,
-						lat: locateNode.latitude
-					})
+					if(!!locateNode){
+						djMap.Model.location({
+							lng: locateNode.longitude,
+							lat: locateNode.latitude
+						})						
+					}
+					
 				}
 
 				djMap.Control.init({
@@ -221,7 +224,7 @@ var treeSet = function() {
 			}
 		},
 		flyMove: function(node) {
-			console.log('走你')
+			// console.log('走你')
 			if(!node.isParent) {
 				djMap.Control.treeNodeClick('move', node);
 			} else {

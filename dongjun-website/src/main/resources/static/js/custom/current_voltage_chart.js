@@ -51,6 +51,19 @@ function zTreeOnClick(event, treeId, treeNode) {
 	//search_chart_by_switch_id();
 }
 
+function changePosX(op) {
+	var val = op.xAxis[0].data[op.xAxis[0].data.length-1];
+/*	op.xAxis[0].data[op.xAxis[0].data.length-1] = Object.assign({}, {
+		value: val,
+		position: [-20, 0]
+	})*/
+	Object.assign(op.xAxis[0], {
+		axisLabel: {
+			interval: -1
+		}
+	})
+}
+
 /** 用于tabpanel切换标签页时加载不同的图表
 /** param： 树的点击节点
 /** param： 图表类型，1电压，0电流，2功率
@@ -79,9 +92,11 @@ function show_chart(treeNode, num, Chartname) {
 		}
 	}).success(function (data) {
 		option = data;
+		changePosX(option);
 		myChart.setOption(option);
 		setTimeout(function () {
 			myChart.hideLoading();
+			console.log(myChart.getOption())
 		}, 2000);
 	})
 }

@@ -11,7 +11,7 @@
 	</resultMap>
 
 	<sql id="Base_Column_List">
-		id, device_id, date, tag, value
+		id, device_id, tag, tag, value
 	</sql>
 
 	<select id="selectByParameters" resultMap="BaseResultMap">
@@ -40,7 +40,7 @@
 
 	<insert id="insert" parameterType="com.gdut.dongjun.domain.po.TemperatureMeasure">
 		insert into temperature_measure
-		(id, device_id, date, tag, value)
+		(#{sql})
 		values (#{id,jdbcType=VARCHAR}, #{deviceId,jdbcType=VARCHAR},
 		#{date,jdbcType=TIMESTAMP},
 		#{tag,jdbcType=INTEGER},

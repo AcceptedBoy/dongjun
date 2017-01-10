@@ -52,7 +52,7 @@
 		#{addTime, jdbcType=VARCHAR},
 		#{availableTime, jdbcType=VARCHAR},
 		#{onlineTime, jdbcType=VARCHAR},
-		#{groupId, jdbcType=INTEGER}
+		#{groupId, jdbcType=INTEGER})
 	</insert>
 
 	<insert id="insertSelective" parameterType="com.gdut.dongjun.domain.po.TemperatureDevice">
@@ -91,7 +91,7 @@
 				#{deviceNumber, jdbcType=VARCHAR},
 			</if>
 			<if test="onlineTime != null">
-				#{onlineTime, jdbcType=VARCHAR},
+				#{onlieTime, jdbcType=VARCHAR},
 			</if>
 			<if test="simNumber != null">
 				#{simNumber, jdbcType=VARCHAR},
@@ -136,7 +136,7 @@
 				group_id = #{groupId, jdbcType=INTEGER}
 			</if>
 			<if test="onlineTime != null">
-				online_time = #{onlineTime, jdbcType=VARCHAR},
+				online_time = #{onlieTime, jdbcType=VARCHAR},
 			</if>
 			<if test="simNumber != null">
 				sim_number = #{simNumber, jdbcType=VARCHAR},
@@ -156,7 +156,7 @@
 		available_time = #{availableTime, jdbcType=VARCHAR},
 		group_id = #{groupId, jdbcType=INTEGER},
 		sim_number = #{simNumber, jdbcType=VARCHAR},
-		online_time = #{onlineTime, jdbcType=VARCHAR},
+		online_time = #{onlieTime, jdbcType=VARCHAR},
 		device_number = #{deviceNumber, jdbcType=VARCHAR}
 		where id = #{id,jdbcType=VARCHAR}
 	</update>

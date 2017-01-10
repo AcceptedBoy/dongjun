@@ -1,5 +1,3 @@
-var timer = null // 测试用
-
 var monitorSet = function() {
 	var stompClient
 	return {
@@ -135,8 +133,6 @@ var monitorSet = function() {
 }(); 
 
 monitorSet.init()
-
-timer = setInterval(monitorSet.getSwitch, 10000)
 // 在页面卸载前必须停止
 window.onbeforeunload = function() {
 	monitorSet.stopRead()

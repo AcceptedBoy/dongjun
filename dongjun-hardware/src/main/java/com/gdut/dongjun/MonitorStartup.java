@@ -148,19 +148,33 @@ public class MonitorStartup implements InitializingBean {
 	 * @throws Exception
 	 */
 	private void monitorStartup() {
-		ProtocolPort port = protocolPortDAOImpl.selectByPrimaryKey("1");
+		List<ProtocolPort> ports = protocolPortDAOImpl.selectByParameters(null);
+		for (ProtocolPort port : ports) {
+			if (port.getRemark().equals("high_voltage")) {
+				highVoltageServer.setPort(port.getPort());
+			}
+			else if (port.getRemark().equals("low_voltage")) {
+				lowVoltageServer.setPort(port.getPort());
+			}
+			else if (port.getRemark().equals("control_device")) {
+				controlMeasureServer.setPort(port.getPort());
+			}
+			else if (port.getRemark().equals("temperature_device")) {
+				temperatureServer.setPort(port.getPort());
+			}
+			else if (port.getRemark().equals("high_voltage_1.3")) {
+				highVoltageServer_v1_3.setPort(port.getPort());
+			}
+			else {
+				logger.warn("没有和端口相符合的服务器，请查看服务器启动代码是否有误");
+			}
+		}
 
-		logger.info("低压开关端口号：" + port.getLvPort());
-		logger.info("高压开关端口号：" + port.getHvPort());
-		logger.info("管控开关端口号：" + port.getConPort());
-		logger.info("高压版本1.3端口号：" + port.getHv13Port());
-		logger.info("温度设备端口号：" + port.getTemPort());
-
-		lowVoltageServer.setPort(port.getLvPort());
-		highVoltageServer.setPort(port.getHvPort());
-		controlMeasureServer.setPort(port.getConPort());
-		highVoltageServer_v1_3.setPort(port.getHv13Port());
-		temperatureServer.setPort(port.getTemPort());
+		logger.info("低压开关端口号：" + lowVoltageServer.getPort());
+		logger.info("高压开关端口号：" + highVoltageServer.getPort());
+		logger.info("管控开关端口号：" + controlMeasureServer.getPort());
+		logger.info("高压版本1.3端口号：" + highVoltageServer_v1_3.getPort());
+		logger.info("温度设备端口号：" + temperatureServer.getPort());
 
 		lowVoltageServer.start();
 		highVoltageServer.start();

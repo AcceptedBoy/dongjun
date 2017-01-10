@@ -105,8 +105,8 @@ public class Application extends SpringBootServletInitializer {
 
 		ComboPooledDataSource ds = new ComboPooledDataSource();
 		ds.setJdbcUrl("jdbc:mysql://115.28.7.40:3306/elecon_platform?useUnicode=true&amp;charaterEncoding=utf-8&zeroDateTimeBehavior=convertToNull");
-		ds.setUser("root");
-		ds.setPassword("root");//elecon
+		ds.setUser("topview");
+		ds.setPassword("topview624");//elecon
 		try {
 			ds.setDriverClass("com.mysql.jdbc.Driver");
 		} catch (PropertyVetoException e) {

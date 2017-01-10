@@ -43,7 +43,7 @@ $(document).ready(function() {
 			}
 		})
 	});
-	
+
 	$("#add_switch_confirm_btn").click(function() {
 
 		$.ajax({
@@ -71,30 +71,32 @@ $(document).ready(function() {
 			}
 		})
 	});
-	
-	
-	
+
+
+
 	$(".lines").change(function(){
 		reloadDataTable(this.value);
 	});
-	
+
 });
 
+var myState = 'high'
+
 /**
- * 
-* @Title: reloadDataTable 
+ *
+* @Title: reloadDataTable
 * @Description: TODO
-* @param    
-* @return void   
+* @param
+* @return void
 * @throws
  */
 function reloadDataTable(lineId){
-	
+
 	$('#switch_list').DataTable( {
 		"destroy": true,// destroy之后才能重新加载
 		"ajax": "high_voltage_switch_list_by_line_id.action?lineId="+lineId,
         "columns": [
-            { "data": "deviceNumber" },        
+            { "data": "deviceNumber" },
             { "data": "name" },
             { "data": "showName"},
             { 	"data": "id",
@@ -103,8 +105,8 @@ function reloadDataTable(lineId){
             { 	"data": "lineId",
             	"sClass": "dpass"
             },
-	        { "data": "address" },   
-	        { "data": "longitude" },   
+	        { "data": "address" },
+	        { "data": "longitude" },
 	        { "data": "latitude" },
 	        { "data": "simNumber" },
 	        { "data": "inlineIndex" },
@@ -114,7 +116,7 @@ function reloadDataTable(lineId){
             { "data": null},// 设置默认值 null，表示列不会获得数据源对象的信息,否则默认值会被覆盖掉
             { "data": null}
         ],
-        
+
         // 为下面的列设置默认值
         "columnDefs": [ {
             "targets": -4,
@@ -136,6 +138,14 @@ function reloadDataTable(lineId){
             "defaultContent": '<a href="#location_switch_modal" role="button" class="location_switch_btn btn btn-primary" data-toggle="modal">设为定位中心</a>'
         }
         ],
+        'language': {
+            'paginate': {
+              'next': '下一页',
+              'previous': '上一页'
+            },
+            'emptyTable': '找不到相关数据',
+            'zeroRecords': '找不到相关数据'
+          },
         "fnInitComplete": function(oSettings, json) {
 	        //alert('123')
         	$(".edit_switch_btn").unbind().click(editSwitch);
@@ -159,7 +169,7 @@ function reloadDataTable(lineId){
 
 
 /**
- * 
+ *
  * @Title: addSwitch
  * @Description: TODO
  * @param
@@ -169,9 +179,9 @@ function reloadDataTable(lineId){
 function addSwitch() {
 
 	$("#inputId").val("");
-	
+
 	if($(".lines").val() == null){
-		
+
 		$("#inputLineId").val(
 				$(".edit_switch_btn").parent("td").prevAll()[7].innerHTML);
 	}else{
@@ -188,7 +198,7 @@ function addSwitch() {
 }
 
 /**
- * 
+ *
  * @Title: editSwitch
  * @Description: TODO
  * @param
@@ -214,7 +224,7 @@ function editSwitch() {
 
 
 /**
- * 
+ *
  * @Title: delSwitch
  * @Description: TODO
  * @param
@@ -235,7 +245,7 @@ function delSwitch() {
 			success : function(data) {
 
 				if(data!=null){
-					
+
 					reloadDataTable(data);
 				}
 			}
@@ -244,7 +254,7 @@ function delSwitch() {
 }
 
 /**
- * 
+ *
  * @Title: enterMap
  * @Description: TODO
  * @param
@@ -253,28 +263,29 @@ function delSwitch() {
  */
 function enterMap() {
 
-	var longitude = $(this).parent("td").prevAll()[2].innerHTML;
-	var latitude = $(this).parent("td").prevAll()[1].innerHTML;
+	var longitude = $(this).parent("td").prevAll()[4].innerHTML;
+	var latitude = $(this).parent("td").prevAll()[3].innerHTML;
 	localStorage.setItem('longitude', longitude);
 	localStorage.setItem('latitude', latitude);
 	location.href = "index";
 }
 
 function locateSwitch() {
-	
+
 	var column = $(this).parent("td").prevAll();
 	$.ajax({
 		type : "get",
 		url : "edit_location",
 		async : false,
 		data : {
-			"switchId" : column[9].innerHTML,
-			"type" : 1
+			"switchId" : column[10].innerHTML,
+			"type" : 1,
+			"scale": 12
 		},
 		success : function(data) {
 
 			if(data != null){
-				
+
 				alert("设置成功");
 			}
 		}

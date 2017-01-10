@@ -87,7 +87,7 @@
   <script src="../../js/lib/Date.js"></script>
   <script>
     dj.createComponent('topBar', {
-      templateUrl: '../public/topBar.html'
+      templateUrl: '127.0.0.1:9091/templates/public/topBar.html'
     });
 
     
@@ -95,6 +95,7 @@
       template: '<div id="chartContainer" class="span10 container"></div>'
     });
 
+    
     dj.createComponent('tree', {
       template: '<div id="tree" class="span2"></div>'
     });
@@ -102,8 +103,8 @@
     dj.componentIn();
     
     var chart = {};
-    dj.inserCmp('./chartContainer.html', document.getElementById('chartContainer'), function() {
-      dj.inserCmp('./tree.html', document.getElementById('tree'))
+    dj.inserCmp('127.0.0.1:9091/templates/monitor/chartContainer.html', document.getElementById('chartContainer'), function() {
+      dj.inserCmp('127.0.0.1:9091/templates/monitor/tree.html', document.getElementById('tree'))
     });
 
     

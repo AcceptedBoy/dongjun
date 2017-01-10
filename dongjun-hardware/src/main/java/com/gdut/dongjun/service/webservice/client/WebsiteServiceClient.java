@@ -41,7 +41,7 @@ public class WebsiteServiceClient implements InitializingBean, ApplicationContex
     }
 
     private static List<String> ipList = new ArrayList<String>() {{
-        add("localhost:9898");
+        add("localhost:9091");	//这里是复数服务器，以后可以通过xml文件来配置
     }};
 
     @Override
