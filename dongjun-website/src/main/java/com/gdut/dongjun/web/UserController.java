@@ -27,6 +27,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.gdut.dongjun.domain.model.ErrorInfo;
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.User;
+import com.gdut.dongjun.service.UserLogService;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.impl.enums.LoginResult;
 import com.gdut.dongjun.util.MyBatisMapUtil;
@@ -40,6 +41,8 @@ public class UserController {
 	private UserService userService;
 	@Autowired
 	private org.apache.shiro.mgt.SecurityManager manager;
+	@Autowired
+	private UserLogService userLogService;
 	
 	private static final Logger logger = Logger.getLogger(UserController.class);
 
@@ -76,6 +79,7 @@ public class UserController {
 			currentUser.login(token);
 			session.setAttribute("currentUser", user);
 			SecurityUtils.getSubject().getSession().setTimeout(-1000l);
+			userLogService.createNewLog(user);
 			// if no exception, that's it, we're done!
 		} catch (UnknownAccountException uae) {
 			// username wasn't in the system, show them an error message?

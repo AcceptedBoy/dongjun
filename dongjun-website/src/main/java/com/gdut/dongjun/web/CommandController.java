@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import com.gdut.dongjun.domain.HighVoltageStatus;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
+import com.gdut.dongjun.service.OperationLogService;
+import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.common.DeviceBinding;
 import com.gdut.dongjun.service.device.DeviceCommonService;
 import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
@@ -43,6 +45,12 @@ public class CommandController {
 
 	@Autowired
 	private HardwareServiceClient hardwareClient;
+	
+	@Autowired
+	private UserService userService;
+	
+	@Autowired
+	private OperationLogService oLogService;
 	
 	private final SimpMessagingTemplate template;
 
@@ -215,18 +223,19 @@ public class CommandController {
 	@RequestMapping("/control_switch")
 	@ResponseBody
 	public String controlSwitch(@RequestParam(required = true) String switchId,
-			int sign, int type) {
-		
+			int sign, int type, HttpSession session) {
 		String address = hardwareClient.getService().getOnlineAddressById(switchId);
 		String msg = null;
 		if(sign == 0) { //开
 			msg = hardwareClient.getService().generateOpenSwitchMessage(address, type);
+			//msg = hardwareClient.getService().generateOpenSwitchMessage(address);
 		} else { //合
 			msg = hardwareClient.getService().generateCloseSwitchMessage(address, type);
 		}
-		
+		User user = (User)session.getAttribute("currentUser");
+		oLogService.createNewOperationLog(user.getId(), type, switchId);
 		// 发送报文
-		if (msg != null) {
+		if (msg != null) {  
 
 			logger.info("发送开合闸报文" + msg);
 		} else {

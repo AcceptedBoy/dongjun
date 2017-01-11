@@ -575,6 +575,9 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 				 *	}
 				 * 
 				 */
+				if (CharUtils.startWith(data, CODE_68)) { //发送eb90
+					ctx.channel().writeAndFlush(CharUtils.newString(data).intern()); //intern的操作会从字符串池中查看有没有字符串跟data的字符串相符，有则返回它的引用
+				}
 				HighVoltageServer.totalCall(id);
 				if(CtxStore.get(id) != null) {
 					CtxStore.remove(id);
