@@ -45,7 +45,7 @@ public class WebsiteServiceImpl implements WebsiteService {
 
     @Override
     public void callbackDeviceChange(String switchId, Integer type) {
-    	System.out.println("设备状态发生变化" + switchId + "    type为" + type);
+    	LOG.info("设备状态发生变化" + switchId + "    type为" + type);
         List<User> userList = DeviceBinding.getListenUser(switchId);
         if(!CollectionUtils.isEmpty(userList)) {
             for(User user : userList) {

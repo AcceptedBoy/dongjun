@@ -88,38 +88,6 @@ public class HardwareServiceImpl implements HardwareService {
 		}
 		return null;
 	}
-	
-//	@Override
-//	public String generateOpenSwitchMessage(final String address) {
-//	
-//		if(address == null) {
-//			return null;
-//		}
-//		String msg = null;
-//		SwitchGPRS gprs = null;
-//		String callMsg = null;
-//			msg = highVoltageDevice.generateOpenSwitchMessage(address);
-//			callMsg = messageEngine.generateTotalCallMsg(address);
-//		if (msg != null && CtxStore.getCtxByAddress(address) != null) {
-//			
-//			CtxStore.getCtxByAddress(address).writeAndFlush(msg);
-//			final String callMsg0 = callMsg;
-//			callerPool.execute(new Runnable() {
-//				@Override
-//				public void run() {
-//					try {
-//						Thread.sleep(1000 * 5);
-//					} catch (InterruptedException e) {
-//						e.printStackTrace();
-//					} finally{
-//						CtxStore.getCtxByAddress(address).writeAndFlush(callMsg0);
-//					}
-//				}
-//			});
-//			return msg;
-//		}
-//		return null;
-//	}
 
 	/* (non-Javadoc)
 	 * @see com.gdut.dongjun.service.rmi.HardwareService#generateCloseSwitchMessage(java.lang.String, int)
