@@ -10,7 +10,6 @@ import java.util.List;
 
 /**
  * 抽象类，主要包含着发送模拟报文的整个流程
- * Created by AcceptedBoy on 2016/8/28.
  */
 public abstract class AbstractSimulateSend {
 

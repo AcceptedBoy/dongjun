@@ -1,15 +1,14 @@
 package com.gdut.dongjun.web;
 
-import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.domain.po.HighVoltageSwitch;
 import com.gdut.dongjun.domain.vo.AvailableHighVoltageSwitch;
 
+import com.gdut.dongjun.service.common.CommonSwitch;
 import com.gdut.dongjun.service.device.HighVoltageSwitchService;
+import com.gdut.dongjun.service.webservice.client.CentorServiceClient;
 import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
+import com.gdut.dongjun.service.webservice.client.po.SwitchGPRS;
 import com.gdut.dongjun.util.*;
-import com.gdut.dongjun.webservice.Constant;
-import com.gdut.dongjun.webservice.client.CommonServiceClient;
-import com.gdut.dongjun.webservice.util.JaxrsClientUtil;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -41,16 +40,11 @@ public class HighVoltageSwitchController {
 	@Autowired
 	private HardwareServiceClient hardwareClient;
 
-	@Resource
-	public void setClient(Constant constant) {
-		this.constant = constant;
-		client = (CommonServiceClient)
-				new JaxrsClientUtil().getClient(constant.getPreSerivcePath(), CommonServiceClient.class);
-	}
+	@Autowired
+	private CentorServiceClient centorServiceClient;
 
-	private CommonServiceClient client;
-
-	private Constant constant;
+	@Autowired
+	private CommonSwitch commonSwitch;
 	
 	private static final Logger logger = Logger.getLogger(HighVoltageHitchEventController.class);
 
@@ -67,8 +61,9 @@ public class HighVoltageSwitchController {
 	@RequestMapping("/high_voltage_switch_manager")
 	public String getLineSwitchList(String lineId, Model model) {
 
-		if(constant.isService()) {
-			model.addAttribute("switches", client.switchsOfLine(1, lineId));
+		if(commonSwitch.canService()) {
+			model.addAttribute("switches",
+					centorServiceClient.getService().switchsOfLine(1, lineId));
 		} else {
 			model.addAttribute("switches", switchService.selectByParameters(
 					MyBatisMapUtil.warp("line_id", lineId)));
@@ -90,8 +85,8 @@ public class HighVoltageSwitchController {
 	@ResponseBody
 	public Object getAllLowVoltage_Switch() {
 
-		if(constant.isService()) {
-			return client.switchsOfLine(1, null);
+		if(commonSwitch.canService()) {
+			return centorServiceClient.getService().switchsOfLine(1, null);
 		} else {
 			return switchService.selectByParameters(null);
 		}
@@ -113,8 +108,8 @@ public class HighVoltageSwitchController {
 			@RequestParam(required = true) String lineId, Model model) {
 
 		List<AvailableHighVoltageSwitch> switchs;
-		if(constant.isService()) {
-			switchs = client.switchsOfLine(1, lineId);
+		if(commonSwitch.canService()) {
+			switchs = centorServiceClient.getService().switchsOfLine(1, lineId);
 		} else {
 			switchs = AvailableHighVoltageSwitch.change2default(
 					switchService.selectByParameters(MyBatisMapUtil.warp("line_id", lineId)));

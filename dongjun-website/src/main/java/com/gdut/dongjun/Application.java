@@ -1,6 +1,6 @@
 package com.gdut.dongjun;
 
-import com.gdut.dongjun.webservice.Constant;
+import com.gdut.dongjun.service.common.CommonSwitch;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
@@ -43,51 +43,10 @@ import java.util.Map;
 @ImportResource("classpath:website-service.xml")
 public class Application extends SpringBootServletInitializer {
 
-	/*--------------------------------------------------------
-	 * 					常量配置
-	 * -------------------------------------------------------
-	 */
-	/*@Value("${cxf.service.url}")
-	private String cxfServiceUrl;
-
-	@Value("${cxf.service.canService}")
-	private boolean canService;
-
-	@Value("${c3p0.jdbcUrl}")
-	private String jdbcUrl;
-
-	@Value("${c3p0.user}")
-	private String user;
-
-	@Value("${c3p0.password}")
-	private String password;
-
-	@Value("${c3p0.driver}")
-	private String driver;
-
-	@Value("${c3p0.acquireIncrement}")
-	private int acquireIncrement;
-
-	@Value("${c3p0.initialPoolSize}")
-	private int initialPoolSize;
-
-	@Value("${c3p0.minPoolSize}")
-	private int minPoolSize;
-
-	@Value("${c3p0.maxPoolSize}")
-	private int maxPoolSize;
-
-	@Value("${c3p0.maxIdleTime}")
-	private int maxIdleTime;*/
-
 	@Bean
-	public Constant projectConstant() {
-		Constant constant = new Constant();
-		constant.setIsService(false);
-		constant.setPreSerivcePath("http://115.28.7.40:8789/dongjun_service/ws/common");
-		return constant;
+	public CommonSwitch projectConstant() {
+		return new CommonSwitch();
 	}
-
 	
 	/*--------------------------------------------------------
 	 * 					数据库配置

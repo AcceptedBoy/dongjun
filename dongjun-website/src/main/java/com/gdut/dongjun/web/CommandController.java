@@ -25,9 +25,8 @@ import com.gdut.dongjun.service.OperationLogService;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.common.DeviceBinding;
 import com.gdut.dongjun.service.device.DeviceCommonService;
+import com.gdut.dongjun.service.thread.manager.DefaultThreadManager;
 import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
-import com.gdut.dongjun.thread.manager.DefaultThreadManager;
-import com.gdut.dongjun.thread.manager.MsgPushThreadManager;
 
 @Controller
 @RequestMapping("/dongjun")
@@ -96,13 +95,14 @@ public class CommandController {
 			@Override
 			public void run() {
 				try {
-					if (!isExcute) {
-						getActive();
-						delActive(_user);
-						addActive(_user);
-						changeActive(_user);
-						isExcute = true;
-					}
+					/* 测试用代码 */
+//					if (!isExcute) {
+//						getActive();
+//						delActive(_user);
+//						addActive(_user);
+//						changeActive(_user);
+//						isExcute = true;
+//					}
 					template.convertAndSend("/topic/get_active_switch_status", 
 							//hardwareService.getActiveSwitchStatus());
 							hardwareClient.getService().getActiveSwitchStatus());
@@ -113,111 +113,111 @@ public class CommandController {
 		}, 8);
 	}
 	
-	public void delActive(User user) {
-		MsgPushThreadManager.createScheduledPoolDaemonThread(
-				new Runnable() {
-
-					@Override
-					public void run() {
-						DecimalFormat format = new DecimalFormat("0");
-						int index = Integer.parseInt(format.format(Math.random()*2));
-						delSwitch.add(switches.get(index));
-						switches.remove(index);
-					}
-					
-				}, 8, user.getId());
-	}
+//	public void delActive(User user) {
+//		MsgPushThreadManager.createScheduledPoolDaemonThread(
+//				new Runnable() {
+//
+//					@Override
+//					public void run() {
+//						DecimalFormat format = new DecimalFormat("0");
+//						int index = Integer.parseInt(format.format(Math.random()*2));
+//						delSwitch.add(switches.get(index));
+//						switches.remove(index);
+//					}
+//					
+//				}, 8, user.getId());
+//	}
 	
-	public void changeActive(User user) {
-		
-		MsgPushThreadManager.createScheduledPoolDaemonThread(
-				new Runnable() {
-
-					@Override
-					public void run() {
-						DecimalFormat format = new DecimalFormat("0");
-						int index = Integer.parseInt(format.format(Math.random()*10));
-						ActiveHighSwitch active = switches.get(2);
-						if (active.getStatus().equals("00")) {
-							active.setOpen(true);
-							active.setStatus("01");
-						}
-						else {
-							active.setStatus("00");
-							active.setOpen(false);
-						}
-					}
-					
-				}, 10, user.getId());
-	}
+//	public void changeActive(User user) {
+//		
+//		MsgPushThreadManager.createScheduledPoolDaemonThread(
+//				new Runnable() {
+//
+//					@Override
+//					public void run() {
+//						DecimalFormat format = new DecimalFormat("0");
+//						int index = Integer.parseInt(format.format(Math.random()*10));
+//						ActiveHighSwitch active = switches.get(2);
+//						if (active.getStatus().equals("00")) {
+//							active.setOpen(true);
+//							active.setStatus("01");
+//						}
+//						else {
+//							active.setStatus("00");
+//							active.setOpen(false);
+//						}
+//					}
+//					
+//				}, 10, user.getId());
+//	}
 	
-	public void addActive(User user) {
-		MsgPushThreadManager.createScheduledPoolDaemonThread(
-				new Runnable() {
-
-					@Override
-					public void run() {
-						if (!delSwitch.isEmpty()) {
-							switches.add(delSwitch.get(0));
-							delSwitch.remove(0);
-						}
-					}
-					
-				}, 15, user.getId());
-	}
+//	public void addActive(User user) {
+//		MsgPushThreadManager.createScheduledPoolDaemonThread(
+//				new Runnable() {
+//
+//					@Override
+//					public void run() {
+//						if (!delSwitch.isEmpty()) {
+//							switches.add(delSwitch.get(0));
+//							delSwitch.remove(0);
+//						}
+//					}
+//					
+//				}, 15, user.getId());
+//	}
 	
-	public void getActive() {
-		List<ActiveHighSwitch> list = new ArrayList<ActiveHighSwitch>();
-//		ActiveHighSwitch active = new ActiveHighSwitch();
-//		active.setOpen(true);
-//		active.setStatus("01");
-//		active.setHitchEventId(null);
-//		active.setId("03");
-//		list.add(active);
-//		ActiveHighSwitch active1 = new ActiveHighSwitch();
-//		active1.setOpen(true);
-//		active1.setStatus("01");
-//		active1.setHitchEventId(null);
-//		active1.setId("028d7316cbd94221857264dcd0be643f");
-//		list.add(active1);
-//		ActiveHighSwitch active2 = new ActiveHighSwitch();
-//		active2.setOpen(false);
-//		active2.setStatus("00");
-//		active2.setHitchEventId(null);
-//		active2.setId("25a4d5f3752443c78e2dfe6189704e95");
-//		list.add(active2);
-//		ActiveHighSwitch active3 = new ActiveHighSwitch();
-//		active3.setOpen(true);
-//		active3.setStatus("01");
-//		active3.setHitchEventId(null);
-//		active3.setId("cb2f0e23c0284064ac0faba9f7dc303a");
-//		list.add(active3);
-		for(int i=0;i<100;i++){
-			//HighVoltageSwitch a1=SwitchService.selectByPrimaryKey(i+"");
-			if(i%2==0){
-				ActiveHighSwitch active3 = new ActiveHighSwitch();
-				active3.setOpen(true);
-				active3.setStatus("01");
-				active3.setHitchEventId(null);
-				active3.setId(i+"");
-				list.add(active3);
-			}else{
-				ActiveHighSwitch active3 = new ActiveHighSwitch();
-				active3.setOpen(false);
-				active3.setStatus("00");
-				active3.setHitchEventId(null);
-				active3.setId(i+"");
-				list.add(active3);
-			}
-		}
-//		ActiveHighSwitch active2 = new ActiveHighSwitch();
-//		active2.setOpen(true);
-//		active2.setStatus("00");
-//		active2.setHitchEventId(null);
-//		active2.setId("25a4d5f3752443c78e2dfe6189704e95");
-//		list.add(active2);
-		this.switches.addAll(list);
-	}
+//	public void getActive() {
+//		List<ActiveHighSwitch> list = new ArrayList<ActiveHighSwitch>();
+////		ActiveHighSwitch active = new ActiveHighSwitch();
+////		active.setOpen(true);
+////		active.setStatus("01");
+////		active.setHitchEventId(null);
+////		active.setId("03");
+////		list.add(active);
+////		ActiveHighSwitch active1 = new ActiveHighSwitch();
+////		active1.setOpen(true);
+////		active1.setStatus("01");
+////		active1.setHitchEventId(null);
+////		active1.setId("028d7316cbd94221857264dcd0be643f");
+////		list.add(active1);
+////		ActiveHighSwitch active2 = new ActiveHighSwitch();
+////		active2.setOpen(false);
+////		active2.setStatus("00");
+////		active2.setHitchEventId(null);
+////		active2.setId("25a4d5f3752443c78e2dfe6189704e95");
+////		list.add(active2);
+////		ActiveHighSwitch active3 = new ActiveHighSwitch();
+////		active3.setOpen(true);
+////		active3.setStatus("01");
+////		active3.setHitchEventId(null);
+////		active3.setId("cb2f0e23c0284064ac0faba9f7dc303a");
+////		list.add(active3);
+//		for(int i=0;i<100;i++){
+//			//HighVoltageSwitch a1=SwitchService.selectByPrimaryKey(i+"");
+//			if(i%2==0){
+//				ActiveHighSwitch active3 = new ActiveHighSwitch();
+//				active3.setOpen(true);
+//				active3.setStatus("01");
+//				active3.setHitchEventId(null);
+//				active3.setId(i+"");
+//				list.add(active3);
+//			}else{
+//				ActiveHighSwitch active3 = new ActiveHighSwitch();
+//				active3.setOpen(false);
+//				active3.setStatus("00");
+//				active3.setHitchEventId(null);
+//				active3.setId(i+"");
+//				list.add(active3);
+//			}
+//		}
+////		ActiveHighSwitch active2 = new ActiveHighSwitch();
+////		active2.setOpen(true);
+////		active2.setStatus("00");
+////		active2.setHitchEventId(null);
+////		active2.setId("25a4d5f3752443c78e2dfe6189704e95");
+////		list.add(active2);
+//		this.switches.addAll(list);
+//	}
 	
 
 	@RequestMapping("/control_switch")

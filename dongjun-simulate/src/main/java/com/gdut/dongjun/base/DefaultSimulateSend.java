@@ -10,8 +10,6 @@ import java.io.OutputStream;
 import java.net.Socket;
 
 /**
- *
- * Created by AcceptedBoy on 2016/8/28.
  */
 public class DefaultSimulateSend extends AbstractSimulateSend {
 

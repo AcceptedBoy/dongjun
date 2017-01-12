@@ -3,7 +3,7 @@ package com.gdut.dongjun.constant;
 import com.gdut.dongjun.base.SourceTxt;
 
 /**
- * 常量 Created by AcceptedBoy on 2016/8/27.
+ * 常量
  */
 public class Constant {
 

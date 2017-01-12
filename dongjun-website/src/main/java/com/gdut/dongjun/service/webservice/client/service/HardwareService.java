@@ -1,20 +1,11 @@
 package com.gdut.dongjun.service.webservice.client.service;
 
-import java.util.List;
-
-import javax.ws.rs.Consumes;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.domain.HighVoltageStatus;
 import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
+import com.gdut.dongjun.service.webservice.client.po.SwitchGPRS;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
+import java.util.List;
 
 /**
  *
