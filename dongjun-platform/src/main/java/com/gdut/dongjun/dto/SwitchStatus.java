@@ -1,23 +1,30 @@
 package com.gdut.dongjun.dto;
 
+import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.List;
 
-import com.gdut.dongjun.domain.HighVoltageStatus;
+import javax.validation.constraints.NotNull;
+
+import com.gdut.dongjun.domain.po.abstractmodel.AbstractDevice;
+import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
+import com.gdut.dongjun.service.webservice.client.po.SwitchGPRS;
+import com.gdut.dongjun.util.GenericUtil;
 
 public class SwitchStatus {
 
 	private String id;
-	
+
 	private String name;
-	
+
 	private String address;
-	
+
 	private String simNumber;
-	
+
 	private String deviceNumber;
-	
+
 	private String onlineTime;
-	
+
 	private String status;
 
 	public String getId() {
@@ -75,5 +82,48 @@ public class SwitchStatus {
 	public void setStatus(String status) {
 		this.status = status;
 	}
-	
+
+	/**
+	 * 在原来设备数据的基础上包装一个status，用于管理页面的设备展示
+	 * @param list
+	 * @param client
+	 * @return
+	 * @throws RemoteException
+	 */
+	public static List<SwitchStatus> wrap(List<? extends AbstractDevice> list, @NotNull HardwareServiceClient client) throws RemoteException {
+		List<SwitchGPRS> gprsList = client.getService().getCtxInstance();
+		List<SwitchStatus> statusList = new ArrayList<SwitchStatus>();
+		for (Object s : list) {
+			boolean isOpen = false;
+			SwitchStatus status = new SwitchStatus();
+			status.setId((String) GenericUtil.getPrivateObjectValue(s, "id"));
+			status.setDeviceNumber((String) GenericUtil.getPrivateObjectValue(s, "deviceNumber"));
+			status.setAddress((String) GenericUtil.getPrivateObjectValue(s, "address"));
+			status.setName((String) GenericUtil.getPrivateObjectValue(s, "name"));
+			status.setOnlineTime((String) GenericUtil.getPrivateObjectValue(s, "onlineTime"));
+			status.setSimNumber((String) GenericUtil.getPrivateObjectValue(s, "simNumber"));
+
+			for (SwitchGPRS gprs : gprsList) {
+				if (gprs.getId().equals(status.getId())) {
+					if (gprs.isOpen()) {
+						isOpen = true;
+						break;
+					} else {
+						break;
+					}
+				}
+			}
+			// } //如果在运行，有gprs在线，就可以获取在线值
+
+			if (isOpen) {
+				status.setStatus("true");
+			} else {
+				status.setStatus("false");
+			} // 如果没有运行，直接返回不在线
+
+			statusList.add(status);
+		}
+		return statusList;
+	}
+
 }

@@ -1,20 +1,19 @@
 package com.gdut.dongjun;
 
-import com.gdut.dongjun.service.webservice.server.HardwareService;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
+import java.beans.PropertyVetoException;
+import java.io.IOException;
+
+import javax.sql.DataSource;
+
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
-import org.springframework.beans.factory.parsing.Location;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
-import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -22,12 +21,11 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.remoting.rmi.RmiProxyFactoryBean;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
-import javax.sql.DataSource;
-import java.beans.PropertyVetoException;
-import java.io.IOException;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
+
+import net.sf.ehcache.CacheManager;
 
 @SpringBootApplication
 @EnableAspectJAutoProxy
@@ -80,10 +78,10 @@ public class Application extends SpringBootServletInitializer {
 	public DataSource dataSource() {
 
 		com.mchange.v2.c3p0.ComboPooledDataSource ds = new ComboPooledDataSource();
-		ds.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/elecon?useUnicode=true&amp;charaterEncoding=utf-8&" +
+		ds.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/elecon_platform?useUnicode=true&amp;charaterEncoding=utf-8&" +
 				"zeroDateTimeBehavior=convertToNull");
 		ds.setUser("root");
-		ds.setPassword("root");//elecon
+		ds.setPassword("759486");//elecon
 		try {
 			ds.setDriverClass("com.mysql.jdbc.Driver");
 		} catch (PropertyVetoException e) {
@@ -147,6 +145,11 @@ public class Application extends SpringBootServletInitializer {
 		}
 		return sst;
 	}
+	
+//	@Bean(name = "cacheManager")
+//	public CacheManager cacheManager() {
+//		
+//	}
 
 	@Bean
 	public ServletRegistrationBean cxfServlet() {

@@ -12,6 +12,6 @@ public interface HighSwitchUserMapper
 
 	public List<HighVoltageSwitch> getSwitchByUserId(String userId);
 
-	public boolean deleteByParameters(Map<String, Object> map);
+	//public boolean deleteByParameters(Map<String, Object> map);
 
 }

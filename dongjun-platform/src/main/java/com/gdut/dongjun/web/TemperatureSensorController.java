@@ -2,6 +2,8 @@ package com.gdut.dongjun.web;
 
 import java.util.List;
 
+import org.apache.shiro.authz.annotation.RequiresAuthentication;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,7 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.TemperatureSensor;
-import com.gdut.dongjun.service.TemperatureSensorService;
+import com.gdut.dongjun.service.device.TemperatureSensorService;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 
 @Controller
@@ -19,6 +21,7 @@ public class TemperatureSensorController {
 	@Autowired
 	TemperatureSensorService sensorService;
 	
+	@RequiresAuthentication
 	@RequestMapping("/get_sensor_by_device_id")
 	@ResponseBody
 	public ResponseMessage getSensor(String deviceId) {
@@ -26,15 +29,25 @@ public class TemperatureSensorController {
 		return ResponseMessage.success(list);
 	}
 	
+	@RequiresPermissions("platform_group_admin:device")
 	@RequestMapping("/edit")
 	@ResponseBody
 	public ResponseMessage editSensor(TemperatureSensor sensor) {
 		if (sensorService.updateByPrimaryKey(sensor) == 0) {
-			return ResponseMessage.danger("操作失败");
+			return ResponseMessage.warning("操作失败");
 		}
 		return ResponseMessage.success("操作成功");
 	}
 	
+	@RequiresPermissions("platform_group_admin:device")
+	@RequestMapping("/del")
+	@ResponseBody
+	public ResponseMessage delSensor(String id) {
+		if (!sensorService.deleteByPrimaryKey(id)) {
+			return ResponseMessage.warning("操作失败");
+		}
+		return ResponseMessage.success("操作成功");
+	}
 	
 	
 }

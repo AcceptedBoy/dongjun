@@ -53,7 +53,7 @@
 		<h3 id="myModalLabel">警告</h3>
 	</div>
 	<div class="modal-body">
-		<p>您确定要删除吗？请肾重考虑</p>
+		<p>您确定要删除吗？请慎重考虑</p>
 	</div>
 	<div class="modal-footer">
 		<button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
@@ -100,7 +100,7 @@
 					lengthChange: false,
 					scrollCollapse: true,
 					pageLength: 5,
-					data: data.data,
+					data: data.text,	// data.text 为表格数据
 					columns: [
 						{ data: 'deviceNumber' },
 						{ data: 'name' },
@@ -152,20 +152,29 @@
 					alert('请选择设备')
 					return
 				}
-				var deviceId = 'deviceId'
-				var type = 'type'
+				// var deviceId = 'deviceId'
+				var deviceId = ''
+				// var type = 'type'
+				var type = ''
 				for(var id in hasChoose) {
-					deviceId += '='+id+','
-					type += '='+ hasChoose[id] + ','
+					// deviceId += '='+id+','
+					deviceId += id+',='
+					// type += '='+ hasChoose[id] + ','
+					type += hasChoose[id] + ',='
 				}
-				deviceId = deviceId.replace(/,$/, '&')
-				type = type.replace(/,$/, '&')
+				// deviceId = deviceId.replace(/,$/, '&')
+				deviceId = deviceId.replace(/,=$/, '')
+				// type = type.replace(/,$/, '&')
+				type = type.replace(/,=$/, '')
 				var data = deviceId + type + 'deviceGroupId=' + now.groupId
 				$.ajax({
 					url: urls.addEquip,
 					type: 'POST',
 					data: {
-						data: data
+						//data: data
+						deviceId: deviceId,
+						type: type,
+						deviceGroupId: now.groupId
 					},
 					success: function(res) {
 						res = typeof res == 'string' ? JSON.parse(res) : res
@@ -227,6 +236,7 @@
 				}
 				$.ajax({
 					url: urls.addGroup,
+					
 					type: 'POST',
 					data: data,
 					success: function(res) {

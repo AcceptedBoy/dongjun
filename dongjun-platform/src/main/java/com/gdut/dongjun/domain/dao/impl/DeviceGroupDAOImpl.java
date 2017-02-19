@@ -9,4 +9,5 @@ import com.gdut.dongjun.domain.po.DeviceGroup;
 @Repository
 public class DeviceGroupDAOImpl extends SinglePrimaryKeyBaseDAOImpl<DeviceGroup> implements DeviceGroupMapper {
 
+	
 }

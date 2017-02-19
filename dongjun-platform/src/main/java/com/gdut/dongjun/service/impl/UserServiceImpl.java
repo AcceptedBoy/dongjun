@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpSession;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,8 +16,6 @@ import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.base.impl.BaseServiceImpl;
 import com.gdut.dongjun.service.impl.enums.LoginResult;
 import com.gdut.dongjun.util.MyBatisMapUtil;
-
-import javax.servlet.http.HttpSession;
 
 /**
  * @Title: UserServiceImpl.java
@@ -67,11 +67,6 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements
 	}
 
 	@Override
-	public User getCurrentUser(HttpSession session) {
-		return (User)session.getAttribute("currentUser");
-	}
-
-	@Override
 	protected boolean isExist(User record) {
 
 		if (record != null
@@ -82,4 +77,10 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements
 			return false;
 		}
 	}
+
+	@Override
+	public User getCurrentUser(HttpSession session) {
+		return (User)session.getAttribute("currentUser");
+	}
+
 }

@@ -16,16 +16,16 @@ import com.gdut.dongjun.domain.po.PlatformGroup;
 import com.gdut.dongjun.domain.po.TemperatureDevice;
 import com.gdut.dongjun.domain.po.TemperatureSensor;
 import com.gdut.dongjun.service.BigGroupService;
-import com.gdut.dongjun.service.ControlMearsureSwitchService;
 import com.gdut.dongjun.service.DeviceGroupMappingService;
 import com.gdut.dongjun.service.DeviceGroupService;
-import com.gdut.dongjun.service.HighVoltageSwitchService;
-import com.gdut.dongjun.service.LowVoltageSwitchService;
 import com.gdut.dongjun.service.PlatformGroupService;
-import com.gdut.dongjun.service.TemperatureDeviceService;
-import com.gdut.dongjun.service.TemperatureMeasureService;
-import com.gdut.dongjun.service.TemperatureSensorService;
 import com.gdut.dongjun.service.ZTreeNodeService;
+import com.gdut.dongjun.service.device.ControlMearsureSwitchService;
+import com.gdut.dongjun.service.device.HighVoltageSwitchService;
+import com.gdut.dongjun.service.device.LowVoltageSwitchService;
+import com.gdut.dongjun.service.device.TemperatureDeviceService;
+import com.gdut.dongjun.service.device.TemperatureSensorService;
+import com.gdut.dongjun.service.device.temperature.TemperatureMeasureService;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 
 /**
@@ -61,6 +61,7 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 	
 	@Override
 	public List<ZTreeNode> getSwitchTree(String company_id, String type) {
+		//TODO，以后根据公司来返回数据
 		List<BigGroup> groupList = groupService.selectByParameters(null);
 		return getSwitchTree(groupList);
 	}
@@ -170,7 +171,7 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 								n3.setPlatformGroupId(devices.get(k).getGroupId() + "");
 								n3.setAddress(devices.get(k).getAddress());
 								n3.setType(3);
-								n3.setShowName(devices.get(k).getShowName());
+								n3.setShowName(devices.get(k).getName());
 								List<TemperatureSensor> sensors = sensorService.selectByParameters(MyBatisMapUtil.warp("device_id", devices.get(k).getId()));
 								List<ZTreeNode> sensorNodes = new LinkedList<ZTreeNode>();
 								for (int l = 0; l < sensors.size(); l++) {
@@ -209,7 +210,6 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 		return nodes;
 	}
 
-	@Override
 	public List<ZTreeNode> groupTree(String companyId, Integer deviceType) {
 		// TODO Auto-generated method stub
 		return null;
@@ -277,19 +277,20 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 			case 3:
 				//温度
 				ZTreeNode node4 = new ZTreeNode();
-				TemperatureDevice device = deviceService.selectByPrimaryKey(mapping.getDeviceGroupId());
+				TemperatureDevice device = deviceService.selectByPrimaryKey(mapping.getDeviceId());
 				node4.setId(device.getId());
 				node4.setName(device.getName());
 				node4.setParentName(dg.getName());
 				node4.setPlatformGroupId(device.getGroupId() + "");
 				node4.setAddress(device.getAddress());
 				node4.setType(0);
-				node4.setShowName(device.getShowName());
+				node4.setShowName(device.getName());
 				
 				List<ZTreeNode> sNodes = new LinkedList();
-				for (TemperatureSensor sensor : sensorService.selectByParameters(MyBatisMapUtil.warp("device_id", device.getId()))) {
+				List<TemperatureSensor> sensors = sensorService.selectByParameters(MyBatisMapUtil.warp("device_id", device.getId()));
+				for (TemperatureSensor sensor : sensors) {
 					ZTreeNode sNode = new ZTreeNode();
-					sNode.setId(sensor.getId());
+					sNode.setId(sensor.getTag() + "");
 					sNode.setName(sensor.getName());
 					sNode.setParentName(node4.getName());
 					sNode.setType(10);

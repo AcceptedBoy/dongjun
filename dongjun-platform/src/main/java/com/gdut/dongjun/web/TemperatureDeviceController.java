@@ -1,8 +1,6 @@
 package com.gdut.dongjun.web;
 
 import java.io.File;
-import java.rmi.RemoteException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -11,6 +9,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.apache.log4j.Logger;
+import org.apache.shiro.authz.annotation.RequiresAuthentication;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -21,16 +21,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.TemperatureDevice;
-import com.gdut.dongjun.service.TemperatureDeviceService;
-import com.gdut.dongjun.service.rmi.HardwareService;
+import com.gdut.dongjun.service.device.TemperatureDeviceService;
 import com.gdut.dongjun.util.ClassLoaderUtil;
 import com.gdut.dongjun.util.DownloadAndUploadUtil;
 import com.gdut.dongjun.util.MapUtil;
 import com.gdut.dongjun.util.MyBatisMapUtil;
-import com.gdut.dongjun.util.TimeUtil;
 import com.gdut.dongjun.util.UUIDUtil;
 
 @Controller
@@ -39,13 +36,10 @@ public class TemperatureDeviceController {
 
 	@Autowired
 	private TemperatureDeviceService deviceService;
-
-	@Autowired
-	private HardwareService hardwareService;
 	
 	private static final Logger logger = Logger.getLogger(TemperatureDeviceController.class);
 
-	
+	@RequiresAuthentication
 	@RequestMapping("/temperature")
 	public String getTemperature(String platformId, Model model) {
 
@@ -65,6 +59,7 @@ public class TemperatureDeviceController {
 	 * @param model
 	 * @return
 	 */
+	@RequiresAuthentication
 	@RequestMapping("/temperature_device_manager")
 	public String getLineSwitchList(String platformId, Model model) {
 
@@ -85,6 +80,7 @@ public class TemperatureDeviceController {
 	 * @param model
 	 * @return
 	 */
+	@RequiresAuthentication
 	@RequestMapping("/temperature_device_list_by_platform_group_id")
 	@ResponseBody
 	public Object getDeviceByPlatforxmGroupId(String platformId) {
@@ -104,35 +100,6 @@ public class TemperatureDeviceController {
 		map.put("data", devices);
 		map.put("recordsFiltered", size);
 		return map;
-	}
-
-	private List<TemperatureDevice> updateDate(List<TemperatureDevice> devices) {
-
-		String date = TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss");
-		for (TemperatureDevice device : devices) {
-			if (search(device.getId())) {
-				device.setOnlineTime(date);
-			}
-		}
-		return devices;
-	}
-
-	private boolean search(String id) {
-
-		if (id == null) {
-			return false;
-		}
-		try {
-			List<SwitchGPRS> list = hardwareService.getCtxInstance();
-			for (SwitchGPRS gprs : list) {
-				if (gprs.getId() != null && gprs.getId().equals(id)) {
-					return true;
-				}
-			}
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-		return false;
 	}
 
 //	@RequestMapping("/online_order")
@@ -159,6 +126,7 @@ public class TemperatureDeviceController {
 	 * @param redirectAttributes
 	 * @return
 	 */
+	@RequiresPermissions("platform_group_admin:device")
 	@RequestMapping("/del_temperature_device")
 	@ResponseBody
 	public ResponseMessage delDevice(
@@ -186,6 +154,7 @@ public class TemperatureDeviceController {
 	 * @param redirectAttributes
 	 * @return
 	 */
+	@RequiresPermissions("platform_group_admin:device")
 	@RequestMapping("/edit_temperature_device")
 	@ResponseBody
 	public Object editDevice(
@@ -197,7 +166,7 @@ public class TemperatureDeviceController {
 		if (device.getId() == null || device.getId().equals("")) {
 			device.setId(UUIDUtil.getUUID());
 		}
-		device.setGroupId(Integer.parseInt(platformId));
+		device.setGroupId(platformId);
 		try {
 			deviceService.updateByPrimaryKeySelective(device);
 		} catch (Exception e) {
@@ -208,6 +177,7 @@ public class TemperatureDeviceController {
 		return new ResponseMessage(ResponseMessage.Type.SUCCESS, device.getGroupId(), true);
 	}
 
+	@RequiresAuthentication
 	@RequestMapping(value = "/downloadEmptytemExcel")
 	public ResponseEntity<byte[]> downloadEmptytemExcel(
 			HttpServletRequest request, 
@@ -238,7 +208,7 @@ public class TemperatureDeviceController {
 		return DownloadAndUploadUtil.download(request, targetFile, fileName);
 	}
 	
-
+	@RequiresAuthentication
 	@RequestMapping(value = "/downloadtemExcel")
 	public ResponseEntity<byte[]> downloadtemExcel(HttpServletRequest request,
 			HttpServletResponse respone, String clazzId) throws Exception {
@@ -262,6 +232,7 @@ public class TemperatureDeviceController {
 		return DownloadAndUploadUtil.download(request, targetFile, fileName);
 	}
 	
+	@RequiresPermissions("platform_group_admin:device")
 	@ResponseBody
 	@RequestMapping(value = "/uploadtemDeviceExcel")
 	public Object uploadtemDeviceExcel(

@@ -39,9 +39,11 @@
 	</delete>
 
 	<insert id="insert" parameterType="com.gdut.dongjun.domain.po.TemperatureMeasure">
-		insert into temperature_measure
+		insert into
+		temperature_measure
 		(#{sql})
-		values (#{id,jdbcType=VARCHAR}, #{deviceId,jdbcType=VARCHAR},
+		values (#{id,jdbcType=VARCHAR},
+		#{deviceId,jdbcType=VARCHAR},
 		#{date,jdbcType=TIMESTAMP},
 		#{tag,jdbcType=INTEGER},
 		#{value,jdbcType=VARCHAR})
@@ -116,5 +118,15 @@
 		#{value,jdbcType=VARCHAR}
 		where id = #{id,jdbcType=VARCHAR}
 	</update>
+
+	<select id="selectByTime" resultMap="BaseResultMap">
+		select * from
+		temperature_measure_history
+		where device_id = #{deviceId}
+		and tag =
+		#{tag}
+		and date between #{beginDate} and #{endDate}
+		order By date Asc
+	</select>
 
 </mapper>

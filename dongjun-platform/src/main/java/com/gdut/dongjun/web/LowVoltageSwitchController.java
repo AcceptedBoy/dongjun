@@ -1,8 +1,6 @@
 package com.gdut.dongjun.web;
 
 import java.io.File;
-import java.rmi.RemoteException;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -11,6 +9,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
+import org.apache.shiro.authz.annotation.RequiresAuthentication;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -21,16 +21,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.LowVoltageSwitch;
-import com.gdut.dongjun.service.LowVoltageSwitchService;
-import com.gdut.dongjun.service.rmi.HardwareService;
+import com.gdut.dongjun.service.device.LowVoltageSwitchService;
+import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 import com.gdut.dongjun.util.ClassLoaderUtil;
 import com.gdut.dongjun.util.DownloadAndUploadUtil;
 import com.gdut.dongjun.util.MapUtil;
 import com.gdut.dongjun.util.MyBatisMapUtil;
-import com.gdut.dongjun.util.TimeUtil;
 import com.gdut.dongjun.util.UUIDUtil;
 
 @Controller
@@ -40,8 +38,8 @@ public class LowVoltageSwitchController {
 	@Autowired
 	private LowVoltageSwitchService switchService;
 	
-	@Resource(name="hardwareService")
-	private HardwareService hardwareService;
+	@Resource(name="hardwareServiceClient")
+	private HardwareServiceClient hardwareServiceClient;
 	
 	private static final Logger logger = Logger
 			.getLogger(LowVoltageHitchEventController.class);
@@ -79,6 +77,7 @@ public class LowVoltageSwitchController {
 	 * @return Object
 	 * @throws
 	 */
+	@RequiresAuthentication
 	@RequestMapping("/get_all_low_voltage_switch")
 	@ResponseBody
 	public Object getAllLowVoltage_Switch(Model model) {
@@ -96,6 +95,7 @@ public class LowVoltageSwitchController {
 	 * @return String
 	 * @throws
 	 */
+	@RequiresAuthentication
 	@RequestMapping("/switch_list_by_platform_id")
 	@ResponseBody
 	public Object getLineSwitchListByLineId(String platformId, Model model) {
@@ -108,40 +108,11 @@ public class LowVoltageSwitchController {
 				"draw", 1);
 		int size = switchs.size();
 		map.put("recordsTotal", size);
-//		updateDate(switchs);
 		map.put("data", switchs);
 		map.put("recordsFiltered", size);
 		return map;
 	}
 	
-	private List<LowVoltageSwitch> updateDate(List<LowVoltageSwitch> switchs) {
-		
-		String date = TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss");
-		for(LowVoltageSwitch lvSwitch : switchs) {
-			
-			if(search(lvSwitch.getId())) {
-				lvSwitch.setOnlineTime(date);
-			}
-		}
-		return switchs;
-	}
-
-	private boolean search(String id) {
-		if(id == null) {
-			return false;
-		}
-		try {
-			List<SwitchGPRS> list = hardwareService.getCtxInstance();
-			for(SwitchGPRS gprs : list) {
-				if(gprs.getId() != null && gprs.getId().equals(id)) {
-					return true;
-				}
-			}
-		} catch (RemoteException e) {
-			e.printStackTrace();
-		}
-		return false;
-	}
 
 	/**
 	 * 
@@ -153,6 +124,7 @@ public class LowVoltageSwitchController {
 	 * @return Object
 	 * @throws
 	 */
+	@RequiresAuthentication
 	@RequestMapping("/selectLVByPlatformIdInAsc")
 	@ResponseBody
 	public Object selectByLineIdInAsc(
@@ -175,13 +147,14 @@ public class LowVoltageSwitchController {
 	 * @return String
 	 * @throws
 	 */
+	@RequiresPermissions("platform_group_admin:device")
 	@RequestMapping("/del_switch")
 	@ResponseBody
 	public ResponseMessage delSwitch(
 			@RequestParam(required = true) String switchId,
 			Model model, RedirectAttributes redirectAttributes) {
 
-		Integer platformId = switchService.selectByPrimaryKey(switchId).getGroupId();
+		String platformId = switchService.selectByPrimaryKey(switchId).getGroupId();
 		try {
 			switchService.deleteByPrimaryKey(switchId);// 删除这个开关
 		} catch (Exception e) {
@@ -203,6 +176,7 @@ public class LowVoltageSwitchController {
 	 * @return String
 	 * @throws
 	 */
+	@RequiresPermissions("platform_group_admin:device")
 	@RequestMapping("/edit_switch")
 	@ResponseBody
 	public ResponseMessage editSwitch(
@@ -217,7 +191,7 @@ public class LowVoltageSwitchController {
 			switch1.setId(UUIDUtil.getUUID());
 		}
 		try {
-			switch1.setGroupId(Integer.parseInt(platformId));
+			switch1.setGroupId(platformId);
 			switchService.updateByPrimaryKeySelective(switch1);
 		} catch (Exception e) {
 			logger.error("修改低压开关失败");
@@ -239,6 +213,7 @@ public class LowVoltageSwitchController {
 	 * @return ResponseEntity<byte[]>
 	 * @throws
 	 */
+	@RequiresAuthentication
 	@RequestMapping(value = "/downloadEmptylvExcel")
 	public ResponseEntity<byte[]> downloadEmptylvExcel(
 			HttpServletRequest request, HttpServletResponse respone,
@@ -278,6 +253,7 @@ public class LowVoltageSwitchController {
 	 * @return ResponseEntity<byte[]>
 	 * @throws
 	 */
+	@RequiresAuthentication
 	@RequestMapping(value = "/downloadlvExcel")
 	public ResponseEntity<byte[]> downloadlvExcel(HttpServletRequest request,
 			HttpServletResponse respone, String clazzId) throws Exception {
@@ -314,6 +290,7 @@ public class LowVoltageSwitchController {
 	 * @return String
 	 * @throws
 	 */
+	@RequiresAuthentication
 	@ResponseBody
 	@RequestMapping(value = "/uploadlvSwitchExcel")
 	public Object uploadlvSwitchExcel(@RequestParam("file") MultipartFile file,

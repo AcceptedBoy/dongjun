@@ -36,12 +36,12 @@ public class HighSwitchUserServiceImpl extends BaseServiceImpl<HighSwitchUser> i
 		return switchUserMapper.getSwitchByUserId(userId);
 	}
 
-	@Override
+	/*@Override
 	public boolean deleteByParameters(Map<String, Object> map) {
 		
 		return switchUserMapper.deleteByParameters(map);
 	}
-
+*/
 	
 	
 }

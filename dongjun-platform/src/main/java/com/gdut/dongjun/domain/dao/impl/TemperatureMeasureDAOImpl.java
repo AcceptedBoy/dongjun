@@ -18,4 +18,9 @@ public class TemperatureMeasureDAOImpl extends SinglePrimaryKeyBaseDAOImpl<Tempe
 		return template.selectList(getNamespace("selectByTimeAndSensorId"), xx);
 	}
 
+	@Override
+	public List<TemperatureMeasure> selectByTime(Map<String, Object> paramMap) {
+		return template.selectList(getNamespace("selectByTime"), paramMap);
+	}
+
 }

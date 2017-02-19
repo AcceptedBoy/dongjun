@@ -7,6 +7,8 @@ import java.util.Map;
 import javax.servlet.http.HttpSession;
 import javax.validation.constraints.NotNull;
 
+import org.apache.shiro.authz.annotation.RequiresAuthentication;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,12 +18,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.gdut.dongjun.domain.model.ResponseMessage;
-import com.gdut.dongjun.domain.po.PlatformGroup;
-import com.gdut.dongjun.domain.po.Substation;
-import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.po.BigGroup;
-import com.gdut.dongjun.service.PlatformGroupService;
+import com.gdut.dongjun.domain.po.DeviceGroup;
+import com.gdut.dongjun.domain.po.PlatformGroup;
 import com.gdut.dongjun.service.BigGroupService;
+import com.gdut.dongjun.service.PlatformGroupService;
 import com.gdut.dongjun.util.MapUtil;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 
@@ -43,6 +44,7 @@ public class BigGroupController {
      * @param groupId
      * @return
      */
+	@RequiresAuthentication
     @RequestMapping("/platformgroup_list")
     @ResponseBody
     public ResponseMessage deviceList(@RequestParam(required = true) Integer groupId) {
@@ -56,6 +58,7 @@ public class BigGroupController {
 	 * @param group
 	 * @return
 	 */
+	@RequiresPermissions(value = "big_group_admin:edit")
 	@RequestMapping("/add")
 	@ResponseBody
 	public ResponseMessage addGroup(HttpSession session, BigGroup group) {
@@ -75,6 +78,7 @@ public class BigGroupController {
 	 * @param groupId
 	 * @return
 	 */
+	@RequiresPermissions(value = "big_group_admin:delete")
 	@RequestMapping("/delete")
 	@ResponseBody
 	public ResponseMessage deleteGroup(HttpSession session, @NotNull Integer id) {
@@ -92,7 +96,7 @@ public class BigGroupController {
 				platformGroupService.updateByPrimaryKey(platformGroup);
 			}
 		}
-		if (groupService.deleteByPrimaryKey(id)) {
+		if (groupService.deleteByPrimaryKey(id + "")) {
 			return ResponseMessage.success("删除成功");
 		} else {
 			return ResponseMessage.danger("系统错误");
@@ -105,6 +109,7 @@ public class BigGroupController {
 	 * @param group
 	 * @return
 	 */
+	@RequiresPermissions(value = "big_group_admin:edit")
 	@RequestMapping("/update")
 	@ResponseBody
 	public ResponseMessage updateGroup(BigGroup group) {
@@ -123,6 +128,7 @@ public class BigGroupController {
 	 * @return String
 	 * @throws
 	 */
+	@RequiresAuthentication
 	@RequestMapping("/gruop_list")
 	@ResponseBody
 	public Object getLineSwitchListByLineId(HttpSession session, Model model) {
@@ -137,4 +143,20 @@ public class BigGroupController {
 		return map;
 	}
 
+//	@RequestMapping("/exception")
+//	@ResponseBody
+//	public Object throwException(@RequestParam(required = true) String a) {
+//		return null; 
+//	}
+//	
+//	@RequestMapping("/exception1")
+//	@ResponseBody
+//	public Object throwException1() {
+//		DeviceGroup a = new DeviceGroup();
+//		if (a.getId() > 1) {
+//			return null;
+//		}
+//		return null;
+//	}
+	
 }

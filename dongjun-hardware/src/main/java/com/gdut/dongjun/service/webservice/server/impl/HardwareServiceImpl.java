@@ -1,31 +1,41 @@
 package com.gdut.dongjun.service.webservice.server.impl;
 
-import com.gdut.dongjun.core.CtxStore;
-import com.gdut.dongjun.core.SwitchGPRS;
-import com.gdut.dongjun.core.device.Device;
-import com.gdut.dongjun.core.device_message_engine.impl.HighVoltageSwitchMessageEngine;
-import com.gdut.dongjun.domain.HighVoltageStatus;
-import com.gdut.dongjun.domain.po.HighVoltageHitchEvent;
-import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
-import com.gdut.dongjun.service.HighVoltageHitchEventService;
-import com.gdut.dongjun.service.webservice.server.HardwareService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.annotation.Resource;
+
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.gdut.dongjun.core.CtxStore;
+import com.gdut.dongjun.core.SwitchGPRS;
+import com.gdut.dongjun.core.device.Device;
+import com.gdut.dongjun.core.device_message_engine.impl.HighVoltageSwitchMessageEngine;
+import com.gdut.dongjun.domain.HighVoltageStatus;
+import com.gdut.dongjun.domain.po.AbnormalDevice;
+import com.gdut.dongjun.domain.po.HighVoltageHitchEvent;
+import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
+import com.gdut.dongjun.service.AbnormalDeviceService;
+import com.gdut.dongjun.service.HighVoltageHitchEventService;
+import com.gdut.dongjun.service.webservice.server.HardwareService;
+
+import io.netty.channel.ChannelHandlerContext;
+
 @Component
 public class HardwareServiceImpl implements HardwareService {
 
 	/**
-	 * 总召池
+	 * 总召池，下面方法得到当前可用处理器个数，数量x2-1，就是线程池固有线程数
 	 */
 	private static ExecutorService callerPool = Executors.newFixedThreadPool(
 			Runtime.getRuntime().availableProcessors() << 1 - 1);
+	
+	/* 异常设备 */
+	private static List<AbnormalDevice> abDevices = null;
 
 	@Resource(name = "LowVoltageDevice")
 	private Device lowVoltageDevice;
@@ -41,6 +51,11 @@ public class HardwareServiceImpl implements HardwareService {
 
 	@Autowired
 	private HighVoltageSwitchMessageEngine messageEngine;
+	
+	@Autowired
+	private AbnormalDeviceService abDeviceService;
+	
+	private final Logger logger = Logger.getLogger(HardwareServiceImpl.class);
 	
 	/* (non-Javadoc)
 	 * @see com.gdut.dongjun.service.rmi.HardwareService#generateOpenSwitchMessage(java.lang.String, int)
@@ -84,6 +99,7 @@ public class HardwareServiceImpl implements HardwareService {
 					}
 				}
 			});
+			handleOldMachineTotalCall(address, callMsg);
 			return msg;
 		}
 		return null;
@@ -129,8 +145,57 @@ public class HardwareServiceImpl implements HardwareService {
 					}
 				}
 			});
+			handleOldMachineTotalCall(address, callMsg);
 		}
 		return msg;
+	}
+
+	/**
+	 * 老机器开关闸报文发出后，有的异常机器不会响应总召。
+	 * 这里30秒内每10秒发一次总召，解决这种情况。
+	 * @param address
+	 * @param callMsg
+	 */
+	private void handleOldMachineTotalCall(String address, String callMsg) {
+		if (abDevices == null) {
+			synchronized(this) {
+				if (abDevices == null) {
+					abDevices = abDeviceService.selectByParameters(null);
+				}
+			}
+		}
+		String id = CtxStore.getIdbyAddress(address);
+		if (id == null || id.equals("")) {
+			//TODO
+			return ;
+		}
+		for (AbnormalDevice device : abDevices) {
+			if (id.equals(device.getSwitchId()) || id == device.getSwitchId()) {
+				if (device.getReason() == 1) {
+					//TODO
+					final String realAddress = address;
+					final String callMsg1 = callMsg;
+					callerPool.execute(new Runnable() {
+						@Override
+						public void run() {
+							int count = 0;
+							while (count < 3) {
+								CtxStore.getCtxByAddress(realAddress).writeAndFlush(callMsg1);
+								logger.info(realAddress + "老机器额外总召: " + callMsg1);
+								count++;
+								try {
+									Thread.sleep(1000 * 10);
+								} catch (InterruptedException e) {
+									e.printStackTrace();
+								}
+							}
+						}
+					});
+				}
+				else
+					break;
+			}
+		}
 	}
 
 	/* (non-Javadoc)

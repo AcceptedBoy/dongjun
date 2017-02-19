@@ -1,8 +1,12 @@
 package com.gdut.dongjun.web;
 
-import javax.servlet.http.HttpSession;
-import javax.validation.constraints.NotNull;
+import java.util.List;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpSession;
+
+import org.apache.shiro.authz.annotation.RequiresAuthentication;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,21 +15,40 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
+import com.gdut.dongjun.domain.po.Company;
 import com.gdut.dongjun.domain.po.User;
+import com.gdut.dongjun.service.CompanyService;
 import com.gdut.dongjun.service.ZTreeNodeService;
+import com.gdut.dongjun.service.cache.CacheService;
+import com.gdut.dongjun.service.common.CommonSwitch;
+import com.gdut.dongjun.service.webservice.client.CentorServiceClient;
 import com.gdut.dongjun.util.EncoderUtil;
 import com.gdut.dongjun.util.VoiceFixUtil;
 
+/**
+ * 负责返回树状数据、控制重定向、报警信息的类，实现{@code InitializingBean}能够在初始化之后执行{@code afterPropertiesSet()}
+ * @author Gordan_Deng
+ * @date 2017年2月18日
+ */
 @Controller
 @RequestMapping("/dongjun")
 @SessionAttributes("currentUser")
-public class IndexController {
+public class IndexController implements InitializingBean {
 
 	@Autowired
 	private ZTreeNodeService zTreeNodeService;
 
-//	@Autowired
-//	private Constant constant;
+	@Autowired
+	private CommonSwitch commonSwitch;
+
+	@Autowired
+	private CentorServiceClient centorServiceClient;
+	
+	@Resource(name="EhCacheService")
+	private CacheService ehCacheService;
+	
+	@Autowired
+	private CompanyService companyService;
 
 	/**
 	 * 
@@ -37,13 +60,8 @@ public class IndexController {
 	 */
 	@RequestMapping("/index")
 	public String forwardIndex() {
-		return "/monitor/index";
+		return "index";
 	}
-	
-//	@RequestMapping("/monitor")
-//	public String forwardMonitor() {
-//		return "monitor";
-//	}
 	
 	@RequestMapping("/characterPower")
 	public String forwardCharacterPower() {
@@ -86,16 +104,44 @@ public class IndexController {
 		return "current_voltage_chart";
 	}
 
-
 	/**
-	 * symon 获取分组接口
-     */
-	@RequestMapping("/group_tree")
+	 * 
+	 * @Title: switchTree
+	 * @Description: TODO
+	 * @param @param companyId
+	 * @param @param model
+	 * @param @param redirectAttributes
+	 * @param @return
+	 * @return Object
+	 * @throws
+	 */
+	/*
+	 * 这是一进入index界面会访问的方法，不需要type
+	 */
+	@RequiresAuthentication
+	@RequestMapping("/switch_tree")
 	@ResponseBody
-	public Object groupTree(HttpSession session, @NotNull Integer deviceType) {
-		return zTreeNodeService.groupTree(
-				((User)session.getAttribute("currentUser")).getCompanyId(), deviceType);
+	public Object switchTree(@RequestParam(required = false) String type,
+			Model model, HttpSession session) {
+//			RedirectAttributes redirectAttributes) {
+
+		User user = (User) session.getAttribute("currentUser");
+		if (user != null && user.getCompanyId() != null) {
+			if(commonSwitch.canService()) {
+
+				return centorServiceClient.getService()
+						.getSwitchTree(user.getCompanyId(), type);
+			}	//中介者
+			//以后这个方法会变成中介者系统返回值
+			return zTreeNodeService.getSwitchTree(user.getCompanyId(), type);
+		} else {
+
+			return "";
+		}
 	}
+
+	
+	
 
 	/**
 	 * 
@@ -116,6 +162,7 @@ public class IndexController {
 		return "switch_detail";
 	}
 
+	@RequiresAuthentication
 	@RequestMapping("get_voice_of_event")
 	@ResponseBody
 	public String getVoiceOfEvent(@RequestParam(required=false) String name) {
@@ -125,10 +172,16 @@ public class IndexController {
 				("开关" + name + "已经报警，请及时处理") +"&ctp=1&per=0";
 		return VoiceFixUtil.request(httpUrl, httpArg);
 	}
-	
-	@RequestMapping("/switch_tree")
-	@ResponseBody
-	public Object getSwtichTree(HttpSession session, Integer deviceType) {
-		return zTreeNodeService.getSwitchTree(null, null);
+
+	/**
+	 * 系统启动后缓存每个公司的设备树状图
+	 */
+	@Override
+	public void afterPropertiesSet() throws Exception {
+//		List<Company> allCompany = companyService.selectByParameters(null);
+//		for (Company c : allCompany) {
+//			companyService.updateChartCache(c.getId());
+//		}
 	}
+
 }

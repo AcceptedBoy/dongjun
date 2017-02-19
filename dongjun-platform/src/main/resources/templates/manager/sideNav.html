@@ -58,7 +58,7 @@
     })
 
     function loadVoltage() {
-      dj.jsLoad('../../resources/js/manager/selectManager.js', function(){
+      dj.jsLoad('/js/manager/selectManager.js', function(){
         dj.inserCmp('voltage_manager_modal.html', $('.modal')[0], function(){
           dj.inserCmp('voltage_manager.html', $('.container')[0])
         })
@@ -66,7 +66,7 @@
     }
 
     function loadLow() {
-      dj.jsLoad('../../resources/js/manager/selectManager.js', function(){
+      dj.jsLoad('/js/manager/selectManager.js', function(){
         dj.inserCmp('low_voltage_modal.html', $('.modal')[0], function(){
           dj.inserCmp('low_voltage.html', $('.container')[0])
         })
@@ -74,8 +74,8 @@
     }
 
     function loadHigh() {
-      loadLink('../../resources/css/checkbox.css', function(){
-        dj.jsLoad('../../resources/js/manager/selectManager.js', function(){
+      loadLink('/css/high_manager.css', function(){
+        dj.jsLoad('/js/manager/selectManager.js', function(){
           dj.inserCmp('high_voltage_modal.html', $('.modal')[0], function(){
             dj.inserCmp('high_voltage.html', $('.container')[0])
           })
@@ -84,7 +84,7 @@
     }
 
     function loadEquip() {
-      loadLink('../../resources/css/equipment_manager.css', function() {
+      loadLink('/css/equipment_manager.css', function() {
         dj.inserCmp('equipment_manager_modal.html', $('.modal')[0], function(){
           dj.inserCmp('equipment_manager.html', $('.container')[0])
         })
@@ -92,7 +92,7 @@
     }
 
     function loadControlMeasure() {
-      dj.jsLoad('../../resources/js/manager/selectManager.js', function(){
+      dj.jsLoad('/js/manager/selectManager.js', function(){
         dj.inserCmp('control_measure_modal.html', $('.modal')[0], function(){
           dj.inserCmp('control_measure.html', $('.container')[0])
         })
@@ -100,7 +100,7 @@
     }
 
     function loadTemperature() {
-      dj.jsLoad('../../resources/js/manager/selectManager.js', function(){
+      dj.jsLoad('/js/manager/selectManager.js', function(){
         dj.inserCmp('temperature_modal.html', $('.modal')[0], function(){
           dj.inserCmp('temperature.html', $('.container')[0])
         })
@@ -108,7 +108,7 @@
     }
 
     function substationLoad() {
-      dj.jsLoad('../../resources/js/manager/clickManager.js', function(){
+      dj.jsLoad('/js/manager/clickManager.js', function(){
         dj.inserCmp('substation_manager_modal.html', $('.modal')[0], function(){
           dj.inserCmp('substation_manager.html', $('.container')[0])
         })
@@ -116,7 +116,7 @@
     }
 
     function lineLoad() {
-      dj.jsLoad('../../resources/js/manager/clickManager.js', function(){
+      dj.jsLoad('/js/manager/clickManager.js', function(){
         dj.inserCmp('line_manager_modal.html', $('.modal')[0], function(){
           dj.inserCmp('line_manager.html', $('.container')[0])
         })

@@ -76,8 +76,8 @@ public class MonitorStartup implements InitializingBean {
 	/**
 	 * 缓存
      */
-	@Autowired
-	private CacheService cacheService;
+//	@Autowired
+//	private CacheService cacheService;
 
 	@Autowired
 	private WebsiteServiceClient websiteClient;

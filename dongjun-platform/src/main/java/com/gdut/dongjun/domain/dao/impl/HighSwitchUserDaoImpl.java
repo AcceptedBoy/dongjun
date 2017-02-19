@@ -20,12 +20,12 @@ public class HighSwitchUserDaoImpl extends SinglePrimaryKeyBaseDAOImpl<HighSwitc
 		return template.selectList(getNamespace("getSwitchByUserId"), userId);
 	}
 
-	@Override
+	/*@Override
 	public boolean deleteByParameters(Map<String, Object> map) {
 		
 		if(template.delete(getNamespace("deleteByParameters"), map) == 1) {
 			return true;
 		}
 		return false;
-	}
+	}*/
 }

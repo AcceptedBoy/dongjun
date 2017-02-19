@@ -15,7 +15,7 @@ import javax.validation.constraints.NotNull;
  * Created by symon on 16-11-29.
  */
 @ConfigurationProperties(prefix = "ehcache")
-@Service
+//@Service
 @Lazy(false)
 public class EhCacheServiceImpl implements CacheService {
 

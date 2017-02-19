@@ -58,7 +58,8 @@
 						paging: false,
 						ajax: {
 							url: urls.all,
-							type: 'POST'
+							type: 'POST',
+							dataSrc: 'text'		// data.text 为表格数据
 						},
 						columns: [
 							{ data: 'deviceNumber'},
@@ -69,7 +70,7 @@
 									var typeArray = ['低压', '高压', '管控', '温度']
 									return typeArray[data]
 								}
-							},
+							}, 
 							{
 								data: 'id',
 								orderable: false,
@@ -140,7 +141,8 @@
 						"paging": false,
 						ajax: {
 							url: '/dongjun/device_group/get_device_group',	// /dongjun/device_group/get_device_group
-							type: 'POST'
+							type: 'POST',
+							dataSrc: 'text'
 						},
 						columns: [
 							{ data: 'name'},

@@ -21,6 +21,13 @@ import com.gdut.dongjun.service.device.voltage.HighVoltageVoltageService;
  */
 
 public class InsertTestTread implements Runnable{
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+		
+	}
+//
 //	@Autowired
 //	public HistoryHighVoltageCurrentService HistoryCurrentService;
 //	@Autowired

@@ -23,8 +23,8 @@
 			   enableUpdateByExample="false" enableDeleteByExample="false"
 			   enableSelectByExample="false" selectByExampleQueryId="false" /> -->
 
-		<table schema="root" tableName="protocol_port"
-			   domainObjectName="ProtocolPort" enableCountByExample="false"
+		<table schema="root" tableName="abnormal_device"
+			   domainObjectName="AbnormalDevice" enableCountByExample="false"
 			   enableUpdateByExample="false" enableDeleteByExample="false"
 			   enableSelectByExample="false" selectByExampleQueryId="false" />
 	</context>

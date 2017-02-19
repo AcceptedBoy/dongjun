@@ -274,7 +274,7 @@ public class CtxStore implements InitializingBean, ApplicationContextAware {
 			websiteServiceClient.getService().callbackCtxChange();
 			ctxlist.add(ctx);
 		}
-		printCtxStore();
+		//printCtxStore();
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("add(SwitchGPRS) - end");
@@ -366,7 +366,7 @@ public class CtxStore implements InitializingBean, ApplicationContextAware {
 		SwitchGPRS gprs = get(id);
 		if (gprs != null && id.equals(gprs.getId())) {
 			gprs.setOpen(true);
-			printCtxStore();
+			//printCtxStore();
 			websiteServiceClient.getService().callbackCtxChange(); // TODO trueChange();
 		} else {
 			logger.info("ctxlist is empty!");
@@ -437,13 +437,14 @@ public class CtxStore implements InitializingBean, ApplicationContextAware {
 	}
 
 	/**
-	 * 
+	 * 在生产环境上作用甚微，日志又占空间，故去除
 	 * @Title: printCtxStore
 	 * @Description: TODO
 	 * @param
 	 * @return void
 	 * @throws
 	 */
+	@Deprecated
 	public static void printCtxStore() {
 		if (logger.isDebugEnabled()) {
 			logger.debug("printCtxStore() - start");

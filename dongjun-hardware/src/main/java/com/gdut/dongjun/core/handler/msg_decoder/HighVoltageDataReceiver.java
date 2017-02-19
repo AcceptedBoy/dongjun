@@ -113,7 +113,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	}
 	
 	@Override
-	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+	public void channelRead(ChannelHandlerContext ctx, Object 	msg) throws Exception {
 
 
 		/*
@@ -300,7 +300,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 
 		if (id != null && address != null) {
 
-			HighVoltageStatus s = CtxStore.getStatusbyId(id);
+			HighVoltageStatus s	 = CtxStore.getStatusbyId(id);
 			SwitchGPRS gprs = CtxStore.get(id);
 
 			if (s == null) {

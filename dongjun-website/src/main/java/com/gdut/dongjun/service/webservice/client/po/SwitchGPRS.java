@@ -2,11 +2,14 @@ package com.gdut.dongjun.service.webservice.client.po;
 
 import java.io.Serializable;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+
 
 /**
  * 为了能够提供接口服务，删去了ctx
  * @author acceptedboy
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class SwitchGPRS implements Serializable {
 	
 	/**
@@ -17,6 +20,7 @@ public class SwitchGPRS implements Serializable {
 	private String id;//ID
 	private String address;//地址
 	private boolean isOpen = false;//开关是否跳闸的标志(从合闸->分闸才算跳闸)
+	
 	/**
 	 * 1为预备合闸， 2为预备分闸，3为未预备
 	 */

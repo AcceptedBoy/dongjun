@@ -6,9 +6,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 
+import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,9 +19,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.gdut.dongjun.domain.po.HighVoltageHitchEvent;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.vo.HighVoltageHitchEventVo;
-import com.gdut.dongjun.service.HighVoltageHitchEventService;
-import com.gdut.dongjun.service.HighVoltageSwitchService;
-import com.gdut.dongjun.service.rmi.HardwareService;
+import com.gdut.dongjun.service.device.HighVoltageSwitchService;
+import com.gdut.dongjun.service.device.event.HighVoltageHitchEventService;
+import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 import com.gdut.dongjun.util.MapUtil;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.TimeUtil;
@@ -36,13 +36,13 @@ public class HighVoltageHitchEventController {
 	@Autowired
 	private HighVoltageSwitchService switchService;
 
-	@Resource(name="hardwareService")
-	private HardwareService hardwareService;
-
 	@RequestMapping("/all_switch_event")
 	public String forwardEvent() {
 		return "all_switch_event";
 	}
+
+	@Autowired
+	private HardwareServiceClient hardwareClient;
 
 	/**
 	 * 
@@ -54,6 +54,7 @@ public class HighVoltageHitchEventController {
 	 * @return String
 	 * @throws
 	 */
+	@RequiresAuthentication
 	@RequestMapping("/high_voltage_hitch_event_manager")
 	public String getLineSwitchList(String switchId, Model model) {
 
@@ -79,6 +80,7 @@ public class HighVoltageHitchEventController {
 	 * @return Object
 	 * @throws
 	 */
+	@RequiresAuthentication
 	@RequestMapping("/get_high_voltage_hitch_event_by_switch_id")
 	@ResponseBody
 	public Object getEventList(String switchId, Model model) {
@@ -100,6 +102,7 @@ public class HighVoltageHitchEventController {
 		return map;
 	}
 
+	@RequiresAuthentication
 	@RequestMapping("/update_hitchEvent")
 	@ResponseBody
 	public Object updateHitchEvent(@RequestParam(required=false)String switchId,
@@ -122,14 +125,15 @@ public class HighVoltageHitchEventController {
 		}
 	}
 	
+	@RequiresAuthentication
 	@RequestMapping("/ignore_hitch_event") 
 	@ResponseBody
 	public Object ignoreHitchEvent(@RequestParam(required = true)String switchId, HttpSession session) throws RemoteException {
 		
-		if(hardwareService.changeCtxOpen(switchId)) {
+		if(hardwareClient.getService().changeCtxOpen(switchId)) {
 			HighVoltageHitchEvent event = hitchEventService.getRecentHitchEvent(switchId);
 			if(event != null) {
-				event.setSolveWay("����");
+				event.setSolveWay("忽略");
 				event.setSolveTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
 				event.setSolvePeople(((User)session.getAttribute("currentUser")).getName());
 				hitchEventService.updateByPrimaryKeySelective(event);
@@ -138,6 +142,7 @@ public class HighVoltageHitchEventController {
 		return MapUtil.warp("success", true);
 	}
 	
+	@RequiresAuthentication
 	@RequestMapping("/get_all_high_event_by_time")
 	@ResponseBody
 	public Object getAllHighEventByTime() {

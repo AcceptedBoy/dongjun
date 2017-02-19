@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,7 @@ import com.gdut.dongjun.service.TemperatureDeviceService;
 import com.gdut.dongjun.service.TemperatureMeasureHistoryService;
 import com.gdut.dongjun.service.TemperatureMeasureService;
 import com.gdut.dongjun.service.TemperatureSensorService;
+import com.gdut.dongjun.util.CharUtils;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.TemperatureDeviceCommandUtil;
 import com.gdut.dongjun.util.TimeUtil;
@@ -36,6 +38,24 @@ import io.netty.util.AttributeKey;
 @Service
 @Sharable
 public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
+	
+	private static final char[] EB_UP = new char[]{'E', 'B', '9', '0'}; //EB90
+	private static final char[] EB_DOWN = new char[]{'e', 'b', '9', '0'}; //eb90
+    private static final char[] CODE_64 = new char[]{'6', '4'}; //64
+    private static final char[] CODE_03 = new char[]{'0', '3'}; //03
+    private static final char[] CODE_2E = new char[]{'2', 'e'}; //2e
+    private static final char[] CODE_1F_UP = new char[]{'1', 'F'}; //1F
+    private static final char[] CODE_1F_DOWN = new char[]{'1', 'f'}; //1f
+    private static final char[] CODE_09 = new char[]{'0', '9'}; //09
+    private static final char[] CODE_81 = new char[]{'8', '1'}; //81
+    private static final char[] CODE_00 = new char[]{'0', '0'}; //OO
+    private static final char[] CODE_01 = new char[]{'0', '1'}; //OO
+    private static final char[] CODE_47 = new char[]{'4', '7'}; //47
+    private static final char[] CODE_16 = new char[]{'1', '6'}; //16
+    private static final char[] CODE_68 = new char[]{'6', '8'}; //68
+    private static final char[] CODE_7716 = new char[]{'7', '7', '1', '6'}; //7716
+    private static final char[] CODE_7A16_UP = new char[]{'7', 'A', '1', '6'}; //7A16
+    private static final char[] CODE_7A16_DOWN = new char[]{'7', 'a', '1', '6'}; //7A16
 
 	@Autowired
 	private TemperatureDeviceService deviceService;
@@ -69,13 +89,14 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 				deviceService.updateByPrimaryKey(device);
 			}
 		}
-		CtxStore.printCtxStore();
+//		CtxStore.printCtxStore();
 	}
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-		String data = ((String) msg).replaceAll(" ", "");
-		logger.info("接收到的报文： " + data);
+		String rowMsg = (String) msg;
+		logger.info("接收到的报文： " + rowMsg);
+		char[] data = CharUtils.removeSpace(rowMsg.toCharArray());
 		handleIdenCode(ctx, data);
 
 	}
@@ -86,93 +107,102 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		ctx.close();
 	}
 
-	public void handleIdenCode(ChannelHandlerContext ctx, String data) {
-		if (data.startsWith("00") && data.substring(6, 8).equals("01")) {
-			String gprsNumber = data.substring(12, 20);
+	public void handleIdenCode(ChannelHandlerContext ctx, char[] data) {
+		
+		if (!(CharUtils.startWith(data, EB_UP) || CharUtils.startWith(data, EB_DOWN)) && CharUtils.endsWith(data, CODE_16)) {
+			AttributeKey<Integer> key = AttributeKey.valueOf("isRegisted");
+			Attribute<Integer> attr = ctx.attr(key);
+			if (null == attr.get()) {
+				//int address = Integer.parseInt(data.substring(12, 16), 16);
+				//logger.info(address + "号设备上线");
+				getOnlineAddress(ctx, data);
+				attr.set(1);
+			}
+		}
+		if(CharUtils.startWith(data, CODE_00) && (CharUtils.equals(data, 6, 8, CODE_01) || CharUtils.equals(data, 6, 8, CODE_03))) {
+			String gprsNumber = CharUtils.newString(data, 12, 20);
 			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i <= 6; i+=2) {
 				String address = gprsNumber.substring(i, i+2);
 				sb.append((char)Integer.parseInt(address, 16));
 			}
-			logger.info(sb.toString() + " GPRS模块登录成功");
-			return ;
-		}
-		if (data.startsWith("00") && data.substring(6, 8).equals("03")) {
-			String gprsNumber = data.substring(12, 20);
-			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i <= 6; i+=2) {
-				String address = gprsNumber.substring(i, i+2);
-				sb.append((char)Integer.parseInt(address, 16));
+			if (CharUtils.equals(data, 6, 8, CODE_01)) {
+				logger.info(sb.toString() + " GPRS模块登录成功");
+				return ;
+			} else {
+				logger.info(sb.toString() + " GPRS模块在线");
+				return ;
 			}
-			logger.info(sb.toString() + " GPRS模块在线");
+		}
+
+		if (data.length < 20) {
+			logger.info("接收到的非法数据--------------------" + data);
 			return ;
 		}
-		if (data.length() < 20) {
-			logger.info("undefine message received!");
-			logger.error("接收到的非法数据--------------------" + data);
-			return ;
-		}
-		String controlCode = data.substring(18, 20);
-		if (data.startsWith("EB90EB90EB90") || data.startsWith("eb90eb90eb90")) {
+		char[] controlCode = ArrayUtils.subarray(data, 18, 20);
+		if (CharUtils.startWith(data, EB_UP) || CharUtils.startWith(data, EB_DOWN)) {
 			/*
 			 * 读通信地址并将地址反转,确认连接
 			 */
 			logger.info("主站接收到连接");
 			getOnlineAddress(ctx, data);
-			ctx.channel().writeAndFlush("EB90EB90EB90" + data.substring(12, 16) + "16");
+			//需要返回eb90报文结束登录流程
+			StringBuilder sb = new StringBuilder();
+			sb.append("EB90EB90EB90").append(CharUtils.newString(data, 12, 16)).append("16");
+			ctx.channel().writeAndFlush(sb.toString());
 		}
 
-		else if (controlCode.equals("64") && data.endsWith("7716")) {
+		else if (CharUtils.equals(controlCode, CODE_64) || CharUtils.endsWith(data, CODE_7716)) {
 			/*
 			 * 终端发送总招激活确认
 			 */
 			logger.info("终端确认总召激活");
 		}
 
-		else if (controlCode.equals("64") && (data.endsWith("7A16") || data.endsWith("7a16"))) {
+		else if (CharUtils.equals(controlCode, CODE_64) && (CharUtils.endsWith(controlCode, CODE_7A16_UP) || CharUtils.endsWith(controlCode, CODE_7A16_DOWN))) {
 			/*
 			 * 终端确认总召结束
 			 */
 			logger.info("终端确认总召结束");
 		}
 
-		else if (controlCode.equals("09")) {
+		else if (CharUtils.equals(controlCode, CODE_09)) {
 			/*
 			 * 终端发送总招激活确认
 			 */
-			logger.info("接受来自终端的遥测数据");
+//			logger.info("接受来自终端的遥测数据");
 			// 遥测TODO 还有遥测变位事件，需要看变结构限定词来确定处理方法。遥测变位事件不需要主站确认
 			handleRemoteMeasure(ctx, data);
 		}
 
-		else if (controlCode.equals("01")) {
+		else if (CharUtils.equals(controlCode, CODE_01)) {
 			/*
 			 * 遥信变化值，遥信总召所有值获取
 			 */
-			logger.info("接受来自终端的单点遥信数据");
-			handleRemoteSignal(ctx, data);
+//			logger.info("接受来自终端的单点遥信数据");
+//			handleRemoteSignal(ctx, data);
 		}
 
-		else if (controlCode.equals("03")) {
+		else if (CharUtils.equals(controlCode, CODE_03)) {
 			/*
 			 * 遥信变位信息（就像报告它接下来要发送遥信变位事件）
 			 */
-			logger.info("接受来自终端的双点遥信数据");
+//			logger.info("接受来自终端的双点遥信数据");
 			// 双点遥信TODO 主站需要发送确认报文 然后接受遥信变位事件
-			handleRemoteSignal(ctx, data);
+//			handleRemoteSignal(ctx, data);
 		}
 
-		else if (controlCode.equals("1F") || controlCode.endsWith("1f")) {
+		else if (CharUtils.equals(controlCode, CODE_1F_UP) || CharUtils.equals(controlCode, CODE_1F_DOWN)) {
 			/*
 			 * 遥信变位事件
 			 */
-			logger.info("遥信变位事件");
+//			logger.info("遥信变位事件");
 			// 主站需要发送确认报文
-			handleRemoteSignalChange(ctx, data);
+//			handleRemoteSignalChange(ctx, data);
 		} else {
-			logger.info("undefine message received!");
-			logger.error("接收到的非法数据--------------------" + data);
+			logger.warn("接收到的非法数据--------------------" + data);
 		}
+		
 	}
 
 	/**
@@ -181,7 +211,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	 * @param ctx
 	 * @param data
 	 */
-	private void getOnlineAddress(ChannelHandlerContext ctx, String data) {
+	private void getOnlineAddress(ChannelHandlerContext ctx, char[] data) {
 		
 		SwitchGPRS gprs = CtxStore.get(ctx);
 		/*
@@ -191,7 +221,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			ctx.channel().writeAndFlush(data);
 			return;
 		}
-		String address = data.substring(10, 18);
+		String address = CharUtils.newString(data, 10, 18).intern();
 		gprs.setAddress(address);
 
 		address = TemperatureDeviceCommandUtil.reverseString(address);
@@ -215,7 +245,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 					CtxStore.add(gprs);
 				}
 			} else {
-				logger.info("this device is not registered!!");
+				logger.warn("this device is not registered!!");
 			}
 		}
 	}
@@ -226,50 +256,47 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	 * @param ctx
 	 * @param data
 	 */
-	public void handleRemoteMeasure(ChannelHandlerContext ctx, String data) {
-		logger.info("温度遥测-------" + data);
-		String variable = data.substring(20, 22);
-		logger.info("测归一化值-------" + variable);
-		String address = data.substring(10, 18);  //地址域
-		//因为现在温度协议是直接总召报文上来，所以要在全遥测的时候检测ctx是否注册过
-		 AttributeKey<Integer> key = AttributeKey.valueOf("isRegisted");
+	public void handleRemoteMeasure(ChannelHandlerContext ctx, char[] data) {
+		String address = CharUtils.newString(data, 10, 18); //地址域
+	
+		//第一次总召对时
+		 AttributeKey<Integer> key = AttributeKey.valueOf("FirstTotalCall");
 		 Attribute<Integer> attr = ctx.attr(key);
 		 if (null == attr.get()) {
-			 logger.info("设备上线！！！！！！！！！");
 				getOnlineAddress(ctx, data);
 				attr.set(1);
 				//发送对时命令，第一次总召的时间其实是不对的
-				ctx.writeAndFlush(doMatchTime(data.substring(10, 18)));
+				ctx.writeAndFlush(doMatchTime(CharUtils.newString(data, 10, 18)));
 		 }
 		 
 		String deviceId = CtxStore.getIdbyAddress(address);
 		if (null == deviceId || "".equals(deviceId)) {
 			return ;
 		}
-//		String deviceId = "0100";
-		if (variable.equals("01")) {
-			/**
-			 * 处理遥测变化
-			 */
-			logger.info("解析遥测变位-------" + data);
-			String signalAddress = data.substring(34, 38);
-			String value = data.substring(38, 38+6);
-			value = value.substring(0, 4);
+		if (CharUtils.equals(data, 20, 22, CODE_01)) {
+			//处理遥测变化
+			logger.info("解析温度遥测变位-------" + data);
+			String signalAddress = CharUtils.newString(data, 34, 38);
+			String value = CharUtils.newString(data, 38, 38 + 4);
+//			value = value.substring(0, 4);
 			int tag = changeSignalAddress(signalAddress);
 			doSaveMeasure(value, deviceId, tag);
 		} else {
-			/**
-			 * 处理全遥测
-			 */
-			logger.info("解析全遥测-------" + data);
-			String dataList = data.substring(52, 16*6 + 52);  //信息元素集
-			String[] buffer = new String[dataList.length() / 6];
-			for (int i = 0; i < dataList.length(); i += 6) {
-				String temp = dataList.substring(i, i + 6);
-				buffer[i/6] = temp.substring(0, 4);
+			//处理全遥测
+			logger.info("解析温度全遥测-------" + data);
+//			String dataList = data.substring(52, 16*6 + 52);  //信息元素集
+			String[] buffer = new String[16];
+//			for (int i = 0; i < dataList.length(); i += 6) {
+//				String temp = dataList.substring(i, i + 6);
+//				buffer[i/6] = temp.substring(0, 4);
+//			}
+			for (int i = 0; i < 16; i++) {
+				buffer[i] = CharUtils.newString(data, 52 + 6 * i, 52 + 6 * i + 4);
 			}
 			doSaveMeasure(buffer, deviceId);
-			ctx.channel().writeAndFlush("eb90eb90eb90" + data.substring(10, 18) + "16");	  //全遥测确认报文，提示控制器发送全遥信
+			StringBuilder sb = new StringBuilder();
+			sb.append("eb90eb90eb90" + CharUtils.newString(data, 10, 18) + "16");
+			ctx.channel().writeAndFlush(sb.toString());	  //全遥测确认报文，提示控制器发送全遥信
 		}
 	}
 
@@ -376,66 +403,6 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 
 	public Integer changeSignalAddress(String signalAddress) {
 		return Integer.parseInt(signalAddress.substring(2, 4), 16);
-//		int address;
-//		switch (signalAddress) {
-//		case "4001":
-//			address = 1;
-//			break;
-//		case "4002":
-//			address = 2;
-//			break;
-//		case "4003":
-//			address = 3;
-//			break;
-//		case "4004":
-//			address = 4;
-//			break;
-//		case "4005":
-//			address = 5;
-//			break;
-//		case "4006":
-//			address = 6;
-//			break;
-//		case "4007":
-//			address = 7;
-//			break;
-//		case "4008":
-//			address = 8;
-//			break;
-//		case "4009":
-//			address = 9;
-//			break;
-//		case "400a":
-//		case "400A":
-//			address = 10;
-//			break;
-//		case "400b":
-//		case "400B":
-//			address = 11;
-//			break;
-//		case "400c":
-//		case "400C":
-//			address = 12;
-//			break;
-//		case "400d":
-//		case "400D":
-//			address = 13;
-//			break;
-//		case "400e":
-//		case "400E":
-//			address = 14;
-//			break;
-//		case "400f":
-//		case "400F":
-//			address = 15;
-//			break;
-//		case "4010":
-//			address = 16;
-//			break;
-//		default:
-//			return null;
-//		}
-//		return address;
 	}
 
 	/**

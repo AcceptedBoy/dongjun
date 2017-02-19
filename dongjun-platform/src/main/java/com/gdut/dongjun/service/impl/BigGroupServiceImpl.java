@@ -21,7 +21,7 @@ public class BigGroupServiceImpl extends BaseServiceImpl<BigGroup>
     @Override
     protected boolean isExist(BigGroup record) {
         if (record != null
-                && groupMapper.selectByPrimaryKey(record.getId()) != null) {
+                && groupMapper.selectByPrimaryKey(record.getId() + "") != null) {
 
             return true;
         } else {

@@ -1,5 +1,7 @@
 package com.gdut.dongjun.service.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,10 +18,15 @@ public class DeviceGroupMappingServiceImpl extends BaseServiceImpl<DeviceGroupMa
 	
 	@Override
 	protected boolean isExist(DeviceGroupMapping record) {
-		if (record != null 
+		if (record != null && record.getId() != null
 				&& (mapper.selectByPrimaryKey(record.getId()) != null))
 			return true;
 		return false;
+	}
+
+	@Override
+	public List<DeviceGroupMapping> selectByMappingId(Integer id) {
+		return mapper.selectByMappingId(id);
 	}
 
 }

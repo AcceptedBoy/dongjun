@@ -22,9 +22,9 @@ import com.gdut.dongjun.util.MapUtil;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.UUIDUtil;
 
-//@Controller
-//@RequestMapping("/dongjun")
-//@SessionAttributes("currentUser")
+@Controller
+@RequestMapping("/dongjun")
+@SessionAttributes("currentUser")
 public class LineController {
 
 	@Autowired

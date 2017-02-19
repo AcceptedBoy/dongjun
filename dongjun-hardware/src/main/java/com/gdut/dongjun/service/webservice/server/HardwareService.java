@@ -39,7 +39,7 @@ public interface HardwareService {
 	 */
 	@POST
 	@Path("/generate_close_msg")
-	@Consumes({MediaType.APPLICATION_JSON})
+//	@Consumes({MediaType.APPLICATION_JSON})
 	public String generateCloseSwitchMessage(@FormParam("address") String address,
 											 @FormParam("type") Integer type);
 	

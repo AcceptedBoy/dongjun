@@ -54,7 +54,7 @@ public abstract class AbstractSimulateSend {
             OutputStream os = socket.getOutputStream();
             os.write(HexString_BytesUtil.hexStringToBytes(cache.get(i)));
             os.flush();
-            Thread.sleep(500);
+            Thread.sleep(1000);
         }
     }
 

@@ -1,6 +1,5 @@
 package com.gdut.dongjun.domain.dao.base;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -21,7 +20,7 @@ public interface SinglePrimaryKeyBaseMapper<T> {
 	 * @return int
 	 * @throws
 	 */
-	public int deleteByPrimaryKey(Serializable id);
+	public int deleteByPrimaryKey(String id);
 
 	/**
 	 * 
@@ -54,7 +53,7 @@ public interface SinglePrimaryKeyBaseMapper<T> {
 	 * @return T
 	 * @throws
 	 */
-	public T selectByPrimaryKey(Serializable id);
+	public T selectByPrimaryKey(String id);
 
 	/**
 	 * 
@@ -66,6 +65,18 @@ public interface SinglePrimaryKeyBaseMapper<T> {
 	 */
 	public List<T> selectByParameters(Map<String, Object> map);
 
+	
+	/**
+	 * 
+	 * @Title: deleteByParameters
+	 * @Description: TODO
+	 * @param 
+	 * @return int
+	 * @throws
+	 */
+	public int deleteByParameters(Map<String, Object> map);
+	
+	
 	/**
 	 * 
 	 * @Title: updateByPrimaryKeySelective
@@ -87,5 +98,7 @@ public interface SinglePrimaryKeyBaseMapper<T> {
 	 * @throws
 	 */
 	public int updateByPrimaryKey(T record);
+
+	
 
 }

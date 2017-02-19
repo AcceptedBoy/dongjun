@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.servlet.DispatcherType;
 import javax.sql.DataSource;
 
+import org.apache.cxf.transport.servlet.CXFServlet;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.authc.credential.SimpleCredentialsMatcher;
 import org.apache.shiro.realm.jdbc.JdbcRealm;
@@ -19,78 +20,40 @@ import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
+import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.context.annotation.ImportResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.remoting.rmi.RmiProxyFactoryBean;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
-import com.gdut.dongjun.service.rmi.HardwareService;
+import com.gdut.dongjun.service.common.CommonSwitch;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
+
+import net.sf.ehcache.CacheManager;
 
 @SpringBootApplication
 @EnableAspectJAutoProxy
 @EnableAsync
 @EnableScheduling
+@ImportResource("classpath:website-service.xml")
 public class Application extends SpringBootServletInitializer {
 
-	/*--------------------------------------------------------
-	 * 					常量配置
-	 * -------------------------------------------------------
-	 */
-	@Value("${cxf.service.url}")
-	private String cxfServiceUrl;
-
-	@Value("${cxf.service.canService}")
-	private boolean canService;
-
-	@Value("${c3p0.jdbcUrl}")
-	private String jdbcUrl;
-
-	@Value("${c3p0.user}")
-	private String user;
-
-	@Value("${c3p0.password}")
-	private String password;
-
-	@Value("${c3p0.driver}")
-	private String driver;
-
-	@Value("${c3p0.acquireIncrement}")
-	private int acquireIncrement;
-
-	@Value("${c3p0.initialPoolSize}")
-	private int initialPoolSize;
-
-	@Value("${c3p0.minPoolSize}")
-	private int minPoolSize;
-
-	@Value("${c3p0.maxPoolSize}")
-	private int maxPoolSize;
-
-	@Value("${c3p0.maxIdleTime}")
-	private int maxIdleTime;
-
-//	@Bean
-//	public Constant projectConstant() {
-//		Constant constant = new Constant();
-//		constant.setIsService(true);
-//		constant.setPreSerivcePath("http://localhost:6666/dongjun_service/ws/common");
-//		return constant;
-//	}
-
+	@Bean
+	public CommonSwitch projectConstant() {
+		return new CommonSwitch();
+	}
 	
 	/*--------------------------------------------------------
 	 * 					数据库配置
@@ -104,9 +67,9 @@ public class Application extends SpringBootServletInitializer {
 	public DataSource dataSource() {
 
 		ComboPooledDataSource ds = new ComboPooledDataSource();
-		ds.setJdbcUrl("jdbc:mysql://115.28.7.40:3306/elecon_platform?useUnicode=true&amp;charaterEncoding=utf-8&zeroDateTimeBehavior=convertToNull");
-		ds.setUser("topview");
-		ds.setPassword("topview624");//elecon
+		ds.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/elecon_platform?useUnicode=true&amp;charaterEncoding=utf-8&zeroDateTimeBehavior=convertToNull");
+		ds.setUser("root");
+		ds.setPassword("759486");//elecon
 		try {
 			ds.setDriverClass("com.mysql.jdbc.Driver");
 		} catch (PropertyVetoException e) {
@@ -157,7 +120,7 @@ public class Application extends SpringBootServletInitializer {
 		}
 		return sst;
 	}
-
+	
 	/*--------------------------------------------------------
 	 * 					事务管理配置
 	 * -------------------------------------------------------
@@ -216,7 +179,7 @@ public class Application extends SpringBootServletInitializer {
 	}
 
 	/**
-	 *
+	 * 
 	 */
 	@Bean
 	public LifecycleBeanPostProcessor lifecycleBeanPostProcessor() {
@@ -237,7 +200,7 @@ public class Application extends SpringBootServletInitializer {
 
 	/**
 	 * shiro filter
-	 */
+	 */	
 	@Bean(name = "shiroFilter")
 	public ShiroFilterFactoryBean ShiroFilterFactoryBean() {
 
@@ -248,7 +211,7 @@ public class Application extends SpringBootServletInitializer {
 		factoryBean.setLoginUrl("/dongjun/login");
 		return factoryBean;
 	}
-
+	
 	/**
 	 * <p>*：匹配零个或多个字符串
 	 * <p>**：匹配路径中的零个或多个路径
@@ -283,14 +246,14 @@ public class Application extends SpringBootServletInitializer {
 
 		HashedCredentialsMatcher credentialsMatcher = new HashedCredentialsMatcher();
 		SimpleCredentialsMatcher matcher = new SimpleCredentialsMatcher();
-
+		
 		credentialsMatcher.setHashAlgorithmName("SHA-256");
 		realm.setDataSource(dataSource());
 		realm.setCredentialsMatcher(matcher);
 		realm.setAuthenticationCacheName("shiro.authorizationCache");
 		realm.setAuthenticationQuery("select password from user where name = ?");
 		realm.setSaltStyle(SaltStyle.NO_SALT);
-
+		
 		/**
 		 * 查询用户的角色时只能通过用户的名字查，查询用户的权限时只能通过用户的角色名查
 		 */
@@ -303,43 +266,34 @@ public class Application extends SpringBootServletInitializer {
 		realm.setPermissionsLookupEnabled(true);
 		return realm;
 	}
-	
-	/*--------------------------------------------------------
-	 * 					远程方法调用
-	 * -------------------------------------------------------
-	 */
-
-	/**
-	 * rmi 远程调用方法，获取与硬件交互的方法
-	 */
-	@Bean
-	public RmiProxyFactoryBean hardwareService() {
-		RmiProxyFactoryBean proxy = new RmiProxyFactoryBean();
-		proxy.setServiceUrl("rmi://115.28.7.40:9998/HardwareService");
-		//proxy.setServiceUrl("rmi://localhost:9998/HardwareService");
-		proxy.setServiceInterface(HardwareService.class);
-		//解决重启 rmi 的服务器后会出现拒绝连接或找不到服务对象的错误
-		proxy.setLookupStubOnStartup(false);
-		proxy.setRefreshStubOnConnectFailure(true);
-		return proxy;
-	}
 
 	/**
 	 * {@code @Autowired
-	 * private Validator validator;}
+     * private Validator validator;}
 	 */
 	@Bean
 	public LocalValidatorFactoryBean validator() {
 		return new LocalValidatorFactoryBean();
 	}
-
+	
 	@Override
 	protected SpringApplicationBuilder configure(
 			SpringApplicationBuilder application) {
 		return application.sources(Application.class);
 	}
-
+	
 	public static void main(String[] args) throws Exception {
 		SpringApplication.run(Application.class, args);
+	}
+
+	//注册Servlet，同样的Bean有FilterRegistrationBean和ServletListenerRegistrationBean
+	@Bean//fix bug: 上次的名字是dispatcherServlet，搞得那些请求都没办法处理了
+	public ServletRegistrationBean cxfServlet() {
+		return new ServletRegistrationBean(new CXFServlet(), "/dongjun-website/ws/*");
+	}
+	
+	@Bean
+	public CacheManager cacheManager() {
+		return new CacheManager();
 	}
 }
