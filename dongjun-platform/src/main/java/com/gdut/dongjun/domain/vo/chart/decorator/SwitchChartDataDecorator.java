@@ -24,6 +24,8 @@ public class SwitchChartDataDecorator extends ChartDataDecorator {
 
 	public SwitchChartDataDecorator(ChartData chart) {
 		super(chart);
+		this.chartList = new ArrayList<SwitchChartData>();
+		this.timeList = new ArrayList<Date>();
 	}
 
 	@Override

@@ -65,6 +65,12 @@ public class TemperatureMeasure {
 	public void setValue(String value) {
 		this.value = value;
 	}
+
+	@Override
+	public String toString() {
+		return "TemperatureMeasure [id=" + id + ", deviceId=" + deviceId + ", date=" + date + ", tag=" + tag
+				+ ", value=" + value + "]";
+	}
 	
 	
 	

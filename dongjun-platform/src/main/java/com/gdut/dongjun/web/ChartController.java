@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.gdut.dongjun.domain.po.ControlMearsureSwitch;
 import com.gdut.dongjun.domain.po.HighVoltageSwitch;
 import com.gdut.dongjun.domain.po.LowVoltageSwitch;
+import com.gdut.dongjun.domain.po.TemperatureMeasure;
 import com.gdut.dongjun.domain.vo.SwitchTableData;
 import com.gdut.dongjun.domain.vo.chart.ChartData;
 import com.gdut.dongjun.domain.vo.chart.SwitchChartData;
@@ -24,6 +26,7 @@ import com.gdut.dongjun.domain.vo.chart.decorator.SwitchChartDataDecorator;
 import com.gdut.dongjun.service.device.ControlMearsureSwitchService;
 import com.gdut.dongjun.service.device.HighVoltageSwitchService;
 import com.gdut.dongjun.service.device.LowVoltageSwitchService;
+import com.gdut.dongjun.service.device.TemperatureSensorService;
 import com.gdut.dongjun.service.device.current.ControlMearsureCurrentService;
 import com.gdut.dongjun.service.device.current.HighVoltageCurrentService;
 import com.gdut.dongjun.service.device.current.LowVoltageCurrentService;
@@ -57,6 +60,8 @@ public class ChartController {
 	private HighVoltageSwitchService highService;
 	@Autowired
 	private ControlMearsureSwitchService controlService;
+	@Autowired
+	private TemperatureSensorService sensorService;
 
 	/**
 	 * 
@@ -290,9 +295,55 @@ public class ChartController {
 		Map<String, Object> measureMap = new HashMap<String, Object>();
 		String[] tags = tagList.split(",=");
 		for (String tag : tags) {
-			measureMap.put(tag, measureService.selectByTime(id, Integer.parseInt(tag), beginDate, endDate));
+			List<TemperatureMeasure> measures = measureService.selectByTime(id, Integer.parseInt(tag), beginDate, endDate);
+			measureMap.put(tag, measures);
+			System.out.println("--------------------" + measures.size());
 		}
 		return chartData.getJsonChart(measureMap);
 	}
 
+	
+	
+	@RequiresAuthentication
+	@RequestMapping("/test")
+	@ResponseBody
+	public ChartData test(
+			String id, 
+			String beginDate, 
+			String endDate, 
+			String tagList) {
+		id = "1asda";
+		beginDate = "2016-10-06 09:25";
+		endDate = "2017-2-20 15:32";
+		tagList = "3,=2,=4";
+		TemperatureChartData chartData = new TemperatureChartData();
+		Map<String, Object> measureMap = new HashMap<String, Object>();
+		String[] tags = tagList.split(",=");
+		for (String tag : tags) {
+			measureMap.put(tag, measureService.selectByTime(id, Integer.parseInt(tag), beginDate, endDate));
+		}
+		return chartData.getJsonChart(measureMap);
+	}
+	
+	
+	@RequiresAuthentication
+	@RequestMapping("/test1")
+	@ResponseBody
+	public ChartData test1(
+			String id, 
+			String beginDate, 
+			String endDate, 
+			String tagList) {
+		id = "1asda";
+		beginDate = "2016-10-06 09:25:00";
+		endDate = "2017-2-20 15:32:00";
+		tagList = "3,=2,=4";
+		TemperatureChartData chartData = new TemperatureChartData();
+		Map<String, Object> measureMap = new HashMap<String, Object>();
+		String[] tags = tagList.split(",=");
+		for (String tag : tags) {
+			measureMap.put(tag, measureService.selectByTime(id, Integer.parseInt(tag), beginDate, endDate));
+		}
+		return chartData.getJsonChart(measureMap);
+	}
 }

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.gdut.dongjun.domain.po.TemperatureMeasure;
 import com.gdut.dongjun.domain.po.TemperatureMeasureHistory;
 import com.gdut.dongjun.util.TimeUtil;
 
@@ -30,9 +31,9 @@ public class TemperatureChartData extends ChartData {
 		// 初始化x轴
 		for (Entry<String, Object> entry : data.entrySet()) {
 
-			List<TemperatureMeasureHistory> measureList = (List<TemperatureMeasureHistory>) (entry.getValue());
+			List<TemperatureMeasure> measureList = (List<TemperatureMeasure>) (entry.getValue());
 
-			for (TemperatureMeasureHistory measure : measureList) {
+			for (TemperatureMeasure measure : measureList) {
 				set.add(measure.getDate());
 			}
 			Map<String, Float> map = new HashMap<String, Float>();
@@ -46,8 +47,8 @@ public class TemperatureChartData extends ChartData {
 				map.put(TimeUtil.timeFormat(transformToDate(time)), null);
 			}
 			// 赋值
-			List<TemperatureMeasureHistory> measureList = (List<TemperatureMeasureHistory>) (entry.getValue());
-			for (TemperatureMeasureHistory measure : measureList) {
+			List<TemperatureMeasure> measureList = (List<TemperatureMeasure>) (entry.getValue());
+			for (TemperatureMeasure measure : measureList) {
 				map.put(TimeUtil.timeFormat(transformToDate(measure.getDate())),
 						getFloatValue(Integer.valueOf(measure.getValue())));
 			}

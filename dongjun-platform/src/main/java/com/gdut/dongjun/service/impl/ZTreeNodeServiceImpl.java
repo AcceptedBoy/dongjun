@@ -185,7 +185,7 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 							
 							ZTreeNode n4 = new ZTreeNode();
 							if (sensors.get(l) != null) {
-								n4.setId(sensors.get(l).getId());
+								n4.setId(sensors.get(l).getTag() + "");
 								n4.setName(sensors.get(l).getName());
 								n4.setParentName(devices.get(k).getName());
 								n4.setType(10);
@@ -262,7 +262,7 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 				node2.setParentName(dg.getName());
 				node2.setPlatformGroupId(high.getGroupId() + "");
 				node2.setAddress(high.getAddress());
-				node2.setType(0);
+				node2.setType(1);
 				node2.setShowName(high.getShowName());
 				list.add(node2);
 				break;
@@ -275,7 +275,7 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 				node3.setParentName(dg.getName());
 				node3.setPlatformGroupId(control.getGroupId() + "");
 				node3.setAddress(control.getAddress());
-				node3.setType(0);
+				node3.setType(2);
 				node3.setShowName(control.getShowName());
 				list.add(node3);
 				break;
@@ -288,7 +288,7 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 				node4.setParentName(dg.getName());
 				node4.setPlatformGroupId(device.getGroupId() + "");
 				node4.setAddress(device.getAddress());
-				node4.setType(0);
+				node4.setType(3);
 				node4.setShowName(device.getName());
 				
 				List<ZTreeNode> sNodes = new LinkedList();

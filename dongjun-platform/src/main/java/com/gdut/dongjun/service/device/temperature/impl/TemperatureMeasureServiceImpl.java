@@ -50,7 +50,7 @@ public class TemperatureMeasureServiceImpl extends BaseServiceImpl<TemperatureMe
 	@Override
 	public List<TemperatureMeasure> selectByTime(String id, int tag, String beginDate, String endDate) {
 		Map<String, Object> paramMap = new HashMap<>();
-		paramMap.put("id", id);
+		paramMap.put("deviceId", id);
 		paramMap.put("beginDate", beginDate);
 		paramMap.put("endDate", endDate);
 		paramMap.put("tag", tag);
