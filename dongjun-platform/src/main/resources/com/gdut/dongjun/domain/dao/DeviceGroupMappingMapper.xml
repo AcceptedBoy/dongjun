@@ -107,7 +107,7 @@
 	</update>
 
 	<select id="selectByParameters" resultMap="BaseResultMap">
-		select * from device_group where 1 = 1
+		select * from device_group_mapping where 1 = 1
 		<if test="map != null">
 			<foreach collection="map.entrySet()" index="key" item="item">
 				and

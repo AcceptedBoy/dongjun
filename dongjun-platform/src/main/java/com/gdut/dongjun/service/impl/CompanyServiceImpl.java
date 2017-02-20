@@ -56,7 +56,7 @@ public class CompanyServiceImpl extends BaseServiceImpl<Company> implements Comp
 
 	@Override
 	public void updateChartCache(String id) {
-		ehCacheService.put(id, treeService.getSwitchTree(id, null));
+		ehCacheService.put(id, treeService.getSwitchTree(id));
 		ehCacheService.put(id + CompanyService.UPDATE_POSTFIX, Integer.valueOf(0));
 	}
 

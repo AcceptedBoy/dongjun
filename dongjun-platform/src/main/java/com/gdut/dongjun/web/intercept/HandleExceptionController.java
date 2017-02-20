@@ -111,7 +111,7 @@ public class HandleExceptionController {
 		if(commonSwitch.isProduction()) {
 			return new ResponseEntity<String>("500", HttpStatus.valueOf(500));
 		}
-
+		ex.printStackTrace();
 		return new ResponseEntity<>(new ResponseMessage(
 										Type.WARNING, 
 										DefaultValidUtil.getValidationMessage(ex.toString()), 

@@ -132,11 +132,11 @@ public class IndexController implements InitializingBean {
 				return centorServiceClient.getService()
 						.getSwitchTree(user.getCompanyId(), type);
 			}	//中介者
-			//以后这个方法会变成中介者系统返回值
-			return zTreeNodeService.getSwitchTree(user.getCompanyId(), type);
+			//TODO 以后这个方法会变成中介者系统返回值
+			return zTreeNodeService.getSwitchTree(user.getCompanyId());
 		} else {
-
-			return "";
+			//超管
+			return zTreeNodeService.getSwitchTree();
 		}
 	}
 

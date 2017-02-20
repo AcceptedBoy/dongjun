@@ -39,6 +39,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
 import com.gdut.dongjun.service.common.CommonSwitch;
+import com.gdut.dongjun.web.intercept.HttpRequestFilter;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 import net.sf.ehcache.CacheManager;
@@ -158,6 +159,15 @@ public class Application extends SpringBootServletInitializer {
 		chafil.setDispatcherTypes(DispatcherType.ASYNC);
 		chafil.addUrlPatterns("/*");
 		return chafil;
+	}
+	
+	/**
+	 * 为{@link com.gdut.dongjun.service.aspect.HttpRequestContent}服务的filter
+	 * 主要工作是保存成功访问的HttpServletRequest，方便spring aop获取session
+	 */
+	@Bean
+	public HttpRequestFilter httpRequestFilter() {
+		return new HttpRequestFilter();
 	}
 	
 	/*--------------------------------------------------------
