@@ -90,8 +90,8 @@ public class SwitchStatus {
 	 * @return
 	 * @throws RemoteException
 	 */
-	public static List<SwitchStatus> wrap(List<? extends AbstractDevice> list, @NotNull HardwareServiceClient client) throws RemoteException {
-		List<SwitchGPRS> gprsList = client.getService().getCtxInstance();
+	public static List<SwitchStatus> wrap(List<? extends AbstractDevice> list,  HardwareServiceClient client) throws RemoteException {
+//		List<SwitchGPRS> gprsList = client.getService().getCtxInstance();
 		List<SwitchStatus> statusList = new ArrayList<SwitchStatus>();
 		for (Object s : list) {
 			boolean isOpen = false;
@@ -103,16 +103,16 @@ public class SwitchStatus {
 			status.setOnlineTime((String) GenericUtil.getPrivateObjectValue(s, "onlineTime"));
 			status.setSimNumber((String) GenericUtil.getPrivateObjectValue(s, "simNumber"));
 
-			for (SwitchGPRS gprs : gprsList) {
-				if (gprs.getId().equals(status.getId())) {
-					if (gprs.isOpen()) {
-						isOpen = true;
-						break;
-					} else {
-						break;
-					}
-				}
-			}
+//			for (SwitchGPRS gprs : gprsList) {
+//				if (gprs.getId().equals(status.getId())) {
+//					if (gprs.isOpen()) {
+//						isOpen = true;
+//						break;
+//					} else {
+//						break;
+//					}
+//				}
+//			}
 			// } //如果在运行，有gprs在线，就可以获取在线值
 
 			if (isOpen) {

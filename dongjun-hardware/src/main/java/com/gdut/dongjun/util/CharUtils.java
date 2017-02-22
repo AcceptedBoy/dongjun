@@ -118,7 +118,7 @@ public class CharUtils {
      * @return
      */
     public static boolean endsWith(char[] src, char[] end) {
-        return equals(src, src.length - end.length, end.length, end);
+        return equals(src, src.length - end.length, src.length, end);
     }
     
     /**

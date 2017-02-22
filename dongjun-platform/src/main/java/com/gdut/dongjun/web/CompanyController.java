@@ -5,10 +5,12 @@ import java.util.List;
 import javax.servlet.http.HttpSession;
 
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
+import org.apache.shiro.authz.annotation.RequiresGuest;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -17,7 +19,6 @@ import com.gdut.dongjun.domain.po.Company;
 import com.gdut.dongjun.domain.po.PlatformGroup;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.po.authc.UserRoleKey;
-import com.gdut.dongjun.service.BigGroupService;
 import com.gdut.dongjun.service.CompanyService;
 import com.gdut.dongjun.service.PlatformGroupService;
 import com.gdut.dongjun.service.UserService;
@@ -146,12 +147,6 @@ public class CompanyController {
 			return ResponseMessage.success("删除失败");
 		}
 		return ResponseMessage.success("删除成功");
-	}
-	
-	@RequestMapping("/fuzzy_search")
-	@ResponseBody
-	public ResponseMessage doFuzzySearch(String name) {
-		return ResponseMessage.success(companyService.fuzzySearch(name));
 	}
 	
 }

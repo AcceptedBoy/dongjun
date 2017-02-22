@@ -120,7 +120,7 @@ public class HighVoltageSwitchController {
 		map.put("recordsTotal", size);
 		map.put("data", updateDate(switchs));
 		try {
-			map.put("data", SwitchStatus.wrap(switchs, hardwareServiceClient));
+			map.put("data", SwitchStatus.wrap(switchs, null));
 		} catch (RemoteException e) {
 			logger.info("获取硬件系统开关信息失败");
 			e.printStackTrace();

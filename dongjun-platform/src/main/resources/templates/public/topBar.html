@@ -1,15 +1,16 @@
 <div class="hero-unit">
 	<div class="row-fluid">
-		<div class="span5">
+		<div class="span4">
 			<h2>
 				<img src="../../img/logo.png" style="height: 65px" />电网智能监控系统
           <span class="label label-default">1.10</span>
 			</h2>
 		</div>
-		<div class="span6 MENU">
+		<div class="span7 menu">
 			<a href="../monitor/index.html" class="btn banner-btn btn-primary"><i class="fa fa-map-marker"></i>监控</a>
       <a href="../manager/index.html" class="btn banner-btn btn-primary"><i class="fa fa-cog"></i>管理</a>
       <a href="../event/index.html" class="btn banner-btn btn-primary" id="event"><i class="fa fa-user"></i>事件</a>
+      <a href="../log/index.html" class="btn banner-btn btn-primary"><i class="fa fa-list-alt"></i>日志</a>
 		</div>
     <div class="span1 log_out">
         <button class="btn btn-danger" onclick="logOut()">退出</button>
@@ -34,7 +35,7 @@
 		})
 
 		var navPaths = [];
-		var links = $('.span6.MENU').find('a');
+		var links = $('.span7.menu').find('a');
 		links = Array.prototype.slice.call(links);
 		links.forEach(function(item) {
 			var path = item.href;

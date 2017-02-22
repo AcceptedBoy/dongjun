@@ -22,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -29,6 +30,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.gdut.dongjun.domain.model.ErrorInfo;
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.Company;
+import com.gdut.dongjun.domain.po.PlatformGroup;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.po.authc.Role;
 import com.gdut.dongjun.domain.po.authc.UserRoleKey;
@@ -40,6 +42,7 @@ import com.gdut.dongjun.service.authc.RoleService;
 import com.gdut.dongjun.service.authc.UserRoleService;
 import com.gdut.dongjun.service.impl.enums.LoginResult;
 import com.gdut.dongjun.util.MyBatisMapUtil;
+import com.gdut.dongjun.util.UUIDUtil;
 
 @Controller
 @SessionAttributes("currentUser")
@@ -92,9 +95,11 @@ public class UserController {
 		User user = null;
 		
 		// 数据库查找账号密码
-		if (users != null && users.get(0) != null) {
+		if (null != users && 0 != users.size() && null != users.get(0)) {
 
 			user = users.get(0);
+		} else {
+			return LoginResult.USER_NO_EXIST.value(); 
 		}
 
 		try {
@@ -162,10 +167,11 @@ public class UserController {
 	 * @param mainStaff
 	 * @return
 	 */
-	@RequestMapping("/dongjun/user/registy")
+	@RequestMapping(value = "/dongjun/elecon/user_registy", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseMessage doRegisty(User user, String mainStaff) {
 		List<Role> roles = roleService.selectByParameters(null);
+		user.setId(UUIDUtil.getUUID());
 		if (userService.updateByPrimaryKey(user) == 1) {
 			UserRoleKey ur = new UserRoleKey();
 			if (MAINSTAFF.equals(mainStaff)) {
@@ -200,6 +206,28 @@ public class UserController {
 		return ResponseMessage.success("操作成功");
 	}
 	
+	@RequestMapping(value = "/dongjun/elecon/company_registry", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseMessage edit(Company com) {
+		if (null == com.getId() || "".equals(com.getId())) {
+			com.setId(UUIDUtil.getUUID());
+			/* 插入与Company相对应的PlatformGroup */
+			PlatformGroup pg = new PlatformGroup();
+			pg.setId(UUIDUtil.getUUID());
+			pg.setGroupId("default");	//默认组别
+			byte num = 0;
+			pg.setIsDefault(num);
+			pg.setName(com.getName());
+			pg.setCompanyId(com.getId());
+			pg.setType(num);
+			pgService.updateByPrimaryKey(pg);
+		}
+		if (companyService.updateByPrimaryKey(com) == 0) {
+			return ResponseMessage.danger("操作失败");
+		}
+		return ResponseMessage.success(com.getId());
+	}
+	
 	@RequiresAuthentication
 	@RequestMapping("/dongjun/user/imformation")
 	@ResponseBody
@@ -222,6 +250,12 @@ public class UserController {
 	public ResponseMessage delUser() {
 		//TODO
 		return null;
+	}
+	
+	@RequestMapping(value = "/dongjun/elecon/fuzzy_search", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseMessage doFuzzySearch(String name) {
+		return ResponseMessage.success(companyService.fuzzySearch(name));
 	}
 	
 }

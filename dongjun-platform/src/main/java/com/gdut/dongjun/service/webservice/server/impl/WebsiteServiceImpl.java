@@ -40,7 +40,8 @@ public class WebsiteServiceImpl implements WebsiteService {
     @Override
     public void callbackCtxChange(List<ActiveHighSwitch> data) {
         LOG.info("hardware端ctx变化，进行页面推送");
-        this.template.convertAndSend("/topic/get_active_switch_status", data);
+//        this.template.convertAndSend("/topic/get_active_switch_status", data);
+      
     }
 
     @Override

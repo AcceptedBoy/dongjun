@@ -30,6 +30,7 @@ import com.gdut.dongjun.service.device.LowVoltageSwitchService;
 import com.gdut.dongjun.service.device.TemperatureDeviceService;
 import com.gdut.dongjun.util.MapUtil;
 import com.gdut.dongjun.util.MyBatisMapUtil;
+import com.gdut.dongjun.util.UUIDUtil;
 
 /**
  *
@@ -65,6 +66,9 @@ public class PlatformGroupController {
 	public ResponseMessage addGroup(HttpSession session, PlatformGroup group) {
 		group.setIsDefault((byte) 0); // 添加的都不是默认的
 		group.setCompanyId(userService.getCurrentUser(session).getCompanyId());
+		if (null == group.getId() || "".equals(group.getId())) {
+			group.setId(UUIDUtil.getUUID());
+		}
 		if (groupService.insert(group) != 0) {
 			return ResponseMessage.success("添加成功");
 		} else {

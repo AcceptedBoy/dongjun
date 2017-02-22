@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>电网智能监控系统 - 上海东君电气有限公司</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link href="../../css/bootstrap.css" rel="stylesheet" />
+    <style type="text/css">
+        th, td {
+            white-space: nowrap;
+        }
+    </style>
+    <link href="../../css/bootstrap-responsive.css" rel="stylesheet" />
+    <link href="../../css/manager.css" rel="stylesheet" />
+    <link href="../../css/global.css" rel="stylesheet" />
+
+    <!-- dataTables -->
+    <link href="../../css/dataTables/dataTables.tableTools.css"
+          rel="stylesheet" />
+    <link href="../../css/dataTables/jquery.dataTables.css" rel="stylesheet" />
+    <link href="../../css/dataTables/dataTables.bootstrap.css"
+          rel="stylesheet" />
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+    <script src="../../js/html5shiv.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <link rel="shortcut icon" href="../../img/logo.png" />
+    <link href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"
+        rel="stylesheet" />
+
+</head>
+
+<body>
+    <div class="container-fluid">
+        <topBar></topBar>
+        <div class="row-fluid">
+            <sideNav></sideNav>
+            <container></container>
+        </div>
+        <footer>
+            <p>&copy; Company 2013</p>
+        </footer>
+    </div>
+<!--/.fluid-container-->
+
+<!-- Le javascript
+  ================================================== -->
+<!-- Placed at the end of the document so the pages load faster
+<script src="//cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.js"></script>
+-->
+
+</body>
+<script src="../../js/lib/jquery.js"></script>
+<script src="../../js/lib/bootstrap-transition.js"></script>
+<script src="../../js/lib/bootstrap-alert.js"></script>
+<script src="../../js/lib/bootstrap-modal.js"></script>
+<script src="../../js/lib/bootstrap-dropdown.js"></script>
+<script src="../../js/lib/bootstrap-scrollspy.js"></script>
+<script src="../../js/lib/bootstrap-tab.js"></script>
+<script src="../../js/lib/bootstrap-tooltip.js"></script>
+<script src="../../js/lib/bootstrap-popover.js"></script>
+<script src="../../js/lib/bootstrap-button.js"></script>
+<script src="../../js/lib/bootstrap-collapse.js"></script>
+<script src="../../js/lib/bootstrap-carousel.js"></script>
+<script src="../../js/lib/bootstrap-typeahead.js"></script>
+
+<!-- dataTables -->
+<script src="../../js/lib/dataTables/dataTables.bootstrap.js"></script>
+<script src="../../js/lib/dataTables/jquery.dataTables.js"></script>
+<script src="../../js/lib/dataTables/dataTables.tableTools.js"></script>
+<script src="../../js/lib/dataTables/dataTables_initial.js"></script>
+
+<!-- custom -->
+<script src="../../js/lib/dongjun.js"></script>
+</html>
+
+<script>
+    dj.createComponent('topBar', {
+        templateUrl: '../public/topBar.html'
+    })
+
+    dj.createComponent('container', {
+        template: '<div class="span10 container"></div>'
+    })
+
+    dj.createComponent('sideNav', {
+        templateUrl: 'sideNav.html'
+    })
+
+    dj.componentIn();
+</script>

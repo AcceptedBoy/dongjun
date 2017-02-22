@@ -68,7 +68,6 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements
 
 	@Override
 	protected boolean isExist(User record) {
-
 		if (record != null
 				&& userMapper.selectByPrimaryKey(record.getId()) != null) {
 

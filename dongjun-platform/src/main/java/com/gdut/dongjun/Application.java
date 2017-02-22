@@ -68,9 +68,9 @@ public class Application extends SpringBootServletInitializer {
 	public DataSource dataSource() {
 
 		ComboPooledDataSource ds = new ComboPooledDataSource();
-		ds.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/elecon_platform?useUnicode=true&amp;charaterEncoding=utf-8&zeroDateTimeBehavior=convertToNull");
+		ds.setJdbcUrl("jdbc:mysql://115.28.7.40:3306/elecon_platform?useUnicode=true&amp;charaterEncoding=utf-8&zeroDateTimeBehavior=convertToNull");
 		ds.setUser("root");
-		ds.setPassword("759486");//elecon
+		ds.setPassword("topview+624");//elecon
 		try {
 			ds.setDriverClass("com.mysql.jdbc.Driver");
 		} catch (PropertyVetoException e) {
@@ -165,10 +165,10 @@ public class Application extends SpringBootServletInitializer {
 	 * 为{@link com.gdut.dongjun.service.aspect.HttpRequestContent}服务的filter
 	 * 主要工作是保存成功访问的HttpServletRequest，方便spring aop获取session
 	 */
-	@Bean
-	public HttpRequestFilter httpRequestFilter() {
-		return new HttpRequestFilter();
-	}
+//	@Bean
+//	public HttpRequestFilter httpRequestFilter() {
+//		return new HttpRequestFilter();
+//	}
 	
 	/*--------------------------------------------------------
 	 * 					shiro 配置
@@ -299,7 +299,7 @@ public class Application extends SpringBootServletInitializer {
 	//注册Servlet，同样的Bean有FilterRegistrationBean和ServletListenerRegistrationBean
 	@Bean//fix bug: 上次的名字是dispatcherServlet，搞得那些请求都没办法处理了
 	public ServletRegistrationBean cxfServlet() {
-		return new ServletRegistrationBean(new CXFServlet(), "/dongjun-website/ws/*");
+		return new ServletRegistrationBean(new CXFServlet(), "/dongjun-platform/ws/*");
 	}
 	
 	@Bean

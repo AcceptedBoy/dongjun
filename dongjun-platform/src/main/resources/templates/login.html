@@ -26,7 +26,12 @@
 <body>
 	
 	<div class="title">
-		<h2><img src="../../img/logo.png" style="height: 60px" />电网智能监控系统 | 上海东君电气有限公司</h2>
+		<h2><img src="../../img/logo.png" style="height: 60px" />电网智能监控系统 | 上海东君电气有限公司
+			<div class="registerControl">
+				<button id="register_worker_btn" onclick="registerObj.clearText($('#searchCompanyName'),  $('#registerName'), $('#realName'), $('#registerPassword'), $('#registerPasswordConfirm'), $('#controlCode'))" class="btn" data-toggle="modal" data-backdrop="static" data-target="#register_worker_modal">注册用户</button>
+				<button id="register_company_btn" onclick="registerObj.clearCompanyText()" class="btn" data-toggle="modal" data-backdrop="static" data-target="#register_company_modal">注册公司</button>
+			</div>
+		</h2>
 	</div>
 
 	<div class="banner">
@@ -56,16 +61,161 @@
 		</div>
 
 	</div>
-
 	
+	<!-- register_Modal -->
+	<div id="register_worker_modal" class="modal hide fade" tabindex="-1"
+	role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal"
+			aria-hidden="true">×</button>
+		<h3>注册用户</h3>
+	</div>
+	<div class="modal-body">
+		<div id="register_worker_form" class="form-horizontal"
+			action="edit_substation">
+			<div class="control-group">
+				<label class="control-label" for="searchCompanyName">公司名</label>
+				<div class="controls">
+					<input type="text" list="companyList" id="searchCompanyName" name="searchCompanyName" onblur="registerObj.editCompanyId(this.value)" onkeyup="registerObj.fuzzySearch(this.value)" />
+					<datalist id="companyList">
+						
+					</datalist>
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="registerName">用户名</label>
+				<div class="controls">
+					<input type="text" id="registerName" name="name" />
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="realName">真实姓名</label>
+				<div class="controls">
+					<input type="text" id="realName" name="realName" />
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="registerPassword">密码</label>
+				<div class="controls">
+					<input type="password" id="registerPassword" name="password" maxLength="16" /><i class="icon-search" style="cursor:pointer;position:relative;left:-7%;" onmousedown="registerObj.showPassWord($('#registerPassword'))" onmouseup="registerObj.hidePassWord($('#registerPassword'))"></i>
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="registerPasswordConfirm">确认密码</label>
+				<div class="controls">
+					<input type="password" id="registerPasswordConfirm" name="passwordConfirm" maxLength="16" /><i class="icon-search" style="cursor:pointer;position:relative;left:-7%;" onmousedown="registerObj.showPassWord($('#registerPasswordConfirm'))" onmouseup="registerObj.hidePassWord($('#registerPasswordConfirm'))"></i>
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="controlCode">操作密码(用于系统操作)</label>
+				<div class="controls">
+					<input type="password" id="controlCode" name="controlCode" maxLength="10" /><i class="icon-search" style="cursor:pointer;position:relative;left:-7%;" onmousedown="registerObj.showPassWord($('#controlCode'))" onmouseup="registerObj.hidePassWord($('#controlCode'))"></i>
+				</div>
+			</div>
+			<div class="control-group">
+				<div class="controls">
+					<label id='warnMsg' class='hide' style='color:red;'>请输入正确的格式（真实姓名请输入中文，用户名和密码由英文和数字组成）</label>
+				</div>
+			</div>
+			</div>
+		</div>
+		<div class="modal-footer">
+			<button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+     		<button id="register_confirm_btn" class="btn btn-primary"
+             data-dismiss="modal" aria-hidden="true" onclick="registerObj.registerWorker($('#registerName').val(), $('#realName').val(), $('#registerPassword').val(), $('#controlCode').val(), this)">确认</button>
+		</div>
+	
+	</div>
+	
+	<!-- registerCompany -->
+	<div id="register_company_modal" class="modal hide fade" tabindex="-1"
+	role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal"
+			aria-hidden="true">×</button>
+		<h3>注册公司与公司负责人</h3>
+	</div>
+	<div class="modal-body">
+		<div id="register_company_form" class="form-horizontal"
+			action="edit_substation">
+			<fieldset>
+				<legend>公司注册</legend>
+				<div class="control-group">
+					<label class="control-label" for="companyName">公司名</label>
+					<div class="controls">
+						<input type="text" id="companyName" name="companyName" />
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="description">公司描述</label>
+					<div class="controls">
+						<textarea id="description" name="description" rows="3" cols="20"></textarea>
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="address">公司地址</label>
+					<div class="controls">
+						<input type="text" id="address" name="address" />
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="mainStaff">负责人名字</label>
+					<div class="controls">
+						<input type="text" id="mainStaff" name="mainStaff" />
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="phone">联系电话</label>
+					<div class="controls">
+						<input type="text" id="phone" name="phone" />
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="email">联系邮箱</label>
+					<div class="controls">
+						<input type="text" id="email" name="email" />
+					</div>
+				</div>
+			</fieldset>
+			<fieldset>
+				<legend>负责人账号注册</legend>
+				<div class="control-group">
+					<label class="control-label" for="staffName">用户名</label>
+					<div class="controls">
+						<input type="text" id="staffName" name="staffName" />
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="staffPassword">用户密码</label>
+					<div class="controls">
+						<input type="password" id="staffPassword" name="staffPassword" maxLength="16" /><i class="icon-search" style="cursor:pointer;position:relative;left:-7%;" onmousedown="registerObj.showPassWord($('#staffPassword'))" onmouseup="registerObj.hidePassWord($('#staffPassword'))"></i>
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="staffControlCode">操作密码(用于系统操作)</label>
+					<div class="controls">
+						<input type="password" id="staffControlCode" name="staffControlCode" maxLength="16" /><i class="icon-search" style="cursor:pointer;position:relative;left:-7%;" onmousedown="registerObj.showPassWord($('#staffControlCode'))" onmouseup="registerObj.hidePassWord($('#staffControlCode'))"></i>
+					</div>
+				</div>
+			</fieldset>
+		</div>
+	</div>
+		<div class="modal-footer">
+			<button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+     		<button id="register_confirm_btn" class="btn btn-primary"
+             data-dismiss="modal" aria-hidden="true" onclick="registerObj.registerCompany($('#companyName').val(), $('#description').val(), $('#address').val(), $('#mainStaff').val(), $('#phone').val(), $('#email').val(), $('#staffName').val(),$('#staffPassword').val(),$('#staffControlCode').val(), this)">确认</button>
+		</div>
+	
+	</div>
 
 	<footer>
 		<p>&copy; Company 2013</p>
 	</footer>
-
-	<script src="../../js/lib/jquery.js"></script>
-
-	<script src="../../js/login/login.js"></script>
+	<script src="../../js/jquery.js"></script>
+	<script src="../../js/lib/bootstrap-transition.js"></script>
+	<script src="../../js/lib/bootstrap-alert.js"></script>
+	<script src="../../js/lib/bootstrap-modal.js"></script>
+	<script src="../../js/custom/login.js"></script>
 
 
 </body>

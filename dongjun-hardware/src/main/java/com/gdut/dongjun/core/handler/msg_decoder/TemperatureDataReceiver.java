@@ -119,6 +119,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 				attr.set(1);
 			}
 		}
+		//登录和心跳包
 		if(CharUtils.startWith(data, CODE_00) && (CharUtils.equals(data, 6, 8, CODE_01) || CharUtils.equals(data, 6, 8, CODE_03))) {
 			String gprsNumber = CharUtils.newString(data, 12, 20);
 			StringBuilder sb = new StringBuilder();
@@ -140,6 +141,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			return ;
 		}
 		char[] controlCode = ArrayUtils.subarray(data, 18, 20);
+		System.out.println(controlCode);
 		if (CharUtils.startWith(data, EB_UP) || CharUtils.startWith(data, EB_DOWN)) {
 			/*
 			 * 读通信地址并将地址反转,确认连接
@@ -225,7 +227,6 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		gprs.setAddress(address);
 
 		address = TemperatureDeviceCommandUtil.reverseString(address);
-		System.out.println("deviceNumer-------" + Integer.parseInt(address, 16));
 		
 		if (gprs != null) {
 			/*
@@ -233,6 +234,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			 */
 			List<TemperatureDevice> list = deviceService
 					.selectByParameters(MyBatisMapUtil.warp("device_number", Integer.parseInt(address, 16)));
+			
 			if (list != null && list.size() != 0) {
 
 				TemperatureDevice device = list.get(0);
@@ -283,7 +285,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			doSaveMeasure(value, deviceId, tag);
 		} else {
 			//处理全遥测
-			logger.info("解析温度全遥测-------" + data);
+			logger.info("解析温度全遥测-------" + CharUtils.newString(data));
 //			String dataList = data.substring(52, 16*6 + 52);  //信息元素集
 			String[] buffer = new String[16];
 //			for (int i = 0; i < dataList.length(); i += 6) {
@@ -422,7 +424,6 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			if (value[i-1].equals("0000")) {
 				continue;
 			}
-
 			isSensorExist(sensorList, i, deviceId);
 			measureHistoryService.insert(
 					new TemperatureMeasureHistory(UUIDUtil.getUUID(), deviceId, new Timestamp(System.currentTimeMillis()), i, Integer.parseInt(value[i-1], 16)*10 + ""));

@@ -177,13 +177,14 @@ public class TemperatureDeviceCommandUtil extends StringCommonUtil {
 		data = "";
 		char temp;
 		for (int i = 0; i < data_reverse.length / 4; i++) {
-			temp = data_reverse[2*i];
-			data_reverse[2*i] = data_reverse[data_reverse.length -1 - 2*i - 1];
-			data_reverse[data_reverse.length -1 - 2*i] = temp;
+
+			temp = data_reverse[data_reverse.length / 2 - 2 * (i + 1)];
+			data_reverse[data_reverse.length / 2 - 2 * (i + 1)] = data_reverse[data_reverse.length / 2 + 2 * i];
+			data_reverse[data_reverse.length / 2 + 2 * i] = temp;
 			
-			temp = data_reverse[2*i + 1];
-			data_reverse[2*i + 1] = data_reverse[data_reverse.length -1 - 2*i];
-			data_reverse[data_reverse.length -1 - 2*i] = temp;	
+			temp = data_reverse[data_reverse.length / 2 - 2 * (i + 1) + 1];
+			data_reverse[data_reverse.length / 2 - 2 * (i + 1) + 1] = data_reverse[data_reverse.length / 2 + 2 * i + 1];
+			data_reverse[data_reverse.length / 2 + 2 * i + 1] = temp;	
 		}
 		for (int i = 0; i < data_reverse.length; i++) {
 			data += data_reverse[i];

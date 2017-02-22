@@ -41,7 +41,8 @@ public class WebsiteServiceClient implements InitializingBean, ApplicationContex
     }
 
     private static List<String> ipList = new ArrayList<String>() {{
-        add("localhost:9091");	//这里是复数服务器，以后可以通过xml文件来配置
+    	//这里是复数服务器，以后可以通过xml文件来配置
+    	add("localhost:9091");	
     }};
 
     @Override
@@ -50,7 +51,7 @@ public class WebsiteServiceClient implements InitializingBean, ApplicationContex
         for(String ip : ipList) {
             websiteList.add(
                     JAXRSClientFactory.create(
-                            "http://" + ip + "/dongjun-website/ws/website",
+                            "http://" + ip + "/dongjun-platform/ws/website",
                             WebsiteService.class,
                             Arrays.asList(JacksonJsonProvider.class,
                                     BinaryDataProvider.class)));
@@ -66,12 +67,25 @@ public class WebsiteServiceClient implements InitializingBean, ApplicationContex
 
     public static class ExtendedService {
 
+    	/**
+    	 * 企业版
+    	 */
         public void callbackCtxChange() {
             for(WebsiteService websiteService : websiteList) {
                 websiteService.callbackCtxChange(
                         hardwareService.getActiveSwitchStatus());
             }
         }
+        
+        /**
+         * 平台版
+         */
+//        public void callbackCtxChange() {
+//            for(WebsiteService websiteService : websiteList) {
+//                websiteService.callbackCtxChange(
+//                        hardwareService.getActiveSwitchStatus());
+//            }
+//        }
 
         public void callbackDeviceChange(String switchId, Integer type) {
             for(WebsiteService websiteService : websiteList) {

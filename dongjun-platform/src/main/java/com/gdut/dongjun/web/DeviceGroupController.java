@@ -16,22 +16,27 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.gdut.dongjun.domain.model.ResponseMessage;
+import com.gdut.dongjun.domain.po.Company;
 import com.gdut.dongjun.domain.po.ControlMearsureSwitch;
 import com.gdut.dongjun.domain.po.DeviceGroup;
 import com.gdut.dongjun.domain.po.DeviceGroupMapping;
 import com.gdut.dongjun.domain.po.HighVoltageSwitch;
 import com.gdut.dongjun.domain.po.LowVoltageSwitch;
+import com.gdut.dongjun.domain.po.PlatformGroup;
 import com.gdut.dongjun.domain.po.TemperatureDevice;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.dto.SwitchDTO;
+import com.gdut.dongjun.service.CompanyService;
 import com.gdut.dongjun.service.DeviceGroupMappingService;
 import com.gdut.dongjun.service.DeviceGroupService;
+import com.gdut.dongjun.service.PlatformGroupService;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.device.ControlMearsureSwitchService;
 import com.gdut.dongjun.service.device.HighVoltageSwitchService;
 import com.gdut.dongjun.service.device.LowVoltageSwitchService;
 import com.gdut.dongjun.service.device.TemperatureDeviceService;
 import com.gdut.dongjun.util.MyBatisMapUtil;
+import com.gdut.dongjun.util.UUIDUtil;
 
 @Controller
 @RequestMapping("/dongjun/device_group")
@@ -51,13 +56,23 @@ public class DeviceGroupController {
 	private ControlMearsureSwitchService controlService;
 	@Autowired
 	private TemperatureDeviceService temService;
+	@Autowired
+	private CompanyService companyService;
+	@Autowired
+	private PlatformGroupService pgService;
 
 	@RequiresPermissions("device_group_admin:edit")
 	@RequestMapping("/edit")
 	@ResponseBody
 	public ResponseMessage addGroup(DeviceGroup dGroup, HttpSession session) {
 		User user = (User)session.getAttribute("currentUser");
+		Company com = companyService.selectByPrimaryKey(user.getCompanyId());
+		PlatformGroup pg = ((List<PlatformGroup>)(pgService.selectByParameters(MyBatisMapUtil.warp("company_id", com.getId())))).get(0);
+		dGroup.setPlatformGroupId(pg.getId());
 		//TODO 通过当前用户获取PlatformId
+		if (null == dGroup.getId() || "".equals(dGroup.getId())) {
+			dGroup.setId(UUIDUtil.getUUID());
+		}
 		Integer result = deviceGroupService.updateByPrimaryKey(dGroup);
 		if (result == 1) {
 			return ResponseMessage.success("操作成功");
@@ -117,6 +132,7 @@ public class DeviceGroupController {
 		for (int i = 0; i < splitId.length; i++) {
 			mapping.setType(Integer.parseInt(types[i]));
 			mapping.setDeviceId(splitId[i]);
+			mapping.setId(UUIDUtil.getUUID());
 			if (deviceGroupMappingService.updateByPrimaryKey(mapping) == 0) {
 				return ResponseMessage.danger("操作失败");
 			}

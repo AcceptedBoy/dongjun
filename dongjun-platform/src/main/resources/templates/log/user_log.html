@@ -1,0 +1,80 @@
+<table id="user_log_list" class="table table-bordered table-striped table-hover table-condensed success" width="100%">
+  <thead>
+    <td>日期</td>
+    <td>名字</td>
+    <td>类型</td>
+  </thead>
+</table>
+
+<script>
+  var userLogTable = function() {
+    var table = null
+    var url = {
+    	all_log: '/dongjun/log/get_user_log'
+    }
+    return {
+      getTable: function(){
+        return table;
+      },
+      init: function() {
+        var _self = this;
+        table = $('#user_log_list').DataTable({
+          'ajax': {
+            'url': url.all_log,
+            'dataSrc': 'text.data',
+            'type': 'POST'
+          },
+          'columns': [
+            {
+              'data': 'date',
+              'render': this.renderTime
+            },
+            {
+                'data': 'name',
+                'orderable': false
+              },
+            {
+              'data': 'type',
+              'render': this.renderType,
+              'orderable': false
+            },
+          ],
+          'language': {
+            'paginate': {
+              'next': '下一页',
+              'previous': '上一页'
+            },
+            'emptyTable': '找不到相关数据',
+            'zeroRecords': '找不到相关数据',
+          },
+        })
+      },
+      renderType(data) {
+        var type = '';
+        switch(parseInt(data)) {
+          case 1: type = '登录'; break;
+          default: type = '其他'
+        }
+        return type;
+      },
+      renderTime(time) {
+        time = typeof time === 'string' ? parseInt(time) : time
+        var date = new Date(time)
+        var y = date.getFullYear()
+        var mt = date.getMonth() + 1
+        mt = mt < 10 ? ('0' + mt) : mt
+        var d = date.getDate()
+        d = d < 10 ? ('0' + d) : d
+        var h = date.getHours()
+        h = h < 10 ? ('0' + h) : h
+        var m = date.getMinutes()
+        m = m < 10 ? ('0' + m) : m
+        var s = date.getSeconds()
+        s = s < 10 ? ('0' + s) : s
+        return y + '-' + mt + '-' + d + ' ' + h + ':' + m + ':' + s
+      }
+    }
+  }()
+
+  userLogTable.init()
+</script>

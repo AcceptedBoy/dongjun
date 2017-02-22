@@ -70,7 +70,7 @@ public class TemperatureDeviceServiceImpl extends BaseServiceImpl<TemperatureDev
 			device.setId(UUIDUtil.getUUID());
 			device.setAddress(t.getAddress());
 			device.setDeviceNumber(t.getDeviceNumber());
-			device.setGroupId(Integer.parseInt(platformId));
+			device.setGroupId(platformId);
 			device.setSimNumber(t.getSimNumber());
 			device.setName(t.getName());
 			device.setAddTime(format.format(new Date()));

@@ -1,15 +1,9 @@
 ﻿package com.gdut.dongjun;
 
-import com.gdut.dongjun.core.server.impl.HighVoltageServer_V1_3;
-import com.gdut.dongjun.domain.po.HighVoltageCurrent;
-import com.gdut.dongjun.domain.po.HighVoltageSwitch;
-import com.gdut.dongjun.domain.po.HighVoltageVoltage;
-import com.gdut.dongjun.domain.po.ProtocolPort;
-import com.gdut.dongjun.service.HighVoltageCurrentService;
-import com.gdut.dongjun.service.HighVoltageSwitchService;
-import com.gdut.dongjun.service.HighVoltageVoltageService;
-import com.gdut.dongjun.service.cache.CacheService;
-import com.gdut.dongjun.service.webservice.client.WebsiteServiceClient;
+import java.util.List;
+
+import javax.annotation.Resource;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +15,14 @@ import com.gdut.dongjun.core.server.impl.HighVoltageServer_V1_3;
 import com.gdut.dongjun.core.server.impl.LowVoltageServer;
 import com.gdut.dongjun.core.server.impl.TemperatureServer;
 import com.gdut.dongjun.domain.dao.ProtocolPortMapper;
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.gdut.dongjun.domain.po.HighVoltageCurrent;
+import com.gdut.dongjun.domain.po.HighVoltageSwitch;
+import com.gdut.dongjun.domain.po.HighVoltageVoltage;
+import com.gdut.dongjun.domain.po.ProtocolPort;
+import com.gdut.dongjun.service.HighVoltageCurrentService;
+import com.gdut.dongjun.service.HighVoltageSwitchService;
+import com.gdut.dongjun.service.HighVoltageVoltageService;
+import com.gdut.dongjun.service.webservice.client.WebsiteServiceClient;
 
 
 /**

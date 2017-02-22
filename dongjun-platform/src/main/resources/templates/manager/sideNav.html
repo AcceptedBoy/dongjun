@@ -1,5 +1,5 @@
 <div class="span2 container-fluid well sidebar-nav">
-  <ul class="nav nav-list bs-docs-sidenav" id="menu">
+  <ul class="nav nav-list bs-docs-sidenav" id="sideNav">
     <li class="nav-header">资源管理</li>
     <li><a href="#substation_manager">组别管理</a></li>
     <li><a href="#line_manager">公司管理</a></li>
@@ -39,7 +39,7 @@
     $('a[href*=#' + (location.href.split('#')[1] || 'low_voltage')+']').addClass('btn-success')
 
     // 点击时改变高亮按钮
-    var navLinks = $('.nav').find('a')
+    var navLinks = $('#sideNav').find('a')
     navLinks.click(function(){
       navLinks.removeClass('btn-success')
       $(this).addClass('btn-success')
