@@ -143,7 +143,6 @@ public class ChartController {
 		
 		ChartData fullChart = new SwitchChartData();
 		SwitchChartDataDecorator fullChart0 = new SwitchChartDataDecorator(fullChart);
-//		ChartDataAdapter adapter = new ChartDataAdapter();
 		String[] types = type.trim().split(",=");
 		String[] ids = switchId.trim().split(",=");
 		for (int i = 0; i < ids.length; i++) {
@@ -302,48 +301,4 @@ public class ChartController {
 		return chartData.getJsonChart(measureMap);
 	}
 
-	
-	
-	@RequiresAuthentication
-	@RequestMapping("/test")
-	@ResponseBody
-	public ChartData test(
-			String id, 
-			String beginDate, 
-			String endDate, 
-			String tagList) {
-		id = "1asda";
-		beginDate = "2016-10-06 09:25";
-		endDate = "2017-2-20 15:32";
-		tagList = "3,=2,=4";
-		TemperatureChartData chartData = new TemperatureChartData();
-		Map<String, Object> measureMap = new HashMap<String, Object>();
-		String[] tags = tagList.split(",=");
-		for (String tag : tags) {
-			measureMap.put(tag, measureService.selectByTime(id, Integer.parseInt(tag), beginDate, endDate));
-		}
-		return chartData.getJsonChart(measureMap);
-	}
-	
-	
-	@RequiresAuthentication
-	@RequestMapping("/test1")
-	@ResponseBody
-	public ChartData test1(
-			String id, 
-			String beginDate, 
-			String endDate, 
-			String tagList) {
-		id = "1asda";
-		beginDate = "2016-10-06 09:25:00";
-		endDate = "2017-2-20 15:32:00";
-		tagList = "3,=2,=4";
-		TemperatureChartData chartData = new TemperatureChartData();
-		Map<String, Object> measureMap = new HashMap<String, Object>();
-		String[] tags = tagList.split(",=");
-		for (String tag : tags) {
-			measureMap.put(tag, measureService.selectByTime(id, Integer.parseInt(tag), beginDate, endDate));
-		}
-		return chartData.getJsonChart(measureMap);
-	}
 }

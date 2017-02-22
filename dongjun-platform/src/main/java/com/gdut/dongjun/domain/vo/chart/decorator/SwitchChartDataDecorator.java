@@ -43,6 +43,7 @@ public class SwitchChartDataDecorator extends ChartDataDecorator {
 			return null;
 		}
 
+		//各个设备的图表
 		for (SwitchChartData chart : chartList) {
 			
 			if (chart.getTimeList().isEmpty()) {
@@ -50,7 +51,9 @@ public class SwitchChartDataDecorator extends ChartDataDecorator {
 			}
 			
 			legend.addAll((List<String>) (chart.getLegend().get("data")));
+			//各个设备的A、B、C相
 			for (ChaseData chaseData : chart.getSeries()) {
+				//初始化ChaseData的同时赋予名字
 				ChaseData newData = new ChaseData(chaseData.getName());
 
 				List<Float> chartValue = new ArrayList<Float>();
@@ -64,26 +67,30 @@ public class SwitchChartDataDecorator extends ChartDataDecorator {
 					break;
 				}
 				int count;
-				for (count = 0, // 得到带有空值的List<Float>
-				yTime = (Date) j.next();;) {
-
+				// 得到带有空值的完整List<Float>
+				for (count = 0, yTime = (Date) j.next(); ;) {
+					//开始轮询this.timeSet的元素
 					if (i.hasNext()) {
 						xTime = (Date) i.next();
-					} else
-						break; // 如果完整HashSet轮询完毕，即跳出
-					if (xTime == yTime && j.hasNext()) { // 完整HashSet和非完整HashSet，如果时间相等则加数据，不等加null
+					} else {
+						break; // 如果轮询完毕，即跳出
+					}
+					if (xTime == yTime) { // xTime是完整TimeSet和yTime是非完整TimeSet，如果时间相等则加数据，不等加null
 
 						chartValue.add(chaseValue.get(count));
 						count++;
 						if (j.hasNext()) {
 							yTime = (Date) j.next();
+						} else {
+							break;
 						}
 					} else {
+						//如果前端有什么图表的特殊需求可以在这里改。
 						chartValue.add(null);
 					}
 				}
-
 				newData.setData(chartValue);
+				//把新构造的ChaseData塞到fullChart中
 				fullChart.getSeries().add(newData);
 			}
 		}

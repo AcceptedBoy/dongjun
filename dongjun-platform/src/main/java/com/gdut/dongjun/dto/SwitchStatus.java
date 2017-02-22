@@ -91,7 +91,7 @@ public class SwitchStatus {
 	 * @throws RemoteException
 	 */
 	public static List<SwitchStatus> wrap(List<? extends AbstractDevice> list,  HardwareServiceClient client) throws RemoteException {
-//		List<SwitchGPRS> gprsList = client.getService().getCtxInstance();
+		List<SwitchGPRS> gprsList = client.getService().getCtxInstance();
 		List<SwitchStatus> statusList = new ArrayList<SwitchStatus>();
 		for (Object s : list) {
 			boolean isOpen = false;
@@ -102,24 +102,19 @@ public class SwitchStatus {
 			status.setName((String) GenericUtil.getPrivateObjectValue(s, "name"));
 			status.setOnlineTime((String) GenericUtil.getPrivateObjectValue(s, "onlineTime"));
 			status.setSimNumber((String) GenericUtil.getPrivateObjectValue(s, "simNumber"));
-
-//			for (SwitchGPRS gprs : gprsList) {
-//				if (gprs.getId().equals(status.getId())) {
-//					if (gprs.isOpen()) {
-//						isOpen = true;
-//						break;
-//					} else {
-//						break;
-//					}
-//				}
-//			}
-			// } //如果在运行，有gprs在线，就可以获取在线值
-
-			if (isOpen) {
-				status.setStatus("true");
-			} else {
-				status.setStatus("false");
-			} // 如果没有运行，直接返回不在线
+			status.setStatus("-1");		//预设设备不在线
+			
+			for (SwitchGPRS gprs : gprsList) {
+				if (gprs.getId().equals(status.getId())) {
+					if (gprs.isOpen()) {
+						status.setStatus("01");		//设备合闸
+						break;
+					} else {
+						status.setStatus("00");		//设备分闸
+						break;
+					}
+				}
+			}
 
 			statusList.add(status);
 		}
