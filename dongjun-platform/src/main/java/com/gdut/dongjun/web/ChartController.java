@@ -296,7 +296,6 @@ public class ChartController {
 		for (String tag : tags) {
 			List<TemperatureMeasure> measures = measureService.selectByTime(id, Integer.parseInt(tag), beginDate, endDate);
 			measureMap.put(tag, measures);
-			System.out.println("--------------------" + measures.size());
 		}
 		return chartData.getJsonChart(measureMap);
 	}

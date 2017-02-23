@@ -104,10 +104,7 @@
 
 <script>
   (function() {
-
-
     var chartView = function() {
-
       return {
         handleChange: function() {
           if($('#lineBar').css('display') == 'none') {
@@ -152,12 +149,17 @@
             $('#temContent').hide();
           }
         },
+        showLoading: function(chart) {
+        	chart.showLoading({
+        		effect: 'ring'
+        	})
+        },
+        hideLoading: function(chart) {
+        	chart.hideLoading()
+        }
       };
     }();
-
-
     var chartController = function() {
-
       return {
         /**
          * [initListener 为表格模块的东西添加事件]
@@ -260,7 +262,6 @@
         }
       };
     }();
-
     /**
      * [chartNodes 用来装已选节点的数组]
      * @return {[type]} [description]
@@ -268,7 +269,6 @@
     var chartNodes = function() {
       var checkNodes = [];
       var temNodes = [];
-
       return {
         get: function() {
           return checkNodes;
@@ -319,8 +319,6 @@
         }
       };
     }();
-
-
   /**
    * [chartManager 管理表格的行为]
    * @return {[type]} [瞎分的...]
@@ -332,7 +330,6 @@
       var temperature = echarts.init(document.getElementById('temperature'));
       var activeTab = voltageChart;
       // var LastNode = undefined;
-
       return {
         /**
          * [get 从外部获得闭包保存的私密表格]
@@ -396,7 +393,7 @@
           op.legend.x = 'right';
           op.legend.y = '25';
         },
-        changeName: function(name, param) {
+        /* changeName: function(name, param) {
           console.log('changename: ', param);
           if(Object.prototype.toString.call(param) == '[object Array]') {
             for(var i = 0; i<param.length; i++) {
@@ -410,14 +407,14 @@
             }
             return param;
           }
-        },
+        }, */
         /**
          * [removeOption 消除图中的折线]
          * @param  {[type]} name  [树节点的名字]
          * @param  {[type]} chart [目标表格]
          * @return {[type]}       []
          */
-        removeOption: function(node, chart, tablename, num) {
+        /* removeOption: function(node, chart, tablename, num) {
           var name = node.name;
           var oldSer = chart.getOption().series;
           var oldLen = chart.getOption().legend[0];
@@ -442,7 +439,6 @@
               }
             }
           }
-
           if(sFlag) {
             // oldSer.splice(sFlag,3);
             oldSer.splice(sFlag,num);
@@ -473,7 +469,7 @@
         	  console.log('_____清空电压 ')
         	  chartManager.show_table(tablename, chartManager.createTable(chart, false), false);
           }
-        },
+        }, */
         /**
          * [handleSearch 高压低压和管控设备的搜索]
          * @param  {[type]} chart [目标表格]
@@ -512,6 +508,7 @@
               nodeType = nodeType.join(',=');
               console.log(nodeId);
               console.log(nodeType);
+              chartView.showLoading(chart);
               $.ajax({
                 url: '/dongjun/select_chart_by_switch_id',
                 // url: 'http://127.0.0.1:8080/templates/manager/loadChart',
@@ -543,6 +540,7 @@
                     }
                   }*/
                   console.log(res);
+                  chartView.hideLoading(chart);
                   if(res) {
                 	  chartManager.moveLegend(res);
                 	  chart.setOption(res, true);
@@ -590,11 +588,11 @@
               console.log(taglist);
               var id = temNodes[0].node.getParentNode().id;
               // 发请求获取taglist
-
               // nodeId = nodeId.join(',=');
               // nodeType = nodeType.join(',=');
               // console.log(nodeId);
               // console.log(nodeType);
+              chartView.showLoading(chart);
               $.ajax({
                 url: '/dongjun/select_chart_by_device_id',
                 // url: 'http://127.0.0.1:8080/templates/manager/loadChart',
@@ -615,6 +613,7 @@
                   //   // console.log('set');
                   //   chart.setOption(newOp);
                   // }
+                  chart.hideLoading(chart);
                   if(res) {
                 	  chartManager.moveLegend(res);
                 	  chart.setOption(res, true);
@@ -639,7 +638,7 @@
          * @param  {[type]} optionList [后台返回的Option数组]
          * @return {[type]}            [description]
          */
-        mixOption: function(optionList) {
+        /* mixOption: function(optionList) {
           var checkNodes = chartNodes.get();
           console.log(optionList);
           var res = optionList[0];
@@ -678,13 +677,13 @@
             console.log(res);
             return res;
           }
-        },
+        }, */
         /**
          * [addOption 在原来的基础上不消除原来的折线增加新的折线]
          * @param {[type]} chart [目标表格]
          * @param {[type]} newOp [新的配置对象]
          */
-        addOption: function(chart, newOp) {
+        /* addOption: function(chart, newOp) {
           var oldSer = chart.getOption().series;
           var oldLen = chart.getOption().legend[0];
           oldSer = oldSer.concat(newOp.series);
@@ -695,7 +694,7 @@
           console.log(newOp);
           chart.setOption(newOp);
           console.log('addOption')
-        },
+        }, */
         createTable: function(chart, temperature) {
           var op = chart.getOption();
           console.error(op);
@@ -868,7 +867,6 @@
         }
       };
     }();
-
     var timeModel = function() {
 		var elecFlag = 0;
 		var temFlag = 0;
@@ -919,7 +917,6 @@
 			}
 		};
 	}();
-
     chart.timeModel = timeModel;
     chart.chartView = chartView;
     chart.chartManager = chartManager;

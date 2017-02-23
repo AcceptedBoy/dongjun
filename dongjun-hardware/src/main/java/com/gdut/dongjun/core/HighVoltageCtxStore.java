@@ -1,5 +1,7 @@
 package com.gdut.dongjun.core;
 
+import com.gdut.dongjun.service.webservice.client.WebsiteServiceClient;
+
 /**
  * TODO
  * 等没什么事情干的时候，将CtxStore做成抽象类，分开各个模块各自适应的CtxStore。
@@ -8,4 +10,6 @@ package com.gdut.dongjun.core;
  */
 public class HighVoltageCtxStore extends CtxStore {
 
+	
+	
 }

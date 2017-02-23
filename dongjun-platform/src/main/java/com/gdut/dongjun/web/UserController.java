@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -47,11 +48,11 @@ import com.gdut.dongjun.util.UUIDUtil;
 @Controller
 @SessionAttributes("currentUser")
 public class UserController {
-	
+
 	private static final String GUEST = "guest";
-	
+
 	private static final String PLATFORM_ADMIN = "platform_group_admin";
-	
+
 	private static final String MAINSTAFF = "yes";
 
 	@Autowired
@@ -68,7 +69,7 @@ public class UserController {
 	private CompanyService companyService;
 	@Autowired
 	private PlatformGroupService pgService;
-	
+
 	private static final Logger logger = Logger.getLogger(UserController.class);
 
 	@RequestMapping(value = "/dongjun/login")
@@ -76,12 +77,12 @@ public class UserController {
 
 		return "login";
 	}
-	
+
 	@RequestMapping(value = "/dongjun/elecon/login_form")
 	@ResponseBody
-	public Object loginForm(String name, String password, Model model,
-			RedirectAttributes redirectAttributes, HttpSession session) {
-		
+	public Object loginForm(String name, String password, Model model, RedirectAttributes redirectAttributes,
+			HttpSession session) {
+
 		SecurityUtils.setSecurityManager(manager);
 		Subject currentUser = SecurityUtils.getSubject();
 
@@ -93,13 +94,13 @@ public class UserController {
 
 		List<User> users = userService.selectByParameters(map);
 		User user = null;
-		
+
 		// 数据库查找账号密码
 		if (null != users && 0 != users.size() && null != users.get(0)) {
 
 			user = users.get(0);
 		} else {
-			return LoginResult.USER_NO_EXIST.value(); 
+			return LoginResult.USER_NO_EXIST.value();
 		}
 
 		try {
@@ -123,46 +124,44 @@ public class UserController {
 			logger.error("login error!");
 		}
 		return LoginResult.LOGIN_PASS.value();
-	}	
-	
+	}
+
 	@RequiresAuthentication
-	@RequestMapping(value="/dongjun/logout")
+	@RequestMapping(value = "/dongjun/logout")
 	@ResponseBody
 	public Object logout() {
-		
+
 		Subject subject = SecurityUtils.getSubject();
-		
+
 		if (subject != null && subject.isAuthenticated()) {
-			subject.logout(); 
+			subject.logout();
 		}
 		return "";
 	}
-	
+
 	@RequestMapping("/dongjun/user/unauthorized")
 	@ResponseBody
 	public ResponseEntity<ResponseMessage> unauthorized(HttpServletRequest request) {
-		
+
 		return new ResponseEntity<>(ResponseMessage.addException(
-	    		new ErrorInfo(request.getRequestURL().toString(), 
-	    						"缺少权限", 
-	    						HttpStatus.UNAUTHORIZED.value(), 
-	    						"缺少权限")), 
-	    		HttpStatus.UNAUTHORIZED);
+				new ErrorInfo(request.getRequestURL().toString(), "缺少权限", HttpStatus.UNAUTHORIZED.value(), "缺少权限")),
+				HttpStatus.UNAUTHORIZED);
 	}
-	
+
 	@RequestMapping("/islogin")
 	@ResponseBody
 	public String isLogin(HttpSession session) {
-		User user = (User)session.getAttribute("currentUser");
+		User user = (User) session.getAttribute("currentUser");
 		if (user == null) {
 			return "false";
 		}
 		return "true";
 	}
-	
+
 	/**
 	 * 注册用户，如果mainStaff为"yes"则为公司创始人，权限变为platform_group_admin，否则是guest
 	 * TODO涉及多个表的修改，考虑添加事务
+	 * 
 	 * @param user
 	 * @param mainStaff
 	 * @return
@@ -191,8 +190,8 @@ public class UserController {
 			}
 			ur.setUserId(user.getId());
 			urService.insert(ur);
-			
-			//修改公司的负责人
+
+			// 修改公司的负责人
 			if (MAINSTAFF.equals(mainStaff)) {
 				Company c = companyService.selectByPrimaryKey(user.getCompanyId());
 				c.setMainStaffId(user.getId());
@@ -205,57 +204,73 @@ public class UserController {
 		}
 		return ResponseMessage.success("操作成功");
 	}
-	
+
 	@RequestMapping(value = "/dongjun/elecon/company_registry", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseMessage edit(Company com) {
-		if (null == com.getId() || "".equals(com.getId())) {
-			com.setId(UUIDUtil.getUUID());
-			/* 插入与Company相对应的PlatformGroup */
-			PlatformGroup pg = new PlatformGroup();
-			pg.setId(UUIDUtil.getUUID());
-			pg.setGroupId("default");	//默认组别
-			byte num = 0;
-			pg.setIsDefault(num);
-			pg.setName(com.getName());
-			pg.setCompanyId(com.getId());
-			pg.setType(num);
-			pgService.updateByPrimaryKey(pg);
+	@Transactional
+	public ResponseMessage edit(Company com, User user) {
+		//注册用户并赋予公司管理员角色
+		List<Role> roles = roleService.selectByParameters(null);
+		user.setId(UUIDUtil.getUUID());
+		if (userService.updateByPrimaryKey(user) == 1) {
+			UserRoleKey ur = new UserRoleKey();
+			for (Role role : roles) {
+				if (PLATFORM_ADMIN.equals(role.getRole())) {
+					ur.setRoleId(role.getId());
+					break;
+				}
+			}
+			ur.setUserId(user.getId());
+			urService.insert(ur);
+		} else {
+			logger.warn("Exception : 注册用户失败");
 		}
+		//注册公司
+		com.setId(UUIDUtil.getUUID());
+		com.setMainStaffId(user.getId());
+		PlatformGroup pg = new PlatformGroup();
+		pg.setId(UUIDUtil.getUUID());
+		pg.setGroupId("default"); // 默认组别
+		byte num = 0;
+		pg.setIsDefault(num);
+		pg.setName(com.getName());
+		pg.setCompanyId(com.getId());
+		pg.setType(num);
+		pgService.updateByPrimaryKey(pg);
 		if (companyService.updateByPrimaryKey(com) == 0) {
 			return ResponseMessage.danger("操作失败");
 		}
-		return ResponseMessage.success(com.getId());
+		return ResponseMessage.success("操作成功");
 	}
-	
+
 	@RequiresAuthentication
 	@RequestMapping("/dongjun/user/imformation")
 	@ResponseBody
 	public ResponseMessage getPersonalImformation() {
-		//TODO
+		// TODO
 		return null;
 	}
-	
+
 	@RequiresAuthentication
 	@RequestMapping("/dongjun/user/edit")
 	@ResponseBody
 	public ResponseMessage editUser(User user) {
-		//TODO
+		// TODO
 		return null;
 	}
-	
+
 	@RequiresRoles("platform_group_admin")
 	@RequestMapping("/dongjun/user/del")
 	@ResponseBody
 	public ResponseMessage delUser() {
-		//TODO
+		// TODO
 		return null;
 	}
-	
+
 	@RequestMapping(value = "/dongjun/elecon/fuzzy_search", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseMessage doFuzzySearch(String name) {
 		return ResponseMessage.success(companyService.fuzzySearch(name));
 	}
-	
+
 }
