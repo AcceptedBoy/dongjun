@@ -15,7 +15,20 @@
  */
 package com.gdut.dongjun.core.handler.msg_decoder;
 
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.Resource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.gdut.dongjun.core.CtxStore;
+import com.gdut.dongjun.core.HighVoltageCtxStore;
 import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.core.device_message_engine.impl.HighVoltageSwitchMessageEngine;
 import com.gdut.dongjun.core.server.impl.HighVoltageServer;
@@ -24,23 +37,24 @@ import com.gdut.dongjun.domain.po.HighVoltageCurrent;
 import com.gdut.dongjun.domain.po.HighVoltageHitchEvent;
 import com.gdut.dongjun.domain.po.HighVoltageSwitch;
 import com.gdut.dongjun.domain.po.HighVoltageVoltage;
-import com.gdut.dongjun.service.*;
-import com.gdut.dongjun.util.*;
+import com.gdut.dongjun.service.HighVoltageCurrentService;
+import com.gdut.dongjun.service.HighVoltageHitchEventService;
+import com.gdut.dongjun.service.HighVoltageSwitchService;
+import com.gdut.dongjun.service.HighVoltageVoltageService;
+import com.gdut.dongjun.service.HistoryHighVoltageCurrentService;
+import com.gdut.dongjun.service.HistoryHighVoltageVoltageService;
+import com.gdut.dongjun.util.HighVoltageDeviceCommandUtil;
+import com.gdut.dongjun.util.LowVoltageDeviceCommandUtil;
+import com.gdut.dongjun.util.MyBatisMapUtil;
+import com.gdut.dongjun.util.StringCommonUtil;
+import com.gdut.dongjun.util.TimeUtil;
+import com.gdut.dongjun.util.UUIDUtil;
+
 import io.netty.channel.ChannelHandler.Sharable;
-import io.netty.util.Attribute;
-import io.netty.util.AttributeKey;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import io.netty.util.Attribute;
+import io.netty.util.AttributeKey;
 
 /**
  * 高压协议1.3版本 TODO 真的需要重构啊
@@ -61,6 +75,8 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 	private HistoryHighVoltageVoltageService historyVoltageService;
 	@Autowired
 	private HighVoltageHitchEventService hitchEventService;
+	@Autowired
+	private HighVoltageCtxStore hvCtxStore;
 
 	@Resource(name = "HighVoltageSwitchMessageEngine")
 	private HighVoltageSwitchMessageEngine highVoltageEngine;
@@ -110,7 +126,6 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 				switchService.updateByPrimaryKey(hvSwitch);
 			}
 		}
-		CtxStore.printCtxStore();
 	}
 
 	@Override
@@ -263,14 +278,14 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 
 		if (id != null && address != null) {
 
-			HighVoltageStatus s = CtxStore.getStatusbyId(id);
+			HighVoltageStatus s = hvCtxStore.getStatusbyId(id);
 			SwitchGPRS gprs = CtxStore.get(id);
 
 			if (s == null) {
 
 				s = new HighVoltageStatus();
 				s.setId(id);
-				CtxStore.addStatus(s);
+				hvCtxStore.addStatus(s);
 			}
 
 			s.setGuo_liu_yi_duan(data.substring(30, 32));
@@ -427,7 +442,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 			code = LowVoltageDeviceCommandUtil.reverseStringBy2(code);
 		}
 		if (CtxStore.getIdbyAddress(address) == null
-				|| CtxStore.getStatusbyId(CtxStore.getIdbyAddress(address)) == null) {
+				|| hvCtxStore.getStatusbyId(CtxStore.getIdbyAddress(address)) == null) {
 			return;
 		}
 		if (value.equals("02")) {
@@ -435,7 +450,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 		} else {
 			value = "00";
 		}
-		HighVoltageStatus hvs = CtxStore.getStatusbyId(CtxStore.getIdbyAddress(address));
+		HighVoltageStatus hvs = hvCtxStore.getStatusbyId(CtxStore.getIdbyAddress(address));
 		switch (code) {
 		case "0000":
 			hvs.setGuo_liu_yi_duan(value);

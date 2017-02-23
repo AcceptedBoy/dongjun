@@ -91,54 +91,54 @@ public class MonitorStartup implements InitializingBean {
 	 * 缓存预热
 	 * TODO 只考虑了高压设备
      */
-	private void warmCache() {
-
-		List<HighVoltageSwitch> hvSwitchList = hvSwitchService.selectByParameters(null);
-		List<HighVoltageVoltage> hvVoltList = null;
-		List<HighVoltageCurrent> hvCurrList = null;
-		String hvSwitchId = null;
-
-		//所有高压设备的电压电流缓存
-		for(HighVoltageSwitch hvSwitch : hvSwitchList) {
-			Integer deStrings[] = new Integer[6];
-			hvSwitchId = hvSwitch.getId();
-			//电压a,b,c相
-			hvVoltList = hvVoltageService
-					.getRecentlyVoltage(hvSwitchId, "A");
-			if (hvVoltList != null && hvVoltList.size() != 0) {
-				deStrings[0] = hvVoltList.get(0).getValue();
-			}
-			hvVoltList = hvVoltageService
-					.getRecentlyVoltage(hvSwitchId, "B");
-			if (hvVoltList != null && hvVoltList.size() != 0) {
-				deStrings[1] = hvVoltList.get(0).getValue();
-			}
-			hvVoltList = hvVoltageService
-					.getRecentlyVoltage(hvSwitchId, "C");
-			if (hvVoltList != null && hvVoltList.size() != 0) {
-				deStrings[2] = hvVoltList.get(0).getValue();
-			}
-			//电流a,b,c相
-			hvCurrList = hvCurrentService
-					.getRecentlyCurrent(hvSwitchId, "A");
-			if (hvCurrList != null && hvCurrList.size() != 0) {
-				deStrings[3] = hvCurrList.get(0).getValue();
-			}
-			hvCurrList = hvCurrentService
-					.getRecentlyCurrent(hvSwitchId, "B");
-			if (hvCurrList != null && hvCurrList.size() != 0) {
-				deStrings[4] = hvCurrList.get(0).getValue();
-			}
-			hvCurrList = hvCurrentService
-					.getRecentlyCurrent(hvSwitchId, "C");
-			if (hvCurrList != null && hvCurrList.size() != 0) {
-				deStrings[5] = hvCurrList.get(0).getValue();
-			}
-			//最后一步
-			cacheService.put(hvSwitch.getId(), deStrings);
-		}
-		logger.info("缓存预热完成");
-	}
+//	private void warmCache() {
+//
+//		List<HighVoltageSwitch> hvSwitchList = hvSwitchService.selectByParameters(null);
+//		List<HighVoltageVoltage> hvVoltList = null;
+//		List<HighVoltageCurrent> hvCurrList = null;
+//		String hvSwitchId = null;
+//
+//		//所有高压设备的电压电流缓存
+//		for(HighVoltageSwitch hvSwitch : hvSwitchList) {
+//			Integer deStrings[] = new Integer[6];
+//			hvSwitchId = hvSwitch.getId();
+//			//电压a,b,c相
+//			hvVoltList = hvVoltageService
+//					.getRecentlyVoltage(hvSwitchId, "A");
+//			if (hvVoltList != null && hvVoltList.size() != 0) {
+//				deStrings[0] = hvVoltList.get(0).getValue();
+//			}
+//			hvVoltList = hvVoltageService
+//					.getRecentlyVoltage(hvSwitchId, "B");
+//			if (hvVoltList != null && hvVoltList.size() != 0) {
+//				deStrings[1] = hvVoltList.get(0).getValue();
+//			}
+//			hvVoltList = hvVoltageService
+//					.getRecentlyVoltage(hvSwitchId, "C");
+//			if (hvVoltList != null && hvVoltList.size() != 0) {
+//				deStrings[2] = hvVoltList.get(0).getValue();
+//			}
+//			//电流a,b,c相
+//			hvCurrList = hvCurrentService
+//					.getRecentlyCurrent(hvSwitchId, "A");
+//			if (hvCurrList != null && hvCurrList.size() != 0) {
+//				deStrings[3] = hvCurrList.get(0).getValue();
+//			}
+//			hvCurrList = hvCurrentService
+//					.getRecentlyCurrent(hvSwitchId, "B");
+//			if (hvCurrList != null && hvCurrList.size() != 0) {
+//				deStrings[4] = hvCurrList.get(0).getValue();
+//			}
+//			hvCurrList = hvCurrentService
+//					.getRecentlyCurrent(hvSwitchId, "C");
+//			if (hvCurrList != null && hvCurrList.size() != 0) {
+//				deStrings[5] = hvCurrList.get(0).getValue();
+//			}
+//			//最后一步
+//			cacheService.put(hvSwitch.getId(), deStrings);
+//		}
+//		logger.info("缓存预热完成");
+//	}
 
 	/**
 	 * 在项目启动的时候开启监听端口

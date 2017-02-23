@@ -51,7 +51,7 @@ public class WebsiteServiceClient implements InitializingBean, ApplicationContex
         for(String ip : ipList) {
             websiteList.add(
                     JAXRSClientFactory.create(
-                            "http://" + ip + "/dongjun-platform/ws/website",
+                            "http://" + ip + "/dongjun-platform/ws/platform",
                             WebsiteService.class,
                             Arrays.asList(JacksonJsonProvider.class,
                                     BinaryDataProvider.class)));
@@ -66,26 +66,13 @@ public class WebsiteServiceClient implements InitializingBean, ApplicationContex
 
 
     public static class ExtendedService {
-
-    	/**
-    	 * 企业版
-    	 */
+    	
         public void callbackCtxChange() {
             for(WebsiteService websiteService : websiteList) {
                 websiteService.callbackCtxChange(
                         hardwareService.getActiveSwitchStatus());
             }
         }
-        
-        /**
-         * 平台版
-         */
-//        public void callbackCtxChange() {
-//            for(WebsiteService websiteService : websiteList) {
-//                websiteService.callbackCtxChange(
-//                        hardwareService.getActiveSwitchStatus());
-//            }
-//        }
 
         public void callbackDeviceChange(String switchId, Integer type) {
             for(WebsiteService websiteService : websiteList) {

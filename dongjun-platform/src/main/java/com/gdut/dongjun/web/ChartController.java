@@ -34,6 +34,7 @@ import com.gdut.dongjun.service.device.temperature.TemperatureMeasureService;
 import com.gdut.dongjun.service.device.voltage.ControlMearsureVoltageService;
 import com.gdut.dongjun.service.device.voltage.HighVoltageVoltageService;
 import com.gdut.dongjun.service.device.voltage.LowVoltageVoltageService;
+import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 import com.gdut.dongjun.util.MapUtil;
 
 @Controller
@@ -299,5 +300,5 @@ public class ChartController {
 		}
 		return chartData.getJsonChart(measureMap);
 	}
-
+	
 }

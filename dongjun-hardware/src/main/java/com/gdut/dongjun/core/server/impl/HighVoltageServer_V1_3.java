@@ -1,5 +1,13 @@
 package com.gdut.dongjun.core.server.impl;
 
+import java.util.List;
+
+import javax.annotation.Resource;
+
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.core.initializer.ServerInitializer;
@@ -8,12 +16,6 @@ import com.gdut.dongjun.domain.po.HighVoltageSwitch;
 import com.gdut.dongjun.enums.HighCommandControlCode;
 import com.gdut.dongjun.service.HighVoltageSwitchService;
 import com.gdut.dongjun.util.HighVoltageDeviceCommandUtil;
-import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
-import java.util.List;
 
 
 /**

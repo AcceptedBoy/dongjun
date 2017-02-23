@@ -5,25 +5,16 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.apache.log4j.Logger;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.gdut.dongjun.core.CtxStore;
-import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.core.initializer.ServerInitializer;
 import com.gdut.dongjun.core.server.NetServer;
-import com.gdut.dongjun.domain.po.TemperatureDevice;
-import com.gdut.dongjun.service.TemperatureDeviceService;
-import com.gdut.dongjun.util.TemperatureDeviceCommandUtil;
 
 @Service("TemperatureServer")
 public class TemperatureServer extends NetServer {
 
 	private static final Logger logger = Logger.getLogger(TemperatureServer.class);
-
-	@Autowired
-	private TemperatureDeviceService temperatureDeviceService;
-
+	
 	@Resource(name = "TemperatureServerInitializer")
 	private ServerInitializer initializer;
 

@@ -151,6 +151,10 @@ public class Application extends SpringBootServletInitializer {
 //		
 //	}
 
+	/**
+	 * cxf的配置可看resources文件目录下的hardware-service.xml
+	 * @return
+	 */
 	@Bean
 	public ServletRegistrationBean cxfServlet() {
 		return new ServletRegistrationBean(new CXFServlet(), "/dongjun-hardware/ws/*");

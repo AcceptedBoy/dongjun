@@ -48,7 +48,7 @@ import net.sf.ehcache.CacheManager;
 @EnableAspectJAutoProxy
 @EnableAsync
 @EnableScheduling
-@ImportResource("classpath:website-service.xml")
+@ImportResource("classpath:platform-service.xml")
 public class Application extends SpringBootServletInitializer {
 
 	@Bean

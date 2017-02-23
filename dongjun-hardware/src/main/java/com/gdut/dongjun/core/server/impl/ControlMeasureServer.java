@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.gdut.dongjun.core.CtxStore;
+import com.gdut.dongjun.core.DefaultCtxStore;
 import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.core.initializer.ServerInitializer;
 import com.gdut.dongjun.core.server.NetServer;
@@ -15,6 +16,7 @@ import com.gdut.dongjun.domain.po.ControlMearsureSwitch;
 import com.gdut.dongjun.enums.ControlMearsureFunctionCode;
 import com.gdut.dongjun.service.ControlMearsureSwitchService;
 import com.gdut.dongjun.util.ControlMearsureDeviceCommandUtil;
+import com.sun.xml.bind.v2.TODO;
 
 /**
  * @author Sherlock-lee
@@ -29,6 +31,8 @@ public class ControlMeasureServer extends NetServer {
 	private ServerInitializer initializer;
 	@Autowired
 	private ControlMearsureSwitchService lowVoltageSwitchService;
+	@Autowired
+	private DefaultCtxStore defCtxStore;
 
 	@Resource(name = "ControlMeasureServerInitializer")
 	public void setInitializer(ServerInitializer initializer) {
@@ -45,9 +49,9 @@ public class ControlMeasureServer extends NetServer {
 		if (switchs != null) {
 			for (ControlMearsureSwitch s : switchs) {
 
-				if (s.getId() != null && CtxStore.isReady(s.getId())) {
+				if (s.getId() != null && defCtxStore.isReady(s.getId())) {
 
-					SwitchGPRS gprs = CtxStore.get(s.getId());
+					SwitchGPRS gprs = defCtxStore.get(s.getId());
 					String msg = ControlMearsureDeviceCommandUtil
 							.getTotalMessage(
 									ControlMearsureFunctionCode.EVENT_REQUEST
@@ -68,9 +72,9 @@ public class ControlMeasureServer extends NetServer {
 		if (switchs != null) {
 			for (ControlMearsureSwitch s : switchs) {
 
-				if (s.getId() != null && CtxStore.isReady(s.getId())) {
+				if (s.getId() != null && defCtxStore.isReady(s.getId())) {
 
-					SwitchGPRS gprs = CtxStore.get(s.getId());
+					SwitchGPRS gprs = defCtxStore.get(s.getId());
 
 					String msg = ControlMearsureDeviceCommandUtil
 							.getTotalMessage(

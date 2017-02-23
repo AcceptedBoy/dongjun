@@ -7,7 +7,7 @@
         http://cxf.apache.org/jaxrs
         http://cxf.apache.org/schemas/jaxrs.xsd">
 
-    <jaxrs:server address="/website">
+    <jaxrs:server address="/platform">
         <jaxrs:serviceBeans>
             <bean class="com.gdut.dongjun.service.webservice.server.impl.WebsiteServiceImpl" />
         </jaxrs:serviceBeans>

@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.gdut.dongjun.core.CtxStore;
+import com.gdut.dongjun.core.DefaultCtxStore;
+import com.gdut.dongjun.core.HighVoltageCtxStore;
 import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.core.device.Device;
 import com.gdut.dongjun.core.device_message_engine.impl.HighVoltageSwitchMessageEngine;
@@ -23,38 +25,32 @@ import com.gdut.dongjun.service.AbnormalDeviceService;
 import com.gdut.dongjun.service.HighVoltageHitchEventService;
 import com.gdut.dongjun.service.webservice.server.HardwareService;
 
-import io.netty.channel.ChannelHandlerContext;
-
 @Component
 public class HardwareServiceImpl implements HardwareService {
 
+	@Resource(name = "LowVoltageDevice")
+	private Device lowVoltageDevice;
+	@Resource(name = "HighVoltageDevice")
+	private Device highVoltageDevice;
+	@Resource(name = "ControlMeasureDevice")
+	private Device controlMeasureDevice;
+	@Autowired
+	private HighVoltageHitchEventService eventService;
+	@Autowired
+	private HighVoltageSwitchMessageEngine messageEngine;
+	@Autowired
+	private AbnormalDeviceService abDeviceService;
+	@Autowired
+	private HighVoltageCtxStore hvCtxStore;
+	@Autowired
+	private DefaultCtxStore defCtxStore;
+	
 	/**
 	 * 总召池，下面方法得到当前可用处理器个数，数量x2-1，就是线程池固有线程数
 	 */
 	private static ExecutorService callerPool = Executors.newFixedThreadPool(
 			Runtime.getRuntime().availableProcessors() << 1 - 1);
-	
-	/* 异常设备 */
-	private static List<AbnormalDevice> abDevices = null;
 
-	@Resource(name = "LowVoltageDevice")
-	private Device lowVoltageDevice;
-
-	@Resource(name = "HighVoltageDevice")
-	private Device highVoltageDevice;
-
-	@Resource(name = "ControlMeasureDevice")
-	private Device controlMeasureDevice;
-	
-	@Autowired
-	private HighVoltageHitchEventService eventService;
-
-	@Autowired
-	private HighVoltageSwitchMessageEngine messageEngine;
-	
-	@Autowired
-	private AbnormalDeviceService abDeviceService;
-	
 	private final Logger logger = Logger.getLogger(HardwareServiceImpl.class);
 	
 	/* (non-Javadoc)
@@ -83,9 +79,9 @@ public class HardwareServiceImpl implements HardwareService {
 		default:
 			break;
 		}
-		if (msg != null && CtxStore.getCtxByAddress(address) != null) {
+		if (msg != null && defCtxStore.getCtxByAddress(address) != null) {
 			
-			CtxStore.getCtxByAddress(address).writeAndFlush(msg);
+			defCtxStore.getCtxByAddress(address).writeAndFlush(msg);
 			final String callMsg0 = callMsg;
 			callerPool.execute(new Runnable() {
 				@Override
@@ -95,7 +91,7 @@ public class HardwareServiceImpl implements HardwareService {
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					} finally{
-						CtxStore.getCtxByAddress(address).writeAndFlush(callMsg0);
+						defCtxStore.getCtxByAddress(address).writeAndFlush(callMsg0);
 					}
 				}
 			});
@@ -130,8 +126,8 @@ public class HardwareServiceImpl implements HardwareService {
 		default:
 			break;
 		}
-		if (msg != null && CtxStore.getCtxByAddress(address) != null) {
-			CtxStore.getCtxByAddress(address).writeAndFlush(msg);
+		if (msg != null && defCtxStore.getCtxByAddress(address) != null) {
+			defCtxStore.getCtxByAddress(address).writeAndFlush(msg);
 			final String callMsg0 = callMsg;
 			callerPool.execute(new Runnable() {
 				@Override
@@ -141,7 +137,7 @@ public class HardwareServiceImpl implements HardwareService {
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					} finally{
-						CtxStore.getCtxByAddress(address).writeAndFlush(callMsg0);
+						defCtxStore.getCtxByAddress(address).writeAndFlush(callMsg0);
 					}
 				}
 			});
@@ -157,14 +153,9 @@ public class HardwareServiceImpl implements HardwareService {
 	 * @param callMsg
 	 */
 	private void handleOldMachineTotalCall(String address, String callMsg) {
-		if (abDevices == null) {
-			synchronized(this) {
-				if (abDevices == null) {
-					abDevices = abDeviceService.selectByParameters(null);
-				}
-			}
-		}
-		String id = CtxStore.getIdbyAddress(address);
+		List<AbnormalDevice> abDevices = abDeviceService.selectByParameters(null);
+		
+		String id = defCtxStore.getIdbyAddress(address);
 		if (id == null || id.equals("")) {
 			//TODO
 			return ;
@@ -180,7 +171,7 @@ public class HardwareServiceImpl implements HardwareService {
 						public void run() {
 							int count = 0;
 							while (count < 3) {
-								CtxStore.getCtxByAddress(realAddress).writeAndFlush(callMsg1);
+								defCtxStore.getCtxByAddress(realAddress).writeAndFlush(callMsg1);
 								logger.info(realAddress + "老机器额外总召: " + callMsg1);
 								count++;
 								try {
@@ -203,7 +194,7 @@ public class HardwareServiceImpl implements HardwareService {
 	 */
 	@Override
 	public String getOnlineAddressById(String id) {
-		SwitchGPRS gprs = CtxStore.get(id);
+		SwitchGPRS gprs = defCtxStore.get(id);
 		if(gprs != null) {
 			return gprs.getAddress();
 		}
@@ -215,7 +206,7 @@ public class HardwareServiceImpl implements HardwareService {
 	 */
 	@Override
 	public List<SwitchGPRS> getCtxInstance() {
-		return CtxStore.getInstance();
+		return defCtxStore.getInstance();
 	}
 	
 	/* (non-Javadoc)
@@ -223,7 +214,7 @@ public class HardwareServiceImpl implements HardwareService {
 	 */
 	@Override
 	public SwitchGPRS getSwitchGPRS(String id) {
-		return CtxStore.get(id);
+		return defCtxStore.get(id);
 	}
 
 	/* (non-Javadoc)
@@ -231,15 +222,16 @@ public class HardwareServiceImpl implements HardwareService {
 	 */
 	@Override
 	public HighVoltageStatus getStatusbyId(String id) {
-		return CtxStore.getStatusbyId(id);
+		return hvCtxStore.getStatusbyId(id);
 	}
 	
 	/* (non-Javadoc)
 	 * @see com.gdut.dongjun.service.rmi.HardwareService#changeCtxOpen(java.lang.String)
 	 */
+	@Deprecated
 	@Override
 	public boolean changeCtxOpen(String switchId) {
-		if(CtxStore.changeOpen(switchId)) {
+		if(defCtxStore.changeOpen(switchId)) {
 			return true;
 		}
 		return false;
@@ -250,10 +242,8 @@ public class HardwareServiceImpl implements HardwareService {
 	 */
 	@Override
 	public List<ActiveHighSwitch> getActiveSwitchStatus() {
-		//被客户拉取信息后将变化设为false
-		//CtxStore.falseChange();
-		
-		List<SwitchGPRS> switchs = CtxStore.getInstance();
+
+		List<SwitchGPRS> switchs = defCtxStore.getInstance();
 		List<ActiveHighSwitch> list = new ArrayList<>();
 
 		if(switchs != null) {
