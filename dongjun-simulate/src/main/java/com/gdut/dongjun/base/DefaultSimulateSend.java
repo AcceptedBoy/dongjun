@@ -29,18 +29,18 @@ public class DefaultSimulateSend extends AbstractSimulateSend {
 
 	@Override
 	public void sendToIpWithPort() throws IOException, InterruptedException {
-		cache.clear();
-		cache.add(
-				"682f3f68F4FA00000009C11404F400000011223344556677004000DF0000DF0000DF0000DF0000000000000000000000000000000000000000000000000000000000000000000000000000000016");
-		for (int i = 0, length = cache.size(); i < length; ++i) {
-			Socket socket = new Socket("115.28.7.40", 8466);
-			OutputStream os = socket.getOutputStream();
-			os.write(HexString_BytesUtil.hexStringToBytes(cache.get(i)));
-			os.flush();
-			Thread.sleep(200);
-		}
-//		Thread t = new Thread(new TemThread());
-//		t.start();
+//		cache.clear();
+//		cache.add(
+//				"682f3f68F4FA00000009C11404F400000011223344556677004000DF0000DF0000DF0000DF0000000000000000000000000000000000000000000000000000000000000000000000000000000016");
+//		for (int i = 0, length = cache.size(); i < length; ++i) {
+//			Socket socket = new Socket("115.28.7.40", 8466);
+//			OutputStream os = socket.getOutputStream();
+//			os.write(HexString_BytesUtil.hexStringToBytes(cache.get(i)));
+//			os.flush();
+//			Thread.sleep(200);
+//		}
+		Thread t = new Thread(new TemThread());
+		t.start();
 //		Thread h = new Thread(new HighThread());
 //		h.start();
 	}

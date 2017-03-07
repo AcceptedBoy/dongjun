@@ -5,12 +5,10 @@ import java.util.List;
 import javax.servlet.http.HttpSession;
 
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
-import org.apache.shiro.authz.annotation.RequiresGuest;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -32,13 +30,10 @@ public class CompanyController {
 	
 	@Autowired
 	private CompanyService companyService;
-
 	@Autowired
 	private UserService userService; 
-	
 	@Autowired
 	private UserRoleService urService;
-	
 	@Autowired
 	private PlatformGroupService pgService;
 
@@ -64,18 +59,6 @@ public class CompanyController {
 		return ResponseMessage.success(com.getId());
 	}
 	
-//	@RequestMapping("/is_exist")
-//	@ResponseBody
-//	public ResponseMessage edit(String name) {
-//		if (null == com.getId() || "".equals(com.getId())) {
-//			com.setId(UUIDUtil.getUUID());
-//		}
-//		if (companyService.updateByPrimaryKey(com) == 0) {
-//			return ResponseMessage.danger("操作失败");
-//		}
-//		return ResponseMessage.success();
-//	}
-	
 	@RequiresPermissions("platform_group_admin:delete")
 	@RequestMapping("/del")
 	@ResponseBody
@@ -91,10 +74,13 @@ public class CompanyController {
 	}
 	
 	@RequiresAuthentication
-	@RequestMapping("/Imformation")
+	@RequestMapping("/imformation")
 	@ResponseBody
-	public ResponseMessage getImformationById(@RequestParam(required = true) String id) {
-		Company com = companyService.selectByPrimaryKey(id);
+	public ResponseMessage getImformation(HttpSession session) {
+		User user = userService.getCurrentUser(session);
+		//TODO 以后直接删掉company改成platformGroup
+		PlatformGroup pg = pgService.selectByPrimaryKey(user.getCompanyId());
+		Company com = companyService.selectByPrimaryKey(pg.getCompanyId());
 		return ResponseMessage.success(com);
 	}
 	
@@ -148,5 +134,7 @@ public class CompanyController {
 		}
 		return ResponseMessage.success("删除成功");
 	}
+	
+	
 	
 }

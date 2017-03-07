@@ -1,5 +1,6 @@
 package com.gdut.dongjun.core.handler.msg_decoder;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
@@ -15,12 +16,17 @@ import org.springframework.stereotype.Service;
 
 import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.SwitchGPRS;
+import com.gdut.dongjun.core.TemperatureCtxStore;
+import com.gdut.dongjun.core.handler.thread.HitchEventManager;
+import com.gdut.dongjun.core.handler.thread.TemperatreHitchEventThread;
 import com.gdut.dongjun.domain.po.TemperatureDevice;
 import com.gdut.dongjun.domain.po.TemperatureMeasure;
 import com.gdut.dongjun.domain.po.TemperatureMeasureHistory;
+import com.gdut.dongjun.domain.po.TemperatureMeasureHitchEvent;
 import com.gdut.dongjun.domain.po.TemperatureSensor;
 import com.gdut.dongjun.service.TemperatureDeviceService;
 import com.gdut.dongjun.service.TemperatureMeasureHistoryService;
+import com.gdut.dongjun.service.TemperatureMeasureHitchEventService;
 import com.gdut.dongjun.service.TemperatureMeasureService;
 import com.gdut.dongjun.service.TemperatureSensorService;
 import com.gdut.dongjun.util.CharUtils;
@@ -65,6 +71,8 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	private TemperatureMeasureHistoryService measureHistoryService;
 	@Autowired
 	private TemperatureSensorService sensorService;
+	@Autowired
+	private TemperatureMeasureHitchEventService eventService;
 
 	private static final Logger logger = LoggerFactory.getLogger(TemperatureDataReceiver.class);
 
@@ -113,10 +121,10 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			AttributeKey<Integer> key = AttributeKey.valueOf("isRegisted");
 			Attribute<Integer> attr = ctx.attr(key);
 			if (null == attr.get()) {
-				//int address = Integer.parseInt(data.substring(12, 16), 16);
-				//logger.info(address + "号设备上线");
 				getOnlineAddress(ctx, data);
-				attr.set(1);
+				if (null != CtxStore.get(ctx).getId()) {
+					attr.set(1);
+				}
 			}
 		}
 		//登录和心跳包
@@ -241,7 +249,6 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 				String id = device.getId();
 				gprs.setId(id);
 				
-//				TemperatureServer.totalCall(id);  //新版控制器自动上传总召报文，不用我们再发送总召报文
 				if(CtxStore.get(id) != null) {
 					CtxStore.remove(id);
 					CtxStore.add(gprs);
@@ -280,18 +287,12 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			logger.info("解析温度遥测变位-------" + data);
 			String signalAddress = CharUtils.newString(data, 34, 38);
 			String value = CharUtils.newString(data, 38, 38 + 4);
-//			value = value.substring(0, 4);
 			int tag = changeSignalAddress(signalAddress);
 			doSaveMeasure(value, deviceId, tag);
 		} else {
 			//处理全遥测
 			logger.info("解析温度全遥测-------" + CharUtils.newString(data));
-//			String dataList = data.substring(52, 16*6 + 52);  //信息元素集
 			String[] buffer = new String[16];
-//			for (int i = 0; i < dataList.length(); i += 6) {
-//				String temp = dataList.substring(i, i + 6);
-//				buffer[i/6] = temp.substring(0, 4);
-//			}
 			for (int i = 0; i < 16; i++) {
 				buffer[i] = CharUtils.newString(data, 52 + 6 * i, 52 + 6 * i + 4);
 			}
@@ -325,13 +326,6 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		String dataList = data.substring(30, 32); // 单个的遥信数据
 	}
 
-	// private void test(ChannelHandlerContext ctx, String data) {
-	// strBuffer.append(data);
-	// if (data.endsWith("16")) {
-	// logger.info("接收到完整数据了" + strBuffer.toString());
-	// }
-	// }
-
 	public String parseInt(String[] data) {
 		StringBuilder value = null;
 		for (int i = 0; i < data.length; i++) {
@@ -358,9 +352,6 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			 */
 			logger.info("测归一值-------" + data);
 			for (int i = 22; i + 14 < data.length(); i += 10) {
-				// getMessageAddress(data.substring(i + 4, i + 8),
-				// data.substring(22, 26),
-				// data.substring(i + 8, i + 14));
 			}
 
 		}
@@ -428,6 +419,19 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			measureHistoryService.insert(
 					new TemperatureMeasureHistory(UUIDUtil.getUUID(), deviceId, new Timestamp(System.currentTimeMillis()), i, Integer.parseInt(value[i-1], 16)*10 + ""));
 			doSaveMeasure0(value[i-1], deviceId, i);
+			//插入报警数据
+			if (TemperatureCtxStore.isAboveBound(deviceId, Double.valueOf(value[i - 1])/10)) {
+				TemperatureMeasureHitchEvent event = new TemperatureMeasureHitchEvent();
+				event.setId(UUIDUtil.getUUID());
+				event.setGmtCreate(new Date());
+				event.setGmtModified(new Date());
+				event.setHitchReason("监测温度超过所设阈值");
+				event.setHitchTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
+				event.setSwitchId(deviceId);
+				event.setTag(i);
+				event.setValue(new BigDecimal(Double.valueOf(value[i - 1]) * 10));
+				HitchEventManager.addHitchEvent(new TemperatreHitchEventThread(event));	//把报警事件塞进线程池
+			}
 		}
 	}
 	

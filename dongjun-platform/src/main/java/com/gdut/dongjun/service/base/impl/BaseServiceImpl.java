@@ -19,8 +19,8 @@ import com.gdut.dongjun.service.base.BaseService;
 public abstract class BaseServiceImpl<T> implements BaseService<T> {
 
 	@Autowired
-	private SinglePrimaryKeyBaseMapper<T> baseMapper;
-
+	protected SinglePrimaryKeyBaseMapper<T> baseMapper;
+	
 	@Override
 	public boolean deleteByPrimaryKey(String id) {
 

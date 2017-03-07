@@ -240,6 +240,9 @@ public class UserController {
 		if (companyService.updateByPrimaryKey(com) == 0) {
 			return ResponseMessage.danger("操作失败");
 		}
+		//更新用户对公司的外键
+		user.setCompanyId(pg.getId());
+		userService.updateByPrimaryKey(user);
 		return ResponseMessage.success("操作成功");
 	}
 
@@ -272,5 +275,6 @@ public class UserController {
 	public ResponseMessage doFuzzySearch(String name) {
 		return ResponseMessage.success(companyService.fuzzySearch(name));
 	}
+	
 
 }

@@ -152,4 +152,5 @@ public class HighVoltageHitchEventController {
 				switchService.selectByParameters(null)));
 		return result;
 	}
+
 }

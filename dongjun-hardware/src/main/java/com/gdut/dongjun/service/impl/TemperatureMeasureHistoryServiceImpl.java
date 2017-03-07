@@ -17,8 +17,14 @@ public class TemperatureMeasureHistoryServiceImpl extends BaseServiceImpl<Temper
 	
 	@Override
 	protected boolean isExist(TemperatureMeasureHistory record) {
-		// TODO Auto-generated method stub
-		return false;
+
+		if (record != null
+				&& measureMapper.selectByPrimaryKey(record.getId()) != null) {
+
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 
