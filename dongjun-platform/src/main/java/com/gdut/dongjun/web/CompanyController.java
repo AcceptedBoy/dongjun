@@ -54,7 +54,7 @@ public class CompanyController {
 			pgService.updateByPrimaryKey(pg);
 		}
 		if (companyService.updateByPrimaryKey(com) == 0) {
-			return ResponseMessage.danger("操作失败");
+			return ResponseMessage.warning("操作失败");
 		}
 		return ResponseMessage.success(com.getId());
 	}
@@ -68,7 +68,7 @@ public class CompanyController {
 			return ResponseMessage.warning("该用户非公司相关人员");
 		}
 		if (companyService.deleteByPrimaryKey(com.getId()) == false) {
-			return ResponseMessage.danger("操作失败");
+			return ResponseMessage.warning("操作失败");
 		}
 		return ResponseMessage.success("操作成功");
 	}
@@ -102,7 +102,7 @@ public class CompanyController {
 		key.setUserId(userId);
 		key.setRoleId(roleId);
 		if (urService.insert(key) == 0) {
-			return ResponseMessage.success("操作失败");
+			return ResponseMessage.warning("操作失败");
 		}
 		return ResponseMessage.success("操作成功");
 	}
@@ -118,7 +118,7 @@ public class CompanyController {
 		key.setUserId(userId);
 		key.setRoleId(roleId);
 		if (urService.updateByPrimaryKey(key) == 0) {
-			return ResponseMessage.success("操作失败");
+			return ResponseMessage.warning("操作失败");
 		}
 		return ResponseMessage.success("操作成功");
 	}
@@ -130,7 +130,7 @@ public class CompanyController {
 	public ResponseMessage doChangeStaffAuthc(
 							@RequestParam(required = true) String userId) {
 		if (!urService.deleteByPrimaryKey(userId)) {
-			return ResponseMessage.success("删除失败");
+			return ResponseMessage.warning("删除失败");
 		}
 		return ResponseMessage.success("删除成功");
 	}

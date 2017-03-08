@@ -1,6 +1,7 @@
 package com.gdut.dongjun.service.webservice.server;
 
 import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
+import com.gdut.dongjun.domain.vo.HitchEventVO;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -25,4 +26,9 @@ public interface WebsiteService {
    // @Consumes({MediaType.APPLICATION_JSON})
     public void callbackDeviceChange(@FormParam("switchId") String switchId,
                                      @FormParam("type") Integer type);
+    
+    @POST
+    @Path("/callback_hitch_event")
+    @Consumes({MediaType.APPLICATION_JSON})
+    public void callbackHitchEvent(HitchEventVO event);
 }

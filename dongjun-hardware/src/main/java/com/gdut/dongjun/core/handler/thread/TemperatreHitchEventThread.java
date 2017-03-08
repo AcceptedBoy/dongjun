@@ -1,24 +1,29 @@
 package com.gdut.dongjun.core.handler.thread;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.log4j.Logger;
 
-import com.gdut.dongjun.domain.po.TemperatureMeasureHitchEvent;
-import com.gdut.dongjun.service.TemperatureMeasureHitchEventService;
+import com.gdut.dongjun.domain.po.abstractmodel.AbstractHitchEvent;
+import com.gdut.dongjun.enums.LogConst;
+import com.gdut.dongjun.service.base.BaseService;
 
 public class TemperatreHitchEventThread extends HitchEventThread {
 
-	private TemperatureMeasureHitchEvent event;
+	private Logger logger = Logger.getLogger(TemperatreHitchEventThread.class);
 	
-	public TemperatreHitchEventThread(TemperatureMeasureHitchEvent event) {
-		this.event = event;
+	public TemperatreHitchEventThread(BaseService service, AbstractHitchEvent event) {
+		this.setService(service);
+		this.hitchEvent = event;
 	}
-	
-	@Autowired
-	private TemperatureMeasureHitchEventService eventService;
-	
+
 	@Override
-	public void run() {
-		eventService.insert(event);
+	public void doPreHandle() {
+		service.insert(hitchEvent);
+		//TODO 日志打印不够准确，需要进一步抽象HitchEvent
+		logger.info(LogConst.TEMPERATURE_HITCH );
 	}
+
+	@Override
+	public void doPostHandle() {}
+
 
 }

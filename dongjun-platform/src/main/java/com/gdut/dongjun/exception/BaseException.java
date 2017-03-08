@@ -3,6 +3,13 @@ package com.gdut.dongjun.exception;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 
+/**
+ * 一时兴起添加，思考下要不要去掉
+ * 因为已经在ExceptionHandler里捕捉了所有RuntimeException
+ * 考虑以后可能会有dao层的异常处理，先保留
+ * @author Gordan_Deng
+ * @date 2017年3月7日
+ */
 public class BaseException extends RuntimeException {
 
 	private static final long serialVersionUID = -434104233779192938L;

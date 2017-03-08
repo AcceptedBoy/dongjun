@@ -11,14 +11,16 @@ import java.util.Map;
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Service;
 
 import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.core.TemperatureCtxStore;
 import com.gdut.dongjun.core.handler.thread.HitchEventManager;
-import com.gdut.dongjun.core.handler.thread.TemperatreHitchEventThread;
 import com.gdut.dongjun.domain.po.TemperatureDevice;
 import com.gdut.dongjun.domain.po.TemperatureMeasure;
 import com.gdut.dongjun.domain.po.TemperatureMeasureHistory;
@@ -26,7 +28,6 @@ import com.gdut.dongjun.domain.po.TemperatureMeasureHitchEvent;
 import com.gdut.dongjun.domain.po.TemperatureSensor;
 import com.gdut.dongjun.service.TemperatureDeviceService;
 import com.gdut.dongjun.service.TemperatureMeasureHistoryService;
-import com.gdut.dongjun.service.TemperatureMeasureHitchEventService;
 import com.gdut.dongjun.service.TemperatureMeasureService;
 import com.gdut.dongjun.service.TemperatureSensorService;
 import com.gdut.dongjun.util.CharUtils;
@@ -43,7 +44,7 @@ import io.netty.util.AttributeKey;
 
 @Service
 @Sharable
-public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
+public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter implements ApplicationContextAware {
 	
 	private static final char[] EB_UP = new char[]{'E', 'B', '9', '0'}; //EB90
 	private static final char[] EB_DOWN = new char[]{'e', 'b', '9', '0'}; //eb90
@@ -72,9 +73,16 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	@Autowired
 	private TemperatureSensorService sensorService;
 	@Autowired
-	private TemperatureMeasureHitchEventService eventService;
+	private HitchEventManager hitchEventManager;
 
 	private static final Logger logger = LoggerFactory.getLogger(TemperatureDataReceiver.class);
+	
+	private static ApplicationContext context;
+	
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		this.context = applicationContext;
+	}
 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -421,16 +429,13 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			doSaveMeasure0(value[i-1], deviceId, i);
 			//插入报警数据
 			if (TemperatureCtxStore.isAboveBound(deviceId, Double.valueOf(value[i - 1])/10)) {
-				TemperatureMeasureHitchEvent event = new TemperatureMeasureHitchEvent();
-				event.setId(UUIDUtil.getUUID());
-				event.setGmtCreate(new Date());
-				event.setGmtModified(new Date());
-				event.setHitchReason("监测温度超过所设阈值");
-				event.setHitchTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
-				event.setSwitchId(deviceId);
-				event.setTag(i);
-				event.setValue(new BigDecimal(Double.valueOf(value[i - 1]) * 10));
-				HitchEventManager.addHitchEvent(new TemperatreHitchEventThread(event));	//把报警事件塞进线程池
+				TemperatureDevice device = deviceService.selectByPrimaryKey(deviceId);
+				TemperatureMeasureHitchEvent event = 
+						new TemperatureMeasureHitchEvent(UUIDUtil.getUUID(), deviceId, new BigDecimal(Double.valueOf(value[i - 1]) * 10), i, 
+								"监测温度超过所设阈值", TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"), 
+								device.getGroupId(), new Date(), new Date());
+				//把报警事件塞进线程池
+				hitchEventManager.addHitchEvent(event);
 			}
 		}
 	}
@@ -481,4 +486,5 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		TemperatureDeviceCommandUtil td = new TemperatureDeviceCommandUtil(address);
 		return td.getTimeCheck(time);
 	}
+
 }

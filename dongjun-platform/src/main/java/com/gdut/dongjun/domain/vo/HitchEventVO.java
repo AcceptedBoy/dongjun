@@ -1,11 +1,10 @@
-package com.gdut.dongjun.domain.po.abstractmodel;
+package com.gdut.dongjun.domain.vo;
 
-/**
- * TODO
- * @author Gordan_Deng
- * @date 2017年3月8日
- */
-public abstract class AbstractHitchEvent {
+import java.io.Serializable;
+
+public class HitchEventVO implements Serializable {
+	
+	private static final long serialVersionUID = 7492353823737332433L;
 
 	private String id;
 

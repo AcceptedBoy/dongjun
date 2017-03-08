@@ -1,6 +1,7 @@
 package com.gdut.dongjun.service.webservice.client;
 
 import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
+import com.gdut.dongjun.domain.vo.HitchEventVO;
 import com.gdut.dongjun.service.webservice.client.service.WebsiteService;
 import com.gdut.dongjun.service.webservice.server.HardwareService;
 import org.apache.cxf.interceptor.Fault;
@@ -77,6 +78,12 @@ public class WebsiteServiceClient implements InitializingBean, ApplicationContex
         public void callbackDeviceChange(String switchId, Integer type) {
             for(WebsiteService websiteService : websiteList) {
                 websiteService.callbackDeviceChange(switchId, type);
+            }
+        }
+
+        public void callbackHitchEvent(HitchEventVO event) {
+            for(WebsiteService websiteService : websiteList) {
+                websiteService.callbackHitchEvent(event);
             }
         }
     }
