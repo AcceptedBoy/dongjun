@@ -26,8 +26,10 @@ import com.gdut.dongjun.domain.po.TemperatureMeasure;
 import com.gdut.dongjun.domain.po.TemperatureMeasureHistory;
 import com.gdut.dongjun.domain.po.TemperatureMeasureHitchEvent;
 import com.gdut.dongjun.domain.po.TemperatureSensor;
+import com.gdut.dongjun.enums.LogConst;
 import com.gdut.dongjun.service.TemperatureDeviceService;
 import com.gdut.dongjun.service.TemperatureMeasureHistoryService;
+import com.gdut.dongjun.service.TemperatureMeasureHitchEventService;
 import com.gdut.dongjun.service.TemperatureMeasureService;
 import com.gdut.dongjun.service.TemperatureSensorService;
 import com.gdut.dongjun.util.CharUtils;
@@ -105,7 +107,6 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter implem
 				deviceService.updateByPrimaryKey(device);
 			}
 		}
-//		CtxStore.printCtxStore();
 	}
 
 	@Override
@@ -113,8 +114,24 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter implem
 		String rowMsg = (String) msg;
 		logger.info("接收到的报文： " + rowMsg);
 		char[] data = CharUtils.removeSpace(rowMsg.toCharArray());
-		handleIdenCode(ctx, data);
-
+//		handleIdenCode(ctx, data);
+		//测试用
+		testHandleCode(ctx, data);
+	}
+	
+	public void testHandleCode(ChannelHandlerContext ctx, char[] data) {
+		String deviceId = "1";
+		Double value = Double.valueOf("666.6");
+		if (TemperatureCtxStore.isAboveBound(deviceId, value/10)) {
+			TemperatureDevice device = deviceService.selectByPrimaryKey(deviceId);
+			TemperatureMeasureHitchEvent event = 
+					new TemperatureMeasureHitchEvent(UUIDUtil.getUUID(), deviceId, device.getGroupId(), 
+							3, TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"), "监测温度超过所设阈值",
+							new BigDecimal(value / 10), 6, new Date(), new Date());
+			//把报警事件塞进线程池
+			hitchEventManager.addHitchEvent(event);
+		}
+		ctx.channel().writeAndFlush("data receive success!");
 	}
 
 	@Override
@@ -431,9 +448,9 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter implem
 			if (TemperatureCtxStore.isAboveBound(deviceId, Double.valueOf(value[i - 1])/10)) {
 				TemperatureDevice device = deviceService.selectByPrimaryKey(deviceId);
 				TemperatureMeasureHitchEvent event = 
-						new TemperatureMeasureHitchEvent(UUIDUtil.getUUID(), deviceId, new BigDecimal(Double.valueOf(value[i - 1]) * 10), i, 
-								"监测温度超过所设阈值", TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"), 
-								device.getGroupId(), new Date(), new Date());
+						new TemperatureMeasureHitchEvent(UUIDUtil.getUUID(), deviceId, device.getGroupId(), 
+								3, TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"), "监测温度超过所设阈值",
+								new BigDecimal(Double.valueOf(value[i - 1]) / 10), 6, new Date(), new Date());
 				//把报警事件塞进线程池
 				hitchEventManager.addHitchEvent(event);
 			}
@@ -486,5 +503,6 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter implem
 		TemperatureDeviceCommandUtil td = new TemperatureDeviceCommandUtil(address);
 		return td.getTimeCheck(time);
 	}
+
 
 }

@@ -66,4 +66,10 @@ public class HitchEventVO implements Serializable {
 	public void setHitchReason(String hitchReason) {
 		this.hitchReason = hitchReason;
 	}
+
+	@Override
+	public String toString() {
+		return "HitchEventVO [id=" + id + ", switchId=" + switchId + ", groupId=" + groupId + ", type=" + type
+				+ ", hitchTime=" + hitchTime + ", hitchReason=" + hitchReason + "]";
+	}
 }

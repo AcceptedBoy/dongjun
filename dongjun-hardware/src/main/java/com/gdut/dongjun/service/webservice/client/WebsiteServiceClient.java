@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
-@Lazy(false)
 public class WebsiteServiceClient implements InitializingBean, ApplicationContextAware {
 
     private static List<WebsiteService> websiteList = new ArrayList<>();

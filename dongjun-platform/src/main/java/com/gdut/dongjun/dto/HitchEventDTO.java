@@ -53,4 +53,12 @@ public class HitchEventDTO {
 	public void setType(String type) {
 		this.type = type;
 	}
+	
+	
+
+	@Override
+	public String toString() {
+		return "HitchEventDTO [hitchTime=" + hitchTime + ", hitchReason=" + hitchReason + ", name=" + name
+				+ ", groupId=" + groupId + ", type=" + type + "]";
+	}
 }

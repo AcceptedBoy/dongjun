@@ -27,15 +27,4 @@ public class TemperatureMeasureHitchEventServiceImpl extends BaseServiceImpl<Tem
 			return false;
 		}
 	}
-
-	@Override
-	public void insertHitchEvent(String deviceId, double d) {
-		TemperatureMeasureHitchEvent event = new TemperatureMeasureHitchEvent();
-		Date date = new Date();
-		event.setGmtCreate(date);
-		event.setGmtModified(date);
-		event.setHitchReason("温度超过阈值");
-		event.setId(UUIDUtil.getUUID());
-	}
-
 }

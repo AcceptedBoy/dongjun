@@ -3,8 +3,8 @@ package com.gdut.dongjun.domain.vo;
 import java.io.Serializable;
 
 public class HitchEventVO implements Serializable {
-	
-	private static final long serialVersionUID = 7492353823737332433L;
+
+	private static final long serialVersionUID = 2069917454567540315L;
 
 	private String id;
 
@@ -64,5 +64,15 @@ public class HitchEventVO implements Serializable {
 
 	public void setHitchReason(String hitchReason) {
 		this.hitchReason = hitchReason;
+	}
+
+	@Override
+	public String toString() {
+		return "HitchEventVO [id=" + id + ", switchId=" + switchId + ", groupId=" + groupId + ", type=" + type
+				+ ", hitchTime=" + hitchTime + ", hitchReason=" + hitchReason + "]";
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
 }

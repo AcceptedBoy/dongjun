@@ -19,12 +19,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.BigGroup;
-import com.gdut.dongjun.domain.po.DeviceGroup;
 import com.gdut.dongjun.domain.po.PlatformGroup;
+import com.gdut.dongjun.domain.po.TemperatureMeasureHitchEvent;
 import com.gdut.dongjun.service.BigGroupService;
 import com.gdut.dongjun.service.PlatformGroupService;
+import com.gdut.dongjun.service.device.event.TemperatureMeasureHitchEventService;
 import com.gdut.dongjun.util.MapUtil;
 import com.gdut.dongjun.util.MyBatisMapUtil;
+import com.gdut.dongjun.util.UUIDUtil;
 
 /**
  *
@@ -35,7 +37,6 @@ public class BigGroupController {
 
 	@Autowired
 	private BigGroupService groupService;
-
 	@Autowired
 	private PlatformGroupService platformGroupService;
 

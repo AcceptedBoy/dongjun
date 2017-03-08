@@ -1,25 +1,36 @@
 package com.gdut.dongjun.core.handler.thread;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.gdut.dongjun.domain.po.abstractmodel.AbstractHitchEvent;
 import com.gdut.dongjun.domain.vo.HitchEventVO;
 import com.gdut.dongjun.service.base.BaseService;
 import com.gdut.dongjun.service.webservice.client.WebsiteServiceClient;
+import com.gdut.dongjun.util.SpringApplicationContextHolder;
 
 /**
  * 实际上执行细节在这个类
  * @author Gordan_Deng
  * @date 2017年3月8日
  */
+@Component
 public abstract class HitchEventThread implements Runnable {
 	
 	protected AbstractHitchEvent hitchEvent;
 	
 	protected BaseService service;
 	
-	@Autowired
 	protected static WebsiteServiceClient websiteServiceClient;
+	
+	protected HitchEventThread() {
+		if (null == websiteServiceClient) {
+			synchronized(HitchEventThread.class) {
+				if (null == websiteServiceClient) {
+					this.websiteServiceClient = (WebsiteServiceClient)SpringApplicationContextHolder.getSpringBean("websiteServiceClient");
+				}
+			}
+		}
+	}
 
 	@Override
 	public void run() {
@@ -57,7 +68,7 @@ public abstract class HitchEventThread implements Runnable {
 		HitchEventVO vo = new HitchEventVO();
 		vo.setId(event.getId());
 		vo.setGroupId(event.getGroupId());
-		vo.setHitchReason(vo.getHitchReason());
+		vo.setHitchReason(event.getHitchReason());
 		vo.setHitchTime(event.getHitchTime());
 		vo.setSwitchId(event.getSwitchId());
 		vo.setType(event.getType());

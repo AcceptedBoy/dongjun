@@ -17,8 +17,17 @@ import com.gdut.dongjun.service.TemperatureDeviceService;
 @Component
 public class TemperatureCtxStore extends CtxStore {
 	
-	@Autowired
 	private static TemperatureDeviceService deviceService;
+	
+	/**
+	 * spring是根据set方法来注入的，对于static类变量，只能通过set方法来实现注入
+	 * 否则只能通过ApplicationContext来弄
+	 * @param deviceService
+	 */
+	@Autowired
+	public void setDeviceService(TemperatureDeviceService deviceService) {
+		TemperatureCtxStore.deviceService = deviceService;
+	}
 
 	/*
 	 * TODO 线程安全？
@@ -29,7 +38,7 @@ public class TemperatureCtxStore extends CtxStore {
 	
 	private static final HashMap<String, String> GPRSList = new HashMap<String, String>();
 	
-	private Logger logger = Logger.getLogger(TemperatureCtxStore.class);
+	private static Logger logger = Logger.getLogger(TemperatureCtxStore.class);
 	
 	public static Double getUpperBoundById(String id) {
 		return upperBound.get(id);
@@ -44,9 +53,10 @@ public class TemperatureCtxStore extends CtxStore {
 	 * @return
 	 */
 	public static boolean isAboveBound(String id, Double value) {
-		if (!upperBound.containsKey(id) || !lowerBound.containsKey(id)) {
+		
+		if (!upperBound.containsKey(id) && !lowerBound.containsKey(id)) {
 			synchronized (TemperatureCtxStore.class) {
-				if (!upperBound.containsKey(id) || !lowerBound.containsKey(id)) {
+				if (!upperBound.containsKey(id) && !lowerBound.containsKey(id)) {
 					setBound(id);
 				}
 			}
@@ -59,19 +69,19 @@ public class TemperatureCtxStore extends CtxStore {
 		}
 		//有下限没上限
 		else if (null != lowerTem && null == upperTem) {
-			if (lowerTem <= value) {
+			if (lowerTem > value) {
 				return true;
 			}
 		}
 		//没下限有上限
 		else if (null == lowerTem && null != upperTem) {
-			if (value <= upperTem) {
+			if (value > upperTem) {
 				return true;
 			}
 		}
 		//有下限有上限
 		else if (null != lowerTem && null != upperTem) {
-			if (lowerTem <= value && value <= upperTem) {
+			if (value < lowerTem || value > upperTem) {
 				return true;
 			}
 		}
@@ -83,6 +93,9 @@ public class TemperatureCtxStore extends CtxStore {
 	 * @param id
 	 */
 	public static void setBound(String id) {
+		if (null == deviceService) {
+			logger.info("TemService is null!");
+		}
 		TemperatureDevice device = deviceService.selectByPrimaryKey(id);
 		upperBound.put(id, device.getMaxHitchValue().doubleValue());
 		lowerBound.put(id, device.getMinHitchValue().doubleValue());

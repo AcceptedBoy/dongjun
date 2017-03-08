@@ -7,17 +7,17 @@ package com.gdut.dongjun.domain.po.abstractmodel;
  */
 public abstract class AbstractHitchEvent {
 
-	private String id;
+	protected String id;
 
-	private String switchId;
+	protected String switchId;
 	
-	private String groupId;
+	protected String groupId;
 	
-	private Integer type;
+	protected Integer type;
 	
-	private String hitchTime;
+	protected String hitchTime;
 	
-	private String hitchReason;
+	protected String hitchReason;
 
 	public String getId() {
 		return id;
