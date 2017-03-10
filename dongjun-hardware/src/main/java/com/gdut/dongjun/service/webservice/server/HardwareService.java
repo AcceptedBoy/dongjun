@@ -100,4 +100,9 @@ public interface HardwareService {
 	@Path("/whether_change")
 	@Consumes({MediaType.APPLICATION_JSON})
 	public boolean whetherChangeInfo();
+	
+	@POST
+	@Path("/change_temperature_device")
+	@Consumes({MediaType.APPLICATION_JSON})
+	public void changeTemperatureDevice(String id);
 }

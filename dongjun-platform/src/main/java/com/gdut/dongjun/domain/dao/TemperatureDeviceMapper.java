@@ -9,5 +9,7 @@ public interface TemperatureDeviceMapper
 		extends SinglePrimaryKeyBaseMapper<TemperatureDevice> {
 
 	public List<TemperatureDevice> selectDeviceByIds(List<String> ids);
+	
+	public String selectNameById(String id);
 
 }

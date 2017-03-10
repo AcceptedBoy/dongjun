@@ -1,11 +1,13 @@
 package com.gdut.dongjun.web;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
 import org.apache.log4j.Logger;
@@ -23,7 +25,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.TemperatureDevice;
+import com.gdut.dongjun.domain.po.TemperatureMeasureHitchEvent;
+import com.gdut.dongjun.domain.po.User;
+import com.gdut.dongjun.dto.TemperatureMeasureHitchEventDTO;
+import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.device.TemperatureDeviceService;
+import com.gdut.dongjun.service.device.event.TemperatureMeasureHitchEventService;
 import com.gdut.dongjun.util.ClassLoaderUtil;
 import com.gdut.dongjun.util.DownloadAndUploadUtil;
 import com.gdut.dongjun.util.MapUtil;
@@ -36,6 +43,10 @@ public class TemperatureDeviceController {
 
 	@Autowired
 	private TemperatureDeviceService deviceService;
+	@Autowired
+	private UserService userService;
+	@Autowired
+	private TemperatureMeasureHitchEventService eventService;
 	
 	private static final Logger logger = Logger.getLogger(TemperatureDeviceController.class);
 
@@ -261,5 +272,41 @@ public class TemperatureDeviceController {
 		// 3.数据读取完后删除掉文件
 		new File(f).delete();
 		return ResponseMessage.success(platformId);
+	}
+	
+	@RequiresAuthentication
+	@RequestMapping("/temperature_hitch/list")
+	@ResponseBody
+	public ResponseMessage getAllHitchEvent(HttpSession session) {
+		User user = userService.getCurrentUser(session);
+		List<TemperatureMeasureHitchEvent> events = eventService.selectByParameters(MyBatisMapUtil.warp("group_id", user.getCompanyId()));
+		List<TemperatureMeasureHitchEventDTO> dtoes = new ArrayList<TemperatureMeasureHitchEventDTO>();
+		for (TemperatureMeasureHitchEvent e : events) {
+			dtoes.add(wrapIntoDTO(e));
+		}
+		return ResponseMessage.success(dtoes);
+	}
+	
+	@RequiresAuthentication
+	@RequestMapping("/temperature_hitch/del")
+	@ResponseBody
+	public ResponseMessage ignodeEvent(String id) {
+		if (!eventService.deleteByPrimaryKey(id)) {
+			return ResponseMessage.warning("操作失败");
+		}
+		return ResponseMessage.success("操作成功");
+	}
+	
+	public TemperatureMeasureHitchEventDTO wrapIntoDTO(TemperatureMeasureHitchEvent event) {
+		TemperatureMeasureHitchEventDTO dto = new TemperatureMeasureHitchEventDTO();
+		dto.setId(event.getId());
+		dto.setHitchReason(event.getHitchReason());
+		dto.setHitchTime(event.getHitchTime());
+		dto.setName(deviceService.selectNameById(event.getSwitchId()));
+		dto.setTag(event.getTag());
+		dto.setValue(event.getValue().toString());
+		dto.setMaxHitchValue(event.getMaxHitchValue().toString());
+		dto.setMinHitchValue(event.getMinHitchValue().toString());
+		return dto;
 	}
 }

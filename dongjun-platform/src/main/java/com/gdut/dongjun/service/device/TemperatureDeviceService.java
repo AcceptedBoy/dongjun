@@ -12,4 +12,6 @@ public interface TemperatureDeviceService extends BaseService<TemperatureDevice>
 	boolean uploadDevice(String realPath, String platformGroupId);
 	
 	public List<TemperatureDevice> selectDeviceByIds(List<String> ids);
+	
+	public String selectNameById(String id);
 }

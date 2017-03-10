@@ -27,8 +27,8 @@
 <!-- 			enableUpdateByExample="false" enableDeleteByExample="false" -->
 <!-- 			enableSelectByExample="false" selectByExampleQueryId="false" /> -->
 
-		<table schema="root" tableName="temperature_measure_hitch_event"
-			domainObjectName="TemperatureMeasureHitchEvent" enableCountByExample="false"
+		<table schema="root" tableName="gprs_module"
+			domainObjectName="GPRSModule" enableCountByExample="false"
 			enableUpdateByExample="false" enableDeleteByExample="false"
 			enableSelectByExample="false" selectByExampleQueryId="false" />
 	</context>

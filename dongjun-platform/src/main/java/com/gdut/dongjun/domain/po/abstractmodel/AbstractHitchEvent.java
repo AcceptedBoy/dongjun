@@ -1,14 +1,17 @@
 package com.gdut.dongjun.domain.po.abstractmodel;
 
 public abstract class AbstractHitchEvent {
+	protected String id;
+
+	protected String switchId;
 	
-	private String id;
+	protected String groupId;
 	
-	private byte type;
+	protected Integer type;
 	
-	private String hitchTime;
+	protected String hitchTime;
 	
-	private String hitchReason;
+	protected String hitchReason;
 
 	public String getId() {
 		return id;
@@ -18,11 +21,27 @@ public abstract class AbstractHitchEvent {
 		this.id = id;
 	}
 
-	public byte getType() {
+	public String getSwitchId() {
+		return switchId;
+	}
+
+	public void setSwitchId(String switchId) {
+		this.switchId = switchId;
+	}
+
+	public String getGroupId() {
+		return groupId;
+	}
+
+	public void setGroupId(String groupId) {
+		this.groupId = groupId;
+	}
+
+	public Integer getType() {
 		return type;
 	}
 
-	public void setType(byte type) {
+	public void setType(Integer type) {
 		this.type = type;
 	}
 

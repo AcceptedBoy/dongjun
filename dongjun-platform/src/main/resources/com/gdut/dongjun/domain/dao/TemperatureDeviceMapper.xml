@@ -181,7 +181,7 @@
 
 	</select>
 	
-	<select id="selectDeviceByIds" parameterType resultMap="BaseResultMap">
+	<select id="selectDeviceByIds" resultMap="BaseResultMap">
 		select * from temperature_device where 1 = 1
 		and id in
 		<foreach item="item" index="key" collection="list" open="("
@@ -190,4 +190,7 @@
 		</foreach>
 	</select>
 
+	<select id="selectNameById" parameterType="java.lang.String" resultType="java.lang.String">
+		select name from temperature_device where id = #{id}
+	</select>
 </mapper>

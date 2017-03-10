@@ -88,4 +88,13 @@ public interface HardwareService {
     @Path("/whether_change")
     @Consumes({MediaType.APPLICATION_JSON})
     public boolean whetherChangeInfo();
+    
+	/**
+	 * 改变内存中温度设备的阈值
+	 * @param id
+	 */
+	@POST
+	@Path("/change_temperature_device")
+	@Consumes({MediaType.APPLICATION_JSON})
+	public void changeTemperatureDevice(String id);
 }

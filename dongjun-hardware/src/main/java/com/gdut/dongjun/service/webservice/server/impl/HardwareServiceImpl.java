@@ -15,6 +15,7 @@ import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.DefaultCtxStore;
 import com.gdut.dongjun.core.HighVoltageCtxStore;
 import com.gdut.dongjun.core.SwitchGPRS;
+import com.gdut.dongjun.core.TemperatureCtxStore;
 import com.gdut.dongjun.core.device.Device;
 import com.gdut.dongjun.core.device_message_engine.impl.HighVoltageSwitchMessageEngine;
 import com.gdut.dongjun.domain.HighVoltageStatus;
@@ -277,6 +278,11 @@ public class HardwareServiceImpl implements HardwareService {
 	@Deprecated
 	public boolean whetherChangeInfo() {
 		return CtxStore.whetherChangeInfo();
+	}
+
+	@Override
+	public void changeTemperatureDevice(String id) {
+		TemperatureCtxStore.setBound(id);
 	}
 
 }

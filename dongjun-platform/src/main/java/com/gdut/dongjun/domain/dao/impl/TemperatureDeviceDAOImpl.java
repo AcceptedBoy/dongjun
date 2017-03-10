@@ -17,4 +17,9 @@ public class TemperatureDeviceDAOImpl extends SinglePrimaryKeyBaseDAOImpl<Temper
 		return template.selectList(getNamespace("selectDeviceByIds"), ids);
 	}
 
+	@Override
+	public String selectNameById(String id) {
+		return template.selectOne(getNamespace("selectNameById"), id);
+	}
+
 }

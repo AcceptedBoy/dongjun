@@ -114,20 +114,51 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter implem
 		String rowMsg = (String) msg;
 		logger.info("接收到的报文： " + rowMsg);
 		char[] data = CharUtils.removeSpace(rowMsg.toCharArray());
-//		handleIdenCode(ctx, data);
-		//测试用
-		testHandleCode(ctx, data);
+		//验证报文合法性，以及做一些注册的工作
+		if (check(ctx, data)) {
+			handleIdenCode(ctx, data);
+		}
+//		测试用
+//		testHandleCode(ctx, data);
 	}
 	
-	public void testHandleCode(ChannelHandlerContext ctx, char[] data) {
+	private boolean check(ChannelHandlerContext ctx, char[] data) {
+		//登录和心跳包
+		if(CharUtils.startWith(data, CODE_00) && (CharUtils.equals(data, 6, 8, CODE_01) || CharUtils.equals(data, 6, 8, CODE_03))) {
+			String gprsNumber = CharUtils.newString(data, 12, 20);
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i <= 6; i+=2) {
+				String address = gprsNumber.substring(i, i+2);
+				sb.append((char)Integer.parseInt(address, 16));
+			}
+			if (CharUtils.equals(data, 6, 8, CODE_01)) {
+				logger.info(sb.toString() + " GPRS模块登录成功");
+				return true;
+			} else {
+				logger.info(sb.toString() + " GPRS模块在线");
+				return true;
+			}
+		}
+		/*
+		 * TODO 做时间戳 + 设备地址 + 校验和的验证工作，如果不行就记录非法报文数量。
+		 * 非法报文数量超过一定程度后封锁该设备地址。
+		 * 一旦一天积聚量超过一定程度over。
+		 * 一旦某段时间内非法报文数量过多over。
+		 */
+		return true;
+	}
+	
+	private void testHandleCode(ChannelHandlerContext ctx, char[] data) {
 		String deviceId = "1";
 		Double value = Double.valueOf("666.6");
 		if (TemperatureCtxStore.isAboveBound(deviceId, value/10)) {
 			TemperatureDevice device = deviceService.selectByPrimaryKey(deviceId);
-			TemperatureMeasureHitchEvent event = 
-					new TemperatureMeasureHitchEvent(UUIDUtil.getUUID(), deviceId, device.getGroupId(), 
-							3, TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"), "监测温度超过所设阈值",
-							new BigDecimal(value / 10), 6, new Date(), new Date());
+			TemperatureMeasureHitchEvent event = new TemperatureMeasureHitchEvent(
+					UUIDUtil.getUUID(), deviceId, new BigDecimal(value / 10), 6, "监测温度超过所设阈值", 
+					TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"), device.getGroupId(), 
+					new Date(), new Date(), device.getMaxHitchValue(), device.getMinHitchValue()
+					);
+			
 			//把报警事件塞进线程池
 			hitchEventManager.addHitchEvent(event);
 		}
@@ -140,7 +171,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter implem
 		ctx.close();
 	}
 
-	public void handleIdenCode(ChannelHandlerContext ctx, char[] data) {
+	private void handleIdenCode(ChannelHandlerContext ctx, char[] data) {
 		
 		if (!(CharUtils.startWith(data, EB_UP) || CharUtils.startWith(data, EB_DOWN)) && CharUtils.endsWith(data, CODE_16)) {
 			AttributeKey<Integer> key = AttributeKey.valueOf("isRegisted");
@@ -150,22 +181,6 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter implem
 				if (null != CtxStore.get(ctx).getId()) {
 					attr.set(1);
 				}
-			}
-		}
-		//登录和心跳包
-		if(CharUtils.startWith(data, CODE_00) && (CharUtils.equals(data, 6, 8, CODE_01) || CharUtils.equals(data, 6, 8, CODE_03))) {
-			String gprsNumber = CharUtils.newString(data, 12, 20);
-			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i <= 6; i+=2) {
-				String address = gprsNumber.substring(i, i+2);
-				sb.append((char)Integer.parseInt(address, 16));
-			}
-			if (CharUtils.equals(data, 6, 8, CODE_01)) {
-				logger.info(sb.toString() + " GPRS模块登录成功");
-				return ;
-			} else {
-				logger.info(sb.toString() + " GPRS模块在线");
-				return ;
 			}
 		}
 
@@ -447,10 +462,12 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter implem
 			//插入报警数据
 			if (TemperatureCtxStore.isAboveBound(deviceId, Double.valueOf(value[i - 1])/10)) {
 				TemperatureDevice device = deviceService.selectByPrimaryKey(deviceId);
-				TemperatureMeasureHitchEvent event = 
-						new TemperatureMeasureHitchEvent(UUIDUtil.getUUID(), deviceId, device.getGroupId(), 
-								3, TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"), "监测温度超过所设阈值",
-								new BigDecimal(Double.valueOf(value[i - 1]) / 10), 6, new Date(), new Date());
+				//TODO 其实报警事事件应该是时间戳中的时间
+				TemperatureMeasureHitchEvent event = new TemperatureMeasureHitchEvent(
+						UUIDUtil.getUUID(), device.getId(), new BigDecimal(Double.valueOf(value[i - 1]) / 10),
+						i, "监测温度超过所设阈值", TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"),
+						device.getGroupId(), new Date(), new Date(), device.getMaxHitchValue(), device.getMinHitchValue()
+						);
 				//把报警事件塞进线程池
 				hitchEventManager.addHitchEvent(event);
 			}

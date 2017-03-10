@@ -1,15 +1,15 @@
 package com.gdut.dongjun.service.aspect;
 
 import javax.annotation.Resource;
-import javax.servlet.http.HttpSession;
 
 import org.aspectj.lang.annotation.After;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import com.gdut.dongjun.domain.po.User;
+import com.gdut.dongjun.domain.po.TemperatureDevice;
 import com.gdut.dongjun.service.CompanyService;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.cache.CacheService;
+import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 
 /**
  * 利用Spring AOP更新缓存
@@ -24,12 +24,12 @@ public class CacheAspect {
 
 	@Resource(name = "EhServiceCache")
 	private CacheService ehServiceCache;
-	
 	@Autowired
 	private UserService userService;
-	
 	@Autowired
 	private CompanyService companyService;
+	@Autowired
+	private HardwareServiceClient hardwareServiceClient;
 	
 //    @After("execution(* com.gdut.dongjun.service.base.impl.BaseServiceImpl+.deleteByPrimaryKey(String))"
 //            + " && args(substationId) && target(com.gdut.dongjun.service.impl.SubstationServiceImpl)")
@@ -39,10 +39,28 @@ public class CacheAspect {
 //        }
 //    }
 
-    @After("execution(* com.gdut.dongjun.service.base.impl.BaseServiceImpl+.insert())"
-    		+ " && target(com.gdut.dongjun.service.impl.DeviceGroupMappingServiceImpl)")
-    public void updateCacheForInsertDeviceGroupMapping() {
-    	companyService.isModifiedChart(user.getCompanyId());
+//    @After("execution(* com.gdut.dongjun.service.base.impl.BaseServiceImpl+.insert())"
+//    		+ " && target(com.gdut.dongjun.service.impl.DeviceGroupMappingServiceImpl)")
+//    public void updateCacheForInsertDeviceGroupMapping() {
+//    	companyService.isModifiedChart(user.getCompanyId());
+//    }
+    
+	/**
+	 * 更改温度设备阈值时更新缓存
+	 * @param device
+	 */
+    @After("execution(* com.gdut.dongjun.service.base.impl.BaseServiceImpl+.updateByPrimaryKey(*))"
+    		+ " && target(com.gdut.dongjun.service.impl.TemperatureDeviceServiceImpl)")
+    public void updateCacheForUpdateTemperatureDevice(TemperatureDevice device) {
+    	hardwareServiceClient.getService().changeTemperatureDevice(device.getId());
     }
+    
+//    @After("execution(* com.gdut.dongjun.service.base.impl.BaseServiceImpl+.deleteByPrimaryKey(String))"
+//    		+ " && target(com.gdut.dongjun.service.impl.TemperatureDeviceServiceImpl)")
+//    public void updateCacheForDeleteTemperatureDevice(String id) {
+//    	hardwareServiceClient.getService().changeTemperatureDevice(id);
+//    }
+	
+	
     
 }
