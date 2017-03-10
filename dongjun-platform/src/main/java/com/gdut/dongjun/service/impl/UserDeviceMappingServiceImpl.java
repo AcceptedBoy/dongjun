@@ -1,5 +1,8 @@
 package com.gdut.dongjun.service.impl;
 
+import java.util.HashMap;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +26,16 @@ public class UserDeviceMappingServiceImpl extends BaseServiceImpl<UserDeviceMapp
 		} else {
 			return false;
 		}
+	}
+
+	@Override
+	public List<UserDeviceMapping> selectMappingEnableToSeeByUserId(String id) {
+		return mapper.selectMappingEnableToSeeByUserId(id);
+	}
+
+	@Override
+	public List<UserDeviceMapping> selectMappingEnableToGenerateByUserId(String id) {
+		return mapper.selectMappingEnableToGenerateByUserId(id);
 	}
 
 }

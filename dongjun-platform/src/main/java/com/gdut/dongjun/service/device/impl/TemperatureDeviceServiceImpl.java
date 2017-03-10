@@ -108,5 +108,10 @@ public class TemperatureDeviceServiceImpl extends BaseServiceImpl<TemperatureDev
 		return map;
 	}
 
+	@Override
+	public List<TemperatureDevice> selectDeviceByIds(List<String> ids) {
+		return mapper.selectDeviceByIds(ids);
+	}
+
 	
 }

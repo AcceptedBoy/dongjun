@@ -13,13 +13,13 @@ public class UserDeviceMappingDAOImpl extends SinglePrimaryKeyBaseDAOImpl<UserDe
 		implements UserDeviceMappingMapper {
 
 	@Override
-	public List<UserDeviceMapping> selectMappingAbleToSeeByUserId(String userId) {
-		return template.selectList(getNamespace("selectMappingAbleToSeeByUserId"), userId);
+	public List<UserDeviceMapping> selectMappingEnableToSeeByUserId(String userId) {
+		return template.selectList(getNamespace("selectMappingEnableToSeeByUserId"), userId);
 	}
 
 	@Override
-	public List<UserDeviceMapping> selectMappingAbleToGenerateByUserId(String userId) {
-		return template.selectList(getNamespace("selectMappingAbleToGenerateByUserId"), userId);
+	public List<UserDeviceMapping> selectMappingEnableToGenerateByUserId(String userId) {
+		return template.selectList(getNamespace("selectMappingEnableToGenerateByUserId"), userId);
 	}
 
 }

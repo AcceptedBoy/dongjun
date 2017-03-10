@@ -141,12 +141,12 @@
         </if>
     </select>
     
-    <select id = "selectMappingAbleToSeeByUserId" parameterType = "java.lang.String" resultMap = "BaseResultMap">
+    <select id = "selectMappingEnableToSeeByUserId" parameterType = "java.lang.String" resultMap = "BaseResultMap">
     	select * from user_device_mapping where
     	user_id = #{userId} and type >= 1
     </select>
     
-        <select id = "selectMappingAbleToGenerateByUserId" parameterType = "java.lang.String" resultMap = "BaseResultMap">
+        <select id = "selectMappingEnableToGenerateByUserId" parameterType = "java.lang.String" resultMap = "BaseResultMap">
     	select * from user_device_mapping where
     	user_id = #{userId} and type = 2
     </select>

@@ -42,8 +42,6 @@ public class CacheAspect {
     @After("execution(* com.gdut.dongjun.service.base.impl.BaseServiceImpl+.insert())"
     		+ " && target(com.gdut.dongjun.service.impl.DeviceGroupMappingServiceImpl)")
     public void updateCacheForInsertDeviceGroupMapping() {
-    	HttpSession session = HttpRequestContent.getSession();
-    	User user = userService.getCurrentUser(session);
     	companyService.isModifiedChart(user.getCompanyId());
     }
     
