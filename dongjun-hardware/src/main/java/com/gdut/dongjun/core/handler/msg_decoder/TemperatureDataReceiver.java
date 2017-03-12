@@ -148,22 +148,22 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter implem
 		return true;
 	}
 	
-	private void testHandleCode(ChannelHandlerContext ctx, char[] data) {
-		String deviceId = "1";
-		Double value = Double.valueOf("666.6");
-		if (TemperatureCtxStore.isAboveBound(deviceId, value/10)) {
-			TemperatureDevice device = deviceService.selectByPrimaryKey(deviceId);
-			TemperatureMeasureHitchEvent event = new TemperatureMeasureHitchEvent(
-					UUIDUtil.getUUID(), deviceId, new BigDecimal(value / 10), 6, "监测温度超过所设阈值", 
-					TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"), device.getGroupId(), 
-					new Date(), new Date(), device.getMaxHitchValue(), device.getMinHitchValue()
-					);
-			
-			//把报警事件塞进线程池
-			hitchEventManager.addHitchEvent(event);
-		}
-		ctx.channel().writeAndFlush("data receive success!");
-	}
+//	private void testHandleCode(ChannelHandlerContext ctx, char[] data) {
+//		String deviceId = "1";
+//		Double value = Double.valueOf("666.6");
+//		if (TemperatureCtxStore.isAboveBound(deviceId, value/10)) {
+//			TemperatureDevice device = deviceService.selectByPrimaryKey(deviceId);
+//			TemperatureMeasureHitchEvent event = new TemperatureMeasureHitchEvent(
+//					UUIDUtil.getUUID(), deviceId, new BigDecimal(value / 10), 6, "监测温度超过所设阈值", 
+//					TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"), device.getGroupId(), 
+//					new Date(), new Date(), device.getMaxHitchValue(), device.getMinHitchValue()
+//					);
+//			
+//			//把报警事件塞进线程池
+//			hitchEventManager.addHitchEvent(event);
+//		}
+//		ctx.channel().writeAndFlush("data receive success!");
+//	}
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {

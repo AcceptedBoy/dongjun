@@ -39,7 +39,6 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
 import com.gdut.dongjun.service.common.CommonSwitch;
-import com.gdut.dongjun.web.intercept.HttpRequestFilter;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 import net.sf.ehcache.CacheManager;
