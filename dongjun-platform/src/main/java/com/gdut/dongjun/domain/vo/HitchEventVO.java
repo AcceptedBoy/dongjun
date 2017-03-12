@@ -5,18 +5,14 @@ import java.io.Serializable;
 public class HitchEventVO implements Serializable {
 
 	private static final long serialVersionUID = 2069917454567540315L;
-
-	private String id;
-
-	private String switchId;
 	
-	private String groupId;
+	private String id;
 	
 	private Integer type;
 	
-	private String hitchTime;
+	private String groupId;
 	
-	private String hitchReason;
+	private String switchId;
 
 	public String getId() {
 		return id;
@@ -24,22 +20,6 @@ public class HitchEventVO implements Serializable {
 
 	public void setId(String id) {
 		this.id = id;
-	}
-
-	public String getSwitchId() {
-		return switchId;
-	}
-
-	public void setSwitchId(String switchId) {
-		this.switchId = switchId;
-	}
-
-	public String getGroupId() {
-		return groupId;
-	}
-
-	public void setGroupId(String groupId) {
-		this.groupId = groupId;
 	}
 
 	public Integer getType() {
@@ -50,29 +30,28 @@ public class HitchEventVO implements Serializable {
 		this.type = type;
 	}
 
-	public String getHitchTime() {
-		return hitchTime;
+	public String getGroupId() {
+		return groupId;
 	}
 
-	public void setHitchTime(String hitchTime) {
-		this.hitchTime = hitchTime;
-	}
-
-	public String getHitchReason() {
-		return hitchReason;
-	}
-
-	public void setHitchReason(String hitchReason) {
-		this.hitchReason = hitchReason;
-	}
-
-	@Override
-	public String toString() {
-		return "HitchEventVO [id=" + id + ", switchId=" + switchId + ", groupId=" + groupId + ", type=" + type
-				+ ", hitchTime=" + hitchTime + ", hitchReason=" + hitchReason + "]";
+	public void setGroupId(String groupId) {
+		this.groupId = groupId;
 	}
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
+	}
+
+	public String getSwitchId() {
+		return switchId;
+	}
+
+	public void setSwitchId(String switchId) {
+		this.switchId = switchId;
+	}
+
+	@Override
+	public String toString() {
+		return "HitchEventVO [id=" + id + ", type=" + type + ", groupId=" + groupId + "]";
 	}
 }

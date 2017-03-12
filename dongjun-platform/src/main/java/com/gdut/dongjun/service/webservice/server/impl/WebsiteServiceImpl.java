@@ -10,16 +10,20 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import com.gdut.dongjun.domain.HighVoltageStatus;
+import com.gdut.dongjun.domain.po.TemperatureDevice;
+import com.gdut.dongjun.domain.po.TemperatureMeasureHitchEvent;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
 import com.gdut.dongjun.domain.vo.HitchEventVO;
 import com.gdut.dongjun.dto.HitchEventDTO;
+import com.gdut.dongjun.dto.TemperatureMeasureHitchEventDTO;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.common.DeviceBinding;
 import com.gdut.dongjun.service.device.DeviceCommonService;
 import com.gdut.dongjun.service.device.HighVoltageSwitchService;
 import com.gdut.dongjun.service.device.LowVoltageSwitchService;
 import com.gdut.dongjun.service.device.TemperatureDeviceService;
+import com.gdut.dongjun.service.device.event.TemperatureMeasureHitchEventService;
 import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 import com.gdut.dongjun.service.webservice.server.WebsiteService;
 import com.gdut.dongjun.util.GenericUtil;
@@ -46,6 +50,8 @@ public class WebsiteServiceImpl implements WebsiteService {
 	private LowVoltageSwitchService lowService;
 	@Autowired
 	private TemperatureDeviceService temService;
+	@Autowired
+	private TemperatureMeasureHitchEventService temEventService;
 
 	@Autowired
 	public WebsiteServiceImpl(SimpMessagingTemplate messagingTemplate) {
@@ -94,22 +100,30 @@ public class WebsiteServiceImpl implements WebsiteService {
 	}
 
 	public HitchEventDTO wrapDTO(HitchEventVO vo) {
-		HitchEventDTO dto = new HitchEventDTO();
-		Object obj = null;
+		HitchEventDTO d = null;
 		switch (vo.getType()) {
 		case 0: {
-			obj = lowService.selectByPrimaryKey(vo.getSwitchId());
 			break;
 		}
 		case 1: {
-			obj = highService.selectByPrimaryKey(vo.getSwitchId());
 			break;
 		}
 		case 2: {
-			//TODO
+			break;
 		}
 		case 3: {
-			obj = temService.selectByPrimaryKey(vo.getSwitchId());
+			String name = temService.selectNameById(vo.getSwitchId());
+			TemperatureMeasureHitchEvent temEvent = temEventService.selectByPrimaryKey(vo.getId());
+			TemperatureMeasureHitchEventDTO dto = new TemperatureMeasureHitchEventDTO();
+			dto.setId(temEvent.getId());
+			dto.setHitchReason(temEvent.getHitchReason());
+			dto.setHitchTime(temEvent.getHitchTime());
+			dto.setMaxHitchValue(temEvent.getMaxHitchValue().doubleValue() + "");
+			dto.setMinHitchValue(temEvent.getMinHitchValue().doubleValue() + "");
+			dto.setName(name);
+			dto.setTag(temEvent.getTag());
+			dto.setValue(temEvent.getValue().doubleValue() + "");
+			d = (HitchEventDTO)dto;
 			break;
 		}
 		default: {
@@ -117,12 +131,7 @@ public class WebsiteServiceImpl implements WebsiteService {
 			break;
 		}
 		}
-		dto.setGroupId(vo.getGroupId());
-		dto.setHitchReason(vo.getHitchReason());
-		dto.setHitchTime(vo.getHitchTime());
-		dto.setType(returnType(vo.getType()));
-		dto.setName((String)GenericUtil.getPrivateObjectValue(obj, "name"));
-		return dto;
+		return d;
 	}
 	
 	/**

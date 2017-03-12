@@ -1,23 +1,18 @@
 package com.gdut.dongjun.domain.vo;
 
 import java.io.Serializable;
-import java.util.Date;
 
 public class HitchEventVO implements Serializable {
 	
 	private static final long serialVersionUID = 7492353823737332433L;
 
 	private String id;
-
-	private String switchId;
-	
-	private String groupId;
 	
 	private Integer type;
 	
-	private String hitchTime;
+	private String switchId;
 	
-	private String hitchReason;
+	private String groupId;
 
 	public String getId() {
 		return id;
@@ -25,22 +20,6 @@ public class HitchEventVO implements Serializable {
 
 	public void setId(String id) {
 		this.id = id;
-	}
-
-	public String getSwitchId() {
-		return switchId;
-	}
-
-	public void setSwitchId(String switchId) {
-		this.switchId = switchId;
-	}
-
-	public String getGroupId() {
-		return groupId;
-	}
-
-	public void setGroupId(String groupId) {
-		this.groupId = groupId;
 	}
 
 	public Integer getType() {
@@ -51,25 +30,30 @@ public class HitchEventVO implements Serializable {
 		this.type = type;
 	}
 
-	public String getHitchTime() {
-		return hitchTime;
+	public String getGroupId() {
+		return groupId;
 	}
 
-	public void setHitchTime(String hitchTime) {
-		this.hitchTime = hitchTime;
+	public void setGroupId(String groupId) {
+		this.groupId = groupId;
 	}
 
-	public String getHitchReason() {
-		return hitchReason;
+	public String getSwitchId() {
+		return switchId;
 	}
 
-	public void setHitchReason(String hitchReason) {
-		this.hitchReason = hitchReason;
+	public void setSwitchId(String switchId) {
+		this.switchId = switchId;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
 
 	@Override
 	public String toString() {
-		return "HitchEventVO [id=" + id + ", switchId=" + switchId + ", groupId=" + groupId + ", type=" + type
-				+ ", hitchTime=" + hitchTime + ", hitchReason=" + hitchReason + "]";
+		return "HitchEventVO [id=" + id + ", type=" + type + ", groupId=" + groupId + "]";
 	}
+	
+	
 }

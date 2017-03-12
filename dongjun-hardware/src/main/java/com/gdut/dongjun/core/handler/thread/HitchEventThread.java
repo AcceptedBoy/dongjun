@@ -68,10 +68,8 @@ public abstract class HitchEventThread implements Runnable {
 		HitchEventVO vo = new HitchEventVO();
 		vo.setId(event.getId());
 		vo.setGroupId(event.getGroupId());
-		vo.setHitchReason(event.getHitchReason());
-		vo.setHitchTime(event.getHitchTime());
-		vo.setSwitchId(event.getSwitchId());
 		vo.setType(event.getType());
+		vo.setGroupId(event.getGroupId());
 		return vo;
 	}
 
