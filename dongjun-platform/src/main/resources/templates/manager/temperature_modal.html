@@ -50,17 +50,23 @@
                 </div>
             </div>
             <div class="control-group">
-			    <label class="control-label" for="inputSim">SIM</label>
-			    <div class="controls">
-			        <input type="text" id="inputSim" name="simNumber"/>
-			    </div>
-			</div>
-<!--             <div class="control-group">
-    <label class="control-label" for="inlineIndex">线路内序号</label>
-    <div class="controls">
-        <input type="text" id="inlineIndex" name="inlineIndex" />
-    </div>
-</div> -->
+                <label class="control-label" for="inputSim">SIM</label>
+                <div class="controls">
+                    <input type="text" id="inputSim" name="simNumber"/>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="inputMaxHitchValue">上限</label>
+                <div class="controls">
+                    <input type="number" id="inputMaxHitchValue" name="maxHitchValue" step="0.01"/>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="inputMinHitchValue">下限</label>
+                <div class="controls">
+                    <input type="number" id="inputMinHitchValue" name="minHitchValue" step="0.01"/>
+                </div>
+            </div>
             <div class="modal-footer">
                 <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
                 <button id="add_switch_confirm_btn" class="btn btn-primary"
@@ -100,17 +106,29 @@
                 </div>
             </div>
              <div class="control-group">
-    			<label class="control-label" for="editSim">SIM</label>
-			    <div class="controls">
-			        <input type="text" id="editSim" name="simNumber"/>
-			    </div>
-			</div>
-             <div class="control-group hidden">
-			    <label class="control-label" for="editId">id</label>
-			    <div class="controls">
-			        <input type="text" id="editId" name="id" readOnly onfocus="this.blur()"/>
-			    </div>
-			</div>
+                <label class="control-label" for="editSim">SIM</label>
+                <div class="controls">
+                    <input type="text" id="editSim" name="simNumber"/>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="editMaxHitchValue">上限</label>
+                <div class="controls">
+                    <input type="number" id="editMaxHitchValue" name="maxHitchValue" step="0.01"/>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" for="editMinHitchValue">下限</label>
+                <div class="controls">
+                    <input type="number" id="editMinHitchValue" name="minHitchValue" step="0.01"/>
+                </div>
+            </div>
+            <div class="control-group hidden">
+                <label class="control-label" for="editId">id</label>
+                <div class="controls">
+                    <input type="text" id="editId" name="id" readOnly onfocus="this.blur()"/>
+                </div>
+            </div>
             <div class="modal-footer">
                 <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
                 <button id="edit_switch_confirm_btn" class="btn btn-primary"
@@ -169,7 +187,6 @@
           var input = inputs[i]
           if(!$.trim(input.value)) {
             input.focus()
-            console.log(input.id)
             alert('您还有选项暂未填写')
             return
           }
@@ -178,6 +195,15 @@
           })
           data[dataName] = input.value
         }
+        // 验证小数位
+        var regValue = /^(?:-)?[0-9]+(\.[0-9]{1,2}){0,1}$/;
+        if(!regValue.test(data.maxHitchValue) || !regValue.test(data.minHitchValue)) {
+          alert('温度上、下限最多精确两位小数')
+          return
+        } else if(parseFloat(data.maxHitchValue)<parseFloat(data.minHitchValue)){
+          alert('温度上限不应小于其下限')
+          return
+        }
 
         var params = {
           'name' : data.name,
@@ -185,11 +211,12 @@
           'simNumber' : data.sim,
           'platformId' : selectManager.getCompany(),
           'deviceNumber': data.deviceNumber,
-
+          'maxHitchValue': data.maxHitchValue,
+          'minHitchValue': data.minHitchValue
         }
 
         if(!isAdd) {
-        	params['id'] = data.id
+          params['id'] = data.id
         }
 
         console.log(params)

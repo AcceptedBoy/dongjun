@@ -2,11 +2,13 @@
 
 	<div class="span2 container-fluid well sidebar-nav">
 		<ul class="nav nav-list bs-docs-sidenav" id="sideNav">
-			<li class="nav-header">事件管理</li>
+			<li class="nav-header">设备报警</li>
      		<li><a href="#all_event">所有事件</a></li>
 			<li><a href="#low_voltage">低压开关故障事件</a></li>
 			<li><a href="#high_voltage">高压开关故障事件</a></li>
       <li><a href="#control_measure">无功补偿开关故障事件</a></li>
+      <li class="nav-header">测量值报警</li>
+			<li><a href="#temperature">温度报警事件</a></li>
 		</ul>
 	</div>
 
@@ -35,7 +37,8 @@
 		'low_voltage': load('low_voltage.html'),
 		'high_voltage': load('high_voltage.html'),
 		'all_event': load('all_switch_event.html'),
-		'control_measure': load('control_measure.html')
+		'control_measure': load('control_measure.html'),
+		'temperature': load('temperature.html')
 	})
 
 	// 闭包

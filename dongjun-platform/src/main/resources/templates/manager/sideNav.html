@@ -9,6 +9,8 @@
     <li><a href="#high_voltage">高压开关管理</a></li>
     <li><a href="#control_measure">无功补偿开关管理</a></li>
     <li><a href="#temperature_look">温度监控</a></li>
+    <li class="nav-header">GPRS管理</li>
+    <li><a href="#GPRS_manager">GPRS管理</a></li>
   </ul>
 </div>
 
@@ -54,7 +56,8 @@
       'substation_manager': substationLoad,
       'line_manager': lineLoad,
       'temperature_look': loadTemperature,
-      'equipment_manager': loadEquip
+      'equipment_manager': loadEquip,
+      'GPRS_manager': loadGPRSManager
     })
 
     function loadVoltage() {
@@ -123,18 +126,11 @@
       })
     }
 
-
-/*    function loadLink(url, cb) {
-      var link = document.createElement('link')
-      link.type = 'text/css'
-      link.rel = 'stylesheet'
-      link.addEventListener('load', function() {
-        cb()
+    function loadGPRSManager() {
+      dj.inserCmp('GPRS_manager.html', $('.container')[0], function() {
+        dj.inserCmp('GPRS_manager_modal.html', $('.modal')[0])
       })
-      link.href = url
-      document.getElementsByTagName('head')[0].appendChild(link)
-    }*/
-
+    }
   })()
 
 </script>
