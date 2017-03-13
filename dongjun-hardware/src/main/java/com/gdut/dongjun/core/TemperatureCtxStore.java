@@ -29,7 +29,6 @@ public class TemperatureCtxStore extends CtxStore {
 	 */
 	private static TemperatureDeviceService deviceService;
 	private static GPRSModuleService gprsService;
-
 	@Autowired
 	public void setDeviceService(TemperatureDeviceService deviceService) {
 		TemperatureCtxStore.deviceService = deviceService;
@@ -38,12 +37,6 @@ public class TemperatureCtxStore extends CtxStore {
 	private void setGPRSService(GPRSModuleService gprsService) {
 		TemperatureCtxStore.gprsService = gprsService;
 	}
-	
-//	@Override
-//	public void afterPropertiesSet() throws Exception {
-//		List<GPRSModule> list = gprsService.selectByParameters(null);
-//		GPRSList.addAll(list);
-//	}
 
 	/*
 	 * TODO 线程安全？
@@ -117,25 +110,12 @@ public class TemperatureCtxStore extends CtxStore {
 		lowerBound.put(id, device.getMinHitchValue().doubleValue());
 	}
 	
-//	public static synchronized void addGPRS(String id) {
-//		GPRSModule gprsModule = gprsService.selectByPrimaryKey(id);
-//		if (null != gprsModule) {
-//			GPRSList.add(gprsModule);
-//		}
-//	}
-//	
-//	public static synchronized void delGPRS(String id) {
-//		GPRSModule gprsModule = gprsService.selectByPrimaryKey(id);
-//		if (null != gprsModule) {
-//			GPRSList.remove(gprsModule);
-//		}
-//	}
-//	
-//	public static boolean isGPRSExist(String id) {
-//		GPRSModule gprsModule = gprsService.selectByPrimaryKey(id);
-//		return GPRSList.contains(gprsModule);
-//	}
+	public static void addGPRS(ChannelHandlerContext ctx, GPRSModule module) {
+		GPRSMap.put(ctx, module);
+	}
 	
-	
+	public static void removeGPRS(ChannelHandlerContext ctx) {
+		GPRSMap.remove(ctx);
+	}
 }
 

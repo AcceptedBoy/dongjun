@@ -1,5 +1,6 @@
 package com.gdut.dongjun.web;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
@@ -15,12 +16,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.Company;
 import com.gdut.dongjun.domain.po.PlatformGroup;
+import com.gdut.dongjun.domain.po.TemperatureDevice;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.po.authc.UserRoleKey;
+import com.gdut.dongjun.domain.vo.DeviceForAuthDTO;
 import com.gdut.dongjun.service.CompanyService;
 import com.gdut.dongjun.service.PlatformGroupService;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.authc.UserRoleService;
+import com.gdut.dongjun.service.device.TemperatureDeviceService;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.UUIDUtil;
 
@@ -36,6 +40,8 @@ public class CompanyController {
 	private UserRoleService urService;
 	@Autowired
 	private PlatformGroupService pgService;
+	@Autowired
+	private TemperatureDeviceService deviceService;
 
 //	@RequiresPermissions("platform_group_admin:edit")
 	@RequestMapping("/edit")
@@ -87,8 +93,9 @@ public class CompanyController {
 	@RequiresAuthentication
 	@RequestMapping("/staff")
 	@ResponseBody
-	public ResponseMessage getStaffById(@RequestParam(required = true) String id) {
-		List<User> users = userService.selectByParameters(MyBatisMapUtil.warp("company_id", id));
+	public ResponseMessage getStaffById(HttpSession session) {
+		User user = userService.getCurrentUser(session);
+		List<User> users = userService.selectByParameters(MyBatisMapUtil.warp("company_id", user.getCompanyId()));
 		return ResponseMessage.success(users);
 	}
 	
@@ -135,6 +142,25 @@ public class CompanyController {
 		return ResponseMessage.success("删除成功");
 	}
 	
+	@RequestMapping("/device")
+	@ResponseBody
+	public ResponseMessage getAllDevice(HttpSession session) {
+		User user = userService.getCurrentUser(session);
+		List<TemperatureDevice> devices = deviceService.selectByParameters(MyBatisMapUtil.warp("group_id", user.getCompanyId()));
+		return ResponseMessage.success(wrapIntoDTO(devices));
+	}
 	
+	private List<DeviceForAuthDTO> wrapIntoDTO(List<TemperatureDevice> devices) {
+		List<DeviceForAuthDTO> dtos = new ArrayList<DeviceForAuthDTO>();
+		for (TemperatureDevice device : devices) {
+			DeviceForAuthDTO dto = new DeviceForAuthDTO();
+			dto.setId(device.getId());
+			dto.setName(device.getName());
+			dto.setType(3);
+			dto.setDeviceNumber(device.getDeviceNumber());
+			dtos.add(dto);
+		}
+		return dtos;
+	}
 	
 }

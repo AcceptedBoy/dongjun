@@ -10,4 +10,9 @@ import com.gdut.dongjun.domain.po.GPRSModule;
 public class GPRSModuleDAOImpl extends SinglePrimaryKeyBaseDAOImpl<GPRSModule>
 		implements GPRSModuleMapper  {
 
+	@Override
+	public Integer isGPRSAvailable(String deviceNumber) {
+		return template.selectOne("isGPRSAvailable", deviceNumber);
+	}
+
 }

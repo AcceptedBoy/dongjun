@@ -11,25 +11,22 @@ import java.util.Map;
 import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Service;
 
 import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.core.TemperatureCtxStore;
 import com.gdut.dongjun.core.handler.thread.HitchEventManager;
+import com.gdut.dongjun.domain.po.GPRSModule;
 import com.gdut.dongjun.domain.po.TemperatureDevice;
 import com.gdut.dongjun.domain.po.TemperatureMeasure;
 import com.gdut.dongjun.domain.po.TemperatureMeasureHistory;
 import com.gdut.dongjun.domain.po.TemperatureMeasureHitchEvent;
 import com.gdut.dongjun.domain.po.TemperatureSensor;
-import com.gdut.dongjun.enums.LogConst;
+import com.gdut.dongjun.service.GPRSModuleService;
 import com.gdut.dongjun.service.TemperatureDeviceService;
 import com.gdut.dongjun.service.TemperatureMeasureHistoryService;
-import com.gdut.dongjun.service.TemperatureMeasureHitchEventService;
 import com.gdut.dongjun.service.TemperatureMeasureService;
 import com.gdut.dongjun.service.TemperatureSensorService;
 import com.gdut.dongjun.util.CharUtils;
@@ -46,22 +43,22 @@ import io.netty.util.AttributeKey;
 
 @Service
 @Sharable
-public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter implements ApplicationContextAware {
+public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	
 	private static final char[] EB_UP = new char[]{'E', 'B', '9', '0'}; //EB90
 	private static final char[] EB_DOWN = new char[]{'e', 'b', '9', '0'}; //eb90
     private static final char[] CODE_64 = new char[]{'6', '4'}; //64
     private static final char[] CODE_03 = new char[]{'0', '3'}; //03
-    private static final char[] CODE_2E = new char[]{'2', 'e'}; //2e
+//    private static final char[] CODE_2E = new char[]{'2', 'e'}; //2e
     private static final char[] CODE_1F_UP = new char[]{'1', 'F'}; //1F
     private static final char[] CODE_1F_DOWN = new char[]{'1', 'f'}; //1f
     private static final char[] CODE_09 = new char[]{'0', '9'}; //09
-    private static final char[] CODE_81 = new char[]{'8', '1'}; //81
+//    private static final char[] CODE_81 = new char[]{'8', '1'}; //81
     private static final char[] CODE_00 = new char[]{'0', '0'}; //OO
     private static final char[] CODE_01 = new char[]{'0', '1'}; //OO
-    private static final char[] CODE_47 = new char[]{'4', '7'}; //47
+//    private static final char[] CODE_47 = new char[]{'4', '7'}; //47
     private static final char[] CODE_16 = new char[]{'1', '6'}; //16
-    private static final char[] CODE_68 = new char[]{'6', '8'}; //68
+//    private static final char[] CODE_68 = new char[]{'6', '8'}; //68
     private static final char[] CODE_7716 = new char[]{'7', '7', '1', '6'}; //7716
     private static final char[] CODE_7A16_UP = new char[]{'7', 'A', '1', '6'}; //7A16
     private static final char[] CODE_7A16_DOWN = new char[]{'7', 'a', '1', '6'}; //7A16
@@ -76,15 +73,10 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter implem
 	private TemperatureSensorService sensorService;
 	@Autowired
 	private HitchEventManager hitchEventManager;
+	@Autowired
+	private GPRSModuleService gprsService;
 
 	private static final Logger logger = LoggerFactory.getLogger(TemperatureDataReceiver.class);
-	
-	private static ApplicationContext context;
-	
-	@Override
-	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-		this.context = applicationContext;
-	}
 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -92,6 +84,8 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter implem
 		gprs.setCtx(ctx);
 		if (CtxStore.get(ctx) == null) {
 			CtxStore.add(gprs);
+			//建立ChannelHandlerContext与GPRSModule的联系，建立通道时未获知GPRSModule的消息
+			TemperatureCtxStore.addGPRS(ctx, null);
 		}
 //		ctx.channel().writeAndFlush(new TemperatureDeviceCommandUtil().getConnection()); //发送确认报文，新版gprs不用，新版gprs直接上传总召
 	}
@@ -100,7 +94,8 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter implem
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 		SwitchGPRS gprs = CtxStore.get(ctx);
 		if (gprs != null) {
-			CtxStore.remove(ctx);// 从Store中移除这个context
+			//从CtxStore中取出当前ChannelHandlerContext
+			CtxStore.remove(ctx);
 			if(gprs.getId() != null) {
 				TemperatureDevice device = deviceService.selectByPrimaryKey(gprs.getId());
 				device.setOnlineTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
@@ -133,11 +128,18 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter implem
 			}
 			if (CharUtils.equals(data, 6, 8, CODE_01)) {
 				logger.info(sb.toString() + " GPRS模块登录成功");
+				GPRSModule gprs = gprsService.selectByPrimaryKey();
 				return true;
 			} else {
 				logger.info(sb.toString() + " GPRS模块在线");
 				return true;
 			}
+		}
+		/*
+		 * GPRSModule是否通过
+		 */
+		if () {
+			
 		}
 		/*
 		 * TODO 做时间戳 + 设备地址 + 校验和的验证工作，如果不行就记录非法报文数量。
@@ -185,7 +187,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter implem
 		}
 
 		if (data.length < 20) {
-			logger.info("接收到的非法数据--------------------" + data);
+			logger.info("接收到的非法数据--------------------" + String.valueOf(data));
 			return ;
 		}
 		char[] controlCode = ArrayUtils.subarray(data, 18, 20);
@@ -206,31 +208,26 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter implem
 			/*
 			 * 终端发送总招激活确认
 			 */
-			logger.info("终端确认总召激活");
 		}
 
 		else if (CharUtils.equals(controlCode, CODE_64) && (CharUtils.endsWith(controlCode, CODE_7A16_UP) || CharUtils.endsWith(controlCode, CODE_7A16_DOWN))) {
 			/*
 			 * 终端确认总召结束
 			 */
-			logger.info("终端确认总召结束");
 		}
 
 		else if (CharUtils.equals(controlCode, CODE_09)) {
 			/*
-			 * 终端发送总招激活确认
+			 * 全遥测 + 遥测变位
 			 */
-//			logger.info("接受来自终端的遥测数据");
-			// 遥测TODO 还有遥测变位事件，需要看变结构限定词来确定处理方法。遥测变位事件不需要主站确认
 			handleRemoteMeasure(ctx, data);
 		}
 
 		else if (CharUtils.equals(controlCode, CODE_01)) {
 			/*
-			 * 遥信变化值，遥信总召所有值获取
+			 * 全遥信
 			 */
-//			logger.info("接受来自终端的单点遥信数据");
-//			handleRemoteSignal(ctx, data);
+			handleRemoteSignal(ctx, data);
 		}
 
 		else if (CharUtils.equals(controlCode, CODE_03)) {
@@ -250,9 +247,8 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter implem
 			// 主站需要发送确认报文
 //			handleRemoteSignalChange(ctx, data);
 		} else {
-			logger.warn("接收到的非法数据--------------------" + data);
+			logger.warn("接收到的非法数据--------------------" + String.valueOf(data));
 		}
-		
 	}
 
 	/**
@@ -294,7 +290,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter implem
 					CtxStore.add(gprs);
 				}
 			} else {
-				logger.warn("this device is not registered!!");
+				logger.warn("当前设备未进行注册");
 			}
 		}
 	}
@@ -315,16 +311,18 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter implem
 				getOnlineAddress(ctx, data);
 				attr.set(1);
 				//发送对时命令，第一次总召的时间其实是不对的
-				ctx.writeAndFlush(doMatchTime(CharUtils.newString(data, 10, 18)));
+				String correctTime = doMatchTime(CharUtils.newString(data, 10, 18));
+				ctx.writeAndFlush(correctTime);
 		 }
 		 
 		String deviceId = CtxStore.getIdbyAddress(address);
 		if (null == deviceId || "".equals(deviceId)) {
 			return ;
 		}
+		
 		if (CharUtils.equals(data, 20, 22, CODE_01)) {
 			//处理遥测变化
-			logger.info("解析温度遥测变位-------" + data);
+			logger.info("解析温度遥测变位-------" + String.valueOf(data));
 			String signalAddress = CharUtils.newString(data, 34, 38);
 			String value = CharUtils.newString(data, 38, 38 + 4);
 			int tag = changeSignalAddress(signalAddress);
@@ -342,82 +340,27 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter implem
 			ctx.channel().writeAndFlush(sb.toString());	  //全遥测确认报文，提示控制器发送全遥信
 		}
 	}
-
+	
 	/**
-	 * 处理全遥信 之后直接把所有值存到数据库中
-	 * 
+	 * 处理全遥信
 	 * @param ctx
 	 * @param data
 	 */
-	public void handleRemoteSignal(ChannelHandlerContext ctx, String data) {
-		String signalAddress = data.substring(26, 30);// 信息对象地址
-		String dataList = data.substring(30, data.length() - 4); // 所有的遥信数据
-
+	private void handleRemoteSignal(ChannelHandlerContext ctx, char[] data) {
+		//TODO 等有报文例子之后再写
 	}
 
 	/**
 	 * 遥信变位
-	 * 
+	 * TODO
 	 * @param ctx
 	 * @param data
 	 */
-	public void handleRemoteSignalChange(ChannelHandlerContext ctx, String data) {
-		String signalAddress = data.substring(26, 30);// 信息对象地址
-		String dataList = data.substring(30, 32); // 单个的遥信数据
-	}
-
-	public String parseInt(String[] data) {
-		StringBuilder value = null;
-		for (int i = 0; i < data.length; i++) {
-			value.append(Integer.parseInt(data[i], 16) + " ");
-		}
-		return value.toString();
-	}
-
-	/**
-	 * 遥测的值解析，包括总招时的遥测值和单次的温度变化遥测值
-	 * 
-	 * @param data
-	 */
-	private void changeMesurementInfo(String data) {
-
-		/*
-		 * 遥测变位信息事件（对于遥测，只有这一个报文）
-		 */
-		if (!data.substring(16, 18).equals("01")) {
-			logger.info("温度变化-------" + data);
-			// TODO
-			/**
-			 * 若data.length=40，测归一值
-			 */
-			logger.info("测归一值-------" + data);
-			for (int i = 22; i + 14 < data.length(); i += 10) {
-			}
-
-		}
-	}
-
-	/**
-	 * 所有遥信值的获取
-	 * 
-	 * @param data
-	 */
-	private void readAllSignal(String data) {
-		// TODO
-	}
-
-	/*
-	 * 确实遥信
-	 */
-	private void affirmSignal(ChannelHandlerContext ctx, String data) {
-		String resu = new TemperatureDeviceCommandUtil(data.substring(10, 14)).confirmRemoteSignalChannge();
-		logger.info("遥信变位确定---------" + resu);
-		ctx.writeAndFlush(resu);
-	}
+	private void handleRemoteSignalChange(ChannelHandlerContext ctx, String data) {}
 
 	/**
 	 * 遥信事件的处理，返回确认遥信
-	 * 
+	 * TODO
 	 * @param ctx
 	 * @param data
 	 */
@@ -448,7 +391,12 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter implem
 		doSaveMeasure0(value, deviceId, tag);
 	}
 	
-	public void doSaveMeasure(String[] value, String deviceId) {
+	/**
+	 * 保存全遥测
+	 * @param value
+	 * @param deviceId
+	 */
+	private void doSaveMeasure(String[] value, String deviceId) {
 		List<TemperatureSensor> sensorList = sensorService.selectByParameters(MyBatisMapUtil.warp("device_id", deviceId));
 		
 		for (int i = 1; i <= value.length; i++) {
@@ -474,6 +422,12 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter implem
 		}
 	}
 	
+	/**
+	 * 确认传感器受否存在，否则新增传感器实体
+	 * @param sensorList
+	 * @param tag
+	 * @param deviceId
+	 */
 	public void isSensorExist(List<TemperatureSensor> sensorList, int tag, String deviceId) {
 		for (TemperatureSensor sensor : sensorList) {
 			if (sensor.getTag() == tag) {
@@ -483,6 +437,12 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter implem
 		sensorService.insert(new TemperatureSensor(UUIDUtil.getUUID(), tag, deviceId, tag + "号传感器"));
 	}
 	
+	/**
+	 * 保存遥测数据
+	 * @param value
+	 * @param deviceId
+	 * @param tag
+	 */
 	public void doSaveMeasure0(String value, String deviceId, int tag) {
 
 		Map<String, Object> queryMap = new HashMap<String, Object>();
@@ -500,7 +460,12 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter implem
 		}
 	}
 	
-	public String doMatchTime(String address) {
+	/**
+	 * 得到对时数据
+	 * @param address
+	 * @return
+	 */
+	private String doMatchTime(String address) {
 		Calendar cal = Calendar.getInstance();
 		String second = Integer.toHexString(cal.get(Calendar.SECOND));
 		String minute = Integer.toHexString(cal.get(Calendar.MINUTE));

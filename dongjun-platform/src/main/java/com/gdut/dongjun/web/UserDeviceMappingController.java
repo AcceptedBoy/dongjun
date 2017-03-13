@@ -1,5 +1,6 @@
 package com.gdut.dongjun.web;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -11,9 +12,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.gdut.dongjun.domain.model.ResponseMessage;
+import com.gdut.dongjun.domain.po.TemperatureDevice;
 import com.gdut.dongjun.domain.po.UserDeviceMapping;
+import com.gdut.dongjun.domain.vo.UserDeviceMappingDTO;
 import com.gdut.dongjun.service.UserDeviceMappingService;
 import com.gdut.dongjun.service.UserService;
+import com.gdut.dongjun.service.device.TemperatureDeviceService;
 import com.gdut.dongjun.util.MapUtil;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.UUIDUtil;
@@ -26,6 +30,8 @@ public class UserDeviceMappingController {
 	private UserDeviceMappingService mappingService;
 	@Autowired
 	private UserService userService;
+	@Autowired
+	private TemperatureDeviceService temDeviceService;
 	
 	@ResponseBody
 	@RequestMapping("/edit")
@@ -50,14 +56,32 @@ public class UserDeviceMappingController {
 	
 	@ResponseBody
 	@RequestMapping("/get_user_mapping")
-	public ResponseMessage getUserMapping(HttpSession session) {
-		String userId = userService.getCurrentUser(session).getId();
-		List<UserDeviceMapping> list = mappingService.selectByParameters(MyBatisMapUtil.warp("user_id", userId));
-		HashMap<String, Object> map = (HashMap<String, Object>) MapUtil.warp("draw", 1);
-		map.put("recordsTotal", list.size());
-		map.put("data", list);
-		map.put("recordsFiltered", list.size());
-		return ResponseMessage.success(map);
+	public ResponseMessage getUserMapping(String id) {
+		List<UserDeviceMapping> list = mappingService.selectByParameters(MyBatisMapUtil.warp("user_id", id));
+//		HashMap<String, Object> map = (HashMap<String, Object>) MapUtil.warp("draw", 1);
+//		map.put("recordsTotal", list.size());
+//		map.put("data", list);
+//		map.put("recordsFiltered", list.size());
+		return ResponseMessage.success(wrapIntoDTO(list));
 	}
 	
+	private List<UserDeviceMappingDTO> wrapIntoDTO(List<UserDeviceMapping> mappings) {
+		List<UserDeviceMappingDTO> dtos = new ArrayList<UserDeviceMappingDTO>();
+		for (UserDeviceMapping mapping : mappings) {
+			switch(mapping.getType()) {
+			case 3 : {
+				TemperatureDevice device = temDeviceService.selectByPrimaryKey(mapping.getDeviceId());
+				UserDeviceMappingDTO dto = new UserDeviceMappingDTO();
+				dto.setId(mapping.getId());
+				dto.setName(device.getName());
+				dto.setType(mapping.getType());
+				dto.setDeviceNumber(device.getDeviceNumber());
+				dtos.add(dto);
+				break;
+			}
+			default : break;
+			}
+		}
+		return dtos;
+	}
 }
