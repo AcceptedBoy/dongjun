@@ -25,7 +25,7 @@ GPRSModuleService {
 	}
 
 	@Override
-	public Integer isGPRSAvailable(String deviceNumber) {
+	public String isGPRSAvailable(String deviceNumber) {
 		return mapper.isGPRSAvailable(deviceNumber);
 	}
 

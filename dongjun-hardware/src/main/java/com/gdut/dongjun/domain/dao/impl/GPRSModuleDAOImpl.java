@@ -11,7 +11,7 @@ public class GPRSModuleDAOImpl extends SinglePrimaryKeyBaseDAOImpl<GPRSModule>
 		implements GPRSModuleMapper  {
 
 	@Override
-	public Integer isGPRSAvailable(String deviceNumber) {
+	public String isGPRSAvailable(String deviceNumber) {
 		return template.selectOne("isGPRSAvailable", deviceNumber);
 	}
 

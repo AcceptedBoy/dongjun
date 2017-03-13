@@ -5,5 +5,5 @@ import com.gdut.dongjun.service.base.BaseService;
 
 public interface GPRSModuleService extends BaseService<GPRSModule> {
 
-	public Integer isGPRSAvailable(String deviceNumber);
+	public String isGPRSAvailable(String deviceNumber);
 }

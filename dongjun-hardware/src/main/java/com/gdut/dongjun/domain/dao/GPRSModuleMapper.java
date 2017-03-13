@@ -6,6 +6,6 @@ import com.gdut.dongjun.domain.po.GPRSModule;
 public interface GPRSModuleMapper extends
 SinglePrimaryKeyBaseMapper<GPRSModule> {
 
-	public Integer isGPRSAvailable(String deviceNumber);
+	public String isGPRSAvailable(String deviceNumber);
    
 }

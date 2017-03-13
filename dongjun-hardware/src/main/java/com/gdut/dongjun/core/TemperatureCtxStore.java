@@ -44,8 +44,8 @@ public class TemperatureCtxStore extends CtxStore {
 	private static final HashMap<String, Double> upperBound = new HashMap<String, Double>();
 	
 	private static final HashMap<String, Double> lowerBound = new HashMap<String, Double>();
-	
-	private static final HashMap<ChannelHandlerContext, GPRSModule> GPRSMap = new HashMap<ChannelHandlerContext, GPRSModule>();
+	//ChannelHandlerContext和GPRSModule的id的键值对
+	private static final HashMap<ChannelHandlerContext, String> GPRSMap = new HashMap<ChannelHandlerContext, String>();
 	
 	private static Logger logger = Logger.getLogger(TemperatureCtxStore.class);
 	
@@ -110,7 +110,7 @@ public class TemperatureCtxStore extends CtxStore {
 		lowerBound.put(id, device.getMinHitchValue().doubleValue());
 	}
 	
-	public static void addGPRS(ChannelHandlerContext ctx, GPRSModule module) {
+	public static void addGPRS(ChannelHandlerContext ctx, String module) {
 		GPRSMap.put(ctx, module);
 	}
 	
