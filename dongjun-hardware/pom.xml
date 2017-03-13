@@ -4,7 +4,7 @@
 
 	<groupId>com.gdut</groupId>
 	<artifactId>dongjun-hardware</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<version>1.10.1-SNAPSHOT</version>
 
 	<packaging>jar</packaging>
 

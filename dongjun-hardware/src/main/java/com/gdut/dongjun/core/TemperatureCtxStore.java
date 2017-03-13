@@ -1,6 +1,5 @@
 package com.gdut.dongjun.core;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -12,6 +11,8 @@ import com.gdut.dongjun.domain.po.GPRSModule;
 import com.gdut.dongjun.domain.po.TemperatureDevice;
 import com.gdut.dongjun.service.GPRSModuleService;
 import com.gdut.dongjun.service.TemperatureDeviceService;
+
+import io.netty.channel.ChannelHandlerContext;
 
 /**
  * 存储ctx，存储温度传感器报警阈值，存储GPRS
@@ -38,11 +39,11 @@ public class TemperatureCtxStore extends CtxStore {
 		TemperatureCtxStore.gprsService = gprsService;
 	}
 	
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		List<GPRSModule> list = gprsService.selectByParameters(null);
-		GPRSList.addAll(list);
-	}
+//	@Override
+//	public void afterPropertiesSet() throws Exception {
+//		List<GPRSModule> list = gprsService.selectByParameters(null);
+//		GPRSList.addAll(list);
+//	}
 
 	/*
 	 * TODO 线程安全？
@@ -51,7 +52,7 @@ public class TemperatureCtxStore extends CtxStore {
 	
 	private static final HashMap<String, Double> lowerBound = new HashMap<String, Double>();
 	
-	private static final List<GPRSModule> GPRSList = new ArrayList<GPRSModule>();
+	private static final HashMap<ChannelHandlerContext, GPRSModule> GPRSMap = new HashMap<ChannelHandlerContext, GPRSModule>();
 	
 	private static Logger logger = Logger.getLogger(TemperatureCtxStore.class);
 	
@@ -116,24 +117,24 @@ public class TemperatureCtxStore extends CtxStore {
 		lowerBound.put(id, device.getMinHitchValue().doubleValue());
 	}
 	
-	public static synchronized void addGPRS(String id) {
-		GPRSModule gprsModule = gprsService.selectByPrimaryKey(id);
-		if (null != gprsModule) {
-			GPRSList.add(gprsModule);
-		}
-	}
-	
-	public static synchronized void delGPRS(String id) {
-		GPRSModule gprsModule = gprsService.selectByPrimaryKey(id);
-		if (null != gprsModule) {
-			GPRSList.remove(gprsModule);
-		}
-	}
-	
-	public static boolean isGPRSExist(String id) {
-		GPRSModule gprsModule = gprsService.selectByPrimaryKey(id);
-		return GPRSList.contains(gprsModule);
-	}
+//	public static synchronized void addGPRS(String id) {
+//		GPRSModule gprsModule = gprsService.selectByPrimaryKey(id);
+//		if (null != gprsModule) {
+//			GPRSList.add(gprsModule);
+//		}
+//	}
+//	
+//	public static synchronized void delGPRS(String id) {
+//		GPRSModule gprsModule = gprsService.selectByPrimaryKey(id);
+//		if (null != gprsModule) {
+//			GPRSList.remove(gprsModule);
+//		}
+//	}
+//	
+//	public static boolean isGPRSExist(String id) {
+//		GPRSModule gprsModule = gprsService.selectByPrimaryKey(id);
+//		return GPRSList.contains(gprsModule);
+//	}
 	
 	
 }
