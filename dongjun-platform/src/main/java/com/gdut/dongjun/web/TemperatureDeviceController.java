@@ -305,8 +305,12 @@ public class TemperatureDeviceController {
 		dto.setName(deviceService.selectNameById(event.getSwitchId()));
 		dto.setTag(event.getTag());
 		dto.setValue(event.getValue().toString());
-		dto.setMaxHitchValue(event.getMaxHitchValue().toString());
-		dto.setMinHitchValue(event.getMinHitchValue().toString());
+		if (null != event.getMaxHitchValue()) {
+			dto.setMaxHitchValue(event.getMaxHitchValue().toString());
+		}
+		if (null != event.getMinHitchValue()) {
+			dto.setMinHitchValue(event.getMinHitchValue().toString());
+		}
 		return dto;
 	}
 }
