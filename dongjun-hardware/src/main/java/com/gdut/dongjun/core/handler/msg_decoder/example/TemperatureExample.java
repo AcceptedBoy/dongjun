@@ -2,6 +2,12 @@ package com.gdut.dongjun.core.handler.msg_decoder.example;
 
 /**
  * 温度报文例子
+ * 高压 0901遥测变化20字节 
+ * 0902??? 
+ * 09全遥测131字节   
+ * 01全遥信90字节  
+ * 03双点遥信  
+ * 1F双点遥信变位事件
  * @author Gordan_Deng
  * @date 2017年3月13日
  */
