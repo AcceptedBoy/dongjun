@@ -13,14 +13,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.gdut.dongjun.annotation.NeededTest;
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.Company;
 import com.gdut.dongjun.domain.po.PlatformGroup;
 import com.gdut.dongjun.domain.po.TemperatureDevice;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.po.authc.UserRoleKey;
-import com.gdut.dongjun.domain.vo.DeviceForAuthDTO;
+import com.gdut.dongjun.dto.DeviceForAuthDTO;
 import com.gdut.dongjun.service.CompanyService;
 import com.gdut.dongjun.service.PlatformGroupService;
 import com.gdut.dongjun.service.UserService;
@@ -63,7 +62,7 @@ public class CompanyController {
 		if (companyService.updateByPrimaryKey(com) == 0) {
 			return ResponseMessage.warning("操作失败");
 		}
-		return ResponseMessage.success(com.getId());
+		return ResponseMessage.success(com);
 	}
 	
 	@RequiresPermissions("platform_group_admin:delete")

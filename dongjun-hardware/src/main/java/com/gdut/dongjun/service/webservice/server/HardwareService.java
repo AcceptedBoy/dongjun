@@ -105,4 +105,9 @@ public interface HardwareService {
 	@Path("/change_temperature_device")
 	@Consumes({MediaType.APPLICATION_JSON})
 	public void changeTemperatureDevice(String id);
+	
+	@POST
+	@Path("/gprs_module_status")
+	@Consumes({MediaType.APPLICATION_JSON})
+	public List<Integer> getGPRSModuleStatus(List<String> ids);
 }

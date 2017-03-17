@@ -1,4 +1,4 @@
-package com.gdut.dongjun.domain.vo;
+package com.gdut.dongjun.dto;
 
 public class DeviceForAuthDTO {
 

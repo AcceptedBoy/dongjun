@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.gdut.dongjun.annotation.NeededTest;
 import com.gdut.dongjun.domain.model.ErrorInfo;
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.Company;
@@ -205,6 +206,7 @@ public class UserController {
 		return ResponseMessage.success("操作成功");
 	}
 
+	@NeededTest	//TODO
 	@RequestMapping(value = "/dongjun/elecon/company_registry", method = RequestMethod.POST)
 	@ResponseBody
 	@Transactional

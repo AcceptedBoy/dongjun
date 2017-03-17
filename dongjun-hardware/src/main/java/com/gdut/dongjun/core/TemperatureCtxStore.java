@@ -1,5 +1,6 @@
 package com.gdut.dongjun.core;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -7,7 +8,6 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.gdut.dongjun.domain.po.GPRSModule;
 import com.gdut.dongjun.domain.po.TemperatureDevice;
 import com.gdut.dongjun.service.GPRSModuleService;
 import com.gdut.dongjun.service.TemperatureDeviceService;
@@ -116,6 +116,23 @@ public class TemperatureCtxStore extends CtxStore {
 	
 	public static void removeGPRS(ChannelHandlerContext ctx) {
 		GPRSMap.remove(ctx);
+	}
+	
+	/**
+	 * 判断GPRS是否在线
+	 * @param gprsId
+	 * @return
+	 */
+	public static List<Integer> isGPRSAlive(List<String> gprsIds) {
+		List<Integer> results = new ArrayList<Integer>();
+		for (String id : gprsIds) {
+			if (GPRSMap.containsValue(id)) {
+				results.add(1);
+			} else {
+				results.add(0);
+			}
+		}
+		return results;
 	}
 }
 

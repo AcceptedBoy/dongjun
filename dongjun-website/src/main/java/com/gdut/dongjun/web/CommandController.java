@@ -1,7 +1,6 @@
 package com.gdut.dongjun.web;
 
 import java.rmi.RemoteException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
 import com.gdut.dongjun.domain.HighVoltageStatus;
+import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
 import com.gdut.dongjun.service.OperationLogService;
@@ -76,6 +76,30 @@ public class CommandController {
 			return false;
 		}
 	}
+	
+	/*
+	 * 未来改进接口，需要做安全措施，防止脚本刷接口
+	 * 能不能通过注解来做呢？未来的防刷接口都通过这种注解来做。然后如果用户在一段时间里刷
+	 * 一定数量就禁止访问，一段时间内刷超多数量直接禁止用户一段时间访问网站，这个可以通过filter来做。
+	 */
+//	@RequestMapping("/security_confirm")
+//	@ResponseBody
+//	public ResponseMessage securityConfirm(
+//			@RequestParam(required = true) String controlCode,
+//			@RequestParam(required = true) String switchId,
+//			@RequestParam(required = true) int sign,
+//			@RequestParam(required = true) int type,
+//			HttpSession session) {
+//
+//		User u = (User) session.getAttribute("currentUser");
+//
+//		if (controlCode != null && u != null && u.getControlCode() != null
+//				&& controlCode.equals(u.getControlCode())) {
+//			return controlSwitch(switchId, sign, type, u);
+//		} else {
+//			return ResponseMessage.warning("操作码错误");
+//		}
+//	}
 	
 	/**
 	 * TODO
@@ -243,6 +267,30 @@ public class CommandController {
 		}
 		return "success";
 	}
+	
+	/*
+	 * 未来改进的方法，删除control_switch这一个接口
+	 */
+//	private ResponseMessage controlSwitch(
+//			@RequestParam(required = true) String switchId, int sign, int type, User user) {
+//		String address = hardwareClient.getService().getOnlineAddressById(switchId);
+//		String msg = null;
+//		if(sign == 0) { //开
+//			msg = hardwareClient.getService().generateOpenSwitchMessage(address, type);
+//			//msg = hardwareClient.getService().generateOpenSwitchMessage(address);
+//		} else { //合
+//			msg = hardwareClient.getService().generateCloseSwitchMessage(address, type);
+//		}
+//		oLogService.createNewOperationLog(user.getId(), type, switchId);
+//		// 发送报文
+//		if (msg != null) {  
+//
+//			logger.info("发送开合闸报文" + msg);
+//		} else {
+//			return ResponseMessage.danger("系统错误：开关闸报文获取失败");
+//		}
+//		return ResponseMessage.success("操作成功");
+//	}
 	
 	@RequestMapping("/read_voltage")
 	@ResponseBody

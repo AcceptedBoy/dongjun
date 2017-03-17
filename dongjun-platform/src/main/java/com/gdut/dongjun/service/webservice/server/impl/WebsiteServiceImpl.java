@@ -90,7 +90,7 @@ public class WebsiteServiceImpl implements WebsiteService {
 	@Override
 	public void callbackHitchEvent(HitchEventVO event) {
 		LOG.info("报警信息到达，报警设备为" + event.getSwitchId() + "    报警类型为" + event.getType());
-		HitchEventDTO dto = wrapDTO(event);
+		HitchEventDTO dto = wrapIntoDTO(event);
 		List<User> userList = userService.selectByParameters(MyBatisMapUtil.warp("company_id", event.getGroupId()));
 		if (!CollectionUtils.isEmpty(userList)) {
 			for (User user : userList) {
@@ -99,7 +99,7 @@ public class WebsiteServiceImpl implements WebsiteService {
 		}
 	}
 
-	public HitchEventDTO wrapDTO(HitchEventVO vo) {
+	public HitchEventDTO wrapIntoDTO(HitchEventVO vo) {
 		HitchEventDTO d = null;
 		switch (vo.getType()) {
 		case 0: {
