@@ -74,12 +74,8 @@
 <script src="../../js/lib/dataTables/dataTables.tableTools.js"></script>
 <script src="../../js/lib/dataTables/dataTables_initial.js"></script>
 
-<script src="../../js/websocket/sockjs.min.js"></script>
-<script src="../../js/websocket/storm.js"></script>
 <!-- custom -->
 <script src="../../js/lib/dongjun.js"></script>
-</html>
-
 <script>
     dj.createComponent('topBar', {
         templateUrl: '../public/topBar.html'
@@ -95,13 +91,4 @@
 
     dj.componentIn();
 </script>
-
-<script type="text/javascript">
-    var socket = new SockJS("/portfolio");
-    stompClient = Stomp.over(socket);
-    stompClient.connect({}, function(frame) {
-        stompClient.subscribe("/user/queue/subscribe_hitch_event", function(message) {
-            console.log('/queue/subscribe_hitch_event', JSON.parse(message.body))
-        });
-    });
-</script>
+</html>
