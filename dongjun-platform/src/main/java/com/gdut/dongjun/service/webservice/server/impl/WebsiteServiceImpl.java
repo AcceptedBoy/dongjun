@@ -123,6 +123,8 @@ public class WebsiteServiceImpl implements WebsiteService {
 			dto.setName(name);
 			dto.setTag(temEvent.getTag());
 			dto.setValue(temEvent.getValue().doubleValue() + "");
+			dto.setType(returnType(vo.getType()));
+			dto.setGroupId(vo.getGroupId());
 			d = (HitchEventDTO)dto;
 			break;
 		}
