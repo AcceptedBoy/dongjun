@@ -111,9 +111,15 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		logger.info("接收到的报文： " + rowMsg);
 		char[] data = CharUtils.removeSpace(rowMsg.toCharArray());
 		// 验证报文合法性，以及做一些注册的工作
-		if (check(ctx, data)) {
-			handleIdenCode(ctx, data);
-		}
+//		if (check(ctx, data)) {
+//			handleIdenCode(ctx, data);
+//		}
+		TemperatureMeasureHitchEvent event = new TemperatureMeasureHitchEvent(UUIDUtil.getUUID(),
+				"1", new BigDecimal(Double.valueOf("666.66") / 10), 6, "监测温度超过所设阈值",
+				TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"), "1", new Date(),
+				new Date(), new BigDecimal("65.0"), new BigDecimal("64.0"));
+		// 把报警事件塞进线程池
+		hitchEventManager.addHitchEvent(event);
 	}
 
 	private boolean check(ChannelHandlerContext ctx, char[] data) {

@@ -1,5 +1,7 @@
 package com.gdut.dongjun.web;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -151,12 +153,26 @@ public class UserController {
 
 	@RequestMapping("/islogin")
 	@ResponseBody
-	public String isLogin(HttpSession session) {
+	public HashMap<String, Object> isLogin(HttpSession session) {
 		User user = (User) session.getAttribute("currentUser");
+		HashMap<String, Object> map = new HashMap<String, Object>();
 		if (user == null) {
-			return "false";
+			map.put("isLogin", "false");
+			return map;
 		}
-		return "true";
+		map.put("isLogin", "false");
+		if (null != session.getAttribute("currentRoles")) {
+			map.put("currentRoles", session.getAttribute("currentRoles"));
+		} else {
+			List<Role> roles = roleService.selectByUserId(user.getId());
+			List<String> roleName = new ArrayList<String>();
+			for (Role r : roles) {
+				roleName.add(r.getRole());
+			}
+			session.setAttribute("currentRoles", roleName);
+			map.put("currentRoles", roleName);
+		}
+		return map;
 	}
 
 	/**
@@ -249,11 +265,10 @@ public class UserController {
 	}
 
 	@RequiresAuthentication
-	@RequestMapping("/dongjun/user/imformation")
+	@RequestMapping("/dongjun/user/information")
 	@ResponseBody
-	public ResponseMessage getPersonalImformation() {
-		// TODO
-		return null;
+	public ResponseMessage getPersonalImformation(HttpSession session) {
+		return ResponseMessage.success(session.getAttribute("currentUser"));
 	}
 
 	@RequiresAuthentication
