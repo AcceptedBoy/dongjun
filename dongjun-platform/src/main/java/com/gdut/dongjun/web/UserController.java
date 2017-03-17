@@ -160,7 +160,7 @@ public class UserController {
 			map.put("isLogin", "false");
 			return map;
 		}
-		map.put("isLogin", "false");
+		map.put("isLogin", "true");
 		if (null != session.getAttribute("currentRoles")) {
 			map.put("currentRoles", session.getAttribute("currentRoles"));
 		} else {
