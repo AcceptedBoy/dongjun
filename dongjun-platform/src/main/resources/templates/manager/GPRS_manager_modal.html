@@ -138,7 +138,7 @@
 					success: function(res) {
 						if(res.success) {
 							completeFnc()
-							modal.modal('hide')
+							$('#edit_GPRS_modal').modal('hide')
 						} else {
 							alert(res.errors.message)
 						}

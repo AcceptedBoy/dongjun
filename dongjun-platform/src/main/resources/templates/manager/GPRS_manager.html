@@ -8,6 +8,7 @@
     <td>地址</td>
     <td>逻辑地址</td>
     <td>当前状态</td>
+    <td>是否开启</td>
     <td>修改</td>
     <td>删除</td>
   </thead>
@@ -68,6 +69,10 @@
               'orderable': false
             },
             {
+              'data': 'status',
+              'render': this.renderStatus
+            },
+            {
               'data': 'available',
               'render': this.renderAvailable
             },
@@ -124,10 +129,16 @@
       redraw: function() {
         table.ajax.reload();
       },
-      renderAvailable: function(data, type, row) {
+      renderStatus: function(data, type, row) {
         var statusColor = ['#F60E0E', '#03CC00'],
-            statusDesc = ['不可用', '可用']
+            statusDesc = ['离线', '在线']
         return '<span style="color: ' + statusColor[+data] + '">'+ statusDesc[+data] +'</span>'
+      },
+      renderAvailable: function(data) {
+        data = data ? 1 : 0
+        var statusColor = ['#F60E0E', '#03CC00'],
+            statusDesc = ['未开启', '已开启']
+        return '<span style="color: ' + statusColor[data] + '">'+ statusDesc[data] +'</span>'
       }
     }
   }()
