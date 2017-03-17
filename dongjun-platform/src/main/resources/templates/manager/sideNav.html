@@ -5,9 +5,6 @@
     <li><a href="#line_manager">公司管理</a></li>
     <li><a href="#equipment_manager">设备管理</a></li>
     <li class="nav-header">设备管理</li>
-    <li><a href="#low_voltage">低压开关管理</a></li>
-    <li><a href="#high_voltage">高压开关管理</a></li>
-    <li><a href="#control_measure">无功补偿开关管理</a></li>
     <li><a href="#temperature_look">温度监控</a></li>
     <li class="nav-header">GPRS管理</li>
     <li><a href="#GPRS_manager">GPRS管理</a></li>
@@ -37,8 +34,8 @@
         document.getElementsByTagName('head')[0].appendChild(link)
       }
     }()
-    // 根据地址高亮左边栏按钮, 默认'low_voltage'
-    $('a[href*=#' + (location.href.split('#')[1] || 'low_voltage')+']').addClass('btn-success')
+    // 根据地址高亮左边栏按钮, 默认'temperature_look'
+    $('a[href*=#' + (location.href.split('#')[1] || 'temperature_look')+']').addClass('btn-success')
 
     // 点击时改变高亮按钮
     var navLinks = $('#sideNav').find('a')
@@ -49,7 +46,7 @@
 
     var router = new dj.Router()
     router.start({
-      '': loadLow,
+      '': loadTemperature,
       'low_voltage': loadLow,
       'high_voltage': loadHigh,
       'control_measure': loadControlMeasure,
@@ -125,10 +122,11 @@
         })
       })
     }
-
     function loadGPRSManager() {
       dj.inserCmp('GPRS_manager.html', $('.container')[0], function() {
-        dj.inserCmp('GPRS_manager_modal.html', $('.modal')[0])
+        if(roles.currentRole.indexOf('super_admin') != -1) {
+          dj.inserCmp('GPRS_manager_modal.html', $('.modal')[0])
+        }
       })
     }
   })()
