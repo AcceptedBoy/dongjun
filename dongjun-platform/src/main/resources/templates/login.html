@@ -95,6 +95,24 @@
 				</div>
 			</div>
 			<div class="control-group">
+				<label class="control-label" for="phoneNumber">手机号码</label>
+				<div class="controls">
+					<input type="text" id="phoneNumber" name="phoneNumber" />
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="personalEmail">电子邮件</label>
+				<div class="controls">
+					<input type="text" id="personalEmail" name="personalEmail" />
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="adress">住址</label>
+				<div class="controls">
+					<textarea id="adress" name="adress" rows="3" cols="20"></textarea>
+				</div>
+			</div>
+			<div class="control-group">
 				<label class="control-label" for="registerPassword">密码</label>
 				<div class="controls">
 					<input type="password" id="registerPassword" name="password" maxLength="16" /><i class="icon-search" style="cursor:pointer;position:relative;left:-7%;" onmousedown="registerObj.showPassWord($('#registerPassword'))" onmouseup="registerObj.hidePassWord($('#registerPassword'))"></i>
@@ -122,7 +140,7 @@
 		<div class="modal-footer">
 			<button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
      		<button id="register_confirm_btn" class="btn btn-primary"
-             data-dismiss="modal" aria-hidden="true" onclick="registerObj.registerWorker($('#registerName').val(), $('#realName').val(), $('#registerPassword').val(), $('#controlCode').val(), this)">确认</button>
+             data-dismiss="modal" aria-hidden="true" onclick="registerObj.registerWorker($('#registerName').val(), $('#realName').val(), $('#registerPassword').val(), $('#controlCode').val(), $('#phoneNumber').val(), $('#personalEmail').val(), $('#adress').val(), this)">确认</button>
 		</div>
 	
 	</div>

@@ -6,27 +6,33 @@
           <span class="label label-default">1.10</span>
 			</h2>
 		</div>
-		<div class="span6 menu" style="padding-top: 20px;">
-			<a href="../monitor/index.html" class="btn banner-btn btn-primary"><i class="fa fa-map-marker"></i>监控</a>
-      <a href="../manager/index.html" class="btn banner-btn btn-primary"><i class="fa fa-cog"></i>管理</a>
-      <a href="../event/index.html" class="btn banner-btn btn-primary" id="event"><i class="fa fa-user"></i>事件</a>
-      <a href="../log/index.html" class="btn banner-btn btn-primary"><i class="fa fa-list-alt"></i>日志</a>
+		<div id="topBarNav" class="span5 menu" style="padding-top: 20px;">
+				<a href="../monitor/index.html" class="btn banner-btn btn-primary"><i class="fa fa-map-marker"></i>监控</a>
+	      <a href="../manager/index.html" class="btn banner-btn btn-primary"><i class="fa fa-cog"></i>管理</a>
+	      <a href="../event/index.html" class="btn banner-btn btn-primary" id="event"><i class="fa fa-user"></i>事件</a>
+	      <a href="../log/index.html" class="btn banner-btn btn-primary"><i class="fa fa-list-alt"></i>日志</a>
 		</div>
-    <div class="span1 log_out">
-        <button class="btn btn-danger" onclick="logOut()">退出</button>
+    <div class="span2 log_out">
+    	<button class="btn rankBtn" onclick="goRank()">权限</button>
+      <button class="btn btn-danger" onclick="logOut()">退出</button>
     </div>
 	</div>
 </div>
 <script>
+	var roles = {};
+	
 	(function(){
-
 		$.ajax({
 			url: '/islogin',
 			type: 'POST',
 			async: false,
 			success: function(res) {
-				if(res == 'false' || res == false) {
-					location.href = '/dongjun/login'
+				if(res) {
+					if(res.isLogin == 'false') {
+						location.href = '/dongjun/login'
+					} else {
+						roles.currentRole = res.currentRoles
+					}
 				}
 			},
 			error: function(res) {
@@ -35,7 +41,7 @@
 		})
 
 		var navPaths = [];
-		var links = $('.span6.menu').find('a');
+		var links = $('#topBarNav').find('a');
 		links = Array.prototype.slice.call(links);
 		links.forEach(function(item) {
 			var path = item.href;
@@ -54,6 +60,10 @@
 				location.href = '/dongjun/login'
 			}
 		})
+	}
+
+	function goRank() {
+		location.href = '../rank/index.html'
 	}
 
 	dj.jsLoad('../../js/public/realTimeNotice.js')

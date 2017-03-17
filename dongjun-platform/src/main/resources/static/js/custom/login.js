@@ -71,23 +71,39 @@ var registerObj = function() {
 	return {
 		companyId: '',
 		companyList: [],
-		registerWorker: function(name, realName, password, controlCode, self) {
+		mergeKey: function(obj, keyName, val) {
+			if(val && Object.prototype.toString.call(keyName) == '[object String]') {
+				obj[keyName] = val
+			}
+		},
+		registerWorker: function(name, realName, password, controlCode, phoneNumber, personalEmail, adress, self) {
 			var that = this;
-			if(name && password && controlCode && realName) {
+			if(name && password && controlCode && realName && phoneNumber) {
 				if(this.testContent([name, password, controlCode], [realName], [])) {
 					if($('#registerPassword').val() == $('#registerPasswordConfirm').val()) {
 						if(this.companyId) {
+							var params = {
+								name: name,
+								realName: realName,
+								password: password,
+								controlCode: controlCode,
+								companyId: that.companyId,
+								phone: phoneNumber,
+							}
+							that.mergeKey(params, 'email', personalEmail)
+							that.mergeKey(params, 'adress', adress)
 							$(self).attr('data-dismiss', 'modal');
 							$.ajax({
 								type: 'POST',
 								url: '/dongjun/elecon/user_registy',
-								data: {
-									name: name,
-									realName: realName,
-									password: password,
-									controlCode: controlCode,
-									companyId: that.companyId      // '001'
-								},
+								// data: {
+								// 	name: name,
+								// 	realName: realName,
+								// 	password: password,
+								// 	controlCode: controlCode,
+								// 	companyId: that.companyId      // '001'
+								// },
+								data: params,
 								success: function(res) {
 									alert('注册成功！');
 								},

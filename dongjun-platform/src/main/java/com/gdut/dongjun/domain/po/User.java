@@ -288,4 +288,11 @@ public class User {
     public void setCompanyId(String companyId) {
         this.companyId = companyId;
     }
+
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", name=" + name + ", password=" + password + ", realName=" + realName
+				+ ", controlCode=" + controlCode + ", phone=" + phone + ", email=" + email + ", address=" + address
+				+ ", companyId=" + companyId + "]";
+	}
 }

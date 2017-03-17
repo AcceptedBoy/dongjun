@@ -268,6 +268,7 @@ public class UserController {
 	@RequestMapping("/dongjun/user/information")
 	@ResponseBody
 	public ResponseMessage getPersonalImformation(HttpSession session) {
+		System.out.println(((User)(session.getAttribute("currentUser"))).toString());
 		return ResponseMessage.success(session.getAttribute("currentUser"));
 	}
 

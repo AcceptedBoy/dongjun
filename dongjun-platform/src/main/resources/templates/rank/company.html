@@ -1,0 +1,79 @@
+<div class='companyContainer'>
+	<div class="group companyName">
+		<span class="title">公司名称：</span>
+		<span class="value"></span>
+	</div>
+	<div class="group companyAdress">
+		<span class="title">公司地址：</span>
+		<span class="value"></span>
+	</div>
+	<div class="group companyStaff">
+		<span class="title">创始人：</span>
+		<span class="value"></span>
+	</div>
+	<div class="group phone">
+		<span class="title">公司座机：</span>
+		<span class="value"></span>
+	</div>
+	<div class="group email">
+		<span class="title">公司邮箱：</span>
+		<span class="value"></span>
+	</div>
+	<div class="group companyInfor">
+		<span class="title">公司介绍：</span>
+		<span class="value"></span>
+	</div>
+	<!-- 写一个修改按钮 -->
+	<!-- <button class="edit_btn btn">edit</button> -->
+</div>
+
+<script>
+	var showCompany = function() {
+		var urls = {}
+
+		return {
+			init: function(o) {
+				urls = {
+					getUrl: o.getUrl
+				}
+			},
+			renderCompany: function() {
+				//ajax 
+				$.ajax({
+					url: urls.getUrl,
+					type: 'POST',
+					data: {},
+					success: function(res) {
+						if(res.success) {
+							var company = res.text
+							$('.companyName').children('.value').text(company.name)
+							$('.companyAdress').children('.value').text(company.address)
+							$('.companyStaff').children('.value').text(company.mainStaff)
+							$('.companyInfor').children('.value').text(company.description)
+							$('.phone').children('.value').text(company.phone)
+							$('.email').children('.value').text(company.email)
+							// 写得比较弱智，对不起了
+							try {
+								companyModal.init({
+									editUrl: '/dongjun/company/edit'
+								}, company.id)
+							} catch(e) {
+								console.log('员工信息')
+							}
+						}
+					}
+				})
+			},
+			setCompany: function(data) {
+				$('.companyName').children('.value').text(data.name)
+				$('.companyAdress').children('.value').text(data.adress)
+				$('.companyStaff').children('.value').text(data.staff)
+				$('.phone').children('.value').text(data.phone)
+				$('.email').children('.value').text(data.email)
+				$('.companyInfor').children('.value').text(data.infor)
+			}
+		}
+	}()
+
+	// showCompany.renderCompany()
+</script>
