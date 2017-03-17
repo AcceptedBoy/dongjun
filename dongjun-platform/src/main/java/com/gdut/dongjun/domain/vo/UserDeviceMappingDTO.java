@@ -9,6 +9,8 @@ public class UserDeviceMappingDTO {
 	private Integer type;
 	
 	private String deviceNumber;
+	
+	private String deviceType;
 
 	public String getId() {
 		return id;
@@ -40,6 +42,14 @@ public class UserDeviceMappingDTO {
 
 	public void setDeviceNumber(String deviceNumber) {
 		this.deviceNumber = deviceNumber;
+	}
+
+	public String getDeviceType() {
+		return deviceType;
+	}
+
+	public void setDeviceType(String deviceType) {
+		this.deviceType = deviceType;
 	}
 	
 	

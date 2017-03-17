@@ -70,6 +70,7 @@ public class UserDeviceMappingController {
 				dto.setName(device.getName());
 				dto.setType(mapping.getType());
 				dto.setDeviceNumber(device.getDeviceNumber());
+				dto.setDeviceType(returnType(3));
 				dtos.add(dto);
 				break;
 			}
@@ -77,5 +78,18 @@ public class UserDeviceMappingController {
 			}
 		}
 		return dtos;
+	}
+	
+	
+	private final String TEMPERATURE_DEVICE = "温度设备";
+	private String returnType(Integer i) {
+		if (null == i) {
+			return null;
+		}
+		switch(i) {
+		case 3 : return TEMPERATURE_DEVICE;
+		default : break;
+		}
+		return null;
 	}
 }

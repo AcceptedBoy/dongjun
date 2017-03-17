@@ -275,8 +275,13 @@ public class UserController {
 	@RequestMapping("/dongjun/user/edit")
 	@ResponseBody
 	public ResponseMessage editUser(User user) {
-		// TODO
-		return null;
+		if (null == user.getId()) {
+			return ResponseMessage.warning("操作失败");
+		}
+		if (0 == userService.updateByPrimaryKey(user)) {
+			return ResponseMessage.warning("操作失败");
+		}
+		return ResponseMessage.success(user);
 	}
 
 	@RequiresRoles("platform_group_admin")
