@@ -119,6 +119,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 				TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"), "1", new Date(),
 				new Date(), new BigDecimal("65.0"), new BigDecimal("64.0"));
 		// 把报警事件塞进线程池
+		event.setType(3);
 		hitchEventManager.addHitchEvent(event);
 	}
 
@@ -434,6 +435,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 						device.getId(), new BigDecimal(Double.valueOf(value[i - 1]) / 10), i, "监测温度超过所设阈值",
 						TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"), device.getGroupId(), new Date(),
 						new Date(), device.getMaxHitchValue(), device.getMinHitchValue());
+				event.setType(3);
 				// 把报警事件塞进线程池
 				hitchEventManager.addHitchEvent(event);
 			}
