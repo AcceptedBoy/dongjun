@@ -45,7 +45,7 @@ public class UserDeviceMappingController {
 		if (!mappingService.deleteByPrimaryKey(id)) {
 			return ResponseMessage.warning("操作失败");
 		}
-		return ResponseMessage.success("操作成功");
+		return ResponseMessage.success("操作成功"); 
 	}
 	
 	@ResponseBody

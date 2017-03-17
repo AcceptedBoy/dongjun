@@ -274,13 +274,14 @@ public class UserController {
 	@RequiresAuthentication
 	@RequestMapping("/dongjun/user/edit")
 	@ResponseBody
-	public ResponseMessage editUser(User user) {
+	public ResponseMessage editUser(User user, HttpSession session) {
 		if (null == user.getId()) {
 			return ResponseMessage.warning("操作失败");
 		}
 		if (0 == userService.updateByPrimaryKey(user)) {
 			return ResponseMessage.warning("操作失败");
 		}
+		session.setAttribute("currentUser", user);
 		return ResponseMessage.success(user);
 	}
 
