@@ -123,10 +123,12 @@
       })
     }
     function loadGPRSManager() {
-      dj.inserCmp('GPRS_manager.html', $('.container')[0], function() {
-        if(roles.currentRole.indexOf('super_admin') != -1) {
-          dj.inserCmp('GPRS_manager_modal.html', $('.modal')[0])
-        }
+      dj.jsLoad('/js/manager/clickManager.js', function() {
+        dj.inserCmp('GPRS_manager.html', $('.container')[0], function() {
+          if(roles.currentRole.indexOf('super_admin') != -1) {
+            dj.inserCmp('GPRS_manager_modal.html', $('.modal')[0])
+          }
+        })
       })
     }
   })()

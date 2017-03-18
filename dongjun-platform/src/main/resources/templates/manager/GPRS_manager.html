@@ -1,4 +1,12 @@
 <div class="form-inline">
+  <div class="form-group span3">
+    <label class="span3">组别:</label>
+    <select class="groups span9"></select>
+  </div>
+  <div class="form-group span3">
+    <label class="span3">公司:</label>
+    <select class='platforms span9'></select>
+  </div>
   <div class="form-group span5" id="control-btns">
   </div>
 </div>
@@ -57,6 +65,7 @@
             'url': defUrl,
             'type': 'POST',
             'dataSrc': 'text',
+            'data': o.data
           },
           'columns': [
             { 'data': 'name' },
@@ -126,7 +135,12 @@
           }
         })
       },
-      redraw: function() {
+      redraw: function(id) {
+        table.ajax.url(defUrl);
+        var param = {
+          platformId: id
+        };
+        table.settings()[0].ajax.data = param;
         table.ajax.reload();
       },
       renderStatus: function(data, type, row) {
@@ -143,8 +157,23 @@
     }
   }()
 
+  selectManager.setOption({
+    url: {},
+    node: {
+      group: '.groups',
+      company: '.platforms'
+    },
+    completeFnc: managerTable.redraw
+  })
+
+  selectManager.loadGroups()
+  selectManager.autoListen()
+
   managerTable.init({
-    url: '/dongjun/gprs/company_gprs', // /dongjun/gprs/company_gprs
+    url: '/dongjun/gprs/list', // /dongjun/gprs/list
+    data: {
+      platformId: $('.platforms').val()
+    }
   })
 
 </script>
