@@ -268,8 +268,8 @@ public class UserController {
 	@RequestMapping("/dongjun/user/information")
 	@ResponseBody
 	public ResponseMessage getPersonalImformation(HttpSession session) {
-		System.out.println(((User)(session.getAttribute("currentUser"))).toString());
-		return ResponseMessage.success(session.getAttribute("currentUser"));
+		User user = userService.selectByPrimaryKey(((User)session.getAttribute("currentUser")).getId());
+		return ResponseMessage.success(user);
 	}
 
 	@RequiresAuthentication
@@ -282,7 +282,6 @@ public class UserController {
 		if (0 == userService.updateByPrimaryKey(user)) {
 			return ResponseMessage.warning("操作失败");
 		}
-		session.setAttribute("currentUser", user);
 		return ResponseMessage.success(user);
 	}
 

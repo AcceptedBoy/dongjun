@@ -78,8 +78,8 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 	 * @return
 	 */
 	@Override
-	public List<ZTreeNode> getSwitchTree(String companyId) {
-		List<PlatformGroup> pgList = pgService.selectByParameters(MyBatisMapUtil.warp("company_id", companyId));
+	public List<ZTreeNode> getSwitchTree(String pgId) {
+		List<PlatformGroup> pgList = pgService.selectByParameters(MyBatisMapUtil.warp("id", pgId));
 		return wrap(pgList, null);
 	}
 	

@@ -105,7 +105,7 @@
 						if(!res.success) {
 							alert(res.errors.message)
 						} else {
-							completeFnc()
+							completeFnc(selectManager.getCompany())
 							alert('删除成功')
 						}
 					},
@@ -131,13 +131,15 @@
 				if(!isAdd) {
 					data.id = now.id
 				}
+				// groupId 对应为 公司id
+				data.groupId = selectManager.getCompany()
         $.ajax({
 					url: urls.edit,
 					type: 'POST',
 					data: data,
 					success: function(res) {
 						if(res.success) {
-							completeFnc()
+							completeFnc(data.groupId)
 							$('#edit_GPRS_modal').modal('hide')
 						} else {
 							alert(res.errors.message)

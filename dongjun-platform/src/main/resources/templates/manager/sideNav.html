@@ -123,7 +123,7 @@
       })
     }
     function loadGPRSManager() {
-      dj.jsLoad('/js/manager/clickManager.js', function() {
+      dj.jsLoad('/js/manager/selectManager.js', function() {
         dj.inserCmp('GPRS_manager.html', $('.container')[0], function() {
           if(roles.currentRole.indexOf('super_admin') != -1) {
             dj.inserCmp('GPRS_manager_modal.html', $('.modal')[0])

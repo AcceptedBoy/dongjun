@@ -1,6 +1,7 @@
 package com.gdut.dongjun.web;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
@@ -10,7 +11,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.gdut.dongjun.annotation.NeededTest;
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.GPRSModule;
 import com.gdut.dongjun.domain.po.PlatformGroup;
@@ -39,13 +39,28 @@ public class GPRSModuleController {
 	@ResponseBody
 	@RequestMapping("/edit")
 	public ResponseMessage edit(GPRSModule gprs) {
-		if (null != gprs.getId()) {
+		if (null == gprs.getId()) {
 			gprs.setId(UUIDUtil.getUUID());
+			gprs.setAvailable(true);
+			if (0 == 	gprsService.updateByPrimaryKey(gprs)) {
+				return ResponseMessage.warning("操作失败");
+			} else {
+				return ResponseMessage.success("操作成功");
+			}
+		} else {
+			if (0 == 	gprsService.updateByPrimaryKeySelective(gprs)) {
+				return ResponseMessage.warning("操作失败");
+			} else {
+				return ResponseMessage.success("操作成功");
+			}
 		}
-		if (0 == 	gprsService.updateByPrimaryKey(gprs)) {
-			return ResponseMessage.warning("操作失败");
-		}
-		return ResponseMessage.success("操作成功");
+	}
+	
+	@ResponseBody
+	@RequestMapping("/list")
+	public ResponseMessage lisGPRSModule(String platformId) {
+		List<GPRSModule> modules = gprsService.selectByParameters(MyBatisMapUtil.warp("group_id", platformId));
+		return ResponseMessage.success(wrapIntoDTO(modules));
 	}
 	
 	@ResponseBody
@@ -57,7 +72,6 @@ public class GPRSModuleController {
 		return ResponseMessage.success("操作成功");
 	}
 	
-	@NeededTest //TODO
 	@ResponseBody
 	@RequestMapping("/company_gprs")
 	public ResponseMessage getCompanyGPRS(HttpSession session) {
@@ -67,7 +81,6 @@ public class GPRSModuleController {
 		return ResponseMessage.success(wrapIntoDTO(list));
 	}
 	
-	@NeededTest
 	private List<GPRSModuleDTO> wrapIntoDTO(List<GPRSModule> list) {
 		List<GPRSModuleDTO> dtos = new ArrayList<GPRSModuleDTO>();
 		List<String> ids = new ArrayList<String>();
@@ -75,7 +88,9 @@ public class GPRSModuleController {
 		for (GPRSModule gprs : list) {
 			ids.add(gprs.getId());
 		}
-		status = hardwareServiceClient.getService().getGPRSModuleStatus(ids);
+		
+			status = hardwareServiceClient.getService().getGPRSModuleStatus(ids);
+
 		int i = 0;
 		for (GPRSModule gprs : list) {
 			GPRSModuleDTO dto = new GPRSModuleDTO(gprs, status.get(i));
@@ -83,6 +98,22 @@ public class GPRSModuleController {
 			i++;
 		}
 		return dtos;
+	}
+	
+	@RequestMapping("/addgprs")
+	@ResponseBody
+	public String add() {
+		GPRSModule module = new GPRSModule();
+		module.setAddress("156");
+		module.setAddress("1");
+		module.setDeviceNumber("156");
+		module.setGmtCreate(new Date());
+		module.setGmtModified(new Date());
+		module.setGroupId("1");
+		module.setId("testid");
+		module.setName("156Name");
+		gprsService.insert(module);
+		return "add!!";
 	}
 	
 }

@@ -43,12 +43,14 @@ public class TemperatureChartData extends ChartData {
 				set.add(measure.getDate());
 			}
 		}
-		//没有数据即返回
-		if (CollectionUtils.isEmpty(set)) {
-			return null;
-		}
+		
 		timeList.addAll(set);
 		Collections.sort(timeList);
+		
+		//没有数据即返回
+		if (CollectionUtils.isEmpty(timeList)) {
+			return null;
+		}
 		Iterator i = null;
 		Iterator j = null;
 		Timestamp i_time = null;
@@ -91,7 +93,9 @@ public class TemperatureChartData extends ChartData {
 					count++;
 				} else {
 					//没有该时间点的设备，其测量值设为空值。可改
-					chartValue.add(null);
+					if (chartValue.size() != 0) {
+						chartValue.add(chartValue.get(chartValue.size() - 1));
+					}
 				}
 			}
 			chaseData.setData(chartValue);
