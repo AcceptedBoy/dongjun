@@ -162,4 +162,7 @@
 			</foreach>
 		</if>
 	</select>
+		<select id="isGPRSAvailable" parameterType="java.lang.String" resultType="java.lang.String">
+		select id from gprs_module where device_number = #{deviceNumber} and available = 1
+	</select>
 </mapper>

@@ -97,6 +97,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		if (gprs != null) {
 			// 从CtxStore中取出当前ChannelHandlerContext
 			CtxStore.remove(ctx);
+			TemperatureCtxStore.removeGPRS(ctx);
 			if (gprs.getId() != null) {
 				TemperatureDevice device = deviceService.selectByPrimaryKey(gprs.getId());
 				device.setOnlineTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
@@ -111,16 +112,9 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		logger.info("接收到的报文： " + rowMsg);
 		char[] data = CharUtils.removeSpace(rowMsg.toCharArray());
 		// 验证报文合法性，以及做一些注册的工作
-//		if (check(ctx, data)) {
-//			handleIdenCode(ctx, data);
-//		}
-		TemperatureMeasureHitchEvent event = new TemperatureMeasureHitchEvent(UUIDUtil.getUUID(),
-				"1", new BigDecimal(Double.valueOf("666.66") / 10), 6, "监测温度超过所设阈值",
-				TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"), "1", new Date(),
-				new Date(), new BigDecimal("65.0"), new BigDecimal("64.0"));
-		// 把报警事件塞进线程池
-		event.setType(3);
-		hitchEventManager.addHitchEvent(event);
+		if (check(ctx, data)) {
+			handleIdenCode(ctx, data);
+		}
 	}
 
 	private boolean check(ChannelHandlerContext ctx, char[] data) {
@@ -158,8 +152,8 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		/*
 		 * GPRSModule是否通过
 		 */
-		if (1 != attr.get()) {
-			logger.info("非法GPRS数据" + gprsAddress);
+		if (null == attr.get()) {
+			logger.info("未认证GPRS数据" + CharUtils.newString(data));
 //			return false;
 			return true;	//此功能有待上线
 		}
@@ -428,11 +422,11 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 					new Timestamp(System.currentTimeMillis()), i, Integer.parseInt(value[i - 1], 16) * 10 + ""));
 			doSaveMeasure0(value[i - 1], deviceId, i);
 			// 插入报警数据
-			if (TemperatureCtxStore.isAboveBound(deviceId, Double.valueOf(value[i - 1]) / 10)) {
+			if (TemperatureCtxStore.isAboveBound(deviceId, Double.valueOf("" + Integer.parseInt(value[i - 1], 16)) / 10)) {
 				TemperatureDevice device = deviceService.selectByPrimaryKey(deviceId);
 				// TODO 其实报警事事件应该是时间戳中的时间
 				TemperatureMeasureHitchEvent event = new TemperatureMeasureHitchEvent(UUIDUtil.getUUID(),
-						device.getId(), new BigDecimal(Double.valueOf(value[i - 1]) / 10), i, "监测温度超过所设阈值",
+						device.getId(), new BigDecimal(Double.valueOf("" + Integer.parseInt(value[i - 1], 16)) / 10), i, "监测温度超过所设阈值",
 						TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"), device.getGroupId(), new Date(),
 						new Date(), device.getMaxHitchValue(), device.getMinHitchValue());
 				event.setType(3);

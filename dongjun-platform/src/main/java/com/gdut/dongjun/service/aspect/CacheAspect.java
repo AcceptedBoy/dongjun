@@ -3,7 +3,9 @@ package com.gdut.dongjun.service.aspect;
 import javax.annotation.Resource;
 
 import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.gdut.dongjun.domain.po.TemperatureDevice;
 import com.gdut.dongjun.service.CompanyService;
@@ -52,6 +54,12 @@ public class CacheAspect {
     @After("execution(* com.gdut.dongjun.service.base.impl.BaseServiceImpl+.updateByPrimaryKey(*))"
     		+ " && target(com.gdut.dongjun.service.impl.TemperatureDeviceServiceImpl)")
     public void updateCacheForUpdateTemperatureDevice(TemperatureDevice device) {
+    	hardwareServiceClient.getService().changeTemperatureDevice(device.getId());
+    }
+    
+    @After("execution(* com.gdut.dongjun.service.base.impl.BaseServiceImpl+.insert(*))"
+    		+ " && target(com.gdut.dongjun.service.impl.TemperatureDeviceServiceImpl)")
+    public void insertCacheForUpdateTemperatureDevice(TemperatureDevice device) {
     	hardwareServiceClient.getService().changeTemperatureDevice(device.getId());
     }
     

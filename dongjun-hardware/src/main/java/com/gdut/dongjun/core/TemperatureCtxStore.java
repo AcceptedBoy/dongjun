@@ -106,6 +106,9 @@ public class TemperatureCtxStore extends CtxStore {
 			logger.info("TemService is null!");
 		}
 		TemperatureDevice device = deviceService.selectByPrimaryKey(id);
+		if (null == device) {
+			return ;
+		}
 		upperBound.put(id, device.getMaxHitchValue().doubleValue());
 		lowerBound.put(id, device.getMinHitchValue().doubleValue());
 	}

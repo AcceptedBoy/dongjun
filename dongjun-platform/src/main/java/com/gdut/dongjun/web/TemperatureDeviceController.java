@@ -31,6 +31,7 @@ import com.gdut.dongjun.dto.TemperatureMeasureHitchEventDTO;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.device.TemperatureDeviceService;
 import com.gdut.dongjun.service.device.event.TemperatureMeasureHitchEventService;
+import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 import com.gdut.dongjun.util.ClassLoaderUtil;
 import com.gdut.dongjun.util.DownloadAndUploadUtil;
 import com.gdut.dongjun.util.MapUtil;
@@ -47,6 +48,8 @@ public class TemperatureDeviceController {
 	private UserService userService;
 	@Autowired
 	private TemperatureMeasureHitchEventService eventService;
+	@Autowired
+	private HardwareServiceClient hardwareServiceClient;
 	
 	private static final Logger logger = Logger.getLogger(TemperatureDeviceController.class);
 
@@ -185,6 +188,8 @@ public class TemperatureDeviceController {
 			e.printStackTrace();
 			return ResponseMessage.danger("修改温度路由器失败");
 		}
+		//更新硬件系统温度上下限
+		hardwareServiceClient.getService().changeTemperatureDevice(device.getId());
 		return new ResponseMessage(ResponseMessage.Type.SUCCESS, device.getGroupId(), true);
 	}
 

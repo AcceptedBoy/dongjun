@@ -57,6 +57,7 @@ public class TemperatureChartData extends ChartData {
 		Timestamp j_time = null;
 		
 		for (Entry<String, Object> entry : data.entrySet()) {
+			int flag = 1;
 			ChaseData chaseData = null;
 			if (!NumberUtil.isNumeric(entry.getKey())) {
 				chaseData = new ChaseData(entry.getKey());
@@ -71,7 +72,7 @@ public class TemperatureChartData extends ChartData {
 			j = measureList.iterator();
 			
 			if (!j.hasNext()) {
-				continue;
+				flag = 0;
 			}
 			j_time = ((TemperatureMeasure)j.next()).getDate();
 			int count = 0;
@@ -82,19 +83,21 @@ public class TemperatureChartData extends ChartData {
 					//如果完整的时间集合遍历完毕，则退出
 					break;
 				}
-				if (i_time.getTime() == j_time.getTime()) {
+				if (flag == 1 && i_time.getTime() == j_time.getTime()) {
 					chartValue.add(getFloatValue(Integer.valueOf(measureList.get(count).getValue())));
 					if (j.hasNext()) {
 						j_time = ((TemperatureMeasure)j.next()).getDate();
 					} else {
-						//时间集合遍历完毕，退出
-						break;
+						//时间集合遍历完毕，设置标志位为0
+						flag = 0;
 					}
 					count++;
 				} else {
-					//没有该时间点的设备，其测量值设为空值。可改
+					//没有该时间点的设备，其测量值设为前一个值，如果没有就设为空
 					if (chartValue.size() != 0) {
 						chartValue.add(chartValue.get(chartValue.size() - 1));
+					} else {
+						chartValue.add(null);
 					}
 				}
 			}
