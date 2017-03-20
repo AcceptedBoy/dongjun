@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -21,6 +22,7 @@ import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
@@ -34,17 +36,25 @@ import com.gdut.dongjun.annotation.NeededTest;
 import com.gdut.dongjun.domain.model.ErrorInfo;
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.Company;
+import com.gdut.dongjun.domain.po.PersistentHitchMessage;
 import com.gdut.dongjun.domain.po.PlatformGroup;
+import com.gdut.dongjun.domain.po.TemperatureMeasureHitchEvent;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.po.authc.Role;
 import com.gdut.dongjun.domain.po.authc.UserRoleKey;
+import com.gdut.dongjun.domain.vo.HitchEventVO;
+import com.gdut.dongjun.dto.HitchEventDTO;
 import com.gdut.dongjun.service.CompanyService;
+import com.gdut.dongjun.service.HitchEventService;
+import com.gdut.dongjun.service.PersistentHitchMessageService;
 import com.gdut.dongjun.service.PlatformGroupService;
 import com.gdut.dongjun.service.UserLogService;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.authc.RoleService;
 import com.gdut.dongjun.service.authc.UserRoleService;
+import com.gdut.dongjun.service.device.event.TemperatureMeasureHitchEventService;
 import com.gdut.dongjun.service.impl.enums.LoginResult;
+import com.gdut.dongjun.service.thread.manager.DefaultThreadManager;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.UUIDUtil;
 
@@ -72,6 +82,14 @@ public class UserController {
 	private CompanyService companyService;
 	@Autowired
 	private PlatformGroupService pgService;
+	@Autowired
+	private PersistentHitchMessageService messageService;
+	@Autowired
+	private HitchEventService hitchEventService;
+	@Autowired
+	private TemperatureMeasureHitchEventService temEventService;
+	@Autowired
+	private SimpMessagingTemplate template;
 
 	private static final Logger logger = Logger.getLogger(UserController.class);
 
@@ -96,7 +114,7 @@ public class UserController {
 		map.put("password", password);
 
 		List<User> users = userService.selectByParameters(map);
-		User user = null;
+		final User user;
 
 		// 数据库查找账号密码
 		if (null != users && 0 != users.size() && null != users.get(0)) {
@@ -111,7 +129,42 @@ public class UserController {
 			session.setAttribute("currentUser", user);
 			SecurityUtils.getSubject().getSession().setTimeout(-1000l);
 			userLogService.createNewLog(user);
+			//记录在线用户
+			userService.remarkLogIn(user);
 			// if no exception, that's it, we're done!
+			//登陆成功后，等前端页面加载完成，5秒后返回未读的报警消息
+			DefaultThreadManager.delayExecute(new Runnable() {
+
+				@Override
+				public void run() {
+					List<PersistentHitchMessage> list = messageService.getAllUnreadHitchMessage(user.getId());
+					List<HitchEventDTO> dtos = new ArrayList<HitchEventDTO>();
+					for (PersistentHitchMessage message : list) {
+						switch(message.getHitchType()) {
+						case 3 : {
+							HitchEventDTO dto = warpIntoDTO(message);
+							dtos.add(dto);
+							break;
+						}
+						default : break;
+						}
+					}
+					for (HitchEventDTO dto : dtos) {
+						template.convertAndSendToUser(user.getName(), "/queue/subscribe_hitch_event", dto);
+					}
+				}
+				
+				private HitchEventDTO warpIntoDTO(PersistentHitchMessage message) {
+					HitchEventVO vo = new HitchEventVO();
+					vo.setId(message.getHitchEventId());
+					vo.setGroupId(user.getCompanyId());
+					TemperatureMeasureHitchEvent event = temEventService.selectByPrimaryKey(vo.getSwitchId());
+					vo.setSwitchId(event.getSwitchId());
+					vo.setType(message.getHitchType());
+					return hitchEventService.wrapIntoDTO(vo);
+				}
+				
+			}, 5);
 		} catch (UnknownAccountException uae) {
 			// username wasn't in the system, show them an error message?
 			return LoginResult.USER_NO_EXIST.value();
@@ -298,6 +351,5 @@ public class UserController {
 	public ResponseMessage doFuzzySearch(String name) {
 		return ResponseMessage.success(companyService.fuzzySearch(name));
 	}
-	
 
 }

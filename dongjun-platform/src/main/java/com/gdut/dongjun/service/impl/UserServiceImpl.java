@@ -3,6 +3,7 @@ package com.gdut.dongjun.service.impl;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.servlet.http.HttpSession;
 
@@ -36,6 +37,9 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements
 	 */
 	@Autowired
 	private UserMapper userMapper;
+	
+	private static final List<User> ALL_CURRENT_USER = new CopyOnWriteArrayList<User>();
+	
 	private static final Logger logger = Logger
 			.getLogger(UserServiceImpl.class);
 
@@ -80,6 +84,32 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements
 	@Override
 	public User getCurrentUser(HttpSession session) {
 		return (User)session.getAttribute("currentUser");
+	}
+
+	@Override
+	public boolean isUserOnline(String id) {
+		if (null == id || "".equals(id)) {
+			return false;
+		}
+		for (User user : ALL_CURRENT_USER) {
+			if (user.getId().equals(id)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public void remarkLogIn(User user) {
+		for (User u : ALL_CURRENT_USER) {
+			if (u.getId().equals(user.getId())) {
+				return ;
+			}
+		}
+		ALL_CURRENT_USER.add(user);
+	}
+	
+	public void remarkLogOut(User user) {
+		ALL_CURRENT_USER.remove(user);
 	}
 
 }

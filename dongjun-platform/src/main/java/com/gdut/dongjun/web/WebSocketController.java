@@ -41,7 +41,15 @@ public class WebSocketController {
 	@MessageMapping("handle4")
 	@SendToUser(value = "/topic/greetings", broadcast = false)
 	public ResponseMessage handleToUser(String name) {
-		System.out.println("websocket handle3 接收到 " + name);
+		System.out.println("websocket handle4 接收到 " + name);
 		return ResponseMessage.success("专门给用户，劳资接到啦!!!");
 	}
+	
+	@MessageMapping("handle5")
+	@SendTo(value = "/topic/greetings1")
+	public ResponseMessage handle5(String name) {
+		System.out.println("websocket handle5 接收到 " + name);
+		return ResponseMessage.success("专门给用户，劳资接到啦!!!");
+	}
+
 }

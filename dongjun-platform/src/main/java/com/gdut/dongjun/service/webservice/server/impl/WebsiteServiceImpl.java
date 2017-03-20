@@ -1,5 +1,6 @@
 package com.gdut.dongjun.service.webservice.server.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -10,24 +11,20 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import com.gdut.dongjun.domain.HighVoltageStatus;
-import com.gdut.dongjun.domain.po.TemperatureDevice;
-import com.gdut.dongjun.domain.po.TemperatureMeasureHitchEvent;
+import com.gdut.dongjun.domain.po.PersistentHitchMessage;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
 import com.gdut.dongjun.domain.vo.HitchEventVO;
 import com.gdut.dongjun.dto.HitchEventDTO;
-import com.gdut.dongjun.dto.TemperatureMeasureHitchEventDTO;
+import com.gdut.dongjun.service.HitchEventService;
+import com.gdut.dongjun.service.PersistentHitchMessageService;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.common.DeviceBinding;
 import com.gdut.dongjun.service.device.DeviceCommonService;
-import com.gdut.dongjun.service.device.HighVoltageSwitchService;
-import com.gdut.dongjun.service.device.LowVoltageSwitchService;
-import com.gdut.dongjun.service.device.TemperatureDeviceService;
-import com.gdut.dongjun.service.device.event.TemperatureMeasureHitchEventService;
 import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 import com.gdut.dongjun.service.webservice.server.WebsiteService;
-import com.gdut.dongjun.util.GenericUtil;
 import com.gdut.dongjun.util.MyBatisMapUtil;
+import com.gdut.dongjun.util.UUIDUtil;
 
 /**
  */
@@ -45,13 +42,9 @@ public class WebsiteServiceImpl implements WebsiteService {
 	@Autowired
 	private UserService userService;
 	@Autowired
-	private HighVoltageSwitchService highService;
+	private HitchEventService hitchEventService;
 	@Autowired
-	private LowVoltageSwitchService lowService;
-	@Autowired
-	private TemperatureDeviceService temService;
-	@Autowired
-	private TemperatureMeasureHitchEventService temEventService;
+	private PersistentHitchMessageService persistentMessageService;
 
 	@Autowired
 	public WebsiteServiceImpl(SimpMessagingTemplate messagingTemplate) {
@@ -72,7 +65,7 @@ public class WebsiteServiceImpl implements WebsiteService {
 		List<User> userList = DeviceBinding.getListenUser(switchId);
 		if (!CollectionUtils.isEmpty(userList)) {
 			for (User user : userList) {
-
+				
 				template.convertAndSendToUser(user.getName(), "/queue/read_current",
 						deviceCommonService.getCurrentService(Integer.valueOf(type)).readCurrent(switchId));
 
@@ -90,62 +83,21 @@ public class WebsiteServiceImpl implements WebsiteService {
 	@Override
 	public void callbackHitchEvent(HitchEventVO event) {
 		LOG.info("报警信息到达，报警设备为" + event.getSwitchId() + "    报警类型为" + event.getType());
-		HitchEventDTO dto = wrapIntoDTO(event);
+		HitchEventDTO dto = hitchEventService.wrapIntoDTO(event);
 		List<User> userList = userService.selectByParameters(MyBatisMapUtil.warp("company_id", event.getGroupId()));
 		if (!CollectionUtils.isEmpty(userList)) {
 			for (User user : userList) {
-				template.convertAndSendToUser(user.getName(), "/queue/subscribe_hitch_event", dto);
+				if (userService.isUserOnline(user.getId())) {
+					//用户在线就直接推送
+					template.convertAndSendToUser(user.getName(), "/queue/subscribe_hitch_event", dto);
+				} else {
+					//用户不在线就将消息持久化，等用户上线时再推送
+					PersistentHitchMessage message = new PersistentHitchMessage(UUIDUtil.getUUID(), 
+							event.getType(), event.getId(), new Date(), user.getId(), new Date(), new Date());
+					persistentMessageService.updateByPrimaryKey(message);
+				}
 			}
 		}
 	}
 
-	public HitchEventDTO wrapIntoDTO(HitchEventVO vo) {
-		HitchEventDTO d = null;
-		switch (vo.getType()) {
-		case 0: {
-			break;
-		}
-		case 1: {
-			break;
-		}
-		case 2: {
-			break;
-		}
-		case 3: {
-			String name = temService.selectNameById(vo.getSwitchId());
-			TemperatureMeasureHitchEvent temEvent = temEventService.selectByPrimaryKey(vo.getId());
-			TemperatureMeasureHitchEventDTO dto = new TemperatureMeasureHitchEventDTO();
-			dto.setId(temEvent.getId());
-			dto.setHitchReason(temEvent.getHitchReason());
-			dto.setHitchTime(temEvent.getHitchTime());
-			dto.setMaxHitchValue(temEvent.getMaxHitchValue().doubleValue() + "");
-			dto.setMinHitchValue(temEvent.getMinHitchValue().doubleValue() + "");
-			dto.setName(name);
-			dto.setTag(temEvent.getTag());
-			dto.setValue(temEvent.getValue().doubleValue() + "");
-			dto.setType(returnType(vo.getType()));
-			dto.setGroupId(vo.getGroupId());
-			d = (HitchEventDTO)dto;
-			break;
-		}
-		default: {
-			LOG.info("HitchEventVO数据异常");
-			break;
-		}
-		}
-		return d;
-	}
-	
-	/**
-	 * TODO
-	 * 以后变成一个const
-	 */
-	public String returnType(Integer i) {
-		switch (i) {
-		case 1 : return "低压设备";
-		case 2 : return "管控设备";
-		case 3 : return "温度设备";
-		default : return "";
-		}
-	}
 }

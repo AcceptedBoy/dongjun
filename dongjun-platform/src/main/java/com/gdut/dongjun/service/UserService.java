@@ -30,4 +30,9 @@ public interface UserService extends BaseService<User>{
 	
 	public User getCurrentUser(HttpSession session);
 	
+	public boolean isUserOnline(String id);
+	
+	public void remarkLogIn(User user);
+	
+	public void remarkLogOut(User user);
 }
