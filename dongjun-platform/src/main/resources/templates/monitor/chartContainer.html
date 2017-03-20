@@ -150,6 +150,7 @@
           }
         },
         showLoading: function(chart) {
+        	chart.hideLoading()
         	chart.showLoading({
         		effect: 'ring'
         	})
@@ -159,6 +160,7 @@
         }
       };
     }();
+    
     var chartController = function() {
       return {
         /**
@@ -414,7 +416,7 @@
          * @param  {[type]} chart [目标表格]
          * @return {[type]}       []
          */
-        /* removeOption: function(node, chart, tablename, num) {
+        removeOption: function(node, chart, tablename, num) {
           var name = node.name;
           var oldSer = chart.getOption().series;
           var oldLen = chart.getOption().legend[0];
@@ -462,14 +464,14 @@
           }
           chart.setOption(newOp, true);
           if(tablename == 't_data_list') {
-        	  console.log('_____清空温度')
+        	  /* console.log('_____清空温度') */
         	  chartManager.show_table(tablename, chartManager.createTable(chart, true), true);
           }
           else {
-        	  console.log('_____清空电压 ')
+        	  /* console.log('_____清空电压 ') */
         	  chartManager.show_table(tablename, chartManager.createTable(chart, false), false);
           }
-        }, */
+        },
         /**
          * [handleSearch 高压低压和管控设备的搜索]
          * @param  {[type]} chart [目标表格]
@@ -539,7 +541,7 @@
                       chart.setOption(newOp);
                     }
                   }*/
-                  console.log(res);
+                  /* console.log(res); */
                   chartView.hideLoading(chart);
                   if(res) {
                 	  chartManager.moveLegend(res);
@@ -585,7 +587,7 @@
               //   }
               // }
               taglist = taglist.join(',=');
-              console.log(taglist);
+              /* console.log(taglist); */
               var id = temNodes[0].node.getParentNode().id;
               // 发请求获取taglist
               // nodeId = nodeId.join(',=');
@@ -613,7 +615,7 @@
                   //   // console.log('set');
                   //   chart.setOption(newOp);
                   // }
-                  chart.hideLoading(chart);
+                  chartView.hideLoading(chart);
                   if(res) {
                 	  chartManager.moveLegend(res);
                 	  chart.setOption(res, true);
@@ -875,6 +877,7 @@
 		var cov = 1;
 		var elecTimer = null;
 		var temTimer = null;
+		var interval = 20000;
 		return {
 			getEle: function() {
 				return elecFlag;
@@ -908,12 +911,12 @@
 			startElec: function() {
 				elecTimer = setInterval(function(){
 					chartManager.handleSearch(tab, cov, tablename);
-				}, 10000);
+				}, interval);
 			},
 			startTem: function() {
 				temTimer = setInterval(function(){
 					chartManager.handleTemSearch(chartManager.get('tem'), 't_data_list');
-				}, 10000);
+				}, interval);
 			}
 		};
 	}();
