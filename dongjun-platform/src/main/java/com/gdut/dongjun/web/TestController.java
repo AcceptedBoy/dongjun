@@ -9,12 +9,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.User;
+import com.gdut.dongjun.domain.vo.HitchEventVO;
 import com.gdut.dongjun.dto.HitchEventDTO;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.manager.MQProductHelper;
 
-//@Controller
-//@RequestMapping("/test")
+@Controller
+@RequestMapping("/test")
 public class TestController {
 
 	@Autowired
@@ -25,18 +26,24 @@ public class TestController {
 	@RequestMapping("/send")
 	@ResponseBody
 	public ResponseMessage send() {
-		HitchEventDTO dto = new HitchEventDTO();
-		dto.setHitchTime("1996-08-07 12:12:12");
-		dto.setGroupId("1");
-		dto.setHitchReason("大概系统傻了吧");
-		dto.setType("温度设备");
-		dto.setName("大概是温度设备");
+		HitchEventVO vo = new HitchEventVO();
+		vo.setGroupId("1");
+		vo.setId("03cb2cdd6f364427bc4d681efd2d3ce3");
+		vo.setSwitchId("1");
+		vo.setType(3);
 		User user = userService.selectByPrimaryKey("001");
 		try {
-			mqHelper.sendHitchEvent(user, dto);
+			mqHelper.sendHitchEvent(user, vo);
 		} catch (JMSException e) {
 			e.printStackTrace();
 		}
 		return ResponseMessage.success("fuck");
 	}
+	
+//	@RequestMapping("/get")
+//	@ResponseBody
+//	public ResponseMessage get() {
+//
+//		return ResponseMessage.success(mqHelper.get());
+//	}
 }

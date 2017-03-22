@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.servlet.DispatcherType;
 import javax.sql.DataSource;
 
+import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.authc.credential.SimpleCredentialsMatcher;
@@ -292,12 +293,12 @@ public class Application extends SpringBootServletInitializer {
 	public CacheManager cacheManager() {
 		return new CacheManager();
 	}
-//	
-//	@Bean
-//	public ActiveMQConnectionFactory activeMQConnectionFactory() {
-//		ActiveMQConnectionFactory active = new ActiveMQConnectionFactory("topview", "759486", "tcp://http://127.0.0.1:8161");
-//		return active;
-//	}
+	
+	@Bean
+	public ActiveMQConnectionFactory activeMQConnectionFactory() {
+		ActiveMQConnectionFactory active = new ActiveMQConnectionFactory("topview", "759486", ActiveMQConnectionFactory.DEFAULT_BROKER_URL);
+		return active;
+	}
 	
 	
 	public static void main(String[] args) throws Exception {

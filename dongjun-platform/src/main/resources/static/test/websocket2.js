@@ -25,7 +25,7 @@ socket.onclose = function() {
 var stompClient = Stomp.over(socket);
 //console.log(stompClient);
 stompClient.connect({}, function(frame) {
-    stompClient.subscribe('/topic/greetings1',  function(data) { //只推送到用户的订阅地址
+    stompClient.subscribe('/queue/user-001/hitch',  function(data) { //只推送到用户的订阅地址
         console.log(data)
     });
 //    stompClient.subscribe('/topic/greetings',  function(data) { //订阅地址
