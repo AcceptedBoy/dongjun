@@ -146,7 +146,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 				switchService.updateByPrimaryKey(hvSwitch);
 			}
 		}
-		CtxStore.printCtxStore();
+//		CtxStore.printCtxStore();
 	}
 
 	@Override
@@ -156,9 +156,9 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	}
 	
 	private void handleIdenCode(ChannelHandlerContext ctx, char[] data) {
-
-		if(data.length < 16) {
-			return;
+		//报文长度大于最长的全遥测报文长度，进行报文的解耦
+		if (data.length > 262) {
+			getSwitchAllInfo(ctx, data);
 		}
 
 		char[] infoIdenCode = ArrayUtils.subarray(data, 14, 16);
@@ -228,8 +228,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			 */
 			readAllSignal(data);
 		} else {
-			logger.info("undefine message received!");
-			logger.error("接收到的非法数据--------------------" + data);
+			logger.info("接收到的非法数据--------------------" + String.valueOf(data));
 		}
 	}
 
@@ -405,7 +404,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			/*
 			 * 若data.length=40，测归一值
 			 */
-			logger.info("测归一值-------" + data);
+			logger.info("测归一值-------" + String.valueOf(data));
 			//680e0e68f4680009010301680008400000001a16
 			//68131368f46600090203016600054000000006402700008116
 			//68131368f46600090203016600054000000006402700008116
@@ -416,7 +415,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			}
 			return;
 		}
-		logger.info("解析CV---------" + data);
+		logger.info("解析CV---------" + String.valueOf(data));
 		String address = CharUtils.newString(data, 10, 14);
 		String id = CtxStore.getIdbyAddress(address);
 		if (id != null) {
