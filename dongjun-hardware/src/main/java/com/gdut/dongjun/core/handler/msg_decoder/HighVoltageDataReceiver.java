@@ -165,8 +165,9 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	
 	private void handleIdenCode(ChannelHandlerContext ctx, char[] data) {
 
-		if(data.length < 16) {
-			return;
+		//长度大于最长的全遥测，估计是报文杂糅在一起
+		if (data.length > 262) {
+			getSwitchAllInfo(ctx, data);
 		}
 
 		char[] infoIdenCode = ArrayUtils.subarray(data, 14, 16);
@@ -249,7 +250,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		 * 遥控信息
 		 */
 		while(data.length != 0) {
-			int index = StringCommonUtil.getFirstIndexOfEndTag(data, "16");
+			int index = StringCommonUtil.getFirstIndexOfEndTag(data, "16");	//这里应该还要做校验和验证
 			if(index != -1) {
 				handleIdenCode(ctx, ArrayUtils.subarray(data, 0, index));
 				data = ArrayUtils.subarray(data, index, data.length);
@@ -409,7 +410,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		
 		if(!CharUtils.equals(data, 2, 4, CODE_47)) {
 			/*
-			 * 若data.length=40，测归一值
+			 * 若data.length=40，遥测变位，测归一值
 			 */
 			logger.info("测归一值-------" + data);
 			//680e0e68f4680009010301680008400000001a16
@@ -422,6 +423,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			}
 			return;
 		}
+		//全遥测
 		logger.info("解析CV---------" + data);
 		String address = CharUtils.newString(data, 10, 14);
 		String id = CtxStore.getIdbyAddress(address);

@@ -2,8 +2,10 @@ package com.gdut.dongjun.dto;
 
 import java.io.Serializable;
 
-public class HitchEventDTO {
+public class HitchEventDTO implements Serializable {
 	
+	private static final long serialVersionUID = -7396867530194618589L;
+
 	private String hitchTime;
 	
 	private String hitchReason;

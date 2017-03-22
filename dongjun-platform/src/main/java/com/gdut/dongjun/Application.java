@@ -160,15 +160,6 @@ public class Application extends SpringBootServletInitializer {
 		return chafil;
 	}
 	
-	/**
-	 * 为{@link com.gdut.dongjun.service.aspect.HttpRequestContent}服务的filter
-	 * 主要工作是保存成功访问的HttpServletRequest，方便spring aop获取session
-	 */
-//	@Bean
-//	public HttpRequestFilter httpRequestFilter() {
-//		return new HttpRequestFilter();
-//	}
-	
 	/*--------------------------------------------------------
 	 * 					shiro 配置
 	 * -------------------------------------------------------
@@ -290,10 +281,6 @@ public class Application extends SpringBootServletInitializer {
 			SpringApplicationBuilder application) {
 		return application.sources(Application.class);
 	}
-	
-	public static void main(String[] args) throws Exception {
-		SpringApplication.run(Application.class, args);
-	}
 
 	//注册Servlet，同样的Bean有FilterRegistrationBean和ServletListenerRegistrationBean
 	@Bean//fix bug: 上次的名字是dispatcherServlet，搞得那些请求都没办法处理了
@@ -304,5 +291,16 @@ public class Application extends SpringBootServletInitializer {
 	@Bean
 	public CacheManager cacheManager() {
 		return new CacheManager();
+	}
+//	
+//	@Bean
+//	public ActiveMQConnectionFactory activeMQConnectionFactory() {
+//		ActiveMQConnectionFactory active = new ActiveMQConnectionFactory("topview", "759486", "tcp://http://127.0.0.1:8161");
+//		return active;
+//	}
+	
+	
+	public static void main(String[] args) throws Exception {
+		SpringApplication.run(Application.class, args);
 	}
 }
