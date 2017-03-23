@@ -130,4 +130,35 @@ public class CharUtils {
     public static boolean endsWith(char[] src, String pre) {
     	return String.valueOf(src).endsWith(pre);
     }
+    
+    /**
+     * 截取char数组一部分并返回
+     * @param src
+     * @param begin
+     * @param len
+     * @return
+     */
+    public  static char[] subChars(char[] src, int begin, int len) {
+    	//非法字符串
+    	if (null == src) {
+    		return null;
+    	}
+    	//非法开头
+    	if (begin < 0 || begin >= src.length) {
+    		return null;
+    	}
+    	//非法长度
+    	if (len <= 0 || len > src.length) {
+    		return null;
+    	}
+    	//截太多
+    	if (begin + len > src.length) {
+    		return null;
+    	}
+    	char[] tar = new char[len];
+    	for (int i = begin,  j = 0; j < len; i++, j++) {
+    		tar[j] = src[i];
+    	}
+    	return tar;
+    }
 }

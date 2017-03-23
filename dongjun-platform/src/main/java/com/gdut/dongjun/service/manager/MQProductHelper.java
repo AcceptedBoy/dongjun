@@ -57,7 +57,7 @@ public class MQProductHelper implements InitializingBean {
 	//
 	// public static Session createSession() throws JMSException {
 	// PooledConnectionFactory poolFactory = getPooledConnectionFactory();
-	// PooledConnection pooledConnection = (PooledConnection)
+//	 PooledConnection pooledConnection = (PooledConnection)
 	// poolFactory.createConnection();
 	// // false 参数表示 为非事务型消息，后面的参数表示消息的确认类型（见4.消息发出去后的确认模式）
 	// return pooledConnection.createSession(false, Session.AUTO_ACKNOWLEDGE);
@@ -94,14 +94,19 @@ public class MQProductHelper implements InitializingBean {
 
 	private static final String QUEUE_NAME = "/queue/user-001/hitch";
 
+	//连接池化
 	private Connection con = null;
 
+	//session池化
 	private Session session = null;
 	
+	//端点和user一起在后台维护
 	private Destination destination = null;
 	
+	//这个跟Destination一起维护了
 	private MessageProducer producer = null;
 	
+	//这个跟Destination一起维护了
 	private MessageConsumer consumer = null;
 
 	public void sendHitchEvent(User user, HitchEventVO vo) throws JMSException {
@@ -155,4 +160,6 @@ public class MQProductHelper implements InitializingBean {
 		});
 		con.start();
 	}
+	
+	
 }

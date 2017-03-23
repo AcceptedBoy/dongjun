@@ -1,10 +1,12 @@
 package com.gdut.dongjun.service;
 
+import javax.jms.JMSException;
+import javax.jms.MessageProducer;
+import javax.jms.Session;
 import javax.servlet.http.HttpSession;
 
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.service.base.BaseService;
-import com.gdut.dongjun.service.impl.enums.LoginResult;
 
 /**   
  * @Title: UserService.java 
@@ -26,13 +28,17 @@ public interface UserService extends BaseService<User>{
 	* @return boolean   
 	* @throws
 	 */
-	public LoginResult login(String user, String password);
+//	public LoginResult login(String user, String password);
 	
 	public User getCurrentUser(HttpSession session);
 	
 	public boolean isUserOnline(String id);
 	
-	public void remarkLogIn(User user);
+	public void remarkLogIn(User user) throws JMSException;
 	
 	public void remarkLogOut(User user);
+	
+//	public Session getMQSession(User user);
+	
+//	public MessageProducer getMessageProducer(User user);
 }

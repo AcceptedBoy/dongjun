@@ -9,6 +9,7 @@ import javax.servlet.DispatcherType;
 import javax.sql.DataSource;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.pool.PooledConnectionFactory;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.authc.credential.SimpleCredentialsMatcher;
@@ -298,6 +299,15 @@ public class Application extends SpringBootServletInitializer {
 	public ActiveMQConnectionFactory activeMQConnectionFactory() {
 		ActiveMQConnectionFactory active = new ActiveMQConnectionFactory("topview", "759486", ActiveMQConnectionFactory.DEFAULT_BROKER_URL);
 		return active;
+	}
+	
+	@Bean
+	public PooledConnectionFactory pooledConnectionFactory() {
+		PooledConnectionFactory factory = new PooledConnectionFactory();
+		factory.setConnectionFactory(activeMQConnectionFactory());
+		factory.setMaxConnections(100); //TODO why?
+		factory.setMaximumActiveSessionPerConnection(50);
+		return factory;
 	}
 	
 	

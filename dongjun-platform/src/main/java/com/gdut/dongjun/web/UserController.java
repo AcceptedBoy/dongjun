@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 
+import javax.jms.JMSException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -66,6 +66,7 @@ public class UserController {
 
 	private static final String PLATFORM_ADMIN = "platform_group_admin";
 
+	//等前端该接口后，删掉
 	private static final String MAINSTAFF = "yes";
 
 	@Autowired
@@ -102,7 +103,7 @@ public class UserController {
 	@RequestMapping(value = "/dongjun/elecon/login_form")
 	@ResponseBody
 	public Object loginForm(String name, String password, Model model, RedirectAttributes redirectAttributes,
-			HttpSession session) {
+			HttpSession session) throws JMSException {
 
 		SecurityUtils.setSecurityManager(manager);
 		Subject currentUser = SecurityUtils.getSubject();
@@ -178,6 +179,11 @@ public class UserController {
 		} catch (AuthenticationException ae) {
 			// unexpected condition - error?
 			logger.error("login error!");
+		} catch (JMSException e) {
+			//注销已登录用户
+			currentUser.logout();
+			//抛出至ExceptionHandler
+			throw e;
 		}
 		return LoginResult.LOGIN_PASS.value();
 	}

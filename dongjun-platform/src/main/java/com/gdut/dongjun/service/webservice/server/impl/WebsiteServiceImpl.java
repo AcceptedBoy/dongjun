@@ -1,7 +1,8 @@
 package com.gdut.dongjun.service.webservice.server.impl;
 
-import java.util.Date;
 import java.util.List;
+
+import javax.jms.JMSException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +12,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import com.gdut.dongjun.domain.HighVoltageStatus;
-import com.gdut.dongjun.domain.po.PersistentHitchMessage;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
 import com.gdut.dongjun.domain.vo.HitchEventVO;
@@ -21,10 +21,10 @@ import com.gdut.dongjun.service.PersistentHitchMessageService;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.common.DeviceBinding;
 import com.gdut.dongjun.service.device.DeviceCommonService;
+import com.gdut.dongjun.service.mq.UserMQService;
 import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 import com.gdut.dongjun.service.webservice.server.WebsiteService;
 import com.gdut.dongjun.util.MyBatisMapUtil;
-import com.gdut.dongjun.util.UUIDUtil;
 
 /**
  */
@@ -45,6 +45,8 @@ public class WebsiteServiceImpl implements WebsiteService {
 	private HitchEventService hitchEventService;
 	@Autowired
 	private PersistentHitchMessageService persistentMessageService;
+	@Autowired
+	private UserMQService mqService;
 
 	@Autowired
 	public WebsiteServiceImpl(SimpMessagingTemplate messagingTemplate) {
@@ -89,12 +91,21 @@ public class WebsiteServiceImpl implements WebsiteService {
 			for (User user : userList) {
 				if (userService.isUserOnline(user.getId())) {
 					//用户在线就直接推送
-					template.convertAndSendToUser(user.getName(), "/queue/subscribe_hitch_event", dto);
+//					template.convertAndSendToUser(user.getName(), "/queue/subscribe_hitch_event", dto);
+					template.convertAndSend("/queue/user-" + user.getId() + "/hitch", dto);
 				} else {
-					//用户不在线就将消息持久化，等用户上线时再推送
-					PersistentHitchMessage message = new PersistentHitchMessage(UUIDUtil.getUUID(), 
-							event.getType(), event.getId(), new Date(), user.getId(), new Date(), new Date());
-					persistentMessageService.updateByPrimaryKey(message);
+//					//用户不在线就将消息持久化，等用户上线时再推送
+//					PersistentHitchMessage message = new PersistentHitchMessage(UUIDUtil.getUUID(), 
+//							event.getType(), event.getId(), new Date(), user.getId(), new Date(), new Date());
+//					persistentMessageService.updateByPrimaryKey(message);
+					//用户不在就塞到MQ
+					try {
+						mqService.sendHitchMessage(user, dto);
+					} catch (JMSException e) {
+						//TODO
+						LOG.info("报警消息推送到MQ时发生错误，报错队列为/queue/user-" + user.getId() + "/hitch");
+						e.printStackTrace();
+					}
 				}
 			}
 		}

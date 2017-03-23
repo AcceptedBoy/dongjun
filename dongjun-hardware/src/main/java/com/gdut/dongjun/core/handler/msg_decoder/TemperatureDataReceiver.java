@@ -40,6 +40,12 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 
+/**
+ * GPRS模块一连接系统就会发登录包
+ * 登录包解析后会在{@code TemperatureCtxStore}里维护GPRS登录情况
+ * @author Gordan_Deng
+ * @date 2017年3月23日
+ */
 @Service
 @Sharable
 public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
@@ -124,16 +130,22 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		// 登录和心跳包
 		if (CharUtils.startWith(data, CODE_00)
 				&& (CharUtils.equals(data, 6, 8, CODE_01) || CharUtils.equals(data, 6, 8, CODE_03))) {
-			String gprsNumber = CharUtils.newString(data, 12, 20);
+			char[] gprsNumber = CharUtils.subChars(data, 12, 8);
+//			String gprsNumber = CharUtils.newString(data, 12, 20);
 			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i <= 6; i += 2) {
-				String address = gprsNumber.substring(i, i + 2);
-				sb.append((char) Integer.parseInt(address, 16));
+//				String address = gprsNumber.substring(i, i + 2);
+//				sb.append((char) Integer.parseInt(address, 16));
+				//示范 30 30 30 31，表示0001地址
+				sb.append(gprsNumber[i + 1]);
 			}
+			//去除开头的0
 			gprsAddress = sb.toString();
+			int address = Integer.parseInt(gprsAddress);
+			gprsAddress = String.valueOf(address);
 			if (CharUtils.equals(data, 6, 8, CODE_01)) {
 				//GPRS模块登录
-				String gprsId = gprsService.isGPRSAvailable(sb.toString());
+				String gprsId = gprsService.isGPRSAvailable(gprsAddress);
 				//判断GPRS是否已在网站上注册
 				if (null != gprsId) {
 					logger.info(gprsAddress + " GPRS模块登录成功");
@@ -155,7 +167,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		if (null == attr.get()) {
 			logger.info("未认证GPRS数据" + CharUtils.newString(data));
 //			return false;
-			return true;	//此功能有待上线
+			return true;	//此功能有待上线，现在啥几把报文都能通过
 		}
 		/*
 		 * TODO 做时间戳 + 设备地址 + 校验和的验证工作，如果不行就记录非法报文数量。 非法报文数量超过一定程度后封锁该设备地址。
@@ -172,6 +184,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 
 	private void handleIdenCode(ChannelHandlerContext ctx, char[] data) {
 
+		//如果没什么用可以去除掉这个
 		if (!(CharUtils.startWith(data, EB_UP) || CharUtils.startWith(data, EB_DOWN))
 				&& CharUtils.endsWith(data, CODE_16)) {
 			AttributeKey<Integer> key = AttributeKey.valueOf("isRegisted");
@@ -499,5 +512,25 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		TemperatureDeviceCommandUtil td = new TemperatureDeviceCommandUtil(address);
 		return td.getTimeCheck(time);
 	}
+	
+	private boolean checkLength(char[] length, char[] data) {
+		
+		Integer len = Integer.parseInt(String.valueOf(length), 16);
+		if (null != len && data.length == len) {
+			return true;
+		}
+		return false;
+	}
+	
+	//TODO
+	private boolean checkJIAOYANHE(char[] jiaoyanhe, char[] data) {
+		return true;
+	}
+	
+	//TODO
+	private boolean checkTime(char[] time) {
+		return true;
+	}
+	
 
 }
