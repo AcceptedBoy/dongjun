@@ -30,8 +30,6 @@ public class UserMQService extends AbstractMQService {
 
 	@Autowired
 	private SimpMessagingTemplate template;
-	@Autowired
-	private UserService userService;
 
 	@Autowired
 	public void setPooledConnectionFactory(PooledConnectionFactory pooledFactory) {

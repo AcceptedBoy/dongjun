@@ -102,9 +102,6 @@ public class TemperatureCtxStore extends CtxStore {
 	 * @param id
 	 */
 	public static void setBound(String id) {
-		if (null == deviceService) {
-			logger.info("TemService is null!");
-		}
 		TemperatureDevice device = deviceService.selectByPrimaryKey(id);
 		if (null == device) {
 			return ;

@@ -183,6 +183,10 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	}
 
 	private void handleIdenCode(ChannelHandlerContext ctx, char[] data) {
+		//GPRS登录包、心跳包
+		if (data.length == 20) {
+			return ;
+		}
 
 		//如果没什么用可以去除掉这个
 		if (!(CharUtils.startWith(data, EB_UP) || CharUtils.startWith(data, EB_DOWN))
