@@ -295,9 +295,13 @@ public class Application extends SpringBootServletInitializer {
 		return new CacheManager();
 	}
 	
+	/**
+	 * 方便起见，ActiveMQ放在115服务器了。
+	 * @return
+	 */
 	@Bean
 	public ActiveMQConnectionFactory activeMQConnectionFactory() {
-		ActiveMQConnectionFactory active = new ActiveMQConnectionFactory("topview", "759486", ActiveMQConnectionFactory.DEFAULT_BROKER_URL);
+		ActiveMQConnectionFactory active = new ActiveMQConnectionFactory("topview", "759486", "failover://tcp://115.28.7.40:61616");
 		return active;
 	}
 	
