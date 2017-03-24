@@ -8,7 +8,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.gdut.dongjun.annotation.NeededTest;
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.TemperatureDevice;
 import com.gdut.dongjun.domain.po.UserDeviceMapping;
@@ -29,14 +28,22 @@ public class UserDeviceMappingController {
 	
 	@ResponseBody
 	@RequestMapping("/edit")
-	public ResponseMessage edit(UserDeviceMapping mapping) {
-		if (null == mapping.getId()) {
+	public ResponseMessage edit(String deviceId, String deviceType, String userId, String type) {
+		String[] types = type.split(",=");
+		String[] ids = deviceId.split(",=");
+		String[] dType = deviceType.split(",=");
+		for (int i = 0; i < ids.length; i++) {
+			UserDeviceMapping mapping = new UserDeviceMapping();
 			mapping.setId(UUIDUtil.getUUID());
+			mapping.setDeviceId(ids[i]);
+			mapping.setDeviceType(Integer.parseInt(dType[i]));
+			mapping.setType(Integer.parseInt(types[0]));
+			mapping.setUserId(userId);
+			if (0 == mappingService.updateByPrimaryKey(mapping)) {
+				return ResponseMessage.warning("操作失败");
+			}
 		}
-		if (0 == mappingService.updateByPrimaryKey(mapping)) {
-			return ResponseMessage.warning("操作失败");
-		}
-		return ResponseMessage.success("操作成功");
+		return ResponseMessage.success("操作成功"); 
 	}
 	
 	@ResponseBody

@@ -1,5 +1,6 @@
 package com.gdut.dongjun.service.webservice.server.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.jms.JMSException;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import com.gdut.dongjun.domain.HighVoltageStatus;
+import com.gdut.dongjun.domain.po.PersistentHitchMessage;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
 import com.gdut.dongjun.domain.vo.HitchEventVO;
@@ -25,6 +27,7 @@ import com.gdut.dongjun.service.mq.UserMQService;
 import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 import com.gdut.dongjun.service.webservice.server.WebsiteService;
 import com.gdut.dongjun.util.MyBatisMapUtil;
+import com.gdut.dongjun.util.UUIDUtil;
 
 /**
  */
@@ -102,9 +105,12 @@ public class WebsiteServiceImpl implements WebsiteService {
 					try {
 						mqService.sendHitchMessage(user, dto);
 					} catch (JMSException e) {
-						//TODO
+						//TODO 发生了错误之后启用原来的消息本地持久化做法
 						LOG.info("报警消息推送到MQ时发生错误，报错队列为/queue/user-" + user.getId() + "/hitch");
 						e.printStackTrace();
+						PersistentHitchMessage message = new PersistentHitchMessage(UUIDUtil.getUUID(), 
+								event.getType(), event.getId(), new Date(), user.getId(), new Date(), new Date());
+						persistentMessageService.updateByPrimaryKey(message);
 					}
 				}
 			}

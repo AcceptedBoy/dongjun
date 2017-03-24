@@ -141,7 +141,7 @@ public class SeparatedTextDecoder extends ByteToMessageDecoder {
 	private void readAllByte(ByteBuf in, List<Object> out) {
 		byte[] allText = new byte[in.readableBytes()];
 		in.readBytes(allText);
-		out.add(allText);
+		out.add(HexString_BytesUtil.bytesToHexString(allText));
 		in.clear();
 	}
 

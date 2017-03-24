@@ -35,6 +35,7 @@ import com.gdut.dongjun.util.RequestHolder;
  * 添加节点的顺序是BigGroup、PlatformGroup、DeviceGroup。
  * 各种设备和DeviceGroup处于同一层次的位置
  * 平台版没有高低压管控
+ * @author Sherlock-lee
  * @author Gordan_Deng
  * @date 2017年3月10日
  */
@@ -316,7 +317,7 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 					sNode.setId(sensor.getTag() + "");
 					sNode.setName(sensor.getName());
 					sNode.setParentName(node4.getName());
-					sNode.setType(10);
+					sNode.setType(80);
 					sNodes.add(sNode);
 				}
 				node4.setChildren(sNodes);

@@ -490,11 +490,12 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 
 	/**
 	 * 得到对时数据
-	 * 
+	 * 示范 00211e02180311
+	 * 68161668F4123456786701060112345678000000211e02180311f816  地址为12345678
 	 * @param address
 	 * @return
 	 */
-	private String doMatchTime(String address) {
+	private static String doMatchTime(String address) {
 		Calendar cal = Calendar.getInstance();
 		String second = Integer.toHexString(cal.get(Calendar.SECOND));
 		String minute = Integer.toHexString(cal.get(Calendar.MINUTE));
@@ -530,6 +531,5 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	private boolean checkTime(char[] time) {
 		return true;
 	}
-	
 
 }

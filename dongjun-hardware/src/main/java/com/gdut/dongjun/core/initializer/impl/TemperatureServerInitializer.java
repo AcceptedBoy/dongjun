@@ -4,8 +4,8 @@ import javax.annotation.Resource;
 
 import org.springframework.stereotype.Component;
 
-import com.gdut.dongjun.core.handler.Decoder;
 import com.gdut.dongjun.core.handler.Encoder;
+import com.gdut.dongjun.core.handler.SeparatedTextDecoder;
 import com.gdut.dongjun.core.handler.msg_decoder.TemperatureDataReceiver;
 import com.gdut.dongjun.core.initializer.ServerInitializer;
 
@@ -23,7 +23,8 @@ public class TemperatureServerInitializer extends ServerInitializer {
 
 		super.initChannel(ch);
 		ChannelPipeline p = ch.pipeline();
-		p.addLast(new Decoder());
+		//处理拆包，能转16进制byte数组到String
+		p.addLast(new SeparatedTextDecoder());
 		p.addLast(new Encoder());
 		p.addLast(receiver);
 	}

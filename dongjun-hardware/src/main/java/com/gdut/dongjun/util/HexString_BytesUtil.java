@@ -11,7 +11,7 @@ package com.gdut.dongjun.util;
  */
 public class HexString_BytesUtil {
 	/**
-	 * 
+	 * byte[]转String，注意byte数组每一个字节是16进制的。
 	 * @Title: bytesToHexString
 	 * @Description: TODO
 	 * @param @param src

@@ -1,10 +1,8 @@
 package com.gdut.dongjun.service.webservice.client;
 
-import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
 import com.gdut.dongjun.domain.vo.HitchEventVO;
 import com.gdut.dongjun.service.webservice.client.service.WebsiteService;
 import com.gdut.dongjun.service.webservice.server.HardwareService;
-import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.provider.BinaryDataProvider;
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider;

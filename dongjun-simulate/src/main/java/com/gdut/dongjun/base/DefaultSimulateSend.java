@@ -49,32 +49,48 @@ public class DefaultSimulateSend extends AbstractSimulateSend {
 
 		@Override
 		public void run() {
-			Socket socket;
+			Socket socket = null;
 			try {
-				socket = new Socket("115.28.7.40", 8466);
+				socket = new Socket("127.0.0.1", 8466);
 				OutputStream os = socket.getOutputStream();
-				String pre = "682f3f68F4FA00000009C11404F4000000112233445566770040";
-				String post = "ff16";
-				while (true) {
-					StringBuilder sb = new StringBuilder();
-					sb.append(pre);
-					Random r1 = new Random();
-					for (int i = 0; i < 16; i++) {
-						String num = Integer.toHexString((r1.nextInt(7) + 17) * 10);
-						sb.append("00").append(num).append("00");
-					}
-					sb.append("0000000000").append(post);
-					os.write(HexString_BytesUtil.hexStringToBytes(sb.toString()));
+				String[] strs = {
+						"1111", "2222", "3333", "4444", "5555", "6666", "7777", "8888", "9999"
+				};
+				
+				for (String text : strs) {
+					os.write(HexString_BytesUtil.hexStringToBytes(text));
 					os.flush();
-					Thread.sleep(1000 * 60 * 10);
-					sb = new StringBuilder();
+					Thread.sleep(1000*  2);
 				}
+//				String pre = "682f3f68F4FA00000009C11404F4000000112233445566770040";
+//				String post = "ff16";
+//				while (true) {
+//					StringBuilder sb = new StringBuilder();
+//					sb.append(pre);
+//					Random r1 = new Random();
+//					for (int i = 0; i < 16; i++) {
+//						String num = Integer.toHexString((r1.nextInt(7) + 17) * 10);
+//						sb.append("00").append(num).append("00");
+//					}
+//					sb.append("0000000000").append(post);
+//					os.write(HexString_BytesUtil.hexStringToBytes(sb.toString()));
+//					os.flush();
+//					Thread.sleep(1000 * 60 * 10);
+//					sb = new StringBuilder();
+//				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+			} finally {
+				try {
+					socket.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 	}
