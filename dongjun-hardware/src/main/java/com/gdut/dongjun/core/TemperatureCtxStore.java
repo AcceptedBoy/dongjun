@@ -107,8 +107,12 @@ public class TemperatureCtxStore extends CtxStore {
 		if (null == device) {
 			return ;
 		}
+		upperBound.remove(id);
+		lowerBound.remove(id);
 		upperBound.put(id, device.getMaxHitchValue().doubleValue());
 		lowerBound.put(id, device.getMinHitchValue().doubleValue());
+		logger.info("设备" + device.getName() + "更改上下限，上限为" + device.getMaxHitchValue().doubleValue()
+				+ "，下限为" + device.getMinHitchValue().doubleValue());
 	}
 	
 	public static void addGPRS(ChannelHandlerContext ctx, String module) {
