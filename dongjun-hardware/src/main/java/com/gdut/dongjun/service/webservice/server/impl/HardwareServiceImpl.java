@@ -286,8 +286,8 @@ public class HardwareServiceImpl implements HardwareService {
 	}
 
 	@Override
-	public List<Integer> getGPRSModuleStatus(List<String> ids) {
-		return TemperatureCtxStore.isGPRSAlive(ids);
+	public List<Integer> getGPRSModuleStatus(List<String> deviceNumbers) {
+		return TemperatureCtxStore.isGPRSAlive(deviceNumbers);
 	}
 
 }

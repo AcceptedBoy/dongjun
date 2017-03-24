@@ -115,6 +115,20 @@ public class TemperatureDeviceController {
 		map.put("recordsFiltered", size);
 		return map;
 	}
+	
+	@RequiresAuthentication
+	@RequestMapping("/list_temperature_device")
+	@ResponseBody
+	public ResponseMessage listTemperatureDevice(String platformId) {
+		List<TemperatureDevice> devices;
+		
+		if (platformId == null || platformId.equals("")) {
+			return ResponseMessage.warning("没传参数");
+		}
+		else
+			devices = deviceService.selectByParameters(MyBatisMapUtil.warp("group_id", platformId));
+		return ResponseMessage.success(devices);
+	}
 
 //	@RequestMapping("/online_order")
 //	@ResponseBody

@@ -3,6 +3,7 @@ package com.gdut.dongjun.core;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +45,7 @@ public class TemperatureCtxStore extends CtxStore {
 	private static final HashMap<String, Double> upperBound = new HashMap<String, Double>();
 	
 	private static final HashMap<String, Double> lowerBound = new HashMap<String, Double>();
-	//ChannelHandlerContext和GPRSModule的id的键值对
+	//ChannelHandlerContext和GPRSModule的deviceNumber的键值对
 	private static final HashMap<ChannelHandlerContext, String> GPRSMap = new HashMap<ChannelHandlerContext, String>();
 	
 	private static Logger logger = Logger.getLogger(TemperatureCtxStore.class);
@@ -111,10 +112,27 @@ public class TemperatureCtxStore extends CtxStore {
 	}
 	
 	public static void addGPRS(ChannelHandlerContext ctx, String module) {
+		
+		if (null != GPRSMap.get(ctx)) {
+			if (GPRSMap.get(ctx) == module || GPRSMap.get(ctx).equals(module)) {
+				return ;
+			}
+		}
+
+		//清除ctx
+		GPRSMap.remove(ctx);
+		//清除gprs id
+		for (Entry<ChannelHandlerContext, String> entry : GPRSMap.entrySet()) {
+			if (entry.getValue() == module || entry.getValue().equals(module)) {
+				GPRSMap.remove(entry.getKey());
+				break;
+			}
+		}
 		GPRSMap.put(ctx, module);
 	}
 	
 	public static void removeGPRS(ChannelHandlerContext ctx) {
+		
 		GPRSMap.remove(ctx);
 	}
 	
@@ -123,10 +141,10 @@ public class TemperatureCtxStore extends CtxStore {
 	 * @param gprsId
 	 * @return
 	 */
-	public static List<Integer> isGPRSAlive(List<String> gprsIds) {
+	public static List<Integer> isGPRSAlive(List<String> deviceNumbers) {
 		List<Integer> results = new ArrayList<Integer>();
-		for (String id : gprsIds) {
-			if (GPRSMap.containsValue(id)) {
+		for (String number : deviceNumbers) {
+			if (GPRSMap.containsValue(number)) {
 				results.add(1);
 			} else {
 				results.add(0);

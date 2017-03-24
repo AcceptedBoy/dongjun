@@ -43,6 +43,10 @@ import io.netty.util.AttributeKey;
 /**
  * GPRS模块一连接系统就会发登录包
  * 登录包解析后会在{@code TemperatureCtxStore}里维护GPRS登录情况
+ * 关于温度设备的地址，那边的温度设备是分高字节段和低字节段的，高、低字节段都有两个字节。
+ * 低字节段在前，高字节段在后。而字节段里两个字节也是低字节在前，高字节在后。
+ * 所以当报文以12 34 56 78发过来的时候，低字节段正确的顺序是34 12，高字节段正确的顺序是78 56。
+ * 高在前低在后，拼成正确顺序之后转成10进制，得到真正的逻辑地址。
  * @author Gordan_Deng
  * @date 2017年3月23日
  */
@@ -63,7 +67,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	private static final char[] CODE_01 = new char[] { '0', '1' }; // OO
 	// private static final char[] CODE_47 = new char[]{'4', '7'}; //47
 	private static final char[] CODE_16 = new char[] { '1', '6' }; // 16
-	// private static final char[] CODE_68 = new char[]{'6', '8'}; //68
+	 private static final char[] CODE_68 = new char[]{'6', '8'}; //68
 	private static final char[] CODE_7716 = new char[] { '7', '7', '1', '6' }; // 7716
 	private static final char[] CODE_7A16_UP = new char[] { '7', 'A', '1', '6' }; // 7A16
 	private static final char[] CODE_7A16_DOWN = new char[] { '7', 'a', '1', '6' }; // 7A16
@@ -90,11 +94,8 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		if (CtxStore.get(ctx) == null) {
 			CtxStore.add(gprs);
 			// 建立ChannelHandlerContext与GPRSModule的联系，建立通道时未获知GPRSModule的消息
-			TemperatureCtxStore.addGPRS(ctx, null);
+//			TemperatureCtxStore.addGPRS(ctx, null);
 		}
-		// ctx.channel().writeAndFlush(new
-		// TemperatureDeviceCommandUtil().getConnection());
-		// //发送确认报文，新版gprs不用，新版gprs直接上传总召
 	}
 
 	@Override
@@ -123,19 +124,21 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		}
 	}
 
+	/**
+	 * 报文合法性验证
+	 * @param ctx
+	 * @param data
+	 * @return
+	 */
 	private boolean check(ChannelHandlerContext ctx, char[] data) {
-		AttributeKey<Integer> key = AttributeKey.valueOf("authenticated");
-		Attribute<Integer> attr = ctx.attr(key);
+		
 		String gprsAddress = null;
 		// 登录和心跳包
 		if (CharUtils.startWith(data, CODE_00)
 				&& (CharUtils.equals(data, 6, 8, CODE_01) || CharUtils.equals(data, 6, 8, CODE_03))) {
 			char[] gprsNumber = CharUtils.subChars(data, 12, 8);
-//			String gprsNumber = CharUtils.newString(data, 12, 20);
 			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i <= 6; i += 2) {
-//				String address = gprsNumber.substring(i, i + 2);
-//				sb.append((char) Integer.parseInt(address, 16));
 				//示范 30 30 30 31，表示0001地址
 				sb.append(gprsNumber[i + 1]);
 			}
@@ -143,31 +146,23 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			gprsAddress = sb.toString();
 			int address = Integer.parseInt(gprsAddress);
 			gprsAddress = String.valueOf(address);
-			if (CharUtils.equals(data, 6, 8, CODE_01)) {
-				//GPRS模块登录
-				String gprsId = gprsService.isGPRSAvailable(gprsAddress);
-				//判断GPRS是否已在网站上注册
-				if (null != gprsId) {
+			
+			//判断GPRS是否已在网站上注册
+			String gprsId = gprsService.isGPRSAvailable(gprsAddress);
+			if (null != gprsId) {
+				
+				//更新TemperatureCtxStore的GPRSMap，gprsId为空的话啥都不干。
+				TemperatureCtxStore.addGPRS(ctx, gprsAddress);
+				if (CharUtils.equals(data, 6, 8, CODE_01)) {
+					//GPRS模块登录
 					logger.info(gprsAddress + " GPRS模块登录成功");
-					if (null == attr.get() || 0 == attr.get()) {
-						attr.set(1);
-					}
+				} else if (CharUtils.equals(data, 6, 8, CODE_03)) {
+					logger.info(gprsAddress + " GPRS模块在线");
 				}
-				//更新TemperatureCtxStore的GPRSMap
-				TemperatureCtxStore.addGPRS(ctx, gprsId);
-				return true;
 			} else {
-				//GPRS模块心跳
-				logger.info(sb.toString() + " GPRS模块在线");
+				//如果网站上没注册gprs，否决此报文
+				return false;
 			}
-		}
-		/*
-		 * GPRSModule是否通过
-		 */
-		if (null == attr.get()) {
-			logger.info("未认证GPRS数据" + CharUtils.newString(data));
-//			return false;
-			return true;	//此功能有待上线，现在啥几把报文都能通过
 		}
 		/*
 		 * TODO 做时间戳 + 设备地址 + 校验和的验证工作，如果不行就记录非法报文数量。 非法报文数量超过一定程度后封锁该设备地址。
@@ -184,13 +179,13 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 
 	private void handleIdenCode(ChannelHandlerContext ctx, char[] data) {
 		//GPRS登录包、心跳包
-		if (data.length == 20) {
+		if (data.length == 20 && CharUtils.startWith(data, CODE_00)) {
 			return ;
 		}
 
-		//如果没什么用可以去除掉这个
+		//68开头16结尾的报文
 		if (!(CharUtils.startWith(data, EB_UP) || CharUtils.startWith(data, EB_DOWN))
-				&& CharUtils.endsWith(data, CODE_16)) {
+				&& CharUtils.endsWith(data, CODE_16) && CharUtils.startWith(data, CODE_68)) {
 			AttributeKey<Integer> key = AttributeKey.valueOf("isRegisted");
 			Attribute<Integer> attr = ctx.attr(key);
 			if (null == attr.get()) {
@@ -201,6 +196,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			}
 		}
 
+		//报文少于登录包和心跳包，返回
 		if (data.length < 20) {
 			logger.info("接收到的非法数据--------------------" + String.valueOf(data));
 			return;
@@ -324,7 +320,6 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		AttributeKey<Integer> key = AttributeKey.valueOf("FirstTotalCall");
 		Attribute<Integer> attr = ctx.attr(key);
 		if (null == attr.get()) {
-			getOnlineAddress(ctx, data);
 			attr.set(1);
 			// 发送对时命令，第一次总召的时间其实是不对的
 			String correctTime = doMatchTime(CharUtils.newString(data, 10, 18));

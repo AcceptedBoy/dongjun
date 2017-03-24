@@ -93,8 +93,8 @@ public class TemperatureChartData extends ChartData {
 					}
 					count++;
 				} else {
-					//没有该时间点的设备，其测量值设为前一个值，如果没有就设为空
-					if (chartValue.size() != 0) {
+					//没有该时间点的设备，其测量值设为前一个值，如果没有就设为空。如果设备的时间集论讯完，设为空。
+					if (chartValue.size() != 0 && flag == 1) {
 						chartValue.add(chartValue.get(chartValue.size() - 1));
 					} else {
 						chartValue.add(null);

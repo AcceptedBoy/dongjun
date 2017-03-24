@@ -35,34 +35,45 @@ public class GPRSModuleController {
 	private UserService userService;
 	@Autowired
 	private HardwareServiceClient hardwareServiceClient;
-	
+
 	@ResponseBody
 	@RequestMapping("/edit")
 	public ResponseMessage edit(GPRSModule gprs) {
 		if (null == gprs.getId()) {
+			List<GPRSModule> modules = gprsService
+					.selectByParameters(MyBatisMapUtil.warp("device_number", gprs.getDeviceNumber()));
+			if (0 != modules.size()) {
+				return ResponseMessage.warning("该设备地址已经被占用");
+			}
 			gprs.setId(UUIDUtil.getUUID());
 			gprs.setAvailable(true);
-			if (0 == 	gprsService.updateByPrimaryKey(gprs)) {
+			if (0 == gprsService.updateByPrimaryKey(gprs)) {
 				return ResponseMessage.warning("操作失败");
 			} else {
 				return ResponseMessage.success("操作成功");
 			}
 		} else {
-			if (0 == 	gprsService.updateByPrimaryKeySelective(gprs)) {
+			GPRSModule module = gprsService.selectByPrimaryKey(gprs.getDeviceNumber());
+			List<GPRSModule> modules = gprsService
+					.selectByParameters(MyBatisMapUtil.warp("device_number", gprs.getDeviceNumber()));
+			if (0 != modules.size()) {
+				return ResponseMessage.warning("该设备地址已经被占用");
+			}
+			if (0 == gprsService.updateByPrimaryKeySelective(gprs)) {
 				return ResponseMessage.warning("操作失败");
 			} else {
 				return ResponseMessage.success("操作成功");
 			}
 		}
 	}
-	
+
 	@ResponseBody
 	@RequestMapping("/list")
 	public ResponseMessage lisGPRSModule(String platformId) {
 		List<GPRSModule> modules = gprsService.selectByParameters(MyBatisMapUtil.warp("group_id", platformId));
 		return ResponseMessage.success(wrapIntoDTO(modules));
 	}
-	
+
 	@ResponseBody
 	@RequestMapping("/del")
 	public ResponseMessage del(String id) {
@@ -71,7 +82,7 @@ public class GPRSModuleController {
 		}
 		return ResponseMessage.success("操作成功");
 	}
-	
+
 	@ResponseBody
 	@RequestMapping("/company_gprs")
 	public ResponseMessage getCompanyGPRS(HttpSession session) {
@@ -80,16 +91,16 @@ public class GPRSModuleController {
 		List<GPRSModule> list = gprsService.selectByParameters(MyBatisMapUtil.warp("group_id", pg.getId()));
 		return ResponseMessage.success(wrapIntoDTO(list));
 	}
-	
+
 	private List<GPRSModuleDTO> wrapIntoDTO(List<GPRSModule> list) {
 		List<GPRSModuleDTO> dtos = new ArrayList<GPRSModuleDTO>();
-		List<String> ids = new ArrayList<String>();
+		List<String> deviceNumbers = new ArrayList<String>();
 		List<Integer> status = null;
 		for (GPRSModule gprs : list) {
-			ids.add(gprs.getId());
+			deviceNumbers.add(gprs.getDeviceNumber());
 		}
-		
-			status = hardwareServiceClient.getService().getGPRSModuleStatus(ids);
+
+		status = hardwareServiceClient.getService().getGPRSModuleStatus(deviceNumbers);
 
 		int i = 0;
 		for (GPRSModule gprs : list) {
@@ -99,21 +110,5 @@ public class GPRSModuleController {
 		}
 		return dtos;
 	}
-	
-	@RequestMapping("/addgprs")
-	@ResponseBody
-	public String add() {
-		GPRSModule module = new GPRSModule();
-		module.setAddress("156");
-		module.setAddress("1");
-		module.setDeviceNumber("156");
-		module.setGmtCreate(new Date());
-		module.setGmtModified(new Date());
-		module.setGroupId("1");
-		module.setId("testid");
-		module.setName("156Name");
-		gprsService.insert(module);
-		return "add!!";
-	}
-	
+
 }

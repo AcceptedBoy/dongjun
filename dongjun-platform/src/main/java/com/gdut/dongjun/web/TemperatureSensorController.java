@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.TemperatureSensor;
+import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.device.TemperatureSensorService;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 
@@ -19,12 +20,14 @@ import com.gdut.dongjun.util.MyBatisMapUtil;
 public class TemperatureSensorController {
 
 	@Autowired
-	TemperatureSensorService sensorService;
+	private TemperatureSensorService sensorService;
+	@Autowired
+	private UserService userService;
 	
 	@RequiresAuthentication
-	@RequestMapping("/get_sensor_by_device_id")
+	@RequestMapping("/list")
 	@ResponseBody
-	public ResponseMessage getSensor(String deviceId) {
+	public ResponseMessage getSensorByDeviceId(String deviceId) {
 		List<TemperatureSensor> list = sensorService.selectByParameters(MyBatisMapUtil.warp("device_id", deviceId));
 		return ResponseMessage.success(list);
 	}
