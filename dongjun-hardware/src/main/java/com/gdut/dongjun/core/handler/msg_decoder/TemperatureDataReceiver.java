@@ -202,7 +202,6 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			return;
 		}
 		char[] controlCode = ArrayUtils.subarray(data, 18, 20);
-		System.out.println(controlCode);
 		if (CharUtils.startWith(data, EB_UP) || CharUtils.startWith(data, EB_DOWN)) {
 			/*
 			 * 读通信地址并将地址反转,确认连接

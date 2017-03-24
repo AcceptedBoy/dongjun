@@ -22,7 +22,7 @@ import io.netty.util.AttributeKey;
 public class SeparatedTextDecoder extends ByteToMessageDecoder {
 
 	//字节68转为10进制之后的数字
-	private static final Integer CODE_68 = 68 * 16 + 8;
+	private static final Integer CODE_68 = 16 * 6 + 8;
 	//字节16转为10进制之后的数字
 	private static final Integer CODE_16 = 1 * 16 + 6;
 	private static final Integer CODE_00 = 0;
@@ -43,18 +43,34 @@ public class SeparatedTextDecoder extends ByteToMessageDecoder {
 			attr.set(in.readerIndex());
 		}
 		
-		Integer storeIndex = attr.get();
+		Integer storeIndex = attr.get(); 
+		
+		if (logger.isDebugEnabled()) {
+			logger.debug("为处理前in的readerIndex" + in.readerIndex() + "    writerIndex" + in.writerIndex() + "    storeIndex" + storeIndex);
+		}
+		
 		Integer readerIndex = in.readerIndex();
 		//移到新来的报文的起点，并读取新报文到newText
 		in.readerIndex(storeIndex);
-		byte[] newText = new byte[in.writerIndex()];
+		//有一个bug，当报文发生拆包，在这个类合并成一条报文，顺利到达{@code TemperatureReceiver}之后，这里会接收到一个decode调用，但是没有报文发过来
+		//暂时为了解决这个问题，设置如果writerIndex和storeIndex一样，就不执行下面流程。
+		if (in.writerIndex() - storeIndex == 0) {
+			return ;
+		}
+		byte[] newText = new byte[in.writerIndex() - storeIndex];
 		in.readBytes(newText);
 		//把报文重新设置回原起点
 		in.readerIndex(readerIndex);
 		
 		//是否是GPRS登录包和心跳包
 		if (isStartWith_0003(newText)) {
+			in.readerIndex(storeIndex);
 			readAllByte(in, out);
+			attr.set(0);
+			
+			if (logger.isDebugEnabled()) {
+				logger.debug("为处理后in的readerIndex" + in.readerIndex() + "    writerIndex" + in.writerIndex() + "    storeIndex" + storeIndex);
+			}
 			return ;
 		}
 		
@@ -71,10 +87,13 @@ public class SeparatedTextDecoder extends ByteToMessageDecoder {
 		} else {
 			
 			//读整段报文开头字符
-			int head = 0;
-			in.readBytes(head);
+			byte[] headByte = new byte[1];
+			in.readBytes(headByte);
+			int head = (int)headByte[0];
 			in.readerIndex(readerIndex);
-			logger.info("整段报文开头" + Integer.toHexString(head));
+			if (logger.isDebugEnabled()) {
+				logger.debug("整段报文开头" + Integer.toHexString(head));
+			}
 			//整段报文开头是不是68开头
 			if (head == CODE_68) {
 				
@@ -93,11 +112,16 @@ public class SeparatedTextDecoder extends ByteToMessageDecoder {
 			}
 		}
 		
+		if (logger.isDebugEnabled()) {
+			logger.debug("为处理后in的readerIndex" + in.readerIndex() + "    writerIndex" + in.writerIndex() + "    storeIndex" + storeIndex);
+		}
 	}
 	
 	private boolean isStartWith_68(byte[] text) {
 		int code = text[0] & 0xFF;
-		logger.info("新来报文开头" + Integer.toHexString(code));
+		if (logger.isDebugEnabled()) {
+			logger.debug("新来报文开头" + Integer.toHexString(code));
+		}
 		if (code == CODE_68) {
 			return true;
 		}
@@ -106,7 +130,9 @@ public class SeparatedTextDecoder extends ByteToMessageDecoder {
 	
 	private boolean isEndWith_16(byte[] text) {
 		int code = text[text.length - 1] & 0xFF;
-		logger.info("新来报文结尾" + Integer.toHexString(code));
+		if (logger.isDebugEnabled()) {
+			logger.debug("新来报文结尾" + Integer.toHexString(code));
+		}
 		if (code == CODE_16) {
 			return true;
 		}
@@ -125,7 +151,7 @@ public class SeparatedTextDecoder extends ByteToMessageDecoder {
 		 * 心跳包报文示范，共10个字节
 		 * 000a0003000133343231
 		 */
-		int code = text[text.length - 1] & 0xFF;
+		int code = text[0] & 0xFF;
 		if (code == CODE_00 &&
 				(text.length == GPRSLoginPackageLength || text.length == GPRSOnlinePackageLegnth)) {
 			return true;
