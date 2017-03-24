@@ -123,10 +123,18 @@
           var node = treeObj.getNodes();
           var nodes = treeObj.transformToArray(node);
           for(var i = 0; i<nodes.length; i++) {
-            if(nodes[i].isParent) {
+            if(nodes[i].isParent || nodes[i].type == 3) {
               nodes[i].nocheck = true;
-              treeObj.updateNode(nodes[i]);
             }
+            if(nodes[i].type == 3) {
+            	console.log('change')
+            	// nodes[i].icon = '../../img/temperature.png'
+            	nodes[i].iconSkin = 'IconTemperature'
+            }
+            if(nodes[i].type == 10) {
+            	nodes[i].iconSkin = 'IconTem'
+            }
+            treeObj.updateNode(nodes[i]);
           }
         },
         /**
