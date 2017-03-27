@@ -231,6 +231,7 @@ public class UserController {
 			session.setAttribute("currentRoles", roleName);
 			map.put("currentRoles", roleName);
 		}
+		map.put("currentUser", user.getId());
 		return map;
 	}
 

@@ -37,11 +37,11 @@ dj.jsLoad('../../js/websocket/sockjs.min.js', function() {
 			})
 
 			// start socket
-			var socket = new SockJS("/portfolio")
+			var socket = new SockJS('/portfolio')
 			stompClient = Stomp.over(socket)
 			stompClient.connect({}, function(frame) {
 				// 订阅报警，每次返回一个object
-				stompClient.subscribe("/user/queue/subscribe_hitch_event", function(message) {
+				stompClient.subscribe('/queue/user-' + roles.currentId + '/hitch', function(message) {
 					var data = JSON.parse(message.body)
 					// 通知
 					notification.full_alert({

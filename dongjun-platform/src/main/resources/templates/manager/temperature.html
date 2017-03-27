@@ -1,34 +1,64 @@
-<div class="form-inline">
-  <div class="form-group span3">
-    <label class="span3">组别:</label>
-    <select class="groups span9"></select>
-  </div>
-  <div class="form-group span3">
-    <label class="span3">公司:</label>
-    <select class='companys span9'></select>
-  </div>
-  <div class="form-group span5">
-      <a href="#add_switch_modal" class="btn btn-primary" id="add_switch_btn" data-toggle="modal" data-backdrop="static" onclick="modal.addSwitch()">添加开关</a>
-      <a href="/dongjun/downloadEmptytemExcel" class="btn btn-primary" id="export_model_btn" data-backdrop="static">导出模板</a>
-      <a href="#upload_modal" class="btn btn-primary" id="add_switch_btn" data-toggle="modal" data-backdrop="static">批量导入</a>
-      <a href="/dongjun/downloadtemExcel" class="btn btn-primary" id="export_switch_btn" data-backdrop="static">导出excel</a>
+<div id="temperature_device_panel">
+  <div class="form-inline">
+    <div class="form-group span3">
+      <label class="span3" style="line-height: 2em">组别:</label>
+      <select class="groups span9"></select>
     </div>
+    <div class="form-group span3">
+      <label class="span3" style="line-height: 2em">公司:</label>
+      <select class='companys span9'></select>
+    </div>
+    <div></div>
+    <div class="form-group span5">
+        <a href="#add_switch_modal" class="btn btn-primary" id="add_switch_btn" data-toggle="modal" data-backdrop="static" onclick="modal.addSwitch()">添加开关</a>
+        <a href="/dongjun/downloadEmptytemExcel" class="btn btn-primary" id="export_model_btn" data-backdrop="static">导出模板</a>
+        <a href="#upload_modal" class="btn btn-primary" id="add_switch_btn" data-toggle="modal" data-backdrop="static">批量导入</a>
+        <a href="/dongjun/downloadtemExcel" class="btn btn-primary" id="export_switch_btn" data-backdrop="static">导出excel</a>
+      </div>
+  </div>
+
+  <table id="switch_list" class="table table-bordered table-striped table-hover table-condensed success">
+    <thead>
+      <td>设备号码</td>
+      <td>名称</td>
+      <td>地址</td>
+      <td>sim</td>
+      <td>温度上限</td>
+      <td>温度下限</td>
+      <td class="hidden"></td>
+      <td>在线时间</td>
+      <td>传感器</td>
+      <td>修改</td>
+      <td>删除</td>
+    </thead>
+  </table>
 </div>
 
-<table id="switch_list" class="table table-bordered table-striped table-hover table-condensed success">
-  <thead>
-    <td>设备号码</td>
-    <td>名称</td>
-    <td>地址</td>
-    <td>sim</td>
-    <td>温度上限</td>
-    <td>温度下限</td>
-    <td class="hidden"></td>
-    <td>在线时间</td>
-    <td>修改</td>
-    <td>删除</td>
-  </thead>
-</table>
+<div id="temperature_sensor_panel" class="hide">
+  <div class="container-fluid well" style="height: 100%;overflow-y: hidden;position: relative;">
+    <h3 class="text-center" id="sensor_list_header">
+      <span id="sensor_list_title">传感器</span>
+      <div id="backToAll" class="notice-container" style="float:left;cursor: pointer;">
+        <div class="cursor-notice"><a style="color: #505050;font-size: 0.8em">◁</a></div>
+        <div class="cursor-notice-borad-right">返回温度设备</div>
+      </div>
+      <div id="addSensor" class="notice-container" style="float:right;cursor: pointer;">
+        <div class="cursor-notice"><a href="#add_sensor_modal" data-toggle="modal" style="color: #505050">+</a></div>
+        <div class="cursor-notice-borad-left">添加传感器</div>
+      </div>
+    </h3>
+    <hr>
+    <table id="sensor_list" class="table table-bordered table-striped table-hover table-condensed success">
+      <thead>
+        <td>传感器编号</td>
+        <td>传感器名称</td>
+        <td>修改</td>
+        <td>删除</td>
+      </thead>
+    </table>
+  </div>
+</div>
+
 
 <script>
 
@@ -56,6 +86,12 @@
             { 'data': 'minHitchValue'},
             { 'data': 'id', 'sClass': 'dpass'},
             { 'data': 'onlineTime' },
+            {
+              'data': 'id',
+              'render': function(data, type, row) {
+                return '<a role="button" class="btn search_sensor_btn" data-name="'+ row.name +'"  data-id="'+ data +'">查看</a>'
+              }
+            },
             { 'data': null},// 设置默认值 null，表示列不会获得数据源对象的信息,否则默认值会被覆盖掉
             { 'data': null},// 设置默认值 null，表示列不会获得数据源对象的信息,否则默认值会被覆盖掉
           ],
@@ -74,7 +110,8 @@
               'previous': '上一页'
             },
             'emptyTable': '找不到相关数据',
-            'zeroRecords': '找不到相关数据'
+            'zeroRecords': '找不到相关数据',
+            'loadingRecords': '正在加载数据...'
           },
           'initComplete': function() {
 
@@ -86,15 +123,15 @@
               } else if(target.hasClass('del_switch_btn')) {
                 var deviceId = target.closest('tr').find('.dpass')[0].innerHTML
                 modal.delSwitch(deviceId)
+              } else if(target.hasClass('search_sensor_btn')) {
+                sensorTable.show(target.data('id'), target.data('name'))
+                panelCtrl.toggle()
               }
             })
           }
         })
       },
       redraw: function(id) {
-        // get
-        // url += '?switchId=' + id;
-        // table.ajax.url('http://127.0.0.1:8080/templates/event/refresh').load();
         console.log('redraw:'+ id)
         if(id == -1){
           console.log('clear')
@@ -105,10 +142,151 @@
         // post
         table.ajax.url(defUrl);
         var param = {
-          platformId: selectManager.getCompany()
+          platformId: id
         };
         table.settings()[0].ajax.data = param;
         table.ajax.reload();
+      }
+    }
+  }()
+
+  // 传感器表格
+  var sensorTable = function() {
+    var table = null
+    var store = {
+      dom: {
+        title: null,
+        add: null,
+        back: null
+      },
+      now: {
+        deviceId: '',
+        sensorId: ''
+      },
+      url: '',
+      lastId: ''
+    }
+    return {
+      init: function(setting) {
+        store.dom = setting.dom
+        store.url = setting.url
+        store.dom.back.on('click', function() {
+          panelCtrl.toggle()
+          store.lastId = store.now.deviceId
+        })
+        this.loadModal()
+      },
+      loadModal: function() {
+        // 引入sensorModal
+        var div = document.createElement('div')
+        dj.inserCmp('temperature_sensor_modal.html', div, function() {
+          $('.modal')[0].appendChild(div)
+
+          sensorModal.setOption({
+            url: {
+              add: '/dongjun/temperature_sensor/edit',
+              edit: '/dongjun/temperature_sensor/edit',
+              del: '/dongjun/temperature_sensor/del',
+            },
+            completeFnc: this.redraw
+          })
+
+        }.bind(this))
+      },
+      show: function(id, title) {
+        if(id === store.lastId) {
+          return
+        }
+        store.now.deviceId = id
+        sensorModal.setDeviceId(id)
+        this.changeTitle(title).draw(id)
+      },
+      changeTitle: function(title) {
+        store.dom.title.html(title)
+        return this
+      },
+      draw: function(id) {
+        table = $('#sensor_list').DataTable({
+          'ajax': {
+            'url': store.url,
+            'type': 'POST',
+            'dataSrc': 'text',
+            'data': {
+              deviceId: id
+            }
+          },
+          'columns': [
+            { 'data': 'tag' },
+            { 'data': 'name'},
+            {
+              'data': 'id',
+              'render': function(data) {
+                return '<a href="#edit_sensor_modal" role="button" class="btn" data-toggle="modal" data-fnc="edit" data-id="'+data+'">修改 &raquo;</a>'
+              }
+            },
+            {
+              'data': 'id',
+              'render': function(data) {
+                return '<a href="#del_sensor_modal" class="btn btn-danger" data-toggle="modal" data-backdrop="static" data-id="'+data+'" data-fnc="del">删除&raquo; </a>'
+              }
+            },
+          ],
+          'language': {
+            'paginate': {
+              'next': '下一页',
+              'previous': '上一页'
+            },
+            'emptyTable': '找不到相关数据',
+            'zeroRecords': '找不到相关数据',
+            'loadingRecords': '正在加载数据...'
+          },
+          'initComplete': function(setting, json) {
+
+            $(this[0]).click(function(event) {
+              var target = $(event.target)
+              var fnc = target.data('fnc')
+              if(fnc == 'edit') {
+                if(sensorModal) {
+                  var id = target.data('id')
+                  var data = Array.prototype.find.call(table.data(), function(item) {
+                    return item.id == id
+                  })
+                  sensorModal.editSensor(data)
+                }
+              } else if(fnc == 'del') {
+                var id = target.data('id')
+                if(sensorModal) {
+                  sensorModal.delSensor(id)
+                }
+              }
+            })
+          }
+        })
+        this.draw = this.redraw
+        return this
+      },
+      redraw: function(id) {
+        table.ajax.url(store.url)
+        var param = {
+          deviceId: id
+        }
+        table.settings()[0].ajax.data = param
+        table.ajax.reload()
+        return this
+      }
+    }
+  }()
+
+  // 切换表格
+  var panelCtrl = function(){
+    var panelDom = {
+      device: $('#temperature_device_panel'),
+      sensor: $('#temperature_sensor_panel')
+    }
+    return {
+      toggle: function() {
+        panelDom.device.toggle(300)
+        panelDom.sensor.toggle(300)
       }
     }
   }()
@@ -143,4 +321,15 @@
       platformId: selectManager.getCompany()
     }
   })
+
+  sensorTable.init({
+    dom: {
+      title: $('#sensor_list_title'),
+      add: $('#addSensor'),
+      back: $('#backToAll')
+    },
+    url: '/dongjun/temperature_sensor/list'
+  })
+
+  // sensorTable.show(1, 'test')
 </script>

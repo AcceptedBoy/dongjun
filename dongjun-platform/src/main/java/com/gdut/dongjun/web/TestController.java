@@ -18,29 +18,29 @@ import com.gdut.dongjun.service.webservice.server.WebsiteService;
 @RequestMapping("/test")
 public class TestController {
 
-	@Autowired
-	private MQProductHelper mqHelper;
+//	@Autowired
+//	private MQProductHelper mqHelper;
 	@Autowired
 	private UserService userService;
 	@Autowired
 	private WebsiteService webService;
 	
-	@RequestMapping("/send")
-	@ResponseBody
-	public ResponseMessage send() {
-		HitchEventVO vo = new HitchEventVO();
-		vo.setGroupId("1");
-		vo.setId("03cb2cdd6f364427bc4d681efd2d3ce3");
-		vo.setSwitchId("1");
-		vo.setType(3);
-		User user = userService.selectByPrimaryKey("001");
-		try {
-			mqHelper.sendHitchEvent(user, vo);
-		} catch (JMSException e) {
-			e.printStackTrace();
-		}
-		return ResponseMessage.success("fuck");
-	}
+//	@RequestMapping("/send")
+//	@ResponseBody
+//	public ResponseMessage send() {
+//		HitchEventVO vo = new HitchEventVO();
+//		vo.setGroupId("1");
+//		vo.setId("03cb2cdd6f364427bc4d681efd2d3ce3");
+//		vo.setSwitchId("1");
+//		vo.setType(3);
+//		User user = userService.selectByPrimaryKey("001");
+//		try {
+//			mqHelper.sendHitchEvent(user, vo);
+//		} catch (JMSException e) {
+//			e.printStackTrace();
+//		}
+//		return ResponseMessage.success("fuck");
+//	}
 	
 	@RequestMapping("/send1")
 	@ResponseBody

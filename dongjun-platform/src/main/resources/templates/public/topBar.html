@@ -20,7 +20,7 @@
 </div>
 <script>
 	var roles = {};
-	
+
 	(function(){
 		$.ajax({
 			url: '/islogin',
@@ -32,6 +32,9 @@
 						location.href = '/dongjun/login'
 					} else {
 						roles.currentRole = res.currentRoles
+						Object.defineProperty(roles, 'currentId', {
+							value: res.currentUser
+						})
 					}
 				}
 			},

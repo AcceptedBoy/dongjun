@@ -1,0 +1,201 @@
+<!-- Add_Switch_Modal -->
+<div id="add_sensor_modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal"
+            aria-hidden="true" onclick="sensorModal.clearSensor()">×</button>
+    <h3>添加传感器</h3>
+  </div>
+  <div class="modal-body">
+    <div id="add_sensor_form" class="form-horizontal">
+      <div class="control-group">
+        <label class="control-label" for="inputSensorTag">传感器编号</label>
+        <div class="controls">
+          <input type="text" id="inputSensorTag" name="sensorTag" />
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="inputSensorName">传感器名称</label>
+        <div class="controls">
+          <input type="text" id="inputSensorName" name="sensorName" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true" onclick="sensorModal.clearSensor()">取消</button>
+        <button id="add_switch_confirm_btn" class="btn btn-primary"
+                aria-hidden="true" onclick="sensorModal.save(true)">添加</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit_Switch_Modal -->
+<div id="edit_sensor_modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal"
+            aria-hidden="true">×</button>
+    <h3>编辑传感器</h3>
+  </div>
+  <div class="modal-body">
+    <div id="edit_sensor_form" class="form-horizontal">
+        <!-- action="edit_switch" -->
+      <div class="control-group">
+        <label class="control-label" for="editSensorTag">传感器编号</label>
+        <div class="controls">
+          <input type="text" id="editSensorTag" name="sensorTag"/>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="editSensorName">传感器名称</label>
+        <div class="controls">
+          <input type="text" id="editSensorName" name="sensorName" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+        <button id="edit_switch_confirm_btn" class="btn btn-primary"
+                aria-hidden="true" onclick="sensorModal.save(false)">确定</button>
+        <!--  btn-primary -->
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!--delete Modal -->
+<div id="del_sensor_modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal"
+            aria-hidden="true">×</button>
+    <h3 id="myModalLabel">警告</h3>
+  </div>
+  <div class="modal-body">
+    <p>您确定要删除这个传感器吗？请慎重考虑</p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
+    <a id="del_confirm_btn" class="btn btn-danger" data-dismiss="modal"
+       aria-hidden="true" onclick="sensorModal.sureDel()">删除</a>
+  </div>
+</div>
+
+<script>
+  var sensorModal = function(){
+    var urls = {};
+    var completeFnc = null;
+    var now = {
+      deviceId: '',
+      sensorId: ''
+    }
+    return {
+      setOption: function(o) {
+        completeFnc = o.completeFnc
+        urls = {
+          add: o.url.add,
+          edit: o.url.edit,
+          del: o.url.del,
+        }
+      },
+      /**
+       * 设置当前传感器所属温度设备的id
+       * @param {[type]} deviceId [description]
+       */
+      setDeviceId: function(deviceId) {
+        now.deviceId = deviceId
+      },
+      /**
+       * 设置当前传感器的id
+       * @param {[type]} sensorId [description]
+       */
+      setSensorId: function(sensorId) {
+        now.sensorId = sensorId
+      },
+      clearSensor: function() {
+        var inputs = $('#add_sensor_modal').find('input')
+        for (var i = inputs.length - 1; i >= 0; i--) {
+          var input = inputs[i]
+          input.value = ''
+        }
+      },
+      save: function(isAdd) {
+        var curModal = isAdd ? $('#add_sensor_modal') : $('#edit_sensor_modal')
+        var inputs = curModal.find('input')
+        var data = {}
+        for (var i = inputs.length - 1; i >= 0; i--) {
+          var input = inputs[i]
+          if(!$.trim(input.value)) {
+            input.focus()
+            alert('您还有选项暂未填写')
+            return
+          }
+          var dataName = (input.name).replace(/^sensor(\w)/, function(match, $1) {
+            return $1.toLowerCase()
+          })
+          data[dataName] = input.value
+        }
+
+        var params = {
+          'name' : data.name,
+          'tag' : data.tag,
+          'deviceId' : now.deviceId,
+        }
+
+        console.log(params)
+
+        if(!isAdd) {
+          params['id'] = now.sensorId
+        }
+
+        console.log(params)
+        $.ajax({
+          type : 'POST',
+          url : isAdd ? urls.add : urls.edit,
+          async : false,
+          data : params,
+          success : function(data) {
+            if(data.success) {
+              completeFnc(now.deviceId)
+              alert('操作成功')
+              curModal.find('.close').click()
+            } else {
+              alert('失败 ')
+            }
+          }
+        })
+      },
+      editSensor: function(data) {
+        this.setSensorId(data.id)
+        var inputs = $('#edit_sensor_modal').find('input')
+        var name
+        Array.prototype.forEach.call(inputs, function(item) {
+          name = item.name.replace(/^sensor(\w)/, function(match, $1) {
+            return $1.toLowerCase()
+          })
+          console.log(name)
+          item.value = data[name]
+        })
+      },
+      delSensor: function(sensorId) {
+        this.setSensorId(sensorId)
+      },
+      sureDel: function() {
+        $.ajax({
+          type: 'post',
+          url: urls.del,
+          data: {
+            'id': now.sensorId
+          },
+          success: function(data) {
+            if(data.success) {
+              completeFnc(now.deviceId)
+            } else {
+              alert('操作失败')
+            }
+          },
+          error: function() {
+            alert('操作失败')
+          }
+        })
+      }
+    }
+  }()
+</script>

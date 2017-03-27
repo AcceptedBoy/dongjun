@@ -27,9 +27,11 @@
         var link = document.createElement('link')
         link.type = 'text/css'
         link.rel = 'stylesheet'
-        link.addEventListener('load', function() {
-          cb()
-        })
+        if(cb) {
+          link.addEventListener('load', function() {
+            cb()
+          })
+        }
         link.href = url
         document.getElementsByTagName('head')[0].appendChild(link)
       }
@@ -95,6 +97,8 @@
       dj.jsLoad('/js/manager/selectManager.js', function(){
         dj.inserCmp('control_measure_modal.html', $('.modal')[0], function(){
           dj.inserCmp('control_measure.html', $('.container')[0])
+          loadLink('/css/equipment_manager.css')
+
         })
       })
     }
@@ -102,7 +106,9 @@
     function loadTemperature() {
       dj.jsLoad('/js/manager/selectManager.js', function(){
         dj.inserCmp('temperature_modal.html', $('.modal')[0], function(){
+          loadLink('/css/equipment_manager.css')
           dj.inserCmp('temperature.html', $('.container')[0])
+
         })
       })
     }

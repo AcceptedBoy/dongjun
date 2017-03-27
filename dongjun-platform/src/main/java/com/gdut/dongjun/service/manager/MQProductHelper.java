@@ -23,9 +23,10 @@ import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.vo.HitchEventVO;
 import com.gdut.dongjun.service.webservice.server.WebsiteService;
 
-@Component
-public class MQProductHelper implements InitializingBean {
-	//
+//@Component
+//public class MQProductHelper implements InitializingBean {
+	public class MQProductHelper {
+
 	// public static final Logger LOG = Logger.getLogger(MQProductHelper.class);
 	// private static PooledConnectionFactory poolFactory;
 	// private static ActiveMQConnectionFactory connectionFactory;
@@ -83,83 +84,86 @@ public class MQProductHelper implements InitializingBean {
 	// }
 	// }
 
-	@Autowired
-	private ActiveMQConnectionFactory connectionFactory;
-
-	private SimpMessagingTemplate template;
-	@Autowired
-	public void setTemplate(SimpMessagingTemplate template) {
-		this.template = template;
-	}
-
-	private static final String QUEUE_NAME = "/queue/user-001/hitch";
-
-	//连接池化
-	private Connection con = null;
-
-	//session池化
-	private Session session = null;
-	
-	//端点和user一起在后台维护
-	private Destination destination = null;
-	
-	//这个跟Destination一起维护了
-	private MessageProducer producer = null;
-	
-	//这个跟Destination一起维护了
-	private MessageConsumer consumer = null;
-
-	public void sendHitchEvent(User user, HitchEventVO vo) throws JMSException {
-		String queueName = "/queue/user-" + user.getId() + "/hitch";
-		sendQueueMessage(queueName, vo);
-	}
-
-	public void sendQueueMessage(String queueName, Serializable obj) throws JMSException {
-		
-		// 持久
-		ObjectMessage message = session.createObjectMessage();
-
-		// primitive objects, String, Map and List types are
-		// allowed，必须是String,map或者list
-		message.setObject(obj);
-
-		producer.send(message);
-	}
-
-//	public Object get() throws JMSException {
+	/*
+	 * 测试代码
+	 */
+//	@Autowired
+//	private ActiveMQConnectionFactory connectionFactory;
+//
+//	private SimpMessagingTemplate template;
+//	@Autowired
+//	public void setTemplate(SimpMessagingTemplate template) {
+//		this.template = template;
 //	}
 //
-//	public Map changeIntoMap(HitchEventDTO dto) {
-//		Map<String, String> map = new HashMap<String, String>();
-//		map.put("group_id", dto.getGroupId());
-//		map.put("name", dto.getName());
-//		return map;
+//	private static final String QUEUE_NAME = "/queue/user-001/hitch";
+//
+//	//连接池化
+//	private Connection con = null;
+//
+//	//session池化
+//	private Session session = null;
+//	
+//	//端点和user一起在后台维护
+//	private Destination destination = null;
+//	
+//	//这个跟Destination一起维护了
+//	private MessageProducer producer = null;
+//	
+//	//这个跟Destination一起维护了
+//	private MessageConsumer consumer = null;
+//
+//	public void sendHitchEvent(User user, HitchEventVO vo) throws JMSException {
+//		String queueName = "/queue/user-" + user.getId() + "/hitch";
+//		sendQueueMessage(queueName, vo);
 //	}
-
-	@Override
-	public void afterPropertiesSet() throws Exception {
-		con = connectionFactory.createConnection();
-		session = con.createSession(Boolean.FALSE, Session.AUTO_ACKNOWLEDGE);
-		destination = session.createQueue(QUEUE_NAME);
-		producer = session.createProducer(destination);
-		producer.setDeliveryMode(DeliveryMode.PERSISTENT);
-		consumer = session.createConsumer(destination);
-		consumer.setMessageListener(new MessageListener() {
-			@Override
-			public void onMessage(Message message) {
-				System.out.println("接收到信息");
-				HitchEventVO vo = null;
-				try {
-					ObjectMessage ms = (ObjectMessage)message;
-					vo = (HitchEventVO) ms.getObject();
-					template.convertAndSend("/queue/user-001/hitch", vo);
-				} catch (JMSException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-		con.start();
-	}
-	
+//
+//	public void sendQueueMessage(String queueName, Serializable obj) throws JMSException {
+//		
+//		// 持久
+//		ObjectMessage message = session.createObjectMessage();
+//
+//		// primitive objects, String, Map and List types are
+//		// allowed，必须是String,map或者list
+//		message.setObject(obj);
+//
+//		producer.send(message);
+//	}
+//
+////	public Object get() throws JMSException {
+////	}
+////
+////	public Map changeIntoMap(HitchEventDTO dto) {
+////		Map<String, String> map = new HashMap<String, String>();
+////		map.put("group_id", dto.getGroupId());
+////		map.put("name", dto.getName());
+////		return map;
+////	}
+//
+//	@Override
+//	public void afterPropertiesSet() throws Exception {
+//		con = connectionFactory.createConnection();
+//		session = con.createSession(Boolean.FALSE, Session.AUTO_ACKNOWLEDGE);
+//		destination = session.createQueue(QUEUE_NAME);
+//		producer = session.createProducer(destination);
+//		producer.setDeliveryMode(DeliveryMode.PERSISTENT);
+//		consumer = session.createConsumer(destination);
+//		consumer.setMessageListener(new MessageListener() {
+//			@Override
+//			public void onMessage(Message message) {
+//				System.out.println("接收到信息");
+//				HitchEventVO vo = null;
+//				try {
+//					ObjectMessage ms = (ObjectMessage)message;
+//					vo = (HitchEventVO) ms.getObject();
+//					template.convertAndSend("/queue/user-001/hitch", vo);
+//				} catch (JMSException e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		});
+//		con.start();
+//	}
+//	
 	
 }

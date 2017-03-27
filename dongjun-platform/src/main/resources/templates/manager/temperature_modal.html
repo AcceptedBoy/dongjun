@@ -1,159 +1,159 @@
 <div id="upload_modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal"
-                    aria-hidden="true">×</button>
-            <h3 id="myModalLabel">上传excel</h3>
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal"
+            aria-hidden="true">×</button>
+    <h3 id="myModalLabel">上传excel</h3>
+  </div>
+  <div class="modal-body">
+    <form id="upload_form" class="form-horizontal" onsubmit="return false">
+      <div class="control-group">
+        <label class="control-label" for="file">文件位置</label>
+        <div class="controls">
+          <input type="file" id="file" name="file" />
         </div>
-        <div class="modal-body">
-            <form id="upload_form" class="form-horizontal" onsubmit="return false">
-                <div class="control-group">
-                    <label class="control-label" for="file">文件位置</label>
-                    <div class="controls">
-                        <input type="file" id="file" name="file" />
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
-                    <button id="uploadxls_btn" class="btn btn-primary" onclick="modal.uploadFile()">添加</button>
-                </div>
-            </form>
-        </div>
-    </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+        <button id="uploadxls_btn" class="btn btn-primary" onclick="modal.uploadFile()">添加</button>
+      </div>
+    </form>
+  </div>
+</div>
 
-    <!-- Add_Switch_Modal -->
+<!-- Add_Switch_Modal -->
 <div id="add_switch_modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"
-                aria-hidden="true">×</button>
-        <h3>添加开关</h3>
-    </div>
-    <div class="modal-body">
-        <div id="add_switch_form" class="form-horizontal">
-            <!-- action="edit_switch" -->
-            <div class="control-group">
-                <label class="control-label" for="inputDeviceNumber">设备号码</label>
-                <div class="controls">
-                    <input type="text" id="inputDeviceNumber" name="deviceNumber" />
-                </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label" for="inputName">开关名称</label>
-                <div class="controls">
-                    <input type="text" id="inputName" name="name" />
-                </div>
-            </div>
-
-            <div class="control-group">
-                <label class="control-label" for="inputAddress">地址</label>
-                <div class="controls">
-                    <input type="text" id="inputAddress" name="address" />
-                </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label" for="inputSim">SIM</label>
-                <div class="controls">
-                    <input type="text" id="inputSim" name="simNumber"/>
-                </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label" for="inputMaxHitchValue">上限</label>
-                <div class="controls">
-                    <input type="number" id="inputMaxHitchValue" name="maxHitchValue" step="0.01"/>
-                </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label" for="inputMinHitchValue">下限</label>
-                <div class="controls">
-                    <input type="number" id="inputMinHitchValue" name="minHitchValue" step="0.01"/>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
-                <button id="add_switch_confirm_btn" class="btn btn-primary"
-                        aria-hidden="true" onclick="modal.save(true)">添加</button>
-            </div>
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal"
+            aria-hidden="true">×</button>
+    <h3>添加开关</h3>
+  </div>
+  <div class="modal-body">
+    <div id="add_switch_form" class="form-horizontal">
+        <!-- action="edit_switch" -->
+      <div class="control-group">
+        <label class="control-label" for="inputDeviceNumber">设备号码</label>
+        <div class="controls">
+          <input type="text" id="inputDeviceNumber" name="deviceNumber" />
         </div>
-    </div>
-</div>
-    <!-- <addSwitchModal></addSwitchModal> -->
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="inputName">开关名称</label>
+        <div class="controls">
+          <input type="text" id="inputName" name="name" />
+        </div>
+      </div>
 
-    <!-- Edit_Switch_Modal -->
+      <div class="control-group">
+        <label class="control-label" for="inputAddress">地址</label>
+        <div class="controls">
+          <input type="text" id="inputAddress" name="address" />
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="inputSim">SIM</label>
+        <div class="controls">
+          <input type="text" id="inputSim" name="simNumber"/>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="inputMaxHitchValue">上限</label>
+        <div class="controls">
+          <input type="number" id="inputMaxHitchValue" name="maxHitchValue" step="0.01"/>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="inputMinHitchValue">下限</label>
+        <div class="controls">
+          <input type="number" id="inputMinHitchValue" name="minHitchValue" step="0.01"/>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+        <button id="add_switch_confirm_btn" class="btn btn-primary"
+                aria-hidden="true" onclick="modal.save(true)">添加</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit_Switch_Modal -->
 <div id="edit_switch_modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"
-                aria-hidden="true">×</button>
-        <h3>编辑开关</h3>
-    </div>
-    <div class="modal-body">
-        <div id="edit_switch_form" class="form-horizontal">
-            <!-- action="edit_switch" -->
-            <div class="control-group">
-                <label class="control-label" for="editDeviceNumber">设备号码</label>
-                <div class="controls">
-                    <input type="text" id="editDeviceNumber" name="deviceNumber" readonly />
-                </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label" for="editName">开关名称</label>
-                <div class="controls">
-                    <input type="text" id="editName" name="name" />
-                </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label" for="editAddress">地址</label>
-                <div class="controls">
-                    <input type="text" id="editAddress" name="address" />
-                </div>
-            </div>
-             <div class="control-group">
-                <label class="control-label" for="editSim">SIM</label>
-                <div class="controls">
-                    <input type="text" id="editSim" name="simNumber"/>
-                </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label" for="editMaxHitchValue">上限</label>
-                <div class="controls">
-                    <input type="number" id="editMaxHitchValue" name="maxHitchValue" step="0.01"/>
-                </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label" for="editMinHitchValue">下限</label>
-                <div class="controls">
-                    <input type="number" id="editMinHitchValue" name="minHitchValue" step="0.01"/>
-                </div>
-            </div>
-            <div class="control-group hidden">
-                <label class="control-label" for="editId">id</label>
-                <div class="controls">
-                    <input type="text" id="editId" name="id" readOnly onfocus="this.blur()"/>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
-                <button id="edit_switch_confirm_btn" class="btn btn-primary"
-                        aria-hidden="true" onclick="modal.save(false)">确定</button>
-                <!--  btn-primary -->
-            </div>
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal"
+            aria-hidden="true">×</button>
+    <h3>编辑开关</h3>
+  </div>
+  <div class="modal-body">
+    <div id="edit_switch_form" class="form-horizontal">
+        <!-- action="edit_switch" -->
+      <div class="control-group">
+        <label class="control-label" for="editDeviceNumber">设备号码</label>
+        <div class="controls">
+          <input type="text" id="editDeviceNumber" name="deviceNumber" readonly />
         </div>
-
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="editName">开关名称</label>
+        <div class="controls">
+          <input type="text" id="editName" name="name" />
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="editAddress">地址</label>
+        <div class="controls">
+          <input type="text" id="editAddress" name="address" />
+        </div>
+      </div>
+       <div class="control-group">
+        <label class="control-label" for="editSim">SIM</label>
+        <div class="controls">
+          <input type="text" id="editSim" name="simNumber"/>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="editMaxHitchValue">上限</label>
+        <div class="controls">
+          <input type="number" id="editMaxHitchValue" name="maxHitchValue" step="0.01"/>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="editMinHitchValue">下限</label>
+        <div class="controls">
+          <input type="number" id="editMinHitchValue" name="minHitchValue" step="0.01"/>
+        </div>
+      </div>
+      <div class="control-group hidden">
+        <label class="control-label" for="editId">id</label>
+        <div class="controls">
+          <input type="text" id="editId" name="id" readOnly onfocus="this.blur()"/>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+        <button id="edit_switch_confirm_btn" class="btn btn-primary"
+                aria-hidden="true" onclick="modal.save(false)">确定</button>
+        <!--  btn-primary -->
+      </div>
     </div>
+
+  </div>
 </div>
+
 <!--delete Modal -->
 <div id="del_switch_modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"
-                aria-hidden="true">×</button>
-        <h3 id="myModalLabel">警告</h3>
-    </div>
-    <div class="modal-body">
-        <p>您确定要删除这个开关吗？请慎重考虑</p>
-    </div>
-    <div class="modal-footer">
-        <button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
-        <a id="del_confirm_btn" class="btn btn-danger" data-dismiss="modal"
-           aria-hidden="true" onclick="modal.sureDel()">删除</a>
-    </div>
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal"
+            aria-hidden="true">×</button>
+    <h3 id="myModalLabel">警告</h3>
+  </div>
+  <div class="modal-body">
+    <p>您确定要删除这个开关吗？请慎重考虑</p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
+    <a id="del_confirm_btn" class="btn btn-danger" data-dismiss="modal"
+       aria-hidden="true" onclick="modal.sureDel()">删除</a>
+  </div>
 </div>
 
 <script>
@@ -170,7 +170,6 @@
           del: o.url.del,
           upload: o.url.upload
         }
-        status = o.status
       },
       addSwitch: function(line) {
         var inputs = $('#add_switch_modal').find('input')
