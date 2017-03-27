@@ -14,6 +14,7 @@ import com.gdut.dongjun.domain.po.TemperatureSensor;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.device.TemperatureSensorService;
 import com.gdut.dongjun.util.MyBatisMapUtil;
+import com.gdut.dongjun.util.UUIDUtil;
 
 @Controller
 @RequestMapping("/dongjun/temperature_sensor")
@@ -32,17 +33,20 @@ public class TemperatureSensorController {
 		return ResponseMessage.success(list);
 	}
 	
-	@RequiresPermissions("platform_group_admin:device")
+//	@RequiresPermissions("platform_group_admin:device")
 	@RequestMapping("/edit")
 	@ResponseBody
 	public ResponseMessage editSensor(TemperatureSensor sensor) {
+		if (null == sensor.getId()) {
+			sensor.setId(UUIDUtil.getUUID());
+		}
 		if (sensorService.updateByPrimaryKey(sensor) == 0) {
 			return ResponseMessage.warning("操作失败");
 		}
 		return ResponseMessage.success("操作成功");
 	}
 	
-	@RequiresPermissions("platform_group_admin:device")
+//	@RequiresPermissions("platform_group_admin:device")
 	@RequestMapping("/del")
 	@ResponseBody
 	public ResponseMessage delSensor(String id) {
