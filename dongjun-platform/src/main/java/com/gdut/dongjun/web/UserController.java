@@ -151,7 +151,7 @@ public class UserController {
 						}
 					}
 					for (HitchEventDTO dto : dtos) {
-						template.convertAndSendToUser(user.getName(), "/queue/subscribe_hitch_event", dto);
+						template.convertAndSend("/queue/user-" + user.getId() + "/hitch", dto);
 					}
 				}
 				

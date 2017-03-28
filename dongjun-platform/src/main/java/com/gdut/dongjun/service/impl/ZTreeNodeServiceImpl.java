@@ -207,7 +207,7 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 								n4.setId(sensors.get(l).getTag() + "");
 								n4.setName(sensors.get(l).getName());
 								n4.setParentName(devices.get(k).getName());
-								n4.setType(10);
+								n4.setType(80);
 							}
 							sensorNodes.add(n4);
 						}

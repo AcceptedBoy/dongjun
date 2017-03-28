@@ -41,6 +41,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
 import com.gdut.dongjun.service.common.CommonSwitch;
+import com.gdut.dongjun.web.listener.ShiroSessionListener;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 import net.sf.ehcache.CacheManager;
@@ -55,7 +56,7 @@ public class Application extends SpringBootServletInitializer {
 	@Bean
 	public CommonSwitch projectConstant() {
 		return new CommonSwitch();
-	}
+	}	
 	
 	/*--------------------------------------------------------
 	 * 					数据库配置
@@ -212,6 +213,11 @@ public class Application extends SpringBootServletInitializer {
 		factoryBean.setUnauthorizedUrl("/dongjun/user/unauthorized");
 		factoryBean.setLoginUrl("/dongjun/login");
 		return factoryBean;
+	}
+	
+	@Bean
+	public ShiroSessionListener ShiroSessionListener() {
+		return new ShiroSessionListener();
 	}
 	
 	/**

@@ -17,7 +17,7 @@ import com.gdut.dongjun.service.UserService;
  * @author Gordan_Deng
  * @date 2017年3月20日
  */
-@Component
+//@Component
 public class SessionDisconnectListener implements HttpSessionListener {
 
 	@Autowired
@@ -28,6 +28,7 @@ public class SessionDisconnectListener implements HttpSessionListener {
 
 	@Override
 	public void sessionDestroyed(HttpSessionEvent se) {
+		
 		HttpSession session = se.getSession();
 		User user = userService.getCurrentUser(session);
 		if (null == user) {

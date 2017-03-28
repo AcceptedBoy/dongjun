@@ -78,7 +78,7 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements
 		//记录在线用户
 		allCurrentUsers.add(user);
 		//注册User的MessageHolder
-		mqService.initUserMessageHolder(user);
+//		mqService.remarkLogIn(user);
 	}
 	
 	/**

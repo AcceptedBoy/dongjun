@@ -131,7 +131,7 @@
             	// nodes[i].icon = '../../img/temperature.png'
             	nodes[i].iconSkin = 'IconTemperature'
             }
-            if(nodes[i].type == 10) {
+            if(nodes[i].type == 80) {
             	nodes[i].iconSkin = 'IconTem'
             }
             treeObj.updateNode(nodes[i]);
@@ -524,7 +524,7 @@
                 // url: 'http://127.0.0.1:8080/templates/manager/loadChart',
                 type: 'GET',
                 data: {
-                  switchId: nodeId,
+                  switchId: nodeId,	
                   type: nodeType,
                   beginDate: begin_time,
                   endDate: end_time,

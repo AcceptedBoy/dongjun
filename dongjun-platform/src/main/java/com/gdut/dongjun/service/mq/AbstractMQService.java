@@ -1,14 +1,10 @@
 package com.gdut.dongjun.service.mq;
 
-import javax.jms.Destination;
+import javax.jms.Connection;
 import javax.jms.JMSException;
-import javax.jms.MessageConsumer;
-import javax.jms.MessageProducer;
 import javax.jms.Session;
 
 import org.apache.activemq.pool.PooledConnectionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  * 写得有点糟糕
@@ -21,7 +17,8 @@ public abstract class AbstractMQService {
 	protected static PooledConnectionFactory pooledFactory;
 
 	public Session getMQSession() throws JMSException {
-		return pooledFactory.createConnection().createSession(Boolean.FALSE, Session.AUTO_ACKNOWLEDGE);
+		Connection connection = pooledFactory.createConnection();
+		return connection.createSession(Boolean.FALSE, Session.AUTO_ACKNOWLEDGE);
 	}
 	
 }

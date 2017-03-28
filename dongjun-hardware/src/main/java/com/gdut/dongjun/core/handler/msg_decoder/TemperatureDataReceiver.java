@@ -409,6 +409,9 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	 * @param value
 	 */
 	private void doSaveMeasure(String value, String deviceId, int tag) {
+		List<TemperatureSensor> sensorList = sensorService
+				.selectByParameters(MyBatisMapUtil.warp("device_id", deviceId));
+		isSensorExist(sensorList, tag, deviceId);
 		measureHistoryService.insert(new TemperatureMeasureHistory(UUIDUtil.getUUID(), deviceId,
 				new Timestamp(System.currentTimeMillis()), tag, Integer.parseInt(value, 16) * 10 + ""));
 		doSaveMeasure0(value, deviceId, tag);
@@ -428,6 +431,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			if (value[i - 1].equals("0000")) {
 				continue;
 			}
+			//这函数好难看，待更改 TODO
 			isSensorExist(sensorList, i, deviceId);
 			measureHistoryService.insert(new TemperatureMeasureHistory(UUIDUtil.getUUID(), deviceId,
 					new Timestamp(System.currentTimeMillis()), i, Integer.parseInt(value[i - 1], 16) * 10 + ""));

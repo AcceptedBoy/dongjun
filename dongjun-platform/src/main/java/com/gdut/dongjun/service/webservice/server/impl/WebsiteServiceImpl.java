@@ -98,23 +98,22 @@ public class WebsiteServiceImpl implements WebsiteService {
 					template.convertAndSend("/queue/user-" + user.getId() + "/hitch", dto);
 				} else {
 //					//用户不在线就将消息持久化，等用户上线时再推送
-//					PersistentHitchMessage message = new PersistentHitchMessage(UUIDUtil.getUUID(), 
-//							event.getType(), event.getId(), new Date(), user.getId(), new Date(), new Date());
-//					persistentMessageService.updateByPrimaryKey(message);
-					//用户不在就塞到MQ
-					try {
-						mqService.sendHitchMessage(user, dto);
-					} catch (JMSException e) {
-						//TODO 发生了错误之后启用原来的消息本地持久化做法
-						LOG.info("报警消息推送到MQ时发生错误，报错队列为/queue/user-" + user.getId() + "/hitch");
-						e.printStackTrace();
-						PersistentHitchMessage message = new PersistentHitchMessage(UUIDUtil.getUUID(), 
-								event.getType(), event.getId(), new Date(), user.getId(), new Date(), new Date());
-						persistentMessageService.updateByPrimaryKey(message);
-					}
+					PersistentHitchMessage message = new PersistentHitchMessage(UUIDUtil.getUUID(), 
+							event.getType(), event.getId(), new Date(), user.getId(), new Date(), new Date());
+					persistentMessageService.updateByPrimaryKey(message);
+					//mq功能尚有bug，不开放
+//					try {
+//						mqService.sendHitchMessage(user, dto);
+//					} catch (JMSException e) {
+//						//TODO 发生了错误之后启用原来的消息本地持久化做法
+//						LOG.info("报警消息推送到MQ时发生错误，报错队列为/queue/user-" + user.getId() + "/hitch");
+//						e.printStackTrace();
+//						PersistentHitchMessage message = new PersistentHitchMessage(UUIDUtil.getUUID(), 
+//								event.getType(), event.getId(), new Date(), user.getId(), new Date(), new Date());
+//						persistentMessageService.updateByPrimaryKey(message);
+//					}
 				}
 			}
 		}
 	}
-
 }

@@ -37,6 +37,7 @@ public class SwitchChartDataDecorator extends ChartDataDecorator {
 		ChartData fullChart = this.getChart();
 		List<String> legend = new ArrayList<String>();
 		for (SwitchChartData chart : this.chartList) {
+			
 			this.timeList = doSort(this.timeList, chart.getTimeList());
 		}
 		if (this.timeList.size() == 0) {
