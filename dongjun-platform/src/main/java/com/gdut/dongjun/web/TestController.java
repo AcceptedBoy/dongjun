@@ -1,5 +1,6 @@
 package com.gdut.dongjun.web;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -21,6 +22,8 @@ public class TestController implements InitializingBean {
 	private UserService userService;
 	@Autowired
 	private WebsiteService webService;
+	
+	private Logger logger = Logger.getLogger(TestController.class);	
 	
 //	@RequestMapping("/send")
 //	@ResponseBody
@@ -71,5 +74,24 @@ public class TestController implements InitializingBean {
 //		webService.callbackHitchEvent(vo);
 //		webService.callbackHitchEvent(vo);
 //		webService.callbackHitchEvent(vo);
+		
+//		Thread t = new Thread() {
+//
+//			@Override
+//			public void run() {
+//				while (true) {
+//					logger.info("我随便打印了点消息");
+//					//睡眠三十分钟
+//					try {
+//						Thread.sleep(1000 * 1);
+//					} catch (InterruptedException e) {
+//						// TODO Auto-generated catch block
+//						e.printStackTrace();
+//					}
+//				}
+//			}
+//			
+//		};
+//		t.start();
 	}
 }

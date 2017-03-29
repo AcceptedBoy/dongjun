@@ -3,6 +3,10 @@ package com.gdut.dongjun.service.impl;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,20 +19,16 @@ import com.gdut.dongjun.domain.po.TemperatureDevice;
 import com.gdut.dongjun.domain.po.TemperatureSensor;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.po.UserDeviceMapping;
-import com.gdut.dongjun.service.BigGroupService;
 import com.gdut.dongjun.service.DeviceGroupMappingService;
 import com.gdut.dongjun.service.DeviceGroupService;
 import com.gdut.dongjun.service.PlatformGroupService;
 import com.gdut.dongjun.service.UserDeviceMappingService;
+import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.ZTreeNodeService;
-import com.gdut.dongjun.service.device.ControlMearsureSwitchService;
-import com.gdut.dongjun.service.device.HighVoltageSwitchService;
-import com.gdut.dongjun.service.device.LowVoltageSwitchService;
 import com.gdut.dongjun.service.device.TemperatureDeviceService;
 import com.gdut.dongjun.service.device.TemperatureSensorService;
-import com.gdut.dongjun.service.device.temperature.TemperatureMeasureService;
+import com.gdut.dongjun.service.manager.UserHolder;
 import com.gdut.dongjun.util.MyBatisMapUtil;
-import com.gdut.dongjun.util.RequestHolder;
  
 /**
  * 这个类用来返回ztree插件要用到的数据树。
@@ -45,14 +45,6 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 	@Autowired
 	private PlatformGroupService platformGroupService;
 	@Autowired
-	private BigGroupService groupService;
-//	@Autowired
-//	private LowVoltageSwitchService switchService;
-//	@Autowired
-//	private HighVoltageSwitchService switchService2;
-//	@Autowired
-//	private ControlMearsureSwitchService switchService3;
-	@Autowired
 	private TemperatureDeviceService deviceService;
 	@Autowired
 	private DeviceGroupMappingService mappingService;
@@ -64,14 +56,81 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 	private PlatformGroupService pgService;
 	@Autowired
 	private UserDeviceMappingService UDMappingService;
+	@Autowired
+	private UserService userService;
+
+	/**
+	 * 返回用户的设备树。
+	 * 这个方法是根据书上改写的，理论上线程安全。
+	 * value保存的相当于一个执行任务，Future运算完成之后只会返回同一个结果。
+	 * 之所以value保存的是Future而不是List<ZTreeNode>，是因为要根据Future来控制线程安全，
+	 * 而不是用懒汉式加载数据，尽可能防止synchornized的性能损失。
+	 * @param userId
+	 * @return
+	 */
+	public List<ZTreeNode> getUserSwitchTree(final String userId) {
+		while (true) {
+			Future<List<ZTreeNode>> f = UserHolder.getUserSwitchTree(userId);
+			if (null == f) {
+				//构造FutureTask回调函数
+				Callable<List<ZTreeNode>> eval = new Callable<List<ZTreeNode>>() {
+					@Override
+					public List<ZTreeNode> call() throws Exception {
+						return getSwitchTree(userId);
+					}
+				};
+				FutureTask<List<ZTreeNode>> ft = new FutureTask<List<ZTreeNode>>(eval);
+				//如果刚好两个线程执行到这里，一个线程执行put方法，返回null；另一个线程执行get方法，
+				//返回前一个线程弄进去的value。那最后只会有一个线程启动ft.fun()，另一个线程进入f.get()。
+				//因此线程安全。
+				f = UserHolder.addUserSwitchTree(userId, ft);
+				if (null == f) {
+					f = ft;
+					ft.run();
+				}
+			}
+			try {
+				return f.get();
+			} catch (InterruptedException e) {
+				//有时候执行方法里面可能会想知道自己的线程是不是被中断了，如果是，在执行方法里面抛出这个方法。
+				UserHolder.removeUserSwitchTree(userId);
+				e.printStackTrace();
+				throw launderThrowable(e.getCause()); 
+			} catch (ExecutionException e) {
+				UserHolder.removeUserSwitchTree(userId);
+				e.printStackTrace();
+				throw launderThrowable(e.getCause());
+			}
+		}
+	}
+	
+	private static RuntimeException launderThrowable(Throwable t) {
+		/**
+		 * 如果是运行期异常返回
+		 */
+		if (t instanceof RuntimeException) {
+			return (RuntimeException) t;
+		}
+		/**
+		 * 如果是Error直接抛出
+		 */
+		else if (t instanceof Error) {
+			throw (Error) t;
+		}
+		else {
+			throw new IllegalStateException("Not unchecked", t);
+		}
+	}
+	
 	
 	/**
 	 * 超管返回所有大组、公司、设备
 	 */
 	@Override
 	public List<ZTreeNode> getSwitchTree() {
-		List<BigGroup> groupList = groupService.selectByParameters(null);
-		return getAllSwitchTree(groupList);
+//		List<BigGroup> groupList = groupService.selectByParameters(null);
+//		return getAllSwitchTree(groupList);
+		return null;
 	}
 	
 	/**
@@ -79,12 +138,13 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 	 * @return
 	 */
 	@Override
-	public List<ZTreeNode> getSwitchTree(String pgId) {
-		List<PlatformGroup> pgList = pgService.selectByParameters(MyBatisMapUtil.warp("id", pgId));
-		return wrap(pgList, null);
+	public List<ZTreeNode> getSwitchTree(String userId) {
+		User user = userService.selectByPrimaryKey(userId);
+		List<PlatformGroup> pgList = pgService.selectByParameters(MyBatisMapUtil.warp("id", user.getCompanyId()));
+		return wrap(pgList, null, userId);
 	}
 	
-	private List<ZTreeNode> wrap(List<PlatformGroup> pgList, String parentName) {
+	private List<ZTreeNode> wrap(List<PlatformGroup> pgList, String parentName, String userId) {
 		List<ZTreeNode> pgNodes = new LinkedList<ZTreeNode>();
 		for (int j = 0; j < pgList.size(); j++) {
 			ZTreeNode n2 = new ZTreeNode();
@@ -103,8 +163,9 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 					dgNodes.add(getDeviceGroupNode(pgList.get(j), dg));
 				}
 
-				User user  = (User) RequestHolder.getRequest().getSession().getAttribute("currentUser");
-				List<UserDeviceMapping> allMappings = UDMappingService.selectMappingEnableToSeeByUserId(user.getId());
+				//原本是获取当前Session再获取currentUser，现在改为入参
+//				User user  = (User) RequestHolder.getRequest().getSession().getAttribute("currentUser");
+				List<UserDeviceMapping> allMappings = UDMappingService.selectMappingEnableToSeeByUserId(userId);
 				List<String> lowIds = new ArrayList<String>();
 				List<String> highIds = new ArrayList<String>();
 				List<String> temIds = new ArrayList<String>();
@@ -238,7 +299,7 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 				n1.setName(groupList.get(i).getName());
 				n1.setParentName(null);
 				List<PlatformGroup> pgList = platformGroupService.selectByParameters(MyBatisMapUtil.warp("group_id", groupList.get(i).getId()));
-				List<ZTreeNode> pgNodes = wrap(pgList, groupList.get(i).getName());
+				List<ZTreeNode> pgNodes = wrap(pgList, groupList.get(i).getName(), null);
 				if(pgNodes != null && !pgNodes.isEmpty()) {
 					n1.setChildren(pgNodes);
 				}
@@ -310,7 +371,7 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 				node4.setType(3);
 				node4.setShowName(device.getName());
 				
-				List<ZTreeNode> sNodes = new LinkedList();
+				List<ZTreeNode> sNodes = new LinkedList<ZTreeNode>();
 				List<TemperatureSensor> sensors = sensorService.selectByParameters(MyBatisMapUtil.warp("device_id", device.getId()));
 				for (TemperatureSensor sensor : sensors) {
 					ZTreeNode sNode = new ZTreeNode();

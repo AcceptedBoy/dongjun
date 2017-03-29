@@ -21,9 +21,9 @@ public interface ZTreeNodeService {
 	public List<ZTreeNode> getSwitchTree();
 	
 	/**
-	 * 公司返回设备树
+	 * 返回用户设备树
 	 * @param companyId
 	 * @return
 	 */
-	public List<ZTreeNode> getSwitchTree(String companyId);
+	public List<ZTreeNode> getSwitchTree(String userId);
 }

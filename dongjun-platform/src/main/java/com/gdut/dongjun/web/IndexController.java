@@ -133,7 +133,7 @@ public class IndexController implements InitializingBean {
 						.getSwitchTree(user.getCompanyId(), type);
 			}	//中介者
 			//TODO 以后这个方法会变成中介者系统返回值
-			return zTreeNodeService.getSwitchTree(user.getCompanyId());
+			return zTreeNodeService.getSwitchTree(user.getId());
 		} else {
 			//超管
 			return zTreeNodeService.getSwitchTree();

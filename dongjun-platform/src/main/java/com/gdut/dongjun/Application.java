@@ -9,7 +9,6 @@ import javax.servlet.DispatcherType;
 import javax.sql.DataSource;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
-import org.apache.activemq.pool.PooledConnectionFactory;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.authc.credential.SimpleCredentialsMatcher;
@@ -19,6 +18,7 @@ import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
+import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
@@ -41,7 +41,6 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
 import com.gdut.dongjun.service.common.CommonSwitch;
-import com.gdut.dongjun.web.listener.ShiroSessionListener;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 import net.sf.ehcache.CacheManager;
@@ -215,11 +214,15 @@ public class Application extends SpringBootServletInitializer {
 		return factoryBean;
 	}
 	
+	/**
+	 * session管理器
+	 * @return
+	 */
 	@Bean
-	public ShiroSessionListener ShiroSessionListener() {
-		return new ShiroSessionListener();
+	public DefaultWebSessionManager DefaultWebSessionManager() {
+		DefaultWebSessionManager manager = new DefaultWebSessionManager();
+		return manager;
 	}
-	
 	/**
 	 * <p>*：匹配零个或多个字符串
 	 * <p>**：匹配路径中的零个或多个路径
@@ -311,14 +314,14 @@ public class Application extends SpringBootServletInitializer {
 		return active;
 	}
 	
-	@Bean
-	public PooledConnectionFactory pooledConnectionFactory() {
-		PooledConnectionFactory factory = new PooledConnectionFactory();
-		factory.setConnectionFactory(activeMQConnectionFactory());
-		factory.setMaxConnections(100); //TODO why?
-		factory.setMaximumActiveSessionPerConnection(50);
-		return factory;
-	}
+//	@Bean
+//	public PooledConnectionFactory pooledConnectionFactory() {
+//		PooledConnectionFactory factory = new PooledConnectionFactory();
+//		factory.setConnectionFactory(activeMQConnectionFactory());
+//		factory.setMaxConnections(100); //TODO why?
+//		factory.setMaximumActiveSessionPerConnection(50);
+//		return factory;
+//	}
 	
 	
 	public static void main(String[] args) throws Exception {

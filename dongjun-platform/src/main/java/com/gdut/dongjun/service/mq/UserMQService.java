@@ -13,14 +13,13 @@ import javax.jms.MessageProducer;
 import javax.jms.ObjectMessage;
 import javax.jms.Session;
 
-import org.apache.activemq.pool.PooledConnectionFactory;
+import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import com.gdut.dongjun.domain.po.User;
-import com.gdut.dongjun.domain.vo.HitchEventVO;
 import com.gdut.dongjun.dto.HitchEventDTO;
 
 /**
@@ -41,9 +40,9 @@ public class UserMQService extends AbstractMQService {
 	private SimpMessagingTemplate template;
 
 	@Autowired
-	public void setPooledConnectionFactory(PooledConnectionFactory pooledFactory) {
-		if (null == AbstractMQService.pooledFactory) {
-			AbstractMQService.pooledFactory = pooledFactory;
+	public void setPooledConnectionFactory(ActiveMQConnectionFactory connectionFactory) {
+		if (null == AbstractMQService.connectionFactory) {
+			AbstractMQService.connectionFactory = connectionFactory;
 		}
 	}
 
@@ -154,7 +153,7 @@ public class UserMQService extends AbstractMQService {
 	 * @throws JMSException
 	 */
 	private void initUserMessageConsumer(User user) throws JMSException {
-		MessageHolder holder = messageHolder.get(user);
+		MessageHolder holder = messageHolder.get(user.getId());
 		Session session = holder.getSession();
 		holder.setConsumer(createQueueMessageConsumer(holder.getDestinationName(user), session, user));
 	}

@@ -16,6 +16,11 @@ import io.netty.util.AttributeKey;
  * 解决报文拆包
  * 注意，未处理前的byte[]里面是一个字节代表一个16进制数字
  * 通过此{@code HexString_BytesUtil.bytesToHexString(byte[] src)}处理后的byte数组是2个byte代表一个16进制数字
+ * 
+ * 处理流程：
+ * ①如果接下来的报文是68开头，readerIndex移动到storeindex，然后清除已读数据
+ *	②如果不是68开头，且16结尾，则从readerIndex读取到writerIndex，然后清零
+ *	③如果不是68开头，且不是16结尾，则readerindex不动
  * @author Gordan_Deng
  * @date 2017年3月24日
  */

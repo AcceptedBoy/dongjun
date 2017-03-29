@@ -1,34 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
 	<!--定义日志文件的存储地址 勿在 LogBack 的配置中使用相对路径 -->
-	<property name="LOG_HOME" value="c:/log/dongjun-website" />
+	<property name="LOG_HOME" value="c:/log/dongjun-platform" />
+	
 	<!-- 控制台输出 -->
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<!-- 日志输出编码 -->
-		<Encoding>UTF-8</Encoding>
-		<layout class="ch.qos.logback.classic.PatternLayout">
-			<!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
-			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} -
-				%msg%n
-			</pattern>
-		</layout>
+<!-- 		<Encoding>UTF-8</Encoding> -->
+		<encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+				<charset>UTF-8</charset>
+				<layout class="ch.qos.logback.classic.PatternLayout">
+				<!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
+					<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} -
+						%msg%n
+					</pattern>
+				</layout>
+		</encoder>
+
+<!-- 		<encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder"> -->
+<!-- 			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg %n</pattern> -->
+<!-- 			<charset>UTF-8</charset>  -->
+<!-- 		</encoder> -->
 	</appender>
-	<!-- 按照每天生成日志文件 -->
+	
+	<!-- http://blog.csdn.net/zhoulenihao/article/details/24995397 -->
+	<!-- 按照每天生成日志文件 --> <!-- 然而并不会 -->
 	<appender name="FILE"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<Encoding>UTF-8</Encoding>
+<!-- 		<Encoding>UTF-8</Encoding> -->
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!--日志文件输出的文件名 -->
-			<FileNamePattern>${LOG_HOME}/myApp.log.%d{yyyy-MM-dd}.log
+			<FileNamePattern>${LOG_HOME}/dongjun-platform.log.%d{yyyy-MM-dd}.log
 			</FileNamePattern>
 			<MaxHistory>30</MaxHistory>
 		</rollingPolicy>
-		<layout class="ch.qos.logback.classic.PatternLayout">
+<!-- 		<layout class="ch.qos.logback.classic.PatternLayout"> -->
 			<!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
-			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} -
-				%msg%n
-			</pattern>
-		</layout>
+<!-- 			<pattern>%d{yyyy-MM-dd HH	:mm:ss.SSS} [%thread] %-5level %logger{50} - -->
+<!-- 				%msg%n -->
+<!-- 			</pattern> -->
+<!-- 		</layout> -->
+		
+		<encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+			<charset>UTF-8</charset> 
+			<layout class="ch.qos.logback.classic.PatternLayout">
+				<!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
+				<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+			</layout>
+		</encoder>
+		
 		<!--日志文件最大的大小 -->
 		<triggeringPolicy
 			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
@@ -56,20 +76,20 @@
 		<appender-ref ref="FILE" />
 	</root>
 
-	<!--日志异步到数据库 -->
-	<appender name="DB" class="ch.qos.logback.classic.db.DBAppender">
+	<!--日志异步到数据库 待以后添加-->
+<!-- 	<appender name="DB" class="ch.qos.logback.classic.db.DBAppender"> -->
 		<!--日志异步到数据库 -->
-		<connectionSource
-			class="ch.qos.logback.core.db.DriverManagerConnectionSource">
+<!-- 		<connectionSource -->
+<!-- 			class="ch.qos.logback.core.db.DriverManagerConnectionSource"> -->
 			<!--连接池 -->
-			<dataSource class="com.mchange.v2.c3p0.ComboPooledDataSource">
-				<driverClass>com.mysql.jdbc.Driver</driverClass>
-				<url>jdbc:mysql://localhost:3306/elecon</url>
-				<user>root</user>
-				<password>root</password>
-			</dataSource>
-		</connectionSource>
-	</appender>
+<!-- 			<dataSource class="com.mchange.v2.c3p0.ComboPooledDataSource"> -->
+<!-- 				<driverClass>com.mysql.jdbc.Driver</driverClass> -->
+<!-- 				<url>jdbc:mysql://localhost:3306/elecon</url> -->
+<!-- 				<user>root</user> -->
+<!-- 				<password>root</password> -->
+<!-- 			</dataSource> -->
+<!-- 		</connectionSource> -->
+<!-- 	</appender> -->
 </configuration>
 
 

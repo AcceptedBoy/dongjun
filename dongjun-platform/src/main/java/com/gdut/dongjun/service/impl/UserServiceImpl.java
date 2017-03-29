@@ -1,8 +1,5 @@
 package com.gdut.dongjun.service.impl;
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import javax.jms.JMSException;
 import javax.servlet.http.HttpSession;
 
@@ -14,6 +11,7 @@ import com.gdut.dongjun.domain.dao.UserMapper;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.base.impl.BaseServiceImpl;
+import com.gdut.dongjun.service.manager.UserHolder;
 import com.gdut.dongjun.service.mq.UserMQService;
 
 /**
@@ -28,7 +26,7 @@ import com.gdut.dongjun.service.mq.UserMQService;
 public class UserServiceImpl extends BaseServiceImpl<User> implements
 		UserService {
 	
-	private static final List<User> allCurrentUsers = new CopyOnWriteArrayList<User>();
+//	private static final List<User> allCurrentUsers = new CopyOnWriteArrayList<User>();
 	
 	private static final Logger logger = Logger.getLogger(UserServiceImpl.class);
 	@Autowired
@@ -54,15 +52,7 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements
 
 	@Override
 	public boolean isUserOnline(String id) {
-		if (null == id || "".equals(id)) {
-			return false;
-		}
-		for (User user : allCurrentUsers) {
-			if (user.getId().equals(id)) {
-				return true;
-			}
-		}
-		return false;
+		return UserHolder.isUserLogin(id);
 	}
 	
 	/**
@@ -70,15 +60,13 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements
 	 */
 	public void remarkLogIn(User user) throws JMSException {
 		logger.info("用户登录 : " + user.getName());
-		for (User u : allCurrentUsers) {
-			if (u.getId().equals(user.getId())) {
-				return ;
-			}
+		if (UserHolder.isUserLogin(user.getId())) {
+			return ;
 		}
 		//记录在线用户
-		allCurrentUsers.add(user);
+		UserHolder.addUser(user);
 		//注册User的MessageHolder
-//		mqService.remarkLogIn(user);
+		mqService.remarkLogIn(user);
 	}
 	
 	/**
@@ -86,12 +74,7 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements
 	 */
 	public void remarkLogOut(User user) {
 		logger.info("用户注销 : " + user.getName());
-		for (User u : allCurrentUsers) {
-			if (u.getId().equals(user.getId()) || u.getId() == user.getId()) {
-				allCurrentUsers.remove(u);
-				break;
-			}
-		}
+		UserHolder.delUser(user);
 	}
 
 }

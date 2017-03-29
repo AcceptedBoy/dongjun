@@ -4,7 +4,7 @@ import javax.jms.Connection;
 import javax.jms.JMSException;
 import javax.jms.Session;
 
-import org.apache.activemq.pool.PooledConnectionFactory;
+import org.apache.activemq.ActiveMQConnectionFactory;
 
 /**
  * 写得有点糟糕
@@ -14,10 +14,10 @@ import org.apache.activemq.pool.PooledConnectionFactory;
  */
 public abstract class AbstractMQService {
 	
-	protected static PooledConnectionFactory pooledFactory;
+	protected static ActiveMQConnectionFactory connectionFactory;
 
 	public Session getMQSession() throws JMSException {
-		Connection connection = pooledFactory.createConnection();
+		Connection connection = connectionFactory.createConnection();
 		return connection.createSession(Boolean.FALSE, Session.AUTO_ACKNOWLEDGE);
 	}
 	
