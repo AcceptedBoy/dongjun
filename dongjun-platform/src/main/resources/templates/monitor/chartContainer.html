@@ -516,16 +516,6 @@
           var nodeId = [];
           var nodeType = [];
           var checkNodes = chartNodes.get();
-          var num = 0;
-          var reLoad = '';
-          for(var i = 0; i<checkNodes.length; i++) {
-            if(checkNodes[i].tag == 0) {
-              num++;
-            }
-          }
-          if(num == checkNodes.length) {
-            reLoad = true;
-          }
           if(begin_time && end_time) {
             if(checkNodes.length != 0) {
               for(var i = 0; i<checkNodes.length; i++) {
@@ -537,8 +527,6 @@
               }
               nodeId = nodeId.join(',=');
               nodeType = nodeType.join(',=');
-              console.log(nodeId);
-              console.log(nodeType);
               chartView.showLoading(chart);
               $.ajax({
                 url: '/dongjun/select_chart_by_switch_id',
