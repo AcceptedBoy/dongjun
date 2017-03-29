@@ -174,7 +174,7 @@
         		tag: 'all',
         		iconSkin: 'IconTem'
         	})
-        }
+        },
       };
     }();
     
@@ -354,6 +354,28 @@
         clearArr: function() {
           checkNodes.splice(0);
         },
+        getList: function(isTem) {
+        	var arr = [];
+        	var arr2 = [];
+        	if(isTem) {
+        		for(var i = 0; i < temNodes.length; i++) {
+        			arr.push(temNodes[i].node.id)
+        		}
+        		return {
+        			tagList: arr.join(',='),
+        			id: temNodes[0].node.getParentNode().id,
+        		}
+        	} else {
+        		for(var i = 0; i < checkNodes.length; i++) {
+        			arr.push(checkNodes[i].node.id)
+        			arr2.push(checkNodes[i].node.type)
+        		}
+        		return {
+        			idList: arr.join(',='),
+        			typeList: arr2.join(',=')
+        		}
+        	}
+        }
       };
     }();
   /**
@@ -516,17 +538,12 @@
           var nodeId = [];
           var nodeType = [];
           var checkNodes = chartNodes.get();
+          var data = chartNodes.getList(false);
+          
           if(begin_time && end_time) {
-            if(checkNodes.length != 0) {
-              for(var i = 0; i<checkNodes.length; i++) {
-                //if(checkNodes[i].tag == 0) {
-                  nodeId.push(checkNodes[i].node.id);
-                  nodeType.push(checkNodes[i].node.type);
-                 // checkNodes[i].tag = 1;
-                //}
-              }
-              nodeId = nodeId.join(',=');
-              nodeType = nodeType.join(',=');
+            if(data.idList.length != 0) {
+              nodeId = data.idList
+              nodeType = data.typeList
               chartView.showLoading(chart);
               $.ajax({
                 url: '/dongjun/select_chart_by_switch_id',
@@ -589,33 +606,15 @@
           console.log(chart);
           var begin_time = $('#begin_search_date').val();
           var end_time = $('#end_search_date').val();
-          var taglist = [];
-          var temNodes = chartNodes.getTem();
-          console.log(temNodes);
-          for(var i = 0; i<temNodes.length; i++) {
-            taglist.push(temNodes[i].node.id);
-          }
+          var data = chartNodes.getList(true);
+          var taglist = data.tagList;
+          var id = data.id;
+          
           if(begin_time && end_time) {
             if(taglist.length != 0) {
-              // for(var i = 0; i<checkNodes.length; i++) {
-              //   if(checkNodes[i].tag == 0) {
-              //     nodeId.push(checkNodes[i].node.id);
-              //     nodeType.push(checkNodes[i].node.type);
-              //     checkNodes[i].tag = 1;
-              //   }
-              // }
-              taglist = taglist.join(',=');
-              /* console.log(taglist); */
-              var id = temNodes[0].node.getParentNode().id;
-              // 发请求获取taglist
-              // nodeId = nodeId.join(',=');
-              // nodeType = nodeType.join(',=');
-              // console.log(nodeId);
-              // console.log(nodeType);
               chartView.showLoading(chart);
               $.ajax({
                 url: '/dongjun/select_chart_by_device_id',
-                // url: 'http://127.0.0.1:8080/templates/manager/loadChart',
                 type: 'GET',
                 data: {
                   id: id,
@@ -822,9 +821,102 @@
           $('#begin_search_date').val(year + '-' + lastMonth + '-' + yesterday + ' ' + hour + ':' + minute);
           $('#end_search_date').val(year + '-' + month + '-' + today + ' ' + hour + ':' + minute);
           timer = null;
-        }
+        },
+        handleAll: function(treeNode, isCheck) {
+			var allNodes = treeNode.getParentNode().children;
+			chartNodes.setTem([])
+			if(isCheck) {
+				for(var i = 1; i < allNodes.length; i++) {
+					chartNodes.addTem(allNodes[i])
+				}
+			}
+		},
+		handleCheck: function(event, treeId, treeNode) {
+			var cov = 0;
+			var tablename = '';
+			switch(activeTab._dom.id) {
+				case 'VoltageChart': cov = 1; tablename = 'v_data_list'; break;
+				case 'current': cov = 0; tablename = 'c_data_list'; break;
+				case 'power': cov = 2; tablename = 'p_data_list'; break;
+			}
+			if(treeNode.checked) {
+				if(treeNode.type == 80) {
+					// chartNodes.addcheck(treeNode);
+					chartNodes.addTem(treeNode);
+					chartManager.handleTemSearch(chartManager.get('tem'), 't_data_list');
+				} else if(treeNode.type == 100 && treeNode.tag == 'all') {
+					chartManager.handleAll(treeNode, true)
+					chartManager.handleTemSearch(chartManager.get('tem'), 't_data_list');
+				} else {
+					chartNodes.addCheck(treeNode);
+					chartManager.handleSearch(tab, cov, tablename);
+				}
+			}
+			else {
+				if(treeNode.type == 80) {
+					chartNodes.delTem(treeNode);
+					chartManager.removeOption(treeNode, chartManager.get('tem'), 't_data_list', 1);
+				} else if(treeNode.type == 100 && treeNode.tag == 'all') {
+					chartManager.handleAll(treeNode, false)
+					chartManager.handleTemSearch(chartManager.get('tem'), 't_data_list');
+				} else {
+					chartNodes.delCheck(treeNode);
+					chartManager.removeOption(treeNode, tab, tablename, 3);	
+				}
+			}
+		},
+		handleBeforeCheck: function(treeId, treeNode) {
+			var eleNodes = chartNodes.get();
+			var temNodes = chartNodes.getTem();
+			if(!treeNode.checked) {
+				var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+				var nodes = zTree.getCheckedNodes(true)
+				if(treeNode.type == 80) {
+					for(var i = 0; i < nodes.length; i++) {
+						if(nodes[i].type == 100) {
+							chartNodes.noCheckTem(zTree, [nodes[i]])
+							chartNodes.setTem([])
+						}
+					}
+					if((temNodes.length == 0) && (timeModel.getTem() != 1)) {
+						timeModel.startTem();
+						timeModel.setTem(1);
+					}
+				} else if(treeNode.type == 100) {
+					// 取消别的节点的勾选
+					chartNodes.noCheckTem(zTree, nodes)
+					if(timeModel.getTem() != 1) {
+						timeModel.startTem();
+						timeModel.setTem(1);
+					}
+				} else {
+					if((eleNodes.length == 0) && (timeModel.getEle() != 1)) {
+						timeModel.startElec();
+						timeModel.setEle(1);
+					}
+				}
+			}
+			else {
+				// 取消的情况
+				if(treeNode.type == 80) {
+					if(temNodes.length == 1) {
+						timeModel.clearTemTimer();
+						timeModel.setTem(0);
+					}
+				} else if(treeNode.type == 100) {
+					timeModel.clearTemTimer();
+					timeModel.setTem(0);
+				} else {
+					if(eleNodes.length == 1) {
+						timeModel.clearElecTimer();
+						timeModel.setEle(0);
+					}
+				}
+			}
+		}
       };
     }();
+    
     var timeModel = function() {
 		var elecFlag = 0;
 		var temFlag = 0;

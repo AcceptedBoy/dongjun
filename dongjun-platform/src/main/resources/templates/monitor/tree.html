@@ -15,10 +15,8 @@
 <script>
 
 	(function() {
-		var chartView = chart.chartView || null;
 		var chartManager = chart.chartManager || null;
 		var chartController = chart.chartController || null;
-		var chartNodes = chart.chartNodes || null;
 		var timeModel = chart.timeModel || null;
 
 		var treeModel = function() {
@@ -40,7 +38,7 @@
 			var last_value;
 
 			return {
-				handleAll: function(treeNode, isCheck) {
+				/* handleAll: function(treeNode, isCheck) {
 					var allNodes = treeNode.getParentNode().children;
 					chartNodes.setTem([])
 					if(isCheck) {
@@ -48,7 +46,7 @@
 							chartNodes.addTem(allNodes[i])
 						}
 					}
-				},
+				}, */
 				data_filter: function(treeId, parentNode, childNodes) {
 					if (!childNodes)
 						return null;
@@ -138,39 +136,7 @@
 					})
 				},
 				zTreeOnCheck: function(event, treeId, treeNode) {
-					var cov = 0;
-					var tablename = '';
-					var tab = chartManager.getActive();
-					switch(tab._dom.id) {
-						case 'VoltageChart': cov = 1; tablename = 'v_data_list'; break;
-						case 'current': cov = 0; tablename = 'c_data_list'; break;
-						case 'power': cov = 2; tablename = 'p_data_list'; break;
-					}
-					if(treeNode.checked) {
-						if(treeNode.type == 80) {
-							// chartNodes.addcheck(treeNode);
-							chartNodes.addTem(treeNode);
-							chartManager.handleTemSearch(chartManager.get('tem'), 't_data_list');
-						} else if(treeNode.type == 100 && treeNode.tag == 'all') {
-							treeSet.handleAll(treeNode, true)
-							chartManager.handleTemSearch(chartManager.get('tem'), 't_data_list');
-						} else {
-							chartNodes.addCheck(treeNode);
-							chartManager.handleSearch(tab, cov, tablename);
-						}
-					}
-					else {
-						if(treeNode.type == 80) {
-							chartNodes.delTem(treeNode);
-							chartManager.removeOption(treeNode, chartManager.get('tem'), 't_data_list', 1);
-						} else if(treeNode.type == 100 && treeNode.tag == 'all') {
-							treeSet.handleAll(treeNode, false)
-							chartManager.handleTemSearch(chartManager.get('tem'), 't_data_list');
-						} else {
-							chartNodes.delCheck(treeNode);
-							chartManager.removeOption(treeNode, tab, tablename, 3);	
-						}
-					}
+					chartManager.handleCheck(event, treeId, treeNode)
 				},
 				zTreeBeforeCheck: function(treeId, treeNode) {
 					/*if(!treeNode.checked && treeModel.getLast() !== -1) {
@@ -196,69 +162,7 @@
 					}
 					treeModel.setLast(treeNode.type);
 					console.warn(treeModel.getLast());*/
-					var eleNodes = chartNodes.get();
-					var temNodes = chartNodes.getTem();
-					if(!treeNode.checked) {
-						var zTree = $.fn.zTree.getZTreeObj("treeDemo");
-						var nodes = zTree.getCheckedNodes(true)
-						if(treeNode.type == 80) {
-							/* if((eleNodes.length == 0) && (timeModel.getEle() != 1)) {
-								timeModel.startElec();
-								timeModel.setEle(1);
-							} */
-							for(var i = 0; i < nodes.length; i++) {
-								if(nodes[i].type == 100) {
-									chartNodes.noCheckTem(zTree, [nodes[i]])
-									chartNodes.setTem([])
-								}
-							}
-							if((temNodes.length == 0) && (timeModel.getTem() != 1)) {
-								timeModel.startTem();
-								timeModel.setTem(1);
-							}
-						} else if(treeNode.type == 100) {
-							// 取消别的节点的勾选
-							chartNodes.noCheckTem(zTree, nodes)
-							if(timeModel.getTem() != 1) {
-								timeModel.startTem();
-								timeModel.setTem(1);
-							}
-						} else {
-							/* if((temNodes.length == 0) && (timeModel.getTem() != 1)) {
-								timeModel.startTem();
-								timeModel.setTem(1);
-							} */
-							if((eleNodes.length == 0) && (timeModel.getEle() != 1)) {
-								timeModel.startElec();
-								timeModel.setEle(1);
-							}
-						}
-					}
-					else {
-						// 取消的情况
-						if(treeNode.type == 80) {
-							/* if(eleNodes.length == 1) {
-								timeModel.clearElecTimer();
-								timeModel.setEle(0);
-							} */
-							if(temNodes.length == 1) {
-								timeModel.clearTemTimer();
-								timeModel.setTem(0);
-							}
-						} else if(treeNode.type == 100) {
-							timeModel.clearTemTimer();
-							timeModel.setTem(0);
-						} else {
-							/* if(temNodes.length == 1) {
-								timeModel.clearTemTimer();
-								timeModel.setTem(0);
-							} */
-							if(eleNodes.length == 1) {
-								timeModel.clearElecTimer();
-								timeModel.setEle(0);
-							}
-						}
-					}
+					chartManager.handleBeforeCheck(treeId, treeNode)
 				},
 				init: function() {
 					$.fn.zTree.init($("#treeDemo"), this.setTree(0));
