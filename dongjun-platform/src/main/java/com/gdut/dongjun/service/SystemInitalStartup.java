@@ -13,7 +13,12 @@ import com.gdut.dongjun.service.webservice.client.CentorServiceClient;
 import com.gdut.dongjun.service.webservice.client.po.InitialParam;
 import com.gdut.dongjun.util.NetUtil;
 
-@Component
+/**
+ * 勉神写的类，以后做例子
+ * @author Gordan_Deng
+ * @date 2017年4月10日
+ */
+//@Component
 public class SystemInitalStartup implements InitializingBean {
 
     @Autowired

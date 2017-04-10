@@ -1,11 +1,9 @@
 package com.gdut.dongjun.service.webservice.client.po;
 
 
-import com.gdut.dongjun.domain.po.HighVoltageSwitch;
-import com.gdut.dongjun.domain.po.Line;
-import com.gdut.dongjun.domain.po.Substation;
-
 import java.util.List;
+
+import javax.sound.sampled.Line;
 
 public class InitialParam {
 

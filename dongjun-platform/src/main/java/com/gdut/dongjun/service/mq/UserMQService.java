@@ -23,7 +23,7 @@ import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.dto.HitchEventDTO;
 
 /**
- * 处理ActiveMQ的类
+ * 处理ActiveMQ的类，暂时未用
  * 
  * @author Gordan_Deng
  * @date 2017年3月27日

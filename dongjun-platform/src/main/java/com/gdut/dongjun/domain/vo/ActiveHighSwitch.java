@@ -55,23 +55,4 @@ public class ActiveHighSwitch implements Serializable {
 	public void setHitchEventId(String hitchEventId) {
 		this.hitchEventId = hitchEventId;
 	}
-
-	public ActiveHighSwitch(String id, boolean open, String status,
-			String hitchEventId) {
-		super();
-		this.id = id;
-		this.open = open;
-		this.status = status;
-		this.hitchEventId = hitchEventId;
-	}
-	
-	public ActiveHighSwitch() {
-		super();
-	}
-
-	@Override
-	public String toString() {
-		return "ActiveHighSwitch [id=" + id + ", open=" + open + ", status="
-				+ status + ", hitchEventId=" + hitchEventId + "]";
-	}
 }

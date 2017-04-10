@@ -16,8 +16,8 @@ import org.springframework.stereotype.Component;
  * 附上AOP重要概念解析，以及注解理解教程
  * <a>http://blog.csdn.net/wangpeng047/article/details/8556800</a>
  */
-@Aspect
-@Component
+//@Aspect
+//@Component
 public class CentorAspect {
 
     @Autowired
