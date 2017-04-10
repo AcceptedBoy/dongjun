@@ -13,7 +13,7 @@ import com.gdut.dongjun.domain.po.HistoryHighVoltageVoltage;
  * @see TODO
  * @since 1.0
  */
-@Repository
+//@Repository
 public class HistoryHighVoltageVoltageDAOImpl extends SinglePrimaryKeyBaseDAOImpl<HistoryHighVoltageVoltage>
 		implements HistoryHighVoltageVoltageMapper {
 

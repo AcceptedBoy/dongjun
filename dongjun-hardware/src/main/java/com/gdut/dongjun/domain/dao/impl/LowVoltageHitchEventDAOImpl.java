@@ -13,7 +13,7 @@ import com.gdut.dongjun.domain.po.LowVoltageHitchEvent;
  * @see 	TODO
  * @since   1.0
  */
-@Repository
+//@Repository
 public class LowVoltageHitchEventDAOImpl extends SinglePrimaryKeyBaseDAOImpl<LowVoltageHitchEvent>
 		implements LowVoltageHitchEventMapper {
 

@@ -19,7 +19,7 @@ import com.gdut.dongjun.domain.po.HighVoltageVoltage;
  * @description
  * @package com.gdut.dongjun.domain.dao.impl
  */
-@Repository
+//@Repository
 public class HighVoltageVoltageDAOImpl extends
 SinglePrimaryKeyBaseDAOImpl<HighVoltageVoltage> implements HighVoltageVoltageMapper {
 

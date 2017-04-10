@@ -16,7 +16,7 @@ import com.gdut.dongjun.domain.po.HighVoltageSwitch;
  * @description
  * @package com.gdut.dongjun.domain.dao.impl
  */
-@Repository
+//@Repository
 public class HighVoltageSwitchDAOImpl extends SinglePrimaryKeyBaseDAOImpl<HighVoltageSwitch>
 implements HighVoltageSwitchMapper {
 

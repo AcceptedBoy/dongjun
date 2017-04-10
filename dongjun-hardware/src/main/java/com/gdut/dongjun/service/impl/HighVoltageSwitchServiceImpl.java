@@ -20,7 +20,7 @@ import com.gdut.dongjun.service.base.impl.BaseServiceImpl;
  * @description
  * @package com.gdut.dongjun.service.impl
  */
-@Service
+//@Service
 public class HighVoltageSwitchServiceImpl extends
 		BaseServiceImpl<HighVoltageSwitch> implements HighVoltageSwitchService {
 

@@ -8,7 +8,7 @@ import com.gdut.dongjun.domain.po.ControlMearsureSwitch;
 import com.gdut.dongjun.service.ControlMearsureSwitchService;
 import com.gdut.dongjun.service.base.impl.BaseServiceImpl;
 
-@Service
+//@Service
 public class ControlMearsureSwitchServiceImpl extends 
 	BaseServiceImpl<ControlMearsureSwitch> implements
 		ControlMearsureSwitchService {

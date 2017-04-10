@@ -17,7 +17,7 @@ import com.gdut.dongjun.domain.po.LowVoltageCurrent;
  * @Date 2015年11月19日 下午3:29:41 
  * @version V1.0
  */
-@Repository
+//@Repository
 public class ControlMearsureCurrentDaoImpl 
 	extends SinglePrimaryKeyBaseDAOImpl<ControlMearsureCurrent> 
 		implements ControlMearsureCurrentMapper {

@@ -17,7 +17,7 @@ import com.gdut.dongjun.domain.po.LowVoltageVoltage;
  * @Date 2015年11月19日 下午3:29:49 
  * @version V1.0
  */
-@Repository
+//@Repository
 public class ControlMearsureVoltageDaoImpl extends
 	SinglePrimaryKeyBaseDAOImpl<ControlMearsureVoltage>
 		implements ControlMearsureVoltageMapper {

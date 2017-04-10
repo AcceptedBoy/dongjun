@@ -6,7 +6,7 @@ import com.gdut.dongjun.domain.dao.ControlMearsureSwitchMapper;
 import com.gdut.dongjun.domain.dao.base.impl.SinglePrimaryKeyBaseDAOImpl;
 import com.gdut.dongjun.domain.po.ControlMearsureSwitch;
 
-@Repository
+//@Repository
 public class ControlMearsureSwitchDaoImpl extends 
 	SinglePrimaryKeyBaseDAOImpl<ControlMearsureSwitch>
 	implements ControlMearsureSwitchMapper {

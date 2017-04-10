@@ -21,7 +21,7 @@ import com.gdut.dongjun.util.MyBatisMapUtil;
  * @Date 2015年11月19日 下午3:30:35
  * @version V1.0
  */
-@Service
+//@Service
 public class ControlMearsureCurrentServiceImpl extends
 		BaseServiceImpl<ControlMearsureCurrent> implements
 		ControlMearsureCurrentService {

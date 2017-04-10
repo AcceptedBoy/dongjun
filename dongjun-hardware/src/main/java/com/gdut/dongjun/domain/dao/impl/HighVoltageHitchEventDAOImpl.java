@@ -16,7 +16,7 @@ import com.gdut.dongjun.domain.po.HighVoltageHitchEvent;
  * @description
  * @package com.gdut.dongjun.domain.dao.impl
  */
-@Repository
+//@Repository
 public class HighVoltageHitchEventDAOImpl extends SinglePrimaryKeyBaseDAOImpl<HighVoltageHitchEvent>
 implements HighVoltageHitchEventMapper {
 

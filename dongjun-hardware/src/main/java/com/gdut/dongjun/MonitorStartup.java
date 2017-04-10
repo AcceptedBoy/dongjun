@@ -167,16 +167,16 @@ public class MonitorStartup implements InitializingBean {
 			}
 		}
 
-		logger.info("低压开关端口号：" + lowVoltageServer.getPort());
-		logger.info("高压开关端口号：" + highVoltageServer.getPort());
-		logger.info("管控开关端口号：" + controlMeasureServer.getPort());
-		logger.info("高压版本1.3端口号：" + highVoltageServer_v1_3.getPort());
+//		logger.info("低压开关端口号：" + lowVoltageServer.getPort());
+//		logger.info("高压开关端口号：" + highVoltageServer.getPort());
+//		logger.info("管控开关端口号：" + controlMeasureServer.getPort());
+//		logger.info("高压版本1.3端口号：" + highVoltageServer_v1_3.getPort());
 		logger.info("温度设备端口号：" + temperatureServer.getPort());
 
-		lowVoltageServer.start();
-		highVoltageServer.start();
-		controlMeasureServer.start();
-		highVoltageServer_v1_3.start();
+//		lowVoltageServer.start();
+//		highVoltageServer.start();
+//		controlMeasureServer.start();
+//		highVoltageServer_v1_3.start();
 		temperatureServer.start();
 	}	
 }

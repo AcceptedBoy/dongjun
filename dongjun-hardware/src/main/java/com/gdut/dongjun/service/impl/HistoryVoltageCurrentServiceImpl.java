@@ -16,7 +16,7 @@ import com.gdut.dongjun.service.base.impl.BaseServiceImpl;
  * @date 2015年7月24日 下午2:33:08 
  * @version V1.0   
  */
-@Service
+//@Service
 public class HistoryVoltageCurrentServiceImpl extends 
 	BaseServiceImpl<HistoryHighVoltageCurrent> implements HistoryHighVoltageCurrentService {
 	/** 

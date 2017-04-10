@@ -15,7 +15,7 @@ import com.gdut.dongjun.domain.po.LowVoltageSwitch;
  * @see 	TODO
  * @since   1.0
  */
-@Repository
+//@Repository
 public class LowVoltageSwitchDAOImpl extends SinglePrimaryKeyBaseDAOImpl<LowVoltageSwitch>
 		implements LowVoltageSwitchMapper {
 

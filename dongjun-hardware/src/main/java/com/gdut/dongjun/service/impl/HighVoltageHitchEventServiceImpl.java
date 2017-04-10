@@ -18,7 +18,7 @@ import com.gdut.dongjun.service.base.impl.BaseServiceImpl;
  * @description
  * @package com.gdut.dongjun.service.impl
  */
-@Service
+//@Service
 public class HighVoltageHitchEventServiceImpl extends BaseServiceImpl<HighVoltageHitchEvent>
 implements HighVoltageHitchEventService {
 	

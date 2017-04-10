@@ -20,7 +20,7 @@ import com.gdut.dongjun.util.MyBatisMapUtil;
  * @Date 2015年11月19日 下午3:31:56 
  * @version V1.0
  */
-@Service
+//@Service
 public class ControlMearsureVoltageServiceImpl extends
 	BaseServiceImpl<ControlMearsureVoltage> implements
 		ControlMearsureVoltageService {

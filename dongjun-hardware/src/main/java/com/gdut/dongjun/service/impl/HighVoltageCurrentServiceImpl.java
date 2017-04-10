@@ -24,7 +24,7 @@ import com.gdut.dongjun.util.MyBatisMapUtil;
  * @description
  * @package com.gdut.dongjun.service.impl
  */
-@Service
+//@Service
 public class HighVoltageCurrentServiceImpl extends BaseServiceImpl<HighVoltageCurrent> implements
 HighVoltageCurrentService {
 

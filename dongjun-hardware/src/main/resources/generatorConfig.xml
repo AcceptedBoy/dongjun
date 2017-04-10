@@ -22,15 +22,30 @@
 		<javaClientGenerator targetPackage="com.gdut.dongjun.domain.dao"
 			targetProject="D:\\WORKING\\git\\dongjun_dzc\\dongjun-hardware" type="XMLMAPPER" />
 
-<!-- 		<table schema="root" tableName="temperature_device" -->
-<!-- 			domainObjectName="TemperatureDevice" enableCountByExample="false" -->
-<!-- 			enableUpdateByExample="false" enableDeleteByExample="false" -->
-<!-- 			enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+		<!-- <table schema="root" tableName="temperature_device" -->
+		<!-- domainObjectName="TemperatureDevice" enableCountByExample="false" -->
+		<!-- enableUpdateByExample="false" enableDeleteByExample="false" -->
+		<!-- enableSelectByExample="false" selectByExampleQueryId="false" /> -->
 
-		<table schema="root" tableName="gprs_module"
-			domainObjectName="GPRSModule" enableCountByExample="false"
-			enableUpdateByExample="false" enableDeleteByExample="false"
-			enableSelectByExample="false" selectByExampleQueryId="false" />
+		<table schema="root" tableName="data_monitor" domainObjectName="DataMonitor"
+			enableCountByExample="false" enableUpdateByExample="false"
+			enableDeleteByExample="false" enableSelectByExample="false"
+			selectByExampleQueryId="false" />
+
+		<table schema="root" tableName="date_monitor_submodule" domainObjectName="DateMonitorSubmodule"
+			enableCountByExample="false" enableUpdateByExample="false"
+			enableDeleteByExample="false" enableSelectByExample="false"
+			selectByExampleQueryId="false" />
+
+		<table schema="root" tableName="temperature_module" domainObjectName="TemperatureModule"
+			enableCountByExample="false" enableUpdateByExample="false"
+			enableDeleteByExample="false" enableSelectByExample="false"
+			selectByExampleQueryId="false" />
+
+		<table schema="root" tableName="electronic_module" domainObjectName="ElectronicModule"
+			enableCountByExample="false" enableUpdateByExample="false"
+			enableDeleteByExample="false" enableSelectByExample="false"
+			selectByExampleQueryId="false" />
 	</context>
 </generatorConfiguration>
 

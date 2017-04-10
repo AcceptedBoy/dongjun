@@ -6,7 +6,7 @@ import com.gdut.dongjun.domain.dao.ControlMearsureHitchEventMapper;
 import com.gdut.dongjun.domain.dao.base.impl.SinglePrimaryKeyBaseDAOImpl;
 import com.gdut.dongjun.domain.po.ControlMearsureHitchEvent;
 
-@Repository
+//@Repository
 public class ControlMearsureHitchEventDaoImpl extends
 	SinglePrimaryKeyBaseDAOImpl<ControlMearsureHitchEvent>
 	implements ControlMearsureHitchEventMapper {

@@ -18,15 +18,17 @@ import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.core.TemperatureCtxStore;
 import com.gdut.dongjun.core.handler.thread.HitchEventManager;
-import com.gdut.dongjun.domain.po.TemperatureDevice;
+//import com.gdut.dongjun.domain.po.TemperatureDevice;
 import com.gdut.dongjun.domain.po.TemperatureMeasure;
 import com.gdut.dongjun.domain.po.TemperatureMeasureHistory;
 import com.gdut.dongjun.domain.po.TemperatureMeasureHitchEvent;
+import com.gdut.dongjun.domain.po.TemperatureModule;
 import com.gdut.dongjun.domain.po.TemperatureSensor;
 import com.gdut.dongjun.service.GPRSModuleService;
-import com.gdut.dongjun.service.TemperatureDeviceService;
+//import com.gdut.dongjun.service.TemperatureDeviceService;
 import com.gdut.dongjun.service.TemperatureMeasureHistoryService;
 import com.gdut.dongjun.service.TemperatureMeasureService;
+import com.gdut.dongjun.service.TemperatureModuleService;
 import com.gdut.dongjun.service.TemperatureSensorService;
 import com.gdut.dongjun.util.CharUtils;
 import com.gdut.dongjun.util.MyBatisMapUtil;
@@ -78,8 +80,8 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	private static final char[] CODE_7A16_UP = new char[] { '7', 'A', '1', '6' }; // 7A16
 	private static final char[] CODE_7A16_DOWN = new char[] { '7', 'a', '1', '6' }; // 7A16
 
-	@Autowired
-	private TemperatureDeviceService deviceService;
+//	@Autowired
+//	private TemperatureDeviceService deviceService;
 	@Autowired
 	private TemperatureMeasureService measureService;
 	@Autowired
@@ -90,6 +92,8 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	private HitchEventManager hitchEventManager;
 	@Autowired
 	private GPRSModuleService gprsService;
+	@Autowired
+	private TemperatureModuleService temModuleService;
 
 	private static final Logger logger = LoggerFactory.getLogger(TemperatureDataReceiver.class);
 
@@ -114,9 +118,11 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			CtxStore.remove(ctx);
 			TemperatureCtxStore.removeGPRS(ctx);
 			if (gprs.getId() != null) {
-				TemperatureDevice device = deviceService.selectByPrimaryKey(gprs.getId());
-				device.setOnlineTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
-				deviceService.updateByPrimaryKey(device);
+				//TODO ???有意义吗现在
+				TemperatureModule module = temModuleService.selectByPrimaryKey(gprs.getId());
+//				TemperatureDevice device = deviceService.selectByPrimaryKey(gprs.getId());
+//				device.setOnlineTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
+//				deviceService.updateByPrimaryKey(device);
 			}
 		} else {
 			logger.warn("GPRS失联，但内存中找不到GPRS数据");
@@ -309,13 +315,13 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			/*
 			 * 根据反转后的地址查询得到TemperatureDevice的集合
 			 */
-			List<TemperatureDevice> list = deviceService
+			List<TemperatureModule> list = temModuleService
 					.selectByParameters(MyBatisMapUtil.warp("device_number", Integer.parseInt(address, 16)));
 
 			if (list != null && list.size() != 0) {
-
-				TemperatureDevice device = list.get(0);
-				String id = device.getId();
+				TemperatureModule module = list.get(0);
+//				TemperatureDevice device = list.get(0);
+				String id = module.getId();
 				gprs.setId(id);
 
 				if (CtxStore.get(id) != null) {
@@ -375,10 +381,11 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			ctx.channel().writeAndFlush(sb.toString()); // 全遥测确认报文，提示控制器发送全遥信
 		}
 		//更新在线时间
-		TemperatureDevice device = new TemperatureDevice();
-		device.setId(deviceId);
-		device.setOnlineTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
-		deviceService.updateByPrimaryKeySelective(device);
+		//TODO 更新在线时间有意义吗？
+//		TemperatureDevice device = new TemperatureDevice();
+//		device.setId(deviceId);
+//		device.setOnlineTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
+//		deviceService.updateByPrimaryKeySelective(device);
 	}
 
 	/**
@@ -465,7 +472,8 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			doSaveMeasure0(value[i - 1], deviceId, i);
 			// 插入报警数据
 			if (TemperatureCtxStore.isAboveBound(deviceId, Double.valueOf("" + Integer.parseInt(value[i - 1], 16)) / 10)) {
-				TemperatureDevice device = deviceService.selectByPrimaryKey(deviceId);
+				TemperatureModule device = temModuleService.selectByPrimaryKey(deviceId);
+//				TemperatureDevice device = deviceService.selectByPrimaryKey(deviceId);
 				// TODO 其实报警事事件应该是时间戳中的时间
 				TemperatureMeasureHitchEvent event = new TemperatureMeasureHitchEvent(UUIDUtil.getUUID(),
 						device.getId(), new BigDecimal(Double.valueOf("" + Integer.parseInt(value[i - 1], 16)) / 10), i, "监测温度超过所设阈值",
