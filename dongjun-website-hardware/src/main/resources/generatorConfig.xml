@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE generatorConfiguration PUBLIC
+		"-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+		"http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+<generatorConfiguration>
+	<classPathEntry
+		location="D:\\WORKING\\plug-in\\mysql-connector-java-5.1.38\\mysql-connector-java-5.1.38\\mysql-connector-java-5.1.38-bin.jar" />
+	<!-- 配置环境 -->
+	<context id="context1" targetRuntime="MyBatis3">
+		<!-- 数据库连接 -->
+		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
+			connectionURL="jdbc:mysql://115.28.7.40:3306/elecon_platform" userId="root"
+			password="topview+624">
+		</jdbcConnection>
+		<!-- 生成模型的包名和位置 -->
+		<javaModelGenerator targetPackage="com.gdut.dongjun.domain.po"
+			targetProject="D:\\WORKING\\git\\dongjun_dzc\\dongjun-hardware" />
+		<!-- 生成的映射文件包名和位置 -->
+		<sqlMapGenerator targetPackage="com.gdut.dongjun.domain.dao"
+			targetProject="D:\\WORKING\\git\\dongjun_dzc\\dongjun-hardware" />
+		<!-- 生成DAO的包名和位置 -->
+		<javaClientGenerator targetPackage="com.gdut.dongjun.domain.dao"
+			targetProject="D:\\WORKING\\git\\dongjun_dzc\\dongjun-hardware" type="XMLMAPPER" />
+
+<!-- 		<table schema="root" tableName="temperature_device" -->
+<!-- 			domainObjectName="TemperatureDevice" enableCountByExample="false" -->
+<!-- 			enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 			enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+
+		<table schema="root" tableName="gprs_module"
+			domainObjectName="GPRSModule" enableCountByExample="false"
+			enableUpdateByExample="false" enableDeleteByExample="false"
+			enableSelectByExample="false" selectByExampleQueryId="false" />
+	</context>
+</generatorConfiguration>
+
