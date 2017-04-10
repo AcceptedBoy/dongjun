@@ -21,13 +21,13 @@ import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.HighVoltageSwitch;
 import com.gdut.dongjun.domain.po.LowVoltageSwitch;
 import com.gdut.dongjun.domain.po.PlatformGroup;
-import com.gdut.dongjun.domain.po.TemperatureDevice;
+import com.gdut.dongjun.domain.po.TemperatureModule;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.service.PlatformGroupService;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.device.HighVoltageSwitchService;
 import com.gdut.dongjun.service.device.LowVoltageSwitchService;
-import com.gdut.dongjun.service.device.TemperatureDeviceService;
+import com.gdut.dongjun.service.device.TemperatureModuleService;
 import com.gdut.dongjun.util.MapUtil;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.UUIDUtil;
@@ -41,19 +41,15 @@ public class PlatformGroupController {
 
 	@Autowired
 	private PlatformGroupService groupService;
-
 	@Autowired
 	private HighVoltageSwitchService hvSwitchService;
-	
 	@Autowired
 	private LowVoltageSwitchService lwSwitchService;
-	
-	@Autowired
-	private TemperatureDeviceService temperatureService;
-
 	@Autowired
 	private UserService userService;
-
+	@Autowired
+	private TemperatureModuleService temperatureService;
+	
 	/**
 	 * 添加一个分组
 	 * 
@@ -150,6 +146,7 @@ public class PlatformGroupController {
 
 	/**
 	 * 删除分组 注意：不要连分组里面的开关都删掉，应该将其保存到默认的组中 TODO
+	 * 如果要删除公司的话，要不就设置可用位为0算了，不要删除数据
 	 * 
 	 * @param groupId
 	 * @return
@@ -175,8 +172,8 @@ public class PlatformGroupController {
 			lwSwitchService.updateByPrimaryKey(lowVoltageSwitch);
 		}
 		
-		List<TemperatureDevice> switchList2 = temperatureService.selectByParameters(MyBatisMapUtil.warp("group_id", id));
-		for (TemperatureDevice tem : switchList2) {
+		List<TemperatureModule> switchList2 = temperatureService.selectByParameters(MyBatisMapUtil.warp("group_id", id));
+		for (TemperatureModule tem : switchList2) {
 			tem.setGroupId(defaultGroupId);
 			temperatureService.updateByPrimaryKey(tem);
 		}

@@ -15,8 +15,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.Company;
+import com.gdut.dongjun.domain.po.DataMonitor;
 import com.gdut.dongjun.domain.po.PlatformGroup;
-import com.gdut.dongjun.domain.po.TemperatureDevice;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.po.authc.UserRoleKey;
 import com.gdut.dongjun.dto.DeviceForAuthDTO;
@@ -24,6 +24,7 @@ import com.gdut.dongjun.service.CompanyService;
 import com.gdut.dongjun.service.PlatformGroupService;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.authc.UserRoleService;
+import com.gdut.dongjun.service.device.DataMonitorService;
 import com.gdut.dongjun.service.device.TemperatureDeviceService;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.UUIDUtil;
@@ -42,6 +43,8 @@ public class CompanyController {
 	private PlatformGroupService pgService;
 	@Autowired
 	private TemperatureDeviceService deviceService;
+	@Autowired
+	private DataMonitorService monitorService;
 
 //	@RequiresPermissions("platform_group_admin:edit")
 	@RequestMapping("/edit")
@@ -142,22 +145,26 @@ public class CompanyController {
 		return ResponseMessage.success("删除成功");
 	}
 	
+	/**
+	 * 权限模块
+	 * 这个是返回当前公司的设备，要改啊
+	 * @param session
+	 * @return
+	 */
 	@RequestMapping("/device")
 	@ResponseBody
 	public ResponseMessage getAllDevice(HttpSession session) {
 		User user = userService.getCurrentUser(session);
-		List<TemperatureDevice> devices = deviceService.selectByParameters(MyBatisMapUtil.warp("group_id", user.getCompanyId()));
-		return ResponseMessage.success(wrapIntoDTO(devices));
+		List<DataMonitor> monitors = monitorService.selectByParameters(MyBatisMapUtil.warp("group_id", user.getCompanyId()));
+		return ResponseMessage.success(wrapIntoDTO(monitors));
 	}
 	
-	private List<DeviceForAuthDTO> wrapIntoDTO(List<TemperatureDevice> devices) {
+	private List<DeviceForAuthDTO> wrapIntoDTO(List<DataMonitor> devices) {
 		List<DeviceForAuthDTO> dtos = new ArrayList<DeviceForAuthDTO>();
-		for (TemperatureDevice device : devices) {
+		for (DataMonitor device : devices) {
 			DeviceForAuthDTO dto = new DeviceForAuthDTO();
 			dto.setId(device.getId());
 			dto.setName(device.getName());
-			dto.setType(3);
-			dto.setDeviceNumber(device.getDeviceNumber());
 			dtos.add(dto);
 		}
 		return dtos;
