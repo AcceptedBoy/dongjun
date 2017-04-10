@@ -1,5 +1,10 @@
 package com.gdut.dongjun.domain.po.abstractmodel;
 
+/**
+ * 抽象的报警消息类
+ * @author Gordan_Deng
+ * @date 2017年4月10日
+ */
 public abstract class AbstractHitchEvent {
 	protected String id;
 
