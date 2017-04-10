@@ -1,6 +1,5 @@
 package com.gdut.dongjun.web;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -16,25 +15,16 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.gdut.dongjun.domain.model.ResponseMessage;
-import com.gdut.dongjun.domain.po.Company;
-import com.gdut.dongjun.domain.po.ControlMearsureSwitch;
+import com.gdut.dongjun.domain.po.DataMonitor;
 import com.gdut.dongjun.domain.po.DeviceGroup;
 import com.gdut.dongjun.domain.po.DeviceGroupMapping;
-import com.gdut.dongjun.domain.po.HighVoltageSwitch;
-import com.gdut.dongjun.domain.po.LowVoltageSwitch;
 import com.gdut.dongjun.domain.po.PlatformGroup;
-import com.gdut.dongjun.domain.po.TemperatureDevice;
 import com.gdut.dongjun.domain.po.User;
-import com.gdut.dongjun.dto.SwitchDTO;
-import com.gdut.dongjun.service.CompanyService;
 import com.gdut.dongjun.service.DeviceGroupMappingService;
 import com.gdut.dongjun.service.DeviceGroupService;
 import com.gdut.dongjun.service.PlatformGroupService;
 import com.gdut.dongjun.service.UserService;
-import com.gdut.dongjun.service.device.ControlMearsureSwitchService;
-import com.gdut.dongjun.service.device.HighVoltageSwitchService;
-import com.gdut.dongjun.service.device.LowVoltageSwitchService;
-import com.gdut.dongjun.service.device.TemperatureDeviceService;
+import com.gdut.dongjun.service.device.DataMonitorService;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.UUIDUtil;
 
@@ -49,28 +39,18 @@ public class DeviceGroupController {
 	@Autowired
 	DeviceGroupMappingService deviceGroupMappingService;
 	@Autowired
-	private LowVoltageSwitchService lowService;
-	@Autowired
-	private HighVoltageSwitchService highService;
-	@Autowired
-	private ControlMearsureSwitchService controlService;
-	@Autowired
-	private TemperatureDeviceService temService;
-	@Autowired
-	private CompanyService companyService;
-	@Autowired
 	private PlatformGroupService pgService;
+	@Autowired
+	private DataMonitorService monitorService;
 
 	@RequiresPermissions("device_group_admin:edit")
 	@RequestMapping("/edit")
 	@ResponseBody
 	public ResponseMessage addGroup(DeviceGroup dGroup, HttpSession session) {
 		User user = (User) session.getAttribute("currentUser");
-		Company com = companyService.selectByPrimaryKey(user.getCompanyId());
 		PlatformGroup pg = ((List<PlatformGroup>) (pgService
-				.selectByParameters(MyBatisMapUtil.warp("company_id", com.getId())))).get(0);
+				.selectByParameters(MyBatisMapUtil.warp("company_id", user.getCompanyId())))).get(0);
 		dGroup.setPlatformGroupId(pg.getId());
-		// TODO 通过当前用户获取PlatformId
 		if (null == dGroup.getId() || "".equals(dGroup.getId())) {
 			dGroup.setId(UUIDUtil.getUUID());
 		}
@@ -78,13 +58,12 @@ public class DeviceGroupController {
 		if (result == 1) {
 			return ResponseMessage.success("操作成功");
 		} else
-			return ResponseMessage.danger("操作失败");
+			return ResponseMessage.warning("操作失败");
 	}
 
 	@RequiresPermissions("device_group_admin:delete")
 	@RequestMapping("/del")
 	@ResponseBody
-	// TODO 删除相关Mapping
 	public ResponseMessage delGroup(Integer id) {
 		if (null == id) {
 			return ResponseMessage.danger("操作失败");
@@ -106,11 +85,8 @@ public class DeviceGroupController {
 	@ResponseBody
 	public ResponseMessage getDeviceGroup(HttpSession session) {
 		User user = (User) session.getAttribute("currentUser");
-		// TODO 超管返回所有组别
-		List<DeviceGroup> list = deviceGroupService.selectByParameters(MyBatisMapUtil.warp(null));
-		// List<DeviceGroup> list =
-		// deviceGroupService.selectByParameters(MyBatisMapUtil.warp("user_id",
-		// user.getId()));
+		 List<DeviceGroup> list = deviceGroupService.selectByParameters(MyBatisMapUtil.warp("platform_group_id",
+		 user.getCompanyId()));
 		return ResponseMessage.success(list);
 	}
 
@@ -153,43 +129,23 @@ public class DeviceGroupController {
 		return ResponseMessage.danger("操作失败");
 	}
 
+	/**
+	 * 根据DeviceGroup的id返回DataMonitor
+	 * 
+	 * @param groupId
+	 * @return
+	 */
 	@RequiresAuthentication
 	@RequestMapping("/get_device_by_device_group_id")
 	@ResponseBody
 	public ResponseMessage getDeviceByDeviceGroupId(int groupId) {
-		try {
-			List<DeviceGroupMapping> mappingList = deviceGroupMappingService
-					.selectByParameters(MyBatisMapUtil.warp("device_group_id", groupId));
-			List<Object> devices = new LinkedList<Object>();
-			for (DeviceGroupMapping mapping : mappingList) {
-				switch (mapping.getType()) {
-				case 0:
-					// 低压
-					LowVoltageSwitch low = lowService.selectByPrimaryKey(mapping.getDeviceId());
-					devices.add(SwitchDTO.wrap(low, 0));
-					break;
-				case 1:
-					// 高压
-					HighVoltageSwitch high = highService.selectByPrimaryKey(mapping.getDeviceId());
-					devices.add(SwitchDTO.wrap(high, 1));
-					break;
-				case 2:
-					// 管控
-					ControlMearsureSwitch control = controlService.selectByPrimaryKey(mapping.getDeviceId());
-					devices.add(SwitchDTO.wrap(control, 2));
-					break;
-				case 3:
-					// 温度
-					TemperatureDevice device = temService.selectByPrimaryKey(mapping.getDeviceId());
-					devices.add(SwitchDTO.wrap(device, 3));
-					break;
-				}
-			}
-			return ResponseMessage.success(devices);
-		} catch (Exception e) {
-			e.printStackTrace();
+		List<DeviceGroupMapping> mappingList = deviceGroupMappingService
+				.selectByParameters(MyBatisMapUtil.warp("device_group_id", groupId));
+		List<DataMonitor> devices = new LinkedList<DataMonitor>();
+		for (DeviceGroupMapping mapping : mappingList) {
+			devices.add(monitorService.selectByPrimaryKey(mapping.getDeviceId()));
 		}
-		return null;
+		return ResponseMessage.success(devices);
 	}
 
 	/**
@@ -200,33 +156,10 @@ public class DeviceGroupController {
 	@RequiresAuthentication
 	@RequestMapping("/get_all_device")
 	@ResponseBody
-	public Object allDevice() {
-		List<Object> devices = new LinkedList<Object>();
-		List<LowVoltageSwitch> lows;
-		List<HighVoltageSwitch> highs;
-		List<TemperatureDevice> tems;
-
-		List<SwitchDTO> low_dto = new ArrayList<SwitchDTO>();
-		List<SwitchDTO> high_dto = new ArrayList<SwitchDTO>();
-		List<SwitchDTO> tem_dto = new ArrayList<SwitchDTO>();
-
-		highs = highService.selectByParameters(null);
-		tems = temService.selectByParameters(null);
-		lows = lowService.selectByParameters(null);
-
-		for (LowVoltageSwitch s : lows) {
-			low_dto.add(SwitchDTO.wrap(s, 0));
-		}
-		for (HighVoltageSwitch s : highs) {
-			high_dto.add(SwitchDTO.wrap(s, 1));
-		}
-		for (TemperatureDevice s : tems) {
-			tem_dto.add(SwitchDTO.wrap(s, 3));
-		}
-
-		devices.addAll(low_dto);
-		devices.addAll(high_dto);
-		devices.addAll(tem_dto);
+	public ResponseMessage allDevice(HttpSession session) {
+		User user = userService.getCurrentUser(session);
+		List<DataMonitor> devices = monitorService
+				.selectByParameters(MyBatisMapUtil.warp("group_id", user.getCompanyId()));
 		return ResponseMessage.success(devices);
 	}
 

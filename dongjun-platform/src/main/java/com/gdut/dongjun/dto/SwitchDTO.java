@@ -2,6 +2,11 @@ package com.gdut.dongjun.dto;
 
 import com.gdut.dongjun.util.GenericUtil;
 
+/**
+ * 或许可以删除了
+ * @author Gordan_Deng
+ * @date 2017年4月10日
+ */
 public class SwitchDTO {
 	
 	public String id;

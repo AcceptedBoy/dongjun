@@ -59,10 +59,6 @@ public class UserDeviceMappingController {
 	@RequestMapping("/get_user_mapping")
 	public ResponseMessage getUserMapping(String id) {
 		List<UserDeviceMapping> list = mappingService.selectByParameters(MyBatisMapUtil.warp("user_id", id));
-//		HashMap<String, Object> map = (HashMap<String, Object>) MapUtil.warp("draw", 1);
-//		map.put("recordsTotal", list.size());
-//		map.put("data", list);
-//		map.put("recordsFiltered", list.size());
 		return ResponseMessage.success(wrapIntoDTO(list));
 	}
 	
