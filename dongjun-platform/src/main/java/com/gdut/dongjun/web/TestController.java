@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.vo.HitchEventVO;
 import com.gdut.dongjun.service.UserService;
+import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
+import com.gdut.dongjun.service.webservice.client.service.HardwareService;
 import com.gdut.dongjun.service.webservice.server.WebsiteService;
 
 @Controller
@@ -22,6 +24,8 @@ public class TestController implements InitializingBean {
 	private UserService userService;
 	@Autowired
 	private WebsiteService webService;
+	@Autowired
+	private HardwareServiceClient hardService;
 	
 	private Logger logger = Logger.getLogger(TestController.class);	
 	
@@ -83,7 +87,7 @@ public class TestController implements InitializingBean {
 //					logger.info("我随便打印了点消息");
 //					//睡眠三十分钟
 //					try {
-//						Thread.sleep(1000 * 1);
+//						Thread.sleep(1000 * 5);
 //					} catch (InterruptedException e) {
 //						// TODO Auto-generated catch block
 //						e.printStackTrace();
@@ -94,4 +98,12 @@ public class TestController implements InitializingBean {
 //		};
 //		t.start();
 	}
+	
+	@RequestMapping("/temtest")
+	@ResponseBody
+	public ResponseMessage temtest() {
+		hardService.getService().changeTemperatureDevice(1 + "");
+		return ResponseMessage.success("fucked!");
+	}
+	
 }

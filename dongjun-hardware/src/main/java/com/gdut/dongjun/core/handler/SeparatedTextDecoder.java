@@ -32,9 +32,9 @@ public class SeparatedTextDecoder extends ByteToMessageDecoder {
 	private static final Integer CODE_16 = 1 * 16 + 6;
 	private static final Integer CODE_00 = 0;
 	//gprs模块登录包字节长度
-	private static final Integer GPRSLoginPackageLength = 37;
+	private static final int GPRSLoginPackageLength = 37;
 	//gprs模块心跳包字节长度
-	private static final Integer GPRSOnlinePackageLegnth = 10;
+	private static final int GPRSOnlinePackageLegnth = 10;
 	
 	private static final Logger logger = Logger.getLogger(SeparatedTextDecoder.class);
 	

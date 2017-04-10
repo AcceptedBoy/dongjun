@@ -156,5 +156,15 @@ public class TemperatureCtxStore extends CtxStore {
 		}
 		return results;
 	}
+	
+	/**
+	 * 根据ctx获取gprsId
+	 * @param ctx
+	 * @return
+	 */
+	public static String getGPRSByCtx(ChannelHandlerContext ctx) {
+		
+		return GPRSMap.get(ctx);
+	}
 }
 

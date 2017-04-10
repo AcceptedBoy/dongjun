@@ -106,6 +106,8 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+		String gprsAddress = TemperatureCtxStore.getGPRSByCtx(ctx);
+		logger.info("GPRS" + gprsAddress + "设备失去联络");
 		SwitchGPRS gprs = CtxStore.get(ctx);
 		if (gprs != null) {
 			// 从CtxStore中取出当前ChannelHandlerContext
@@ -116,6 +118,8 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 				device.setOnlineTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
 				deviceService.updateByPrimaryKey(device);
 			}
+		} else {
+			logger.warn("GPRS失联，但内存中找不到GPRS数据");
 		}
 	}
 
@@ -157,6 +161,11 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			String gprsId = gprsService.isGPRSAvailable(gprsAddress);
 			if (null != gprsId) {
 				
+				AttributeKey<Integer> key = AttributeKey.valueOf("isGPRSRegisted");
+				Attribute<Integer> attr = ctx.attr(key);
+				if (null == attr.get()) {
+					attr.set(1);
+				}
 				//更新TemperatureCtxStore的GPRSMap，gprsId为空的话啥都不干。
 				TemperatureCtxStore.addGPRS(ctx, gprsAddress);
 				if (CharUtils.equals(data, 6, 8, CODE_01)) {
@@ -169,6 +178,13 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 				//如果网站上没注册gprs，否决此报文
 				return false;
 			}
+		}
+		
+		//若GPRS模块注册不成功，报文不通过
+		AttributeKey<Integer> key = AttributeKey.valueOf("isGPRSRegisted");
+		Attribute<Integer> attr = ctx.attr(key);
+		if (null == attr.get() || 1 != attr.get()) {
+			return false;
 		}
 		/*
 		 * TODO 做时间戳 + 设备地址 + 校验和的验证工作，如果不行就记录非法报文数量。 非法报文数量超过一定程度后封锁该设备地址。
@@ -358,6 +374,11 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			sb.append("eb90eb90eb90" + CharUtils.newString(data, 10, 18) + "16");
 			ctx.channel().writeAndFlush(sb.toString()); // 全遥测确认报文，提示控制器发送全遥信
 		}
+		//更新在线时间
+		TemperatureDevice device = new TemperatureDevice();
+		device.setId(deviceId);
+		device.setOnlineTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
+		deviceService.updateByPrimaryKeySelective(device);
 	}
 
 	/**

@@ -1,7 +1,7 @@
 package com.gdut.dongjun.service.manager;
 
 /**
- * 清除过期设备树的任务
+ * 清除缓存中过期设备树的任务 
  * @author Gordan_Deng
  * @date 2017年3月29日
  */

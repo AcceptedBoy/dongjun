@@ -37,5 +37,13 @@ public abstract class ScheduledTask implements Runnable {
 	public void setRound(Integer round) {
 		this.round = round;
 	}
+
+	public Integer getExecuteTime() {
+		return executeTime;
+	}
+
+	public void setExecuteTime(Integer executeTime) {
+		this.executeTime = executeTime;
+	}
 	
 }
