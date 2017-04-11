@@ -2,26 +2,14 @@
 
 import java.util.List;
 
-import javax.annotation.Resource;
-
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.gdut.dongjun.core.server.impl.ControlMeasureServer;
-import com.gdut.dongjun.core.server.impl.HighVoltageServer;
-import com.gdut.dongjun.core.server.impl.HighVoltageServer_V1_3;
-import com.gdut.dongjun.core.server.impl.LowVoltageServer;
 import com.gdut.dongjun.core.server.impl.TemperatureServer;
 import com.gdut.dongjun.domain.dao.ProtocolPortMapper;
-import com.gdut.dongjun.domain.po.HighVoltageCurrent;
-import com.gdut.dongjun.domain.po.HighVoltageSwitch;
-import com.gdut.dongjun.domain.po.HighVoltageVoltage;
 import com.gdut.dongjun.domain.po.ProtocolPort;
-import com.gdut.dongjun.service.HighVoltageCurrentService;
-import com.gdut.dongjun.service.HighVoltageSwitchService;
-import com.gdut.dongjun.service.HighVoltageVoltageService;
 import com.gdut.dongjun.service.webservice.client.WebsiteServiceClient;
 
 
@@ -35,47 +23,11 @@ import com.gdut.dongjun.service.webservice.client.WebsiteServiceClient;
 public class MonitorStartup implements InitializingBean {
 	
 	@Autowired
-	private LowVoltageServer lowVoltageServer;
-	
-	@Autowired
-	private HighVoltageServer highVoltageServer;
-
-	@Resource(name = "HighVoltageServer_V1_3")
-	private HighVoltageServer_V1_3 highVoltageServer_v1_3;
-	
-	@Autowired
-	private ControlMeasureServer controlMeasureServer;
-	
-	@Autowired
 	private TemperatureServer temperatureServer;
-	
 	@Autowired
 	private ProtocolPortMapper protocolPortDAOImpl;
-
-	/**
-	 * 高压电流
-     */
-	@Autowired
-	private HighVoltageCurrentService hvCurrentService;
-
-	/**
-	 * 高压电压
-     */
-	@Autowired
-	private HighVoltageVoltageService hvVoltageService;
-
-	/**
-	 * 高压设备
-     */
-	@Autowired
-	private HighVoltageSwitchService hvSwitchService;
-
-	/**
-	 * 缓存
-     */
 //	@Autowired
 //	private CacheService cacheService;
-
 	@Autowired
 	private WebsiteServiceClient websiteClient;
 
@@ -144,39 +96,19 @@ public class MonitorStartup implements InitializingBean {
 	 * 在项目启动的时候开启监听端口
 	 * @throws Exception
 	 */
-	private void monitorStartup() {
+	private void monitorStartup() throws Exception {
 		List<ProtocolPort> ports = protocolPortDAOImpl.selectByParameters(null);
 		for (ProtocolPort port : ports) {
-			if (port.getRemark().equals("high_voltage")) {
-				highVoltageServer.setPort(port.getPort());
-			}
-			else if (port.getRemark().equals("low_voltage")) {
-				lowVoltageServer.setPort(port.getPort());
-			}
-			else if (port.getRemark().equals("control_device")) {
-				controlMeasureServer.setPort(port.getPort());
-			}
-			else if (port.getRemark().equals("temperature_device")) {
+			if (port.getRemark().equals("temperature_device")) {
 				temperatureServer.setPort(port.getPort());
 			}
-			else if (port.getRemark().equals("high_voltage_1.3")) {
-				highVoltageServer_v1_3.setPort(port.getPort());
-			}
 			else {
-				logger.warn("没有和端口相符合的服务器，请查看服务器启动代码是否有误");
+				logger.warn("服务器启动端" + port.getRemark() + ":" + port.getPort() + "口有误，请查看服务器启动代码是否有误");
 			}
 		}
 
-//		logger.info("低压开关端口号：" + lowVoltageServer.getPort());
-//		logger.info("高压开关端口号：" + highVoltageServer.getPort());
-//		logger.info("管控开关端口号：" + controlMeasureServer.getPort());
-//		logger.info("高压版本1.3端口号：" + highVoltageServer_v1_3.getPort());
 		logger.info("温度设备端口号：" + temperatureServer.getPort());
 
-//		lowVoltageServer.start();
-//		highVoltageServer.start();
-//		controlMeasureServer.start();
-//		highVoltageServer_v1_3.start();
 		temperatureServer.start();
 	}	
 }

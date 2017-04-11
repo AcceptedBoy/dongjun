@@ -1,12 +1,14 @@
 package com.gdut.dongjun.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import com.gdut.dongjun.domain.dao.TemperatureModuleMapper;
 import com.gdut.dongjun.domain.po.TemperatureModule;
 import com.gdut.dongjun.service.TemperatureModuleService;
 import com.gdut.dongjun.service.base.impl.BaseServiceImpl;
 
+@Service
 public class TemperatureModuleServiceImpl extends BaseServiceImpl<TemperatureModule>
 implements TemperatureModuleService {
 

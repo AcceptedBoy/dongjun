@@ -18,15 +18,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.gdut.dongjun.domain.model.ResponseMessage;
-import com.gdut.dongjun.domain.po.HighVoltageSwitch;
-import com.gdut.dongjun.domain.po.LowVoltageSwitch;
 import com.gdut.dongjun.domain.po.PlatformGroup;
 import com.gdut.dongjun.domain.po.TemperatureModule;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.service.PlatformGroupService;
 import com.gdut.dongjun.service.UserService;
-import com.gdut.dongjun.service.device.HighVoltageSwitchService;
-import com.gdut.dongjun.service.device.LowVoltageSwitchService;
 import com.gdut.dongjun.service.device.TemperatureModuleService;
 import com.gdut.dongjun.util.MapUtil;
 import com.gdut.dongjun.util.MyBatisMapUtil;
@@ -41,10 +37,6 @@ public class PlatformGroupController {
 
 	@Autowired
 	private PlatformGroupService groupService;
-	@Autowired
-	private HighVoltageSwitchService hvSwitchService;
-	@Autowired
-	private LowVoltageSwitchService lwSwitchService;
 	@Autowired
 	private UserService userService;
 	@Autowired
@@ -78,12 +70,12 @@ public class PlatformGroupController {
 	 * @param groupId
 	 * @return
 	 */
-	@RequiresAuthentication
-	@RequestMapping("/device_list")
-	@ResponseBody
-	public ResponseMessage deviceList(@RequestParam(required = true) Integer groupId) {
-		return ResponseMessage.info(hvSwitchService.selectByParameters(MyBatisMapUtil.warp("group_id", groupId)));
-	}
+//	@RequiresAuthentication
+//	@RequestMapping("/device_list")
+//	@ResponseBody
+//	public ResponseMessage deviceList(@RequestParam(required = true) Integer groupId) {
+//		return ResponseMessage.info(hvSwitchService.selectByParameters(MyBatisMapUtil.warp("group_id", groupId)));
+//	}
 
 	/**
 	 * 获取某个协议类型的所有分组
@@ -109,22 +101,22 @@ public class PlatformGroupController {
 	 * @param type
 	 * @return
 	 */
-	@RequiresAuthentication
-	@RequestMapping("moveO_new")
-	@ResponseBody
-	@Deprecated
-	public ResponseMessage moveNew(@NotNull String groupId, @NotNull String deviceId, @NotNull Integer type) {
-
-		// TODO 只有高压的移动
-		switch (type) {
-		case 1:
-			HighVoltageSwitch hvSwitch = hvSwitchService.selectByPrimaryKey(deviceId);
-			hvSwitch.setGroupId(groupId);
-
-			hvSwitchService.updateByPrimaryKey(hvSwitch);
-		}
-		return ResponseMessage.success("操作成功");
-	}
+//	@RequiresAuthentication
+//	@RequestMapping("moveO_new")
+//	@ResponseBody
+//	@Deprecated
+//	public ResponseMessage moveNew(@NotNull String groupId, @NotNull String deviceId, @NotNull Integer type) {
+//
+//		// TODO 只有高压的移动
+//		switch (type) {
+//		case 1:
+//			HighVoltageSwitch hvSwitch = hvSwitchService.selectByPrimaryKey(deviceId);
+//			hvSwitch.setGroupId(groupId);
+//
+//			hvSwitchService.updateByPrimaryKey(hvSwitch);
+//		}
+//		return ResponseMessage.success("操作成功");
+//	}
 
 	/**
 	 * 将一个设备移动到另一个分组上
@@ -160,18 +152,6 @@ public class PlatformGroupController {
 				.getId();
 		
 		// TODO 删除分组后的照理来说旗下的设备全都要删除，这里保留到默认组
-		List<HighVoltageSwitch> switchList = hvSwitchService.selectByParameters(MyBatisMapUtil.warp("group_id", id));
-		for (HighVoltageSwitch highVoltageSwitch : switchList) {
-			highVoltageSwitch.setGroupId(defaultGroupId);
-			hvSwitchService.updateByPrimaryKey(highVoltageSwitch);
-		}
-		
-		List<LowVoltageSwitch> switchList1 = lwSwitchService.selectByParameters(MyBatisMapUtil.warp("group_id", id));
-		for (LowVoltageSwitch lowVoltageSwitch : switchList1) {
-			lowVoltageSwitch.setGroupId(defaultGroupId);
-			lwSwitchService.updateByPrimaryKey(lowVoltageSwitch);
-		}
-		
 		List<TemperatureModule> switchList2 = temperatureService.selectByParameters(MyBatisMapUtil.warp("group_id", id));
 		for (TemperatureModule tem : switchList2) {
 			tem.setGroupId(defaultGroupId);

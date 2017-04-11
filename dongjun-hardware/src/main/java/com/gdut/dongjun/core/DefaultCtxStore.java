@@ -19,7 +19,7 @@ public class DefaultCtxStore extends CtxStore {
 	@Autowired
 	public void setWebsiteServiceClient(WebsiteServiceClient webServiceClient) {
 		if (null == super.websiteServiceClient) {
-			synchronized (HighVoltageCtxStore.class) {
+			synchronized (DefaultCtxStore.class) {
 				if (null == super.websiteServiceClient) {
 					super.websiteServiceClient = webServiceClient;
 				}

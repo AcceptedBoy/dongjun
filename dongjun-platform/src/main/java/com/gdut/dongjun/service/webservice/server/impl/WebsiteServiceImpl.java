@@ -3,8 +3,6 @@ package com.gdut.dongjun.service.webservice.server.impl;
 import java.util.Date;
 import java.util.List;
 
-import javax.jms.JMSException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +10,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import com.gdut.dongjun.domain.HighVoltageStatus;
 import com.gdut.dongjun.domain.po.PersistentHitchMessage;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
@@ -21,8 +18,6 @@ import com.gdut.dongjun.dto.HitchEventDTO;
 import com.gdut.dongjun.service.HitchEventService;
 import com.gdut.dongjun.service.PersistentHitchMessageService;
 import com.gdut.dongjun.service.UserService;
-import com.gdut.dongjun.service.common.DeviceBinding;
-import com.gdut.dongjun.service.device.DeviceCommonService;
 import com.gdut.dongjun.service.mq.UserMQService;
 import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 import com.gdut.dongjun.service.webservice.server.WebsiteService;

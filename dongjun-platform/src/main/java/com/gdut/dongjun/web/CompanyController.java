@@ -25,7 +25,6 @@ import com.gdut.dongjun.service.PlatformGroupService;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.authc.UserRoleService;
 import com.gdut.dongjun.service.device.DataMonitorService;
-import com.gdut.dongjun.service.device.TemperatureDeviceService;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.UUIDUtil;
 
@@ -41,8 +40,6 @@ public class CompanyController {
 	private UserRoleService urService;
 	@Autowired
 	private PlatformGroupService pgService;
-	@Autowired
-	private TemperatureDeviceService deviceService;
 	@Autowired
 	private DataMonitorService monitorService;
 

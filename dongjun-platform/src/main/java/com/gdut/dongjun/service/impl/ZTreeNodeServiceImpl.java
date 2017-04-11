@@ -15,7 +15,6 @@ import com.gdut.dongjun.domain.po.BigGroup;
 import com.gdut.dongjun.domain.po.DeviceGroup;
 import com.gdut.dongjun.domain.po.DeviceGroupMapping;
 import com.gdut.dongjun.domain.po.PlatformGroup;
-import com.gdut.dongjun.domain.po.TemperatureDevice;
 import com.gdut.dongjun.domain.po.TemperatureSensor;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.po.UserDeviceMapping;
@@ -25,7 +24,7 @@ import com.gdut.dongjun.service.PlatformGroupService;
 import com.gdut.dongjun.service.UserDeviceMappingService;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.ZTreeNodeService;
-import com.gdut.dongjun.service.device.TemperatureDeviceService;
+import com.gdut.dongjun.service.device.TemperatureModuleService;
 import com.gdut.dongjun.service.device.TemperatureSensorService;
 import com.gdut.dongjun.service.manager.UserHolder;
 import com.gdut.dongjun.util.MyBatisMapUtil;
@@ -45,8 +44,6 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 	@Autowired
 	private PlatformGroupService platformGroupService;
 	@Autowired
-	private TemperatureDeviceService deviceService;
-	@Autowired
 	private DeviceGroupMappingService mappingService;
 	@Autowired
 	private DeviceGroupService deviceGroupService;
@@ -58,6 +55,8 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 	private UserDeviceMappingService UDMappingService;
 	@Autowired
 	private UserService userService;
+	@Autowired
+	private TemperatureModuleService temModuleService;
 
 	/**
 	 * 返回用户的设备树。

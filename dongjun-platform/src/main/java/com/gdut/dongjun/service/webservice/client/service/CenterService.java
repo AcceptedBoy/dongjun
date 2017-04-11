@@ -1,34 +1,41 @@
 package com.gdut.dongjun.service.webservice.client.service;
 
-import com.gdut.dongjun.domain.po.HighVoltageSwitch;
-import com.gdut.dongjun.domain.po.Line;
-import com.gdut.dongjun.domain.po.Substation;
-import com.gdut.dongjun.domain.vo.AvailableHighVoltageSwitch;
+import java.io.Serializable;
+
+import javax.sound.sampled.Line;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
 import com.gdut.dongjun.service.webservice.client.po.InitialParam;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import java.io.Serializable;
-import java.util.List;
-
-
+/**
+ * TODO
+ * @author Gordan_Deng
+ * @date 2017年4月11日
+ */
 @Produces({MediaType.APPLICATION_JSON})
 public interface CenterService extends Serializable {
 
-    @POST
-    @Path("/substation/add")
-    @Consumes({MediaType.APPLICATION_JSON})
-    public String addSubstation(Substation substation);
+//    @POST
+//    @Path("/substation/add")
+//    @Consumes({MediaType.APPLICATION_JSON})
+//    public String addSubstation(Substation substation);
 
     @GET
     @Path("/substation/delete/{substationId}")
     public String deleteSubstation(
             @PathParam("substationId") String substationId);
 
-    @POST
-    @Path("/substation/update")
-    @Consumes({MediaType.APPLICATION_JSON})
-    public String updateSubstation(Substation substation);
+//    @POST
+//    @Path("/substation/update")
+//    @Consumes({MediaType.APPLICATION_JSON})
+//    public String updateSubstation(Substation substation);
 
     @POST
     @Path("/line/add")
@@ -44,19 +51,19 @@ public interface CenterService extends Serializable {
     @Consumes({MediaType.APPLICATION_JSON})
     public String updateLine(Line line);
 
-    @POST
-    @Path("/hvSwitch/add")
-    @Consumes({MediaType.APPLICATION_JSON})
-    public String addHighVoltageSwitch(HighVoltageSwitch hvSwitch);
+//    @POST
+//    @Path("/hvSwitch/add")
+//    @Consumes({MediaType.APPLICATION_JSON})
+//    public String addHighVoltageSwitch(HighVoltageSwitch hvSwitch);
 
     @GET
     @Path("/hvSwitch/delete/{switchId}")
     public String deleteHighVoltageSwitch(@PathParam("switchId") String switchId);
 
-    @POST
-    @Path("/hvSwitch/update")
-    @Consumes({MediaType.APPLICATION_JSON})
-    public String updateVoltageSwitch(HighVoltageSwitch hvSwitch);
+//    @POST
+//    @Path("/hvSwitch/update")
+//    @Consumes({MediaType.APPLICATION_JSON})
+//    public String updateVoltageSwitch(HighVoltageSwitch hvSwitch);
 
 
     @POST
@@ -75,8 +82,8 @@ public interface CenterService extends Serializable {
             @FormParam("companyId") String company_id,
             @FormParam("type") String type);
 
-    @POST
-    @Path("/switchs_of_line")
-    public List<AvailableHighVoltageSwitch> switchsOfLine(@FormParam("type") Integer type,
-                                                          @FormParam("lineId") String lineId);
+//    @POST
+//    @Path("/switchs_of_line")
+//    public List<AvailableHighVoltageSwitch> switchsOfLine(@FormParam("type") Integer type,
+//                                                          @FormParam("lineId") String lineId);
 }

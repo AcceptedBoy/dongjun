@@ -9,8 +9,9 @@ import com.gdut.dongjun.domain.vo.HitchEventVO;
 import com.gdut.dongjun.dto.HitchEventDTO;
 import com.gdut.dongjun.dto.TemperatureMeasureHitchEventDTO;
 import com.gdut.dongjun.service.HitchEventService;
-import com.gdut.dongjun.service.device.TemperatureDeviceService;
+import com.gdut.dongjun.service.device.TemperatureModuleService;
 import com.gdut.dongjun.service.device.event.TemperatureMeasureHitchEventService;
+import com.gdut.dongjun.util.MyBatisMapUtil;
 
 @Component
 public class HitchEventServiceImpl implements HitchEventService {
@@ -18,7 +19,7 @@ public class HitchEventServiceImpl implements HitchEventService {
 	@Autowired
 	private TemperatureMeasureHitchEventService temEventService;
 	@Autowired
-	private TemperatureDeviceService temService;
+	private TemperatureModuleService temModuleService;
 	
 	Logger logger = Logger.getLogger(HitchEventServiceImpl.class);
 
@@ -36,7 +37,9 @@ public class HitchEventServiceImpl implements HitchEventService {
 			break;
 		}
 		case 3: {
-			String name = temService.selectNameById(vo.getSwitchId());
+			//TODO
+			String name = temModuleService.selectByPrimaryKey(vo.getSwitchId()).getName();
+//			String name = temService.selectNameById(vo.getSwitchId());
 			TemperatureMeasureHitchEvent temEvent = temEventService.selectByPrimaryKey(vo.getId());
 			TemperatureMeasureHitchEventDTO dto = new TemperatureMeasureHitchEventDTO();
 			dto.setId(temEvent.getId());

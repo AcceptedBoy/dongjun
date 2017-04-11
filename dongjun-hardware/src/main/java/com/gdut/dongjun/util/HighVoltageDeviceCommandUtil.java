@@ -13,7 +13,7 @@ import com.gdut.dongjun.enums.HighCommandControlCode;
  * @description
  * @package com.gdut.dongjun.util
  */
-@Component
+//@Component
 public class HighVoltageDeviceCommandUtil extends StringCommonUtil {
 
 	private String address;// 地址

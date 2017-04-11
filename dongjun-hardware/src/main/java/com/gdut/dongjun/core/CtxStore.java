@@ -224,7 +224,7 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 		if(ctx != null) {
 
 			//TODO 采用新的
-			websiteServiceClient.getService().callbackCtxChange();
+//			websiteServiceClient.getService().callbackCtxChange();
 			ctxlist.add(ctx);
 		}
 		//printCtxStore();
@@ -256,7 +256,7 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 					ctxlist.remove(gprs);	
 				}
 			}
-			websiteServiceClient.getService().callbackCtxChange();// TODO trueChange();
+//			websiteServiceClient.getService().callbackCtxChange();// TODO trueChange();
 		} else {
 			logger.info("ctxlist is empty, no gprs has bean remove!");
 		}
@@ -279,7 +279,7 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 		}
 
 		ctxlist.clear();
-		websiteServiceClient.getService().callbackCtxChange(); // TODO trueChange();
+//		websiteServiceClient.getService().callbackCtxChange(); // TODO trueChange();
 		if (logger.isDebugEnabled()) {
 			logger.debug("clear() - end");
 		}
@@ -299,7 +299,7 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 		if (gprs != null && id.equals(gprs.getId())) {
 			gprs.setOpen(true);
 			//printCtxStore();
-			websiteServiceClient.getService().callbackCtxChange(); // TODO trueChange();
+//			websiteServiceClient.getService().callbackCtxChange(); // TODO trueChange();
 		} else {
 			logger.info("ctxlist is empty!");
 		}
@@ -409,7 +409,7 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 				list.remove(i);
 			}
 		}
-		websiteServiceClient.getService().callbackCtxChange(); // TODO trueChange();
+//		websiteServiceClient.getService().callbackCtxChange(); // TODO trueChange();
 	}
 
 	public static boolean changeOpen(String switchId) {
@@ -417,7 +417,7 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 		SwitchGPRS gprs = get(switchId);
 		if(gprs != null) {
 			gprs.setOpen(gprs.isOpen() == true ? false : true);
-			websiteServiceClient.getService().callbackCtxChange(); // TODO trueChange();
+//			websiteServiceClient.getService().callbackCtxChange(); // TODO trueChange();
 			return true;
 		} else {
 			return false;

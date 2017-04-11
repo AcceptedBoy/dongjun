@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 import com.gdut.dongjun.domain.dao.CompanyMapper;
 import com.gdut.dongjun.domain.dao.base.impl.SinglePrimaryKeyBaseDAOImpl;
 import com.gdut.dongjun.domain.po.Company;
-import com.gdut.dongjun.domain.po.ControlMearsureCurrent;
 
 /**
  * 

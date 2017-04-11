@@ -64,13 +64,6 @@ public class WebsiteServiceClient implements InitializingBean, ApplicationContex
 
 
     public static class ExtendedService {
-    	
-        public void callbackCtxChange() {
-            for(WebsiteService websiteService : websiteList) {
-                websiteService.callbackCtxChange(
-                        hardwareService.getActiveSwitchStatus());
-            }
-        }
 
         public void callbackDeviceChange(String switchId, Integer type) {
             for(WebsiteService websiteService : websiteList) {

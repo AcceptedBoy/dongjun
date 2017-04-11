@@ -21,10 +21,10 @@ public interface WebsiteService {
     /**
      * 当开关状态产生变化时执行回调
      */
-    @POST
-    @Path("/callback_ctx_change")
-    @Consumes({MediaType.APPLICATION_JSON})
-    public void callbackCtxChange(List<ActiveHighSwitch> data);
+//    @POST
+//    @Path("/callback_ctx_change")
+//    @Consumes({MediaType.APPLICATION_JSON})
+//    public void callbackCtxChange(List<ActiveHighSwitch> data);
 
     @POST
     @Path("/callback_device_change")
