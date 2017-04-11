@@ -9,6 +9,7 @@
 `dongjun-hardware`| 设备报文硬件解析端 
 `dongjun-platform`| 网页web端的平台版 
 `dongjun-website`| 网页web端的企业版 
+`dongjun-website-hardware`| 企业版的硬件解析端
 `dongjun-service`| 部署在阿里云上的中央管理 
 `dongjun-simulate`| 可模拟数据报文的发送 
 
@@ -28,7 +29,6 @@
 这个模块可以模拟设备的发送，具体实现是以日志为基础的，目前只嵌入了高压设备的模拟；一些模拟工作可以在这个模块做。
 
 * 高压设备数据发送模拟启动所在的main为`com.gdut.dongjun.main.SimulateClient`
-
 
 
 
