@@ -26,6 +26,9 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -282,11 +285,21 @@ public class UserController {
 		return ResponseMessage.success("操作成功");
 	}
 
-	@NeededTest	//TODO
+	@InitBinder("company")  
+	public void initAccountBinder(WebDataBinder binder) {  
+	    binder.setFieldDefaultPrefix("company.");  
+	} 
+
+	@InitBinder("user")  
+	public void initUserBinder(WebDataBinder binder) {  
+	    binder.setFieldDefaultPrefix("user.");  
+	}
+	
+	@NeededTest
 	@RequestMapping(value = "/dongjun/elecon/company_registry", method = RequestMethod.POST)
 	@ResponseBody
 	@Transactional
-	public ResponseMessage edit(Company com, User user) {
+	public ResponseMessage edit(@ModelAttribute("company") Company com, @ModelAttribute("user") User user) {
 		//注册用户并赋予公司管理员角色
 		List<Role> roles = roleService.selectByParameters(null);
 		user.setId(UUIDUtil.getUUID());

@@ -135,9 +135,11 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		logger.info("接收到的报文： " + rowMsg);
 		char[] data = CharUtils.removeSpace(rowMsg.toCharArray());
 		// 验证报文合法性，以及做一些注册的工作
-		if (check(ctx, data)) {
-			handleIdenCode(ctx, data);
-		}
+//		if (check(ctx, data)) {
+//			handleIdenCode(ctx, data);
+//		}
+		System.out.println(rowMsg);
+		ctx.fireChannelRead(msg);
 	}
 
 	/**
@@ -421,11 +423,11 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	 */
 	private void confirmSignalChangeInfo(ChannelHandlerContext ctx, String data) {
 
-		for (int i = 26, j = Integer.valueOf(data.substring(16, 18)); j > 0; i += 6, --j) {
-			// TODO 遥信值的处理
-			// changeState(data.substring(22, 26), data.substring(i, i + 4),
-			// data.substring(i + 4, i + 6));
-		}
+//		for (int i = 26, j = Integer.valueOf(data.substring(16, 18)); j > 0; i += 6, --j) {
+//			 TODO 遥信值的处理
+//			 changeState(data.substring(22, 26), data.substring(i, i + 4),
+//			 data.substring(i + 4, i + 6));
+//		}
 		// 返回确认遥信事件
 		String resu = new TemperatureDeviceCommandUtil(data.substring(10, 14)).confirmRemoteSignalChangeEvent();
 		logger.info("遥信变位事件确定---------" + resu);

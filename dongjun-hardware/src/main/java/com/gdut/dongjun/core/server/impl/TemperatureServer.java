@@ -1,7 +1,5 @@
 package com.gdut.dongjun.core.server.impl;
 
-import java.util.List;
-
 import javax.annotation.Resource;
 
 import org.apache.log4j.Logger;

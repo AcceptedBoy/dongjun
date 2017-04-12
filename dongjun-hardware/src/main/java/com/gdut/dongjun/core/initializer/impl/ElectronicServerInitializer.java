@@ -1,25 +1,22 @@
 package com.gdut.dongjun.core.initializer.impl;
 
-import javax.annotation.Resource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.gdut.dongjun.core.handler.Encoder;
 import com.gdut.dongjun.core.handler.SeparatedTextDecoder;
 import com.gdut.dongjun.core.handler.msg_decoder.ElectronicDataReceiver;
-import com.gdut.dongjun.core.handler.msg_decoder.TemperatureDataReceiver;
 import com.gdut.dongjun.core.initializer.ServerInitializer;
 
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 
-@Component("TemperatureServerInitializer")
-public class TemperatureServerInitializer extends ServerInitializer {
+@Component("ElectronicServerInitializer")
+public class ElectronicServerInitializer extends ServerInitializer {
 
-	@Resource
-	private TemperatureDataReceiver receiver;
-
+	@Autowired
+	private ElectronicDataReceiver receiver;
+	
 	@Override
 	public void initChannel(SocketChannel ch) throws Exception {
 
