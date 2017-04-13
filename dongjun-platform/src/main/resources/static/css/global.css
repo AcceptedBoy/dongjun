@@ -74,20 +74,47 @@ footer p {
     margin-top: -1%;
 }
 
-.rankBtn {
-	margin-left: 30%;
+.userBtn {
+	margin-left: 40%;
 }
 
-@media screen and (min-width: 1600px) {
-	.rankBtn {
-		margin-left: 40%;
+@media screen and (max-width: 1840px) {
+	.userBtn {
+		margin-left: 15%;
 	}
 }
 
-@media screen and (max-width: 1300px) {
-	.rankBtn {
-		margin-left: 0%;
-	}
+.frontBtn.bigBtn {
+	margin-right: 3%;
+	margin-left: 2%;
+}
+
+.bigBtn {
+	position: relative;
+	width: 45%;
+	margin: 35px 0;
+	display: inline-block;
+	height: 200px;
+	border: 1px solid #cecccc;
+	border-radius: 3%;
+	cursor: pointer;
+	transition: all .3s;
+}
+
+.bigBtn:hover {
+	background-color: #747272;
+	color: white;
+}
+
+.center {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	margin: auto;
+	width: max-content;
+	height: 20px;
 }
 
 .online {
