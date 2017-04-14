@@ -6,10 +6,10 @@ import org.springframework.stereotype.Service;
 import com.gdut.dongjun.domain.dao.ElectronicModuleVoltageMapper;
 import com.gdut.dongjun.domain.po.ElectronicModuleVoltage;
 import com.gdut.dongjun.service.ElectronicModuleVoltageService;
-import com.gdut.dongjun.service.base.impl.BaseServiceImpl;
+import com.gdut.dongjun.service.base.impl.EnhancedServiceImpl;
 
 @Service
-public class ElectronicModuleVoltageServiceImpl extends BaseServiceImpl<ElectronicModuleVoltage> implements ElectronicModuleVoltageService {
+public class ElectronicModuleVoltageServiceImpl extends EnhancedServiceImpl<ElectronicModuleVoltage> implements ElectronicModuleVoltageService {
 
 	@Autowired
 	private ElectronicModuleVoltageMapper mapper;

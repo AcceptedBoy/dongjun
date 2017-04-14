@@ -1,7 +1,7 @@
 package com.gdut.dongjun.service.authc;
 
 import com.gdut.dongjun.domain.po.authc.UserRole;
-import com.gdut.dongjun.domain.po.authc.UserRoleKey;
+import com.gdut.dongjun.domain.po.authc.UserRole;
 import com.gdut.dongjun.service.base.EnhancedService;
 
 /**
@@ -34,7 +34,7 @@ public interface UserRoleService extends EnhancedService<UserRole> {
 	 * @return int
 	 * @throws
 	 */
-	public int deleteByPrimaryKey(UserRoleKey key);
+	public int deleteByPrimaryKey(UserRole key);
 
 	/**
 	 * 
@@ -45,7 +45,7 @@ public interface UserRoleService extends EnhancedService<UserRole> {
 	 * @return int
 	 * @throws
 	 */
-	public int insert(UserRoleKey record);
+	public int insert(UserRole record);
 
 	/**
 	 * 
@@ -56,7 +56,7 @@ public interface UserRoleService extends EnhancedService<UserRole> {
 	 * @return int
 	 * @throws
 	 */
-	public int insertSelective(UserRoleKey record);
+	public int insertSelective(UserRole record);
 
 	/**
 	 * 

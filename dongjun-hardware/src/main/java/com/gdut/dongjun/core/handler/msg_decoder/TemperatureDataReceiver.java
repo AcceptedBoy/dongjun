@@ -62,6 +62,8 @@ import io.netty.util.AttributeKey;
 @Sharable
 public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 
+	private static final String HITCH_REASON = "监测温度超过所设阈值";
+	
 	private static final char[] EB_UP = new char[] { 'E', 'B', '9', '0' }; // EB90
 	private static final char[] EB_DOWN = new char[] { 'e', 'b', '9', '0' }; // eb90
 	private static final char[] CODE_64 = new char[] { '6', '4' }; // 64
@@ -135,11 +137,11 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		logger.info("接收到的报文： " + rowMsg);
 		char[] data = CharUtils.removeSpace(rowMsg.toCharArray());
 		// 验证报文合法性，以及做一些注册的工作
-//		if (check(ctx, data)) {
-//			handleIdenCode(ctx, data);
-//		}
-		System.out.println(rowMsg);
-		ctx.fireChannelRead(msg);
+		if (check(ctx, data)) {
+			handleIdenCode(ctx, data);
+		} else {
+			logger.info("验证失败：" + rowMsg);
+		}
 	}
 
 	/**
@@ -477,10 +479,16 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 				TemperatureModule device = temModuleService.selectByPrimaryKey(deviceId);
 //				TemperatureDevice device = deviceService.selectByPrimaryKey(deviceId);
 				// TODO 其实报警事事件应该是时间戳中的时间
-				TemperatureMeasureHitchEvent event = new TemperatureMeasureHitchEvent(UUIDUtil.getUUID(),
-						device.getId(), new BigDecimal(Double.valueOf("" + Integer.parseInt(value[i - 1], 16)) / 10), i, "监测温度超过所设阈值",
-						TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"), device.getGroupId(), new Date(),
-						new Date(), device.getMaxHitchValue(), device.getMinHitchValue());
+				TemperatureMeasureHitchEvent event = new TemperatureMeasureHitchEvent();
+				event.setId(UUIDUtil.getUUID());
+				event.setSwitchId(device.getId());
+				event.setValue(new BigDecimal(Double.valueOf("" + Integer.parseInt(value[i - 1], 16)) / 10));
+				event.setTag(i);
+				event.setHitchReason(HITCH_REASON);
+				event.setHitchTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
+				event.setGroupId(device.getGroupId());
+				event.setMaxHitchValue(device.getMaxHitchValue());
+				event.setMinHitchValue(device.getMinHitchValue());
 				event.setType(3);
 				// 把报警事件塞进线程池
 				hitchEventManager.addHitchEvent(event);

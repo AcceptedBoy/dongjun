@@ -1,5 +1,6 @@
 package com.gdut.dongjun.service.device.temperature.impl;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +56,21 @@ public class TemperatureMeasureServiceImpl extends EnhancedServiceImpl<Temperatu
 		paramMap.put("endDate", endDate);
 		paramMap.put("tag", tag);
 		return temperatureMeasureMapper.selectByTime(paramMap);
+	}
+
+	@Override
+	public int getCount(String deviceId) {
+		return temperatureMeasureMapper.getCount(deviceId);
+	}
+
+	@Override
+	public int updateTime(int pre, int after, String deviceId, Date date) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("pre", pre);
+		map.put("after", after);
+		map.put("deviceId", deviceId);
+		map.put("date", date);
+		return temperatureMeasureMapper.updateTime(map);
 	}
 
 

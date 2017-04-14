@@ -5,7 +5,7 @@ package com.gdut.dongjun.domain.po.abstractmodel;
  * @author Gordan_Deng
  * @date 2017年3月8日
  */
-public abstract class AbstractHitchEvent {
+public abstract class AbstractHitchEvent extends AbstractBean {
 
 	protected String id;
 

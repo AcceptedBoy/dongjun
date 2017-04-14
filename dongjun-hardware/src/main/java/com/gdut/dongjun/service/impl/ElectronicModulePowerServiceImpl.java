@@ -6,10 +6,10 @@ import org.springframework.stereotype.Service;
 import com.gdut.dongjun.domain.dao.ElectronicModulePowerMapper;
 import com.gdut.dongjun.domain.po.ElectronicModulePower;
 import com.gdut.dongjun.service.ElectronicModulePowerService;
-import com.gdut.dongjun.service.base.impl.BaseServiceImpl;
+import com.gdut.dongjun.service.base.impl.EnhancedServiceImpl;
 
 @Service
-public class ElectronicModulePowerServiceImpl extends BaseServiceImpl<ElectronicModulePower>
+public class ElectronicModulePowerServiceImpl extends EnhancedServiceImpl<ElectronicModulePower>
 		implements ElectronicModulePowerService {
 
 	@Autowired

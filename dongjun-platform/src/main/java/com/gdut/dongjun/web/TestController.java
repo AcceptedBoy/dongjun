@@ -1,5 +1,8 @@
 package com.gdut.dongjun.web;
 
+import java.util.Calendar;
+import java.util.Date;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +15,10 @@ import com.gdut.dongjun.domain.po.BigGroup;
 import com.gdut.dongjun.domain.vo.HitchEventVO;
 import com.gdut.dongjun.service.BigGroupService;
 import com.gdut.dongjun.service.UserService;
+import com.gdut.dongjun.service.device.temperature.TemperatureMeasureService;
 import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 import com.gdut.dongjun.service.webservice.server.WebsiteService;
+import com.gdut.dongjun.util.TimeUtil;
 import com.gdut.dongjun.util.UUIDUtil;
 
 @Controller
@@ -28,6 +33,8 @@ public class TestController implements InitializingBean {
 	private WebsiteService webService;
 	@Autowired
 	private HardwareServiceClient hardService;
+	@Autowired
+	private TemperatureMeasureService measureService;
 	
 	private Logger logger = Logger.getLogger(TestController.class);	
 	
@@ -141,5 +148,51 @@ public class TestController implements InitializingBean {
 	}
 	
 	
+	@RequestMapping("/updatetime")
+	@ResponseBody
+	public ResponseMessage update() {
+//		int count = measureService.getCount();
+////		int part = count / 24;
+//		Calendar cal = Calendar.getInstance();
+////		long nano = System.currentTimeMillis();
+//		for (int i = 0; i < count; i++) {
+//			cal.add(Calendar.MINUTE, -10);
+//			Date date = cal.getTime();
+//			int pre = i;
+//			int after = 1;
+//			System.out.println(count - i);
+//			measureService.updateTime(pre, after, date);
+//		}
+		String[] list = {
+				"489e2a322b6d4a7782debb5e1cf7cc8b",
+				"518b5ed8f378440c9e2c876fc634265a",
+				"ba0a31c8171d4b18ae1ddc33da89ca05",
+				"cb745bea791d440c82e6feedff46422f",
+				"1c4a4d2a4ae64a2e9181eab971b483d8"
+		};
+		for (String s : list) {
+			submitTask(s);
+		}
+		return ResponseMessage.success("succes!");
+	}
+	
+	public void submitTask(final String deviceId) {
+		new Thread() {
+
+			@Override
+			public void run() {
+				int count = measureService.getCount(deviceId);
+				Calendar cal = Calendar.getInstance();
+				for (int i = 0; i < count; i++) {
+					cal.add(Calendar.MINUTE, -10);
+					Date date = cal.getTime();
+					int pre = i;
+					int after = 1;
+					measureService.updateTime(pre, after, deviceId, date);
+				}
+			}
+			
+		}.start();
+	}
 	
 }

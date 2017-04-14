@@ -19,7 +19,6 @@ import com.gdut.dongjun.domain.po.DataMonitor;
 import com.gdut.dongjun.domain.po.PlatformGroup;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.po.authc.UserRole;
-import com.gdut.dongjun.domain.po.authc.UserRoleKey;
 import com.gdut.dongjun.dto.DeviceForAuthDTO;
 import com.gdut.dongjun.service.CompanyService;
 import com.gdut.dongjun.service.PlatformGroupService;
@@ -106,7 +105,7 @@ public class CompanyController {
 	public ResponseMessage addStaffAuthc(
 							@RequestParam(required = true) String roleId, 
 							@RequestParam(required = true) String userId) {
-		UserRoleKey key = new UserRoleKey();
+		UserRole key = new UserRole();
 		key.setUserId(userId);
 		key.setRoleId(roleId);
 		if (urService.insert(key) == 0) {

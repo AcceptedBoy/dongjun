@@ -44,6 +44,7 @@ import com.gdut.dongjun.domain.po.PlatformGroup;
 import com.gdut.dongjun.domain.po.TemperatureMeasureHitchEvent;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.po.authc.Role;
+import com.gdut.dongjun.domain.po.authc.UserRole;
 import com.gdut.dongjun.domain.po.authc.UserRoleKey;
 import com.gdut.dongjun.domain.vo.HitchEventVO;
 import com.gdut.dongjun.dto.HitchEventDTO;
@@ -252,7 +253,7 @@ public class UserController {
 		List<Role> roles = roleService.selectByParameters(null);
 		user.setId(UUIDUtil.getUUID());
 		if (userService.updateByPrimaryKey(user) == 1) {
-			UserRoleKey ur = new UserRoleKey();
+			UserRole ur = new UserRole();
 			if (MAINSTAFF.equals(mainStaff)) {
 				for (Role role : roles) {
 					if (PLATFORM_ADMIN.equals(role.getRole())) {
@@ -304,7 +305,7 @@ public class UserController {
 		List<Role> roles = roleService.selectByParameters(null);
 		user.setId(UUIDUtil.getUUID());
 		if (userService.updateByPrimaryKey(user) == 1) {
-			UserRoleKey ur = new UserRoleKey();
+			UserRole ur = new UserRole();
 			for (Role role : roles) {
 				if (PLATFORM_ADMIN.equals(role.getRole())) {
 					ur.setRoleId(role.getId());

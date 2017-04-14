@@ -1,9 +1,9 @@
 package com.gdut.dongjun.domain.dao.authc;
 
 import com.gdut.dongjun.domain.dao.base.SinglePrimaryKeyBaseMapper;
-import com.gdut.dongjun.domain.po.authc.UserRoleKey;
+import com.gdut.dongjun.domain.po.authc.UserRole;
 
-public interface UserRoleMapper extends SinglePrimaryKeyBaseMapper<UserRoleKey> {
+public interface UserRoleMapper extends SinglePrimaryKeyBaseMapper<UserRole> {
 
 	/**
 	 * 
@@ -25,7 +25,7 @@ public interface UserRoleMapper extends SinglePrimaryKeyBaseMapper<UserRoleKey> 
 	 * @return int
 	 * @throws
 	 */
-	public int deleteByPrimaryKey(UserRoleKey key);
+	public int deleteByPrimaryKey(UserRole key);
 
 	/**
 	 * 

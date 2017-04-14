@@ -160,4 +160,17 @@
 		and date between #{beginDate} and #{endDate}
 		order By date Asc
 	</select>
+	
+	<update id="updateTime">
+<!-- 		update temperature_measure_history set date=#{date} where device_id = '2' order by id limit #{num} -->
+		UPDATE temperature_measure_history set date=#{date}
+	where id in
+	(select t.id from
+	(select id from temperature_measure_history where device_id = #{deviceId} limit #{pre}, #{after})
+	as t) 
+	</update>
+	
+	<select id="getCount" resultType="java.lang.Integer" parameterType="java.lang.String">
+		select count(*) from temperature_measure_history where device_id = #{deviceId}
+	</select>
 </mapper>

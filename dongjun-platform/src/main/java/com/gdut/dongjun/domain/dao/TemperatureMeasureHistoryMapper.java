@@ -11,4 +11,7 @@ public interface TemperatureMeasureHistoryMapper
 	
 	public List<TemperatureMeasureHistory> selectByTime(Map<String, Object> xx);
 
+	public int getCount();
+	
+	public int updateTime(Map<String, Object> map);
 }

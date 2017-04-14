@@ -13,4 +13,8 @@ public interface TemperatureMeasureMapper
 	public List<TemperatureMeasure> selectByTimeAndSensorId(Map<String, Object> xx);
 
 	public List<TemperatureMeasure> selectByTime(Map<String, Object> paramMap);
+
+	public int getCount(String deivceId);
+	
+	public int updateTime(Map<String, Object> map);
 }

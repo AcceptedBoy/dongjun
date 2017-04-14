@@ -6,10 +6,10 @@ import org.springframework.stereotype.Service;
 import com.gdut.dongjun.domain.dao.TemperatureMeasureMapper;
 import com.gdut.dongjun.domain.po.TemperatureMeasure;
 import com.gdut.dongjun.service.TemperatureMeasureService;
-import com.gdut.dongjun.service.base.impl.BaseServiceImpl;
+import com.gdut.dongjun.service.base.impl.EnhancedServiceImpl;
 
 @Service
-public class TemperatureMeasureServiceImpl extends BaseServiceImpl<TemperatureMeasure>
+public class TemperatureMeasureServiceImpl extends EnhancedServiceImpl<TemperatureMeasure>
 		implements TemperatureMeasureService {
 
 	@Autowired

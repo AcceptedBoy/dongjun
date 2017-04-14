@@ -9,9 +9,9 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.gdut.dongjun.domain.po.TemperatureDevice;
+import com.gdut.dongjun.domain.po.TemperatureModule;
 import com.gdut.dongjun.service.GPRSModuleService;
-import com.gdut.dongjun.service.TemperatureDeviceService;
+import com.gdut.dongjun.service.TemperatureModuleService;
 
 import io.netty.channel.ChannelHandlerContext;
 
@@ -28,11 +28,11 @@ public class TemperatureCtxStore extends CtxStore {
 	 * 否则只能通过ApplicationContext来弄
 	 * @param deviceService
 	 */
-	private static TemperatureDeviceService deviceService;
+	private static TemperatureModuleService moduleService;
 	private static GPRSModuleService gprsService;
 	@Autowired
-	public void setDeviceService(TemperatureDeviceService deviceService) {
-		TemperatureCtxStore.deviceService = deviceService;
+	public void setDeviceService(TemperatureModuleService moduleService) {
+		TemperatureCtxStore.moduleService = moduleService;
 	}
 	@Autowired
 	private void setGPRSService(GPRSModuleService gprsService) {
@@ -103,7 +103,7 @@ public class TemperatureCtxStore extends CtxStore {
 	 * @param id
 	 */
 	public static void setBound(String id) {
-		TemperatureDevice device = deviceService.selectByPrimaryKey(id);
+		TemperatureModule device = moduleService.selectByPrimaryKey(id);
 		if (null == device) {
 			return ;
 		}

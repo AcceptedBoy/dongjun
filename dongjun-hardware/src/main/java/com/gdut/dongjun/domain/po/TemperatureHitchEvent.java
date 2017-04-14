@@ -1,6 +1,8 @@
 package com.gdut.dongjun.domain.po;
 
-public class TemperatureHitchEvent {
+import com.gdut.dongjun.domain.po.abstractmodel.AbstractBean;
+
+public class TemperatureHitchEvent extends AbstractBean {
 
 	private String id;
 	

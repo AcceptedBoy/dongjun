@@ -18,5 +18,15 @@ public class TemperatureMeasureHistoryDAOImpl extends SinglePrimaryKeyBaseDAOImp
 		return template.selectList(getNamespace("selectByTime"), xx);
 	}
 
+	@Override
+	public int getCount() {
+		return template.selectOne(getNamespace("getCount"));
+	}
+
+	@Override
+	public int updateTime(Map<String, Object> map) {
+		return template.update(getNamespace("updateTime"), map);
+	}
+
 
 }

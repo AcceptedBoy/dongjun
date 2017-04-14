@@ -1,8 +1,8 @@
 package com.gdut.dongjun.service;
 
-import com.gdut.dongjun.service.base.BaseService;
 import com.gdut.dongjun.domain.po.DataMonitor;
+import com.gdut.dongjun.service.base.EnhancedService;
 
-public interface DataMonitorService extends BaseService<DataMonitor> {
+public interface DataMonitorService extends EnhancedService<DataMonitor> {
 
 }

@@ -1,18 +1,15 @@
 package com.gdut.dongjun.service.impl;
 
-import java.util.Date;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.gdut.dongjun.domain.dao.TemperatureMeasureHitchEventMapper;
 import com.gdut.dongjun.domain.po.TemperatureMeasureHitchEvent;
 import com.gdut.dongjun.service.TemperatureMeasureHitchEventService;
-import com.gdut.dongjun.service.base.impl.BaseServiceImpl;
-import com.gdut.dongjun.util.UUIDUtil;
+import com.gdut.dongjun.service.base.impl.EnhancedServiceImpl;
 
 @Service
-public class TemperatureMeasureHitchEventServiceImpl extends BaseServiceImpl<TemperatureMeasureHitchEvent>
+public class TemperatureMeasureHitchEventServiceImpl extends EnhancedServiceImpl<TemperatureMeasureHitchEvent>
 		implements TemperatureMeasureHitchEventService{
 
 	@Autowired

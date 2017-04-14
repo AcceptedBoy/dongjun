@@ -33,8 +33,8 @@ public class TemperatureChartData extends ChartData {
 		Map<String, Object> data = (Map<String, Object>) obj;
 		List<String> legendData = new ArrayList<String>();
 		TemperatureChartData chartData = new TemperatureChartData();
-		HashSet<Timestamp> set = new HashSet<Timestamp>();
-		List<Timestamp> timeList = new ArrayList<Timestamp>();
+		HashSet<Date> set = new HashSet<Date>();
+		List<Date> timeList = new ArrayList<Date>();
 		List<String> xData = new ArrayList<String>();
 		//时间去重，排序
 		for (Entry<String, Object> entry : data.entrySet()) {
@@ -53,8 +53,8 @@ public class TemperatureChartData extends ChartData {
 		}
 		Iterator i = null;
 		Iterator j = null;
-		Timestamp i_time = null;
-		Timestamp j_time = null;
+		Date i_time = null;
+		Date j_time = null;
 		
 		for (Entry<String, Object> entry : data.entrySet()) {
 			int flag = 1;
@@ -78,7 +78,7 @@ public class TemperatureChartData extends ChartData {
 			int count = 0;
 			for (; ;) {
 				if (i.hasNext()) {
-					i_time = (Timestamp)i.next();
+					i_time = (Date)i.next();
 				} else {
 					//如果完整的时间集合遍历完毕，则退出
 					break;
@@ -105,8 +105,8 @@ public class TemperatureChartData extends ChartData {
 			chartData.series.add(chaseData);
 		}
 		//初始化x轴
-		for (Timestamp time : timeList) {
-			xData.add(TimeUtil.timeFormat(transformToDate(time)));
+		for (Date time : timeList) {
+			xData.add(TimeUtil.timeFormat(time));
 		}
 		chartData.getxAxis().get(0).setData(xData);
 		chartData.legend.put("data", legendData);
