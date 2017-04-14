@@ -5,11 +5,11 @@ import org.springframework.stereotype.Service;
 
 import com.gdut.dongjun.domain.dao.DataMonitorMapper;
 import com.gdut.dongjun.domain.po.DataMonitor;
-import com.gdut.dongjun.service.base.impl.BaseServiceImpl;
+import com.gdut.dongjun.service.base.impl.EnhancedServiceImpl;
 import com.gdut.dongjun.service.device.DataMonitorService;
 
 @Service
-public class DataMonitorServiceImpl extends BaseServiceImpl<DataMonitor> 
+public class DataMonitorServiceImpl extends EnhancedServiceImpl<DataMonitor> 
 implements DataMonitorService {
 
 	@Autowired

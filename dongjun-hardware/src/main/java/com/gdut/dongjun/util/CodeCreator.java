@@ -7,10 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.gdut.dongjun.domain.po.ElectronicModule;
-import com.gdut.dongjun.domain.po.ElectronicModuleCurrent;
-import com.gdut.dongjun.domain.po.ElectronicModulePower;
-import com.gdut.dongjun.domain.po.ElectronicModuleVoltage;
+import com.gdut.dongjun.domain.po.DataMonitor;
 
 /**
  * 根据po类自动生成对应的dao接口和实现类，service接口和实现类 
@@ -221,10 +218,7 @@ public class CodeCreator {
 	public static void main(String[] args) throws Exception {
 		CodeCreator creator = new CodeCreator();
 		List<Class> list = new ArrayList<Class>();
-		list.add(ElectronicModule.class);
-		list.add(ElectronicModuleCurrent.class);
-		list.add(ElectronicModulePower.class);
-		list.add(ElectronicModuleVoltage.class);
+		list.add(DataMonitor.class);
 		
 		for (Class c : list) {
 			creator.createBeanDao(c);	

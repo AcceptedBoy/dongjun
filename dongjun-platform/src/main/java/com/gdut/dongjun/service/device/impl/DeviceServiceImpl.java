@@ -1,7 +1,7 @@
 package com.gdut.dongjun.service.device.impl;
 
-import com.gdut.dongjun.service.device.DeviceService;
 import com.gdut.dongjun.service.base.impl.BaseServiceImpl;
+import com.gdut.dongjun.service.device.DeviceService;
 
 /**
  */

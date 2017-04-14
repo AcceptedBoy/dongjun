@@ -9,4 +9,9 @@ import com.gdut.dongjun.domain.po.ElectronicModule;
 @Repository
 public class ElectronicModuleDAOImpl extends SinglePrimaryKeyBaseDAOImpl<ElectronicModule> implements ElectronicModuleMapper {
 
+	@Override
+	public ElectronicModule selectByDeviceNumber(String deviceNumber) {
+		return template.selectOne(getNamespace("selectByDeviceNumber"), deviceNumber);
+	}
+	
 }

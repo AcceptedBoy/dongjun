@@ -7,12 +7,12 @@ import org.springframework.stereotype.Service;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.po.UserLog;
 import com.gdut.dongjun.service.UserLogService;
-import com.gdut.dongjun.service.base.impl.BaseServiceImpl;
+import com.gdut.dongjun.service.base.impl.EnhancedServiceImpl;
 import com.gdut.dongjun.util.UUIDUtil;
 
 @Service
 public class UserLogServiceImpl extends 
-BaseServiceImpl<UserLog> implements UserLogService {
+EnhancedServiceImpl<UserLog> implements UserLogService {
 
 	@Override
 	protected boolean isExist(UserLog record) {

@@ -8,11 +8,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.gdut.dongjun.domain.model.ResponseMessage;
+import com.gdut.dongjun.domain.po.BigGroup;
 import com.gdut.dongjun.domain.vo.HitchEventVO;
+import com.gdut.dongjun.service.BigGroupService;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
-import com.gdut.dongjun.service.webservice.client.service.HardwareService;
 import com.gdut.dongjun.service.webservice.server.WebsiteService;
+import com.gdut.dongjun.util.UUIDUtil;
 
 @Controller
 @RequestMapping("/test")
@@ -105,5 +107,39 @@ public class TestController implements InitializingBean {
 		hardService.getService().changeTemperatureDevice(1 + "");
 		return ResponseMessage.success("fucked!");
 	}
+	
+	@Autowired
+	private BigGroupService service;
+	@RequestMapping("/grouptest")
+	@ResponseBody
+	public ResponseMessage grouptest() {
+		BigGroup g = new BigGroup();
+		g.setId(UUIDUtil.getUUID());
+		g.setIsDefault(1);
+		g.setName("test name");
+		service.updateByPrimaryKey(g);
+		return ResponseMessage.success("success");
+	}
+	
+	@RequestMapping("/grouptest1")
+	@ResponseBody
+	public ResponseMessage grouptes1t() {
+		BigGroup g = service.selectByPrimaryKey("3");
+		g.setName("test name1111");
+		service.updateByPrimaryKey(g);
+		return ResponseMessage.success("success");
+	}
+	
+	@RequestMapping("/grouptest2")
+	@ResponseBody
+	public ResponseMessage group2tes1t() {
+		BigGroup g = new BigGroup();
+		g.setId("3");
+		g.setName("test name122222");
+		service.updateByPrimaryKeySelective(g);
+		return ResponseMessage.success("success");
+	}
+	
+	
 	
 }

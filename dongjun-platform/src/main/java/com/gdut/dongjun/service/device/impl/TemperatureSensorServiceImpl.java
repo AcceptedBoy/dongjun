@@ -5,11 +5,11 @@ import org.springframework.stereotype.Service;
 
 import com.gdut.dongjun.domain.dao.TemperatureSensorMapper;
 import com.gdut.dongjun.domain.po.TemperatureSensor;
-import com.gdut.dongjun.service.base.impl.BaseServiceImpl;
+import com.gdut.dongjun.service.base.impl.EnhancedServiceImpl;
 import com.gdut.dongjun.service.device.TemperatureSensorService;
 
 @Service
-public class TemperatureSensorServiceImpl extends BaseServiceImpl<TemperatureSensor> implements TemperatureSensorService {
+public class TemperatureSensorServiceImpl extends EnhancedServiceImpl<TemperatureSensor> implements TemperatureSensorService {
 
 	@Autowired
 	TemperatureSensorMapper mapper;

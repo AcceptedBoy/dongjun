@@ -144,20 +144,5 @@ public class BigGroupController {
 		return map;
 	}
 
-//	@RequestMapping("/exception")
-//	@ResponseBody
-//	public Object throwException(@RequestParam(required = true) String a) {
-//		return null; 
-//	}
-//	
-//	@RequestMapping("/exception1")
-//	@ResponseBody
-//	public Object throwException1() {
-//		DeviceGroup a = new DeviceGroup();
-//		if (a.getId() > 1) {
-//			return null;
-//		}
-//		return null;
-//	}
 	
 }

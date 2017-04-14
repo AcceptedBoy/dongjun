@@ -251,4 +251,7 @@
 			</foreach>
 		</if>
 	</select>
+	<select id="selectByDeviceNumber" resultMap="BaseResultMap" parameterType="java.lang.String">
+		select * from electronic_module where device_number = #{deviceNumber, jdbcType=VARCHAR}
+	</select> 
 </mapper>

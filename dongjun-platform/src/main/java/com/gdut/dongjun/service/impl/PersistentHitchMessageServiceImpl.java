@@ -8,11 +8,11 @@ import org.springframework.stereotype.Service;
 import com.gdut.dongjun.domain.dao.PersistentHitchMessageMapper;
 import com.gdut.dongjun.domain.po.PersistentHitchMessage;
 import com.gdut.dongjun.service.PersistentHitchMessageService;
-import com.gdut.dongjun.service.base.impl.BaseServiceImpl;
+import com.gdut.dongjun.service.base.impl.EnhancedServiceImpl;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 
 @Service
-public class PersistentHitchMessageServiceImpl extends BaseServiceImpl<PersistentHitchMessage>
+public class PersistentHitchMessageServiceImpl extends EnhancedServiceImpl<PersistentHitchMessage>
 		implements PersistentHitchMessageService {
 
 	@Autowired

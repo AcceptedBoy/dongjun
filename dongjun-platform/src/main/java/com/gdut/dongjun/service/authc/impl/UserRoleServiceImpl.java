@@ -10,9 +10,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.gdut.dongjun.domain.dao.authc.UserRoleMapper;
+import com.gdut.dongjun.domain.po.authc.UserRole;
 import com.gdut.dongjun.domain.po.authc.UserRoleKey;
 import com.gdut.dongjun.service.authc.UserRoleService;
-import com.gdut.dongjun.service.base.impl.BaseServiceImpl;
+import com.gdut.dongjun.service.base.impl.EnhancedServiceImpl;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 
 /**
@@ -24,7 +25,7 @@ import com.gdut.dongjun.util.MyBatisMapUtil;
  * @version V1.0
  */
 @Service
-public class UserRoleServiceImpl extends BaseServiceImpl<UserRoleKey> implements
+public class UserRoleServiceImpl extends EnhancedServiceImpl<UserRole> implements
 		UserRoleService {
 	/**
 	 * @ClassName: RoleServiceImpl
@@ -34,6 +35,12 @@ public class UserRoleServiceImpl extends BaseServiceImpl<UserRoleKey> implements
 	 */
 	@Resource
 	private UserRoleMapper userRoleMapper;
+	
+
+	@Override
+	protected boolean isExist(UserRole record) {
+		return true;
+	}
 
 	@Override
 	public int deleteByPrimaryKey(UserRoleKey key) {
@@ -103,11 +110,6 @@ public class UserRoleServiceImpl extends BaseServiceImpl<UserRoleKey> implements
 	public int deleteByUserId(String userId) {
 		
 		return userRoleMapper.deleteByUserId(userId);
-	}
-
-	@Override
-	protected boolean isExist(UserRoleKey record) {
-		return true;
 	}
 
 }

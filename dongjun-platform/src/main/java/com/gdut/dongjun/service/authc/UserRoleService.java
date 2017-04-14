@@ -1,7 +1,8 @@
 package com.gdut.dongjun.service.authc;
 
+import com.gdut.dongjun.domain.po.authc.UserRole;
 import com.gdut.dongjun.domain.po.authc.UserRoleKey;
-import com.gdut.dongjun.service.base.BaseService;
+import com.gdut.dongjun.service.base.EnhancedService;
 
 /**
  * @Title: RoleService.java
@@ -11,7 +12,7 @@ import com.gdut.dongjun.service.base.BaseService;
  * @date 2015年8月20日 上午7:19:00
  * @version V1.0
  */
-public interface UserRoleService extends BaseService<UserRoleKey> {
+public interface UserRoleService extends EnhancedService<UserRole> {
 
 	/**
 	 * 

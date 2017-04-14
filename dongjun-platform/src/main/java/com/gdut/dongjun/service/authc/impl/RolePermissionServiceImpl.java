@@ -4,10 +4,10 @@ import org.springframework.stereotype.Service;
 
 import com.gdut.dongjun.domain.po.authc.RolePermission;
 import com.gdut.dongjun.service.authc.RolePermissionService;
-import com.gdut.dongjun.service.base.impl.BaseServiceImpl;
+import com.gdut.dongjun.service.base.impl.EnhancedServiceImpl;
 
 @Service
-public class RolePermissionServiceImpl extends BaseServiceImpl<RolePermission>
+public class RolePermissionServiceImpl extends EnhancedServiceImpl<RolePermission>
 	implements RolePermissionService {
 
 

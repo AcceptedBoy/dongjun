@@ -3,7 +3,7 @@ package com.gdut.dongjun.service.authc;
 import java.util.List;
 
 import com.gdut.dongjun.domain.po.authc.Role;
-import com.gdut.dongjun.service.base.BaseService;
+import com.gdut.dongjun.service.base.EnhancedService;
 
 /**
  * @author Sherlock-lee
@@ -11,7 +11,7 @@ import com.gdut.dongjun.service.base.BaseService;
  * @see TODO
  * @since 1.0
  */
-public interface RoleService extends BaseService<Role> {
+public interface RoleService extends EnhancedService<Role> {
 
 	/**
 	 * 

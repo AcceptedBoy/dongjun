@@ -5,4 +5,5 @@ import com.gdut.dongjun.domain.po.ElectronicModule;
 
 public interface ElectronicModuleMapper extends SinglePrimaryKeyBaseMapper <ElectronicModule> {
 
+	public ElectronicModule selectByDeviceNumber(String deviceNumber);
 }

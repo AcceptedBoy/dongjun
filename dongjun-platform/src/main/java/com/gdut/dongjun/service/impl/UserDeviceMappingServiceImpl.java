@@ -1,6 +1,5 @@
 package com.gdut.dongjun.service.impl;
 
-import java.util.HashMap;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,10 +8,10 @@ import org.springframework.stereotype.Service;
 import com.gdut.dongjun.domain.dao.UserDeviceMappingMapper;
 import com.gdut.dongjun.domain.po.UserDeviceMapping;
 import com.gdut.dongjun.service.UserDeviceMappingService;
-import com.gdut.dongjun.service.base.impl.BaseServiceImpl;
+import com.gdut.dongjun.service.base.impl.EnhancedServiceImpl;
 
 @Service
-public class UserDeviceMappingServiceImpl extends BaseServiceImpl<UserDeviceMapping>
+public class UserDeviceMappingServiceImpl extends EnhancedServiceImpl<UserDeviceMapping>
 			implements UserDeviceMappingService {
 
 	@Autowired

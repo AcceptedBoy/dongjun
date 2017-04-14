@@ -11,7 +11,7 @@ import com.gdut.dongjun.domain.dao.CompanyMapper;
 import com.gdut.dongjun.domain.po.Company;
 import com.gdut.dongjun.service.CompanyService;
 import com.gdut.dongjun.service.ZTreeNodeService;
-import com.gdut.dongjun.service.base.impl.BaseServiceImpl;
+import com.gdut.dongjun.service.base.impl.EnhancedServiceImpl;
 import com.gdut.dongjun.service.cache.CacheService;
 
 /**   
@@ -23,7 +23,7 @@ import com.gdut.dongjun.service.cache.CacheService;
  * @version V1.0   
  */
 @Service
-public class CompanyServiceImpl extends BaseServiceImpl<Company> implements CompanyService{
+public class CompanyServiceImpl extends EnhancedServiceImpl<Company> implements CompanyService{
 	/** 
 	 * @ClassName: UserServiceImpl 
 	 * @Description: TODO

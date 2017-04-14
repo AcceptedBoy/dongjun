@@ -92,7 +92,7 @@ public class WebsiteServiceImpl implements WebsiteService {
 				} else {
 //					//用户不在线就将消息持久化，等用户上线时再推送
 					PersistentHitchMessage message = new PersistentHitchMessage(UUIDUtil.getUUID(), 
-							event.getType(), event.getId(), new Date(), user.getId(), new Date(), new Date());
+							event.getType(), event.getId(), new Date(), user.getId());
 					persistentMessageService.updateByPrimaryKey(message);
 					//mq功能尚有bug，不开放
 //					try {

@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import com.gdut.dongjun.domain.dao.UserMapper;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.service.UserService;
-import com.gdut.dongjun.service.base.impl.BaseServiceImpl;
+import com.gdut.dongjun.service.base.impl.EnhancedServiceImpl;
 import com.gdut.dongjun.service.manager.UserHolder;
 import com.gdut.dongjun.service.mq.UserMQService;
 
@@ -23,7 +23,7 @@ import com.gdut.dongjun.service.mq.UserMQService;
  * @version V1.0
  */
 @Service
-public class UserServiceImpl extends BaseServiceImpl<User> implements
+public class UserServiceImpl extends EnhancedServiceImpl<User> implements
 		UserService {
 	
 //	private static final List<User> allCurrentUsers = new CopyOnWriteArrayList<User>();

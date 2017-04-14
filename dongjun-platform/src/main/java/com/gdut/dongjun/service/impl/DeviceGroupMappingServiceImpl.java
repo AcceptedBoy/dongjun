@@ -8,10 +8,10 @@ import org.springframework.stereotype.Service;
 import com.gdut.dongjun.domain.dao.DeviceGroupMappingMapper;
 import com.gdut.dongjun.domain.po.DeviceGroupMapping;
 import com.gdut.dongjun.service.DeviceGroupMappingService;
-import com.gdut.dongjun.service.base.impl.BaseServiceImpl;
+import com.gdut.dongjun.service.base.impl.EnhancedServiceImpl;
 
 @Service
-public class DeviceGroupMappingServiceImpl extends BaseServiceImpl<DeviceGroupMapping> implements DeviceGroupMappingService {
+public class DeviceGroupMappingServiceImpl extends EnhancedServiceImpl<DeviceGroupMapping> implements DeviceGroupMappingService {
 
 	@Autowired
 	DeviceGroupMappingMapper mapper;

@@ -3,9 +3,9 @@ package com.gdut.dongjun.service;
 import java.util.List;
 
 import com.gdut.dongjun.domain.po.PersistentHitchMessage;
-import com.gdut.dongjun.service.base.BaseService;
+import com.gdut.dongjun.service.base.EnhancedService;
 
-public interface PersistentHitchMessageService extends BaseService<PersistentHitchMessage> {
+public interface PersistentHitchMessageService extends EnhancedService<PersistentHitchMessage> {
 
 	/**
 	 * 得到全部未读报警消息并删除未读记录，

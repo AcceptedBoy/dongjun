@@ -1,11 +1,14 @@
 package com.gdut.dongjun.domain.po.abstractmodel;
 
+import com.gdut.dongjun.domain.po.AbstractBean;
+
 /**
  * 抽象的报警消息类
  * @author Gordan_Deng
  * @date 2017年4月10日
  */
-public abstract class AbstractHitchEvent {
+public abstract class AbstractHitchEvent extends AbstractBean {
+	
 	protected String id;
 
 	protected String switchId;

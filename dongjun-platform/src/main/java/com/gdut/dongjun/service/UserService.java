@@ -1,12 +1,10 @@
 package com.gdut.dongjun.service;
 
 import javax.jms.JMSException;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
 import javax.servlet.http.HttpSession;
 
 import com.gdut.dongjun.domain.po.User;
-import com.gdut.dongjun.service.base.BaseService;
+import com.gdut.dongjun.service.base.EnhancedService;
 
 /**   
  * @Title: UserService.java 
@@ -16,7 +14,7 @@ import com.gdut.dongjun.service.base.BaseService;
  * @date 2015年7月24日 下午2:34:11 
  * @version V1.0   
  */
-public interface UserService extends BaseService<User>{
+public interface UserService extends EnhancedService<User>{
 
 	
 	/**

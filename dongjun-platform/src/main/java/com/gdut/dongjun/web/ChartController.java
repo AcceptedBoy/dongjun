@@ -265,7 +265,7 @@ public class ChartController {
 			@RequestParam(required = true) String monitorId, 
 			@RequestParam(required = true) String beginDate, 
 			@RequestParam(required = true) String endDate) {
-		List<DataMonitorSubmodule> mappings = submoduleService.selectByParameters(MyBatisMapUtil.warp("dataMonitorId", monitorId));
+		List<DataMonitorSubmodule> mappings = submoduleService.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
 		String deviceId = null;
 		for (DataMonitorSubmodule mapping : mappings) {
 			if (3 == mapping.getModuleType()) {
@@ -275,7 +275,7 @@ public class ChartController {
 		}
 		TemperatureChartData chartData = new TemperatureChartData();
 		Map<String, Object> measureMap = new HashMap<String, Object>();
-		List<TemperatureSensor> sensors = sensorService.selectByParameters(MyBatisMapUtil.warp("deviceId", deviceId));
+		List<TemperatureSensor> sensors = sensorService.selectByParameters(MyBatisMapUtil.warp("device_id", deviceId));
 		for (TemperatureSensor sensor : sensors) {
 			List<TemperatureMeasure> measures = measureService.selectByTime(deviceId, sensor.getTag(), beginDate, endDate);
 			measureMap.put(sensor.getTag() + "", measures);

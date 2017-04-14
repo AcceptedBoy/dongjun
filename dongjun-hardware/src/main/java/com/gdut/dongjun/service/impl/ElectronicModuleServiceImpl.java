@@ -21,4 +21,9 @@ public class ElectronicModuleServiceImpl extends BaseServiceImpl<ElectronicModul
 			return true;
 		return false;
 	}
+	
+	@Override
+	public ElectronicModule selectByDeviceNumber(String deviceNumber) {
+		return mapper.selectByDeviceNumber(deviceNumber);
+	}
 }

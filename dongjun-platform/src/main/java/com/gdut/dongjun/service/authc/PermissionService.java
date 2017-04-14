@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.gdut.dongjun.domain.po.authc.Permission;
-import com.gdut.dongjun.service.base.BaseService;
+import com.gdut.dongjun.service.base.EnhancedService;
 
 /**
  * @author Sherlock-lee
@@ -12,7 +12,7 @@ import com.gdut.dongjun.service.base.BaseService;
  * @see TODO
  * @since 1.0
  */
-public interface PermissionService extends BaseService<Permission> {
+public interface PermissionService extends EnhancedService<Permission> {
 
 	/**
 	 * 

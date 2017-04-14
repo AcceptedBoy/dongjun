@@ -11,13 +11,13 @@ import org.springframework.util.CollectionUtils;
 import com.gdut.dongjun.domain.dao.PlatformGroupMapper;
 import com.gdut.dongjun.domain.po.PlatformGroup;
 import com.gdut.dongjun.service.PlatformGroupService;
-import com.gdut.dongjun.service.base.impl.BaseServiceImpl;
+import com.gdut.dongjun.service.base.impl.EnhancedServiceImpl;
 
 /**
  * Created by symon on 16-10-18.
  */
 @Service
-public class PlatformGroupServiceImpl extends BaseServiceImpl<PlatformGroup>
+public class PlatformGroupServiceImpl extends EnhancedServiceImpl<PlatformGroup>
     implements PlatformGroupService{
 
     @Autowired
