@@ -30,15 +30,32 @@ var notification = (function(){
 		title: 'title',
 		description: 'description'
 	}
+
+	// 限制显示通知数，超过限制显示btn
+	var limit = {
+		__hasFlow: false,
+		num: 100,
+		text: '查看更多',
+		href: '#',
+		action: null
+	}
 	var isHiding = true 
 	return {
 		getStore: function() {
 			return store
 		},
 		start: function(setting) {
+			// 匹配显示详情时的label
 			detailLabel = setting.detail
+			// 显示在简易通知的标题和描述
 			if(setting.simple) {
 				simpleLabel = setting.simple
+			}
+			if(setting.limit) {
+				for(var k in setting.limit) {
+					limit[k] = setting.limit[k]
+				}
+				limit.__hasFlow = false
 			}
 			var nFull = document.createElement('div')
 			nFull.id = 'notification_full'
@@ -146,6 +163,25 @@ var notification = (function(){
 			detailContainer.innerHTML = domStr
 			return detailContainer
 		},
+		createLimitBtn: function() {
+			var docfrag = document.createDocumentFragment()
+			var btn = document.createElement('a')
+			btn.className = className.normal + ' more'
+			btn.innerHTML = limit.text
+			if(limit.href && limit.href != '#') {
+				btn.href = limit.href	
+			}
+			if(limit.action) {
+				btn.href = 'javascript:void(0)'
+				btn.onclick = limit.action
+			}
+      docfrag.appendChild(btn)
+
+      var placehold = document.createElement('div')
+      placehold.className = className.normal + ' placehold'
+      docfrag.appendChild(placehold)
+      return docfrag
+		},
 		ignoreNotify: function(item) {
 			// 当前页面只剩下一个通知，则直接退出
 			if(store.length == 1) {
@@ -180,6 +216,7 @@ var notification = (function(){
 			store.notify = []
 			store.blanks = []
 			store.hasLoadDetail = []
+			limit.__hasFlow = false
 			if(resetIgnore) {
 				store.ignore = []
 			}
@@ -192,11 +229,32 @@ var notification = (function(){
 			var dataType = Object.prototype.toString.call(data)
 			var docfrag = document.createDocumentFragment()
 			console.log(dataType)
-			if(dataType === '[object Array]') {
+			
+			// 检查是否超过限制条数，超过则添加“显示更多”按钮
+			if(store.length >= limit.num) {
+				if(limit.__hasFlow) {
+					return
+				}
+				limit.__hasFlow = true
+				docfrag.appendChild(this.createLimitBtn())	
+
+			} else if(dataType === '[object Array]') {
+				// 数组形式
+				var len = limit.num - store.length
+				if(len < data.length) {			// 超过限制条数
+					data = data.slice(0, len)	// 去除超过限制的通知
+					limit.__hasFlow = true		// 已经超出
+				}
 				data.forEach(function(item) {
 					docfrag.appendChild(this.createNotify(item, type))
 				}.bind(this))
+
+				if(limit.__hasFlow){
+					docfrag.appendChild(this.createLimitBtn())
+				}
 			} else if(dataType === '[object Object]'){
+				// 单个对象形式
+				// 没超过限制，添加通知
 				docfrag.appendChild(this.createNotify(data, type))
 			} else {
 				console.warn('please send the right type')
