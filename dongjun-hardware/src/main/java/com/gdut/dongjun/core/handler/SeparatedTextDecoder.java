@@ -27,10 +27,15 @@ import io.netty.util.AttributeKey;
 public class SeparatedTextDecoder extends ByteToMessageDecoder {
 
 	//字节68转为10进制之后的数字
-	private static final Integer CODE_68 = 16 * 6 + 8;
+	private static final int CODE_68 = 16 * 6 + 8;
 	//字节16转为10进制之后的数字
-	private static final Integer CODE_16 = 1 * 16 + 6;
-	private static final Integer CODE_00 = 0;
+	private static final int CODE_16 = 1 * 16 + 6;
+	private static final int CODE_00 = 0;
+	private static final int CODE_25 = 16 * 2 + 5;
+	private static final int CODE_0A = 10;
+	private static final int CODE_01 = 1;
+	private static final int CODE_03 = 3;
+	
 	//gprs模块登录包字节长度
 	private static final int GPRSLoginPackageLength = 37;
 	//gprs模块心跳包字节长度
@@ -68,7 +73,7 @@ public class SeparatedTextDecoder extends ByteToMessageDecoder {
 		in.readerIndex(readerIndex);
 		
 		//是否是GPRS登录包和心跳包
-		if (isStartWith_0003(newText)) {
+		if (isGPRSMessage(newText)) {
 			in.readerIndex(storeIndex);
 			readAllByte(in, out);
 			attr.set(0);
@@ -149,7 +154,7 @@ public class SeparatedTextDecoder extends ByteToMessageDecoder {
 	 * @param text
 	 * @return
 	 */
-	private boolean isStartWith_0003(byte[] text) {
+	private boolean isGPRSMessage(byte[] text) {
 		/*
 		 * 登录包报文示范，共37个字节
 		 * 002500010000333432314c513130303056312e383136303430313133303030303030303030
@@ -157,9 +162,13 @@ public class SeparatedTextDecoder extends ByteToMessageDecoder {
 		 * 000a0003000133343231
 		 */
 		int code = text[0] & 0xFF;
-		if (code == CODE_00 &&
-				(text.length == GPRSLoginPackageLength || text.length == GPRSOnlinePackageLegnth)) {
-			return true;
+		int code1 = text[1] & 0xFF;
+		int code2 = text[3] & 0xFF;
+		if (code == CODE_00) {
+			if ((code1 == CODE_25 && code2 == CODE_01 && text.length == GPRSLoginPackageLength)
+					|| (code1 == CODE_0A && code2 == CODE_03 && text.length == GPRSOnlinePackageLegnth)) {
+				return true;
+			}
 		}
 		return false;
 	}

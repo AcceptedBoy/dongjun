@@ -164,8 +164,6 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			}
 			//去除开头的0
 			gprsAddress = sb.toString();
-			int address = Integer.parseInt(gprsAddress);
-			gprsAddress = String.valueOf(address);
 			
 			//判断GPRS是否已在网站上注册
 			String gprsId = gprsService.isGPRSAvailable(gprsAddress);
@@ -186,6 +184,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 				}
 			} else {
 				//如果网站上没注册gprs，否决此报文
+				logger.info("未注册GPRS模块地址" + gprsAddress);
 				return false;
 			}
 		}

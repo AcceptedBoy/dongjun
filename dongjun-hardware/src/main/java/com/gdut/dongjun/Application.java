@@ -25,8 +25,6 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
-import net.sf.ehcache.CacheManager;
-
 @SpringBootApplication
 @EnableAspectJAutoProxy
 @ImportResource("classpath:hardware-service.xml")

@@ -215,16 +215,16 @@ public class CodeCreator {
 		return simpleDateFormat.format(new Date());
 	}
 	
-	public static void main(String[] args) throws Exception {
-		CodeCreator creator = new CodeCreator();
-		List<Class> list = new ArrayList<Class>();
-		list.add(DataMonitor.class);
-		
-		for (Class c : list) {
-			creator.createBeanDao(c);	
-			creator.createBeanDaoImpl(c);
-			creator.createBeanService(c);
-			creator.createBeanServiceImpl(c);
-		}
-	}
+//	public static void main(String[] args) throws Exception {
+//		CodeCreator creator = new CodeCreator();
+//		List<Class> list = new ArrayList<Class>();
+//		list.add(DataMonitor.class);
+//		
+//		for (Class c : list) {
+//			creator.createBeanDao(c);	
+//			creator.createBeanDaoImpl(c);
+//			creator.createBeanService(c);
+//			creator.createBeanServiceImpl(c);
+//		}
+//	}
 }
