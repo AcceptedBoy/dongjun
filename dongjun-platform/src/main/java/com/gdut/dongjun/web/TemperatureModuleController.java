@@ -13,13 +13,18 @@ import com.gdut.dongjun.service.device.TemperatureModuleService;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.UUIDUtil;
 
-@RequestMapping("/submodule/temperature")
+@RequestMapping("/dongjun/data_monitor/submodule/temperature")
 @Controller
 public class TemperatureModuleController {
 
 	@Autowired
 	private TemperatureModuleService moduleService;
 	
+	/**
+	 * TODO 要增加和DataMonitor的关联
+	 * @param module
+	 * @return
+	 */
 	@ResponseBody
 	@RequestMapping("/edit")
 	public ResponseMessage edit(TemperatureModule module) {
@@ -32,6 +37,11 @@ public class TemperatureModuleController {
 		return ResponseMessage.success("操作成功");
 	}
 	
+	/**
+	 * TODO 删除和DataMonitor的关联
+	 * @param id
+	 * @return
+	 */
 	@ResponseBody
 	@RequestMapping("/del")
 	public ResponseMessage del(String id) {

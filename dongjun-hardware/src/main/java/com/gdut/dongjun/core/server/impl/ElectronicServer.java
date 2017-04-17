@@ -1,18 +1,28 @@
 package com.gdut.dongjun.core.server.impl;
 
+import java.util.List;
+
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.gdut.dongjun.core.ElectronicCtxStore;
+import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.core.initializer.ServerInitializer;
+import com.gdut.dongjun.core.message.impl.ElectronicModuleMessageCreator;
 import com.gdut.dongjun.core.server.NetServer;
 
 @Service("ElectronicServer")
 public class ElectronicServer extends NetServer {
 
 	private ServerInitializer initializer;
+	@Autowired
+	private ElectronicCtxStore ctxStore;
+	@Autowired
+	private ElectronicModuleMessageCreator messageCreator;
 
-	@Resource(name = "TemperatureServerInitializer")
+	@Resource(name = "ElectronicServerInitializer")
 	public void setInitializer(ServerInitializer initializer) {
 
 		super.initializer = initializer;
@@ -21,37 +31,20 @@ public class ElectronicServer extends NetServer {
 	}
 
 	/**
-	 * 设置报警事件监听，每30分钟发送一次总召，因为新的协约不要求主动发总召报文，故删去
+	 * 设置报警事件监听，每30分钟发送一次总召
 	 */
 	@Override
 	protected void hitchEventSpy() {
-		// List<TemperatureDevice> devices =
-		// temperatureDeviceService.selectByParameters(null);
-		// if (devices != null) {
-		// for (TemperatureDevice device : devices) {
-		// if (device.getId() != null && CtxStore.isReady(device.getId())) {
-		// totalCall(device);
-		// }
-		// }
-		// }
+		List<SwitchGPRS> gprsList = ctxStore.getInstance();
+		for (SwitchGPRS device : gprsList) {
+			List<String> msgList = messageCreator.generateTotalCall(device.getAddress());
+			for (String msg : msgList) {
+				device.getCtx().writeAndFlush(msg);
+			}
+		}
 	}
-
-	// public static String totalCall(TemperatureDevice device) {
-	// return totalCall(device.getId());
-	// }
-	//
-	// public static String totalCall(String id) {
-	// SwitchGPRS gprs = CtxStore.get(id);
-	// String msg = new
-	// TemperatureDeviceCommandUtil(gprs.getAddress()).getTotalCall();
-	// logger.info("总召激活地址：" + gprs.getAddress() + "---" + msg);
-	// gprs.getCtx().writeAndFlush(msg);
-	// return msg;
-	// }
 
 	@Override
-	protected void timedCVReadTask() {
-
-	}
+	protected void timedCVReadTask() { }
 
 }

@@ -1,10 +1,14 @@
 package com.gdut.dongjun.core.message;
 
-public interface MessageCreator {
+import java.util.List;
 
-	String CODE_00 = "00";
-	String CODE_68 = "68";
-	String CODE_16 = "16";
+/**
+ * 报文发送
+ * @author Gordan_Deng
+ * @date 2017年4月15日
+ */
+public interface MessageCreator {
 	
-	String generateTotalCall(char[] data);
+//	List<String> generateTotalCall(char[] data);
+	
 }

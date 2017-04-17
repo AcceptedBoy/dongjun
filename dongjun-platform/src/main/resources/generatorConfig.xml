@@ -17,7 +17,7 @@
 		<javaClientGenerator targetPackage="com.gdut.dongjun.domain.dao"
 			targetProject="D:\\WORKING\\git\\dongjun_dzc\\dongjun-platform" type="XMLMAPPER" />
 
-		<table schema="root" tableName="big_group" domainObjectName="BigGroup"
+		<table schema="root" tableName="temperature_sensor1" domainObjectName="TemperatureSensor"
 			enableCountByExample="false" enableUpdateByExample="false"
 			enableDeleteByExample="false" enableSelectByExample="false"
 			selectByExampleQueryId="false" />

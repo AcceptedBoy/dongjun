@@ -1,7 +1,6 @@
 package com.gdut.dongjun.core.handler.thread;
 
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -20,8 +19,7 @@ public class HitchEventManager {
 	@Autowired
 	private TemperatureHitchEventThreadFactory temHitchEventThreadFactroy;
 
-	protected static ExecutorService fixedPool = Executors
-			.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
+	protected static ExecutorService fixedPool = ThreadPoolHolder.fixedPool;
 	
 	/**
 	 * 添加温度报警事件

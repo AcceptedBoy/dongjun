@@ -1,12 +1,22 @@
 package com.gdut.dongjun.web;
 
+import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -18,7 +28,6 @@ import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.device.temperature.TemperatureMeasureService;
 import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 import com.gdut.dongjun.service.webservice.server.WebsiteService;
-import com.gdut.dongjun.util.TimeUtil;
 import com.gdut.dongjun.util.UUIDUtil;
 
 @Controller
@@ -195,4 +204,39 @@ public class TestController implements InitializingBean {
 		}.start();
 	}
 	
+	private static final String HARDWARE_URL = "C:\\log\\dongjun-hardware\\";
+	private static final String PLAT_URL = "C:\\log\\dongjun-platform\\";
+	private static final String HAREWARE_LOG_PRE = "dongjun-hardware.log.";
+	private static final String PLAT_LOG_PRE = "dongjun-platform.log.";
+	private static final String LOG_POST = ".log";
+	
+	@RequestMapping("/hardware_log/{time}")
+	public ResponseEntity<byte[]> downloadHardwareLog(HttpServletRequest request,
+			HttpServletResponse respone, String clazzId,
+			@PathVariable("time") String time) throws Exception {
+		String fileURL = HARDWARE_URL + HAREWARE_LOG_PRE + time + LOG_POST;
+		String fileName = HAREWARE_LOG_PRE + time + LOG_POST;
+		File file = new File(fileURL);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentDispositionFormData("attachment", new String((fileName).getBytes("UTF-8"),
+				"iso-8859-1"));
+		headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+		return new ResponseEntity<byte[]>(FileUtils.readFileToByteArray(file),
+				headers, HttpStatus.CREATED);
+	}
+	
+	@RequestMapping("/plat_log/{time}")
+	public ResponseEntity<byte[]> downloadPlatLog(HttpServletRequest request,
+			HttpServletResponse respone, String clazzId,
+			@PathVariable("time") String time) throws Exception {
+		String fileURL = PLAT_URL + PLAT_LOG_PRE + time + LOG_POST;
+		String fileName = PLAT_LOG_PRE + time + LOG_POST;
+		File file = new File(fileURL);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentDispositionFormData("attachment", new String((fileName).getBytes("UTF-8"),
+				"iso-8859-1"));
+		headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+		return new ResponseEntity<byte[]>(FileUtils.readFileToByteArray(file),
+				headers, HttpStatus.CREATED);
+	}
 }

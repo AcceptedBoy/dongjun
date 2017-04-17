@@ -1,25 +1,17 @@
 package com.gdut.dongjun.core;
 
-import com.gdut.dongjun.domain.HighVoltageStatus;
-import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
-import com.gdut.dongjun.service.webservice.client.WebsiteServiceClient;
-import com.gdut.dongjun.service.webservice.server.HardwareService;
-import io.netty.channel.ChannelHandlerContext;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
+import com.gdut.dongjun.service.webservice.client.WebsiteServiceClient;
+
+import io.netty.channel.ChannelHandlerContext;
 
 /**
  * @Title: ClientList.java
@@ -37,20 +29,25 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 	
 	private static Logger logger = Logger.getLogger(CtxStore.class);
 
-	protected static WebsiteServiceClient websiteServiceClient;
+	protected volatile static WebsiteServiceClient websiteServiceClient;
 
 	private ApplicationContext applicationContext;
 	
-	protected static List<SwitchGPRS> ctxlist = new CopyOnWriteArrayList<>();
+	protected List<SwitchGPRS> ctxlist;
 	
 	protected CtxStore() {
-		
+		ctxlist = new CopyOnWriteArrayList<>();
 	}
 
+	//这个方法能不能运行都是个问题，估计不行
 	@Override
 	public void afterPropertiesSet() throws Exception {
+		logger.info("运行CtxStore注入方法");
 		CtxStore.websiteServiceClient = (WebsiteServiceClient)
 				applicationContext.getBean("websiteServiceClient");
+		if (CtxStore.websiteServiceClient == null) {
+			logger.info("CtxStore的WebSiteServiceClient注入失败！！");
+		}
 	}
 
 	@Override
@@ -87,7 +84,7 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 	 * @return List<SwitchGPRS>
 	 * @throws
 	 */
-	public static List<SwitchGPRS> getInstance() {
+	public List<SwitchGPRS> getInstance() {
 
 		return ctxlist;
 	}
@@ -111,7 +108,7 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 	 * @return SwitchGPRS
 	 * @throws
 	 */
-	public static SwitchGPRS get(ChannelHandlerContext ctx) {
+	public SwitchGPRS get(ChannelHandlerContext ctx) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("remove(SwitchGPRS) - start");
 		}
@@ -142,7 +139,7 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 	 * @return SwitchGPRS
 	 * @throws
 	 */
-	public static SwitchGPRS get(String id) {
+	public SwitchGPRS get(String id) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("remove(SwitchGPRS) - start");
 		}
@@ -165,7 +162,7 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 		return null;
 	}
 	
-	public static SwitchGPRS getByAddress(String address) {
+	public SwitchGPRS getByAddress(String address) {
 		
 		if(ctxlist != null) {
 			for(SwitchGPRS gprs : ctxlist) {
@@ -186,7 +183,7 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 	 * @return SwitchGPRS
 	 * @throws
 	 */
-	public static String getIdbyAddress(String address) {
+	public String getIdbyAddress(String address) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("remove(SwitchGPRS) - start");
 		}
@@ -216,7 +213,7 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 	 * @return void
 	 * @throws
 	 */
-	public static void add(SwitchGPRS ctx) {
+	public void add(SwitchGPRS ctx) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("add(SwitchGPRS) - start");
 		}
@@ -242,7 +239,7 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 	 * @return void
 	 * @throws
 	 */
-	public static void remove(ChannelHandlerContext ctx) {
+	public void remove(ChannelHandlerContext ctx) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("remove(SwitchGPRS) - start");
 		}
@@ -273,7 +270,7 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 	 * @return void
 	 * @throws
 	 */
-	public static void clear() {
+	public void clear() {
 		if (logger.isDebugEnabled()) {
 			logger.debug("clear() - start");
 		}
@@ -293,7 +290,7 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 	 * @return void
 	 * @throws
 	 */
-	public static void updateSwtichOpen(String id) {
+	public void updateSwtichOpen(String id) {
 
 		SwitchGPRS gprs = get(id);
 		if (gprs != null && id.equals(gprs.getId())) {
@@ -314,7 +311,7 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 	 * @return boolean
 	 * @throws
 	 */
-	public static boolean isReady(String id) {
+	public boolean isReady(String id) {
 
 		SwitchGPRS gprs = get(id);
 		if (gprs != null && gprs.getId() != null && gprs.getAddress() != null
@@ -348,7 +345,7 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 	 * @return void
 	 * @throws
 	 */
-	public static void excute(String id, String msg) {
+	public void excute(String id, String msg) {
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("excute(String) - start");
@@ -377,7 +374,7 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 	 * @throws
 	 */
 	@Deprecated
-	public static void printCtxStore() {
+	public void printCtxStore() {
 		if (logger.isDebugEnabled()) {
 			logger.debug("printCtxStore() - start");
 		}
@@ -397,7 +394,7 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 		}
 	}
 
-	public static void remove(String id) {
+	public void remove(String id) {
 		
 		if(id == null) {
 			return;
@@ -412,7 +409,7 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 //		websiteServiceClient.getService().callbackCtxChange(); // TODO trueChange();
 	}
 
-	public static boolean changeOpen(String switchId) {
+	public boolean changeOpen(String switchId) {
 		
 		SwitchGPRS gprs = get(switchId);
 		if(gprs != null) {

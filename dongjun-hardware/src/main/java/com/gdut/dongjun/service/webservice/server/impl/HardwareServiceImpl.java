@@ -1,13 +1,12 @@
 package com.gdut.dongjun.service.webservice.server.impl;
 
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.gdut.dongjun.core.CtxStore;
+import com.gdut.dongjun.core.DefaultCtxStore;
 import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.core.TemperatureCtxStore;
 import com.gdut.dongjun.service.webservice.server.HardwareService;
@@ -21,14 +20,16 @@ public class HardwareServiceImpl implements HardwareService {
 //	private static ExecutorService callerPool = Executors.newFixedThreadPool(
 //			Runtime.getRuntime().availableProcessors() << 1 - 1);
 
-	private final Logger logger = Logger.getLogger(HardwareServiceImpl.class);
+	@Autowired
+	private DefaultCtxStore ctxStore;
+	private static final Logger logger = Logger.getLogger(HardwareServiceImpl.class);
 
 	/* (non-Javadoc)
 	 * @see com.gdut.dongjun.service.rmi.HardwareService#getOnlineAddressById(java.lang.String)
 	 */
 	@Override
 	public String getOnlineAddressById(String id) {
-		SwitchGPRS gprs = CtxStore.get(id);
+		SwitchGPRS gprs = ctxStore.get(id);
 		if(gprs != null) {
 			return gprs.getAddress();
 		}
@@ -40,7 +41,7 @@ public class HardwareServiceImpl implements HardwareService {
 	 */
 	@Override
 	public List<SwitchGPRS> getCtxInstance() {
-		return CtxStore.getInstance();
+		return ctxStore.getInstance();
 	}
 	
 	/* (non-Javadoc)
@@ -48,7 +49,7 @@ public class HardwareServiceImpl implements HardwareService {
 	 */
 	@Override
 	public SwitchGPRS getSwitchGPRS(String id) {
-		return CtxStore.get(id);
+		return ctxStore.get(id);
 	}
 
 	@Override

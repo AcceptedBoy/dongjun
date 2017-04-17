@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.gdut.dongjun.core.CtxStore;
+import com.gdut.dongjun.core.GPRSCtxStore;
 import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.core.TemperatureCtxStore;
 import com.gdut.dongjun.core.handler.thread.HitchEventManager;
@@ -82,8 +82,6 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	private static final char[] CODE_7A16_UP = new char[] { '7', 'A', '1', '6' }; // 7A16
 	private static final char[] CODE_7A16_DOWN = new char[] { '7', 'a', '1', '6' }; // 7A16
 
-//	@Autowired
-//	private TemperatureDeviceService deviceService;
 	@Autowired
 	private TemperatureMeasureService measureService;
 	@Autowired
@@ -96,6 +94,8 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	private GPRSModuleService gprsService;
 	@Autowired
 	private TemperatureModuleService temModuleService;
+	@Autowired
+	private TemperatureCtxStore ctxStore;
 
 	private static final Logger logger = LoggerFactory.getLogger(TemperatureDataReceiver.class);
 
@@ -103,8 +103,8 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		SwitchGPRS gprs = new SwitchGPRS();// 添加ctx到Store中
 		gprs.setCtx(ctx);
-		if (CtxStore.get(ctx) == null) {
-			CtxStore.add(gprs);
+		if (ctxStore.get(ctx) == null) {
+			ctxStore.add(gprs);
 			// 建立ChannelHandlerContext与GPRSModule的联系，建立通道时未获知GPRSModule的消息
 //			TemperatureCtxStore.addGPRS(ctx, null);
 		}
@@ -112,22 +112,22 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-		String gprsAddress = TemperatureCtxStore.getGPRSByCtx(ctx);
+		AttributeKey<String> key = AttributeKey.valueOf("GPRSAddress");
+		Attribute<String> attr = ctx.attr(key);
+		String gprsAddress = attr.get();
 		logger.info("GPRS" + gprsAddress + "设备失去联络");
-		SwitchGPRS gprs = CtxStore.get(ctx);
+		SwitchGPRS gprs = ctxStore.get(ctx);
 		if (gprs != null) {
 			// 从CtxStore中取出当前ChannelHandlerContext
-			CtxStore.remove(ctx);
-			TemperatureCtxStore.removeGPRS(ctx);
+			ctxStore.remove(ctx);
+			GPRSCtxStore.removeGPRS(gprsAddress);
 			if (gprs.getId() != null) {
 				//TODO ???有意义吗现在
-				TemperatureModule module = temModuleService.selectByPrimaryKey(gprs.getId());
+//				TemperatureModule module = temModuleService.selectByPrimaryKey(gprs.getId());
 //				TemperatureDevice device = deviceService.selectByPrimaryKey(gprs.getId());
 //				device.setOnlineTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
 //				deviceService.updateByPrimaryKey(device);
 			}
-		} else {
-			logger.warn("GPRS失联，但内存中找不到GPRS数据");
 		}
 	}
 
@@ -160,22 +160,24 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i <= 6; i += 2) {
 				//示范 30 30 30 31，表示0001地址
+				if (sb.length() == 0 && gprsNumber[i + 1] == '0') {
+					continue;
+				}
 				sb.append(gprsNumber[i + 1]);
 			}
 			//去除开头的0
 			gprsAddress = sb.toString();
 			
+			
 			//判断GPRS是否已在网站上注册
 			String gprsId = gprsService.isGPRSAvailable(gprsAddress);
 			if (null != gprsId) {
 				
-				AttributeKey<Integer> key = AttributeKey.valueOf("isGPRSRegisted");
-				Attribute<Integer> attr = ctx.attr(key);
-				if (null == attr.get()) {
-					attr.set(1);
-				}
-				//更新TemperatureCtxStore的GPRSMap，gprsId为空的话啥都不干。
-				TemperatureCtxStore.addGPRS(ctx, gprsAddress);
+				AttributeKey<String> key = AttributeKey.valueOf("GPRSAddress");
+				Attribute<String> attr = ctx.attr(key);
+				attr.set(gprsAddress);
+				//更新TemperatureCtxStore的GPRSList
+				TemperatureCtxStore.addGPRS(gprsAddress);
 				if (CharUtils.equals(data, 6, 8, CODE_01)) {
 					//GPRS模块登录
 					logger.info(gprsAddress + " GPRS模块登录成功");
@@ -190,9 +192,10 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		}
 		
 		//若GPRS模块注册不成功，报文不通过
-		AttributeKey<Integer> key = AttributeKey.valueOf("isGPRSRegisted");
-		Attribute<Integer> attr = ctx.attr(key);
-		if (null == attr.get() || 1 != attr.get()) {
+		AttributeKey<String> key = AttributeKey.valueOf("GPRSAddress");
+		Attribute<String> attr = ctx.attr(key);
+		if ((null == attr.get() || "".equals(attr.get()))
+				|| !GPRSCtxStore.isGPRSAlive(gprsAddress)) {
 			return false;
 		}
 		/*
@@ -221,7 +224,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			Attribute<Integer> attr = ctx.attr(key);
 			if (null == attr.get()) {
 				getOnlineAddress(ctx, data);
-				if (null != CtxStore.get(ctx).getId()) {
+				if (null != ctxStore.get(ctx).getId()) {
 					attr.set(1);
 				}
 			}
@@ -301,7 +304,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	 */
 	private void getOnlineAddress(ChannelHandlerContext ctx, char[] data) {
 
-		SwitchGPRS gprs = CtxStore.get(ctx);
+		SwitchGPRS gprs = ctxStore.get(ctx);
 		/*
 		 * 当注册的温度开关的地址不为空，说明已经注册过了，不再进行相关操作
 		 */
@@ -327,9 +330,9 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 				String id = module.getId();
 				gprs.setId(id);
 
-				if (CtxStore.get(id) != null) {
-					CtxStore.remove(id);
-					CtxStore.add(gprs);
+				if (ctxStore.get(id) != null) {
+					ctxStore.remove(id);
+					ctxStore.add(gprs);
 				}
 			} else {
 				logger.warn("当前设备未进行注册");
@@ -356,7 +359,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			ctx.writeAndFlush(correctTime);
 		}
 
-		String deviceId = CtxStore.getIdbyAddress(address);
+		String deviceId = ctxStore.getIdbyAddress(address);
 		if (null == deviceId || "".equals(deviceId)) {
 			return;
 		}
@@ -508,7 +511,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 				return;
 			}
 		}
-		sensorService.insert(new TemperatureSensor(UUIDUtil.getUUID(), tag, deviceId, tag + "号传感器"));
+		sensorService.insert(new TemperatureSensor(UUIDUtil.getUUID(), tag, 7, deviceId, tag + "号传感器"));
 	}
 
 	/**
