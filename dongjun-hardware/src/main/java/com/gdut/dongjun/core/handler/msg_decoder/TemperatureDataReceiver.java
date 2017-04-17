@@ -62,7 +62,7 @@ import io.netty.util.AttributeKey;
 @Sharable
 public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 
-	private static final String HITCH_REASON = "监测温度超过所设阈值";
+	private static final int BYTE =  2;
 	
 	private static final char[] EB_UP = new char[] { 'E', 'B', '9', '0' }; // EB90
 	private static final char[] EB_DOWN = new char[] { 'e', 'b', '9', '0' }; // eb90
@@ -401,10 +401,34 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	 * @param data
 	 */
 	private void handleRemoteSignal(ChannelHandlerContext ctx, char[] data) {
-		// TODO 等有报文例子之后再写
+		// TODO 等有报文例子之后再写,判断长度
+		if (data.length != (26 + 55 + 2) * BYTE) {
+			logger.info("非法全遥信报文，长度不足" + String.valueOf(data));
+			return ;
+		}
+		String deviceId = ctxStore.get(ctx).getId();
+		int index = 26 * BYTE;
+		for (int i = index; i < data.length - 2 * BYTE; i = i + BYTE) {
+			if (i >= index + 39 * BYTE) {
+				if (data[i + 1] == '1') {
+					int tag = (i - index - 39 * BYTE) / 2 + 1;
+					TemperatureModule device = temModuleService.selectByPrimaryKey(deviceId);
+					TemperatureMeasureHitchEvent event = new TemperatureMeasureHitchEvent();
+					event.setId(UUIDUtil.getUUID());
+					event.setTag(tag);
+					event.setType(2);
+					event.setValue(null);
+					event.setHitchReason(TemperatureMeasureHitchEvent.ELECTRICITY_LACK);
+					event.setGroupId(device.getGroupId());
+					event.setHitchTime(TimeUtil.timeFormat(new Date()));
+					event.setSwitchId(deviceId);
+					hitchEventManager.addHitchEvent(event);
+				}
+			}
+		}
 		StringBuilder sb = new StringBuilder();
 		sb.append("eb90eb90eb90" + CharUtils.newString(data, 10, 18) + "16");
-		ctx.channel().writeAndFlush(sb.toString()); // 全遥测确认报文，提示控制器发送全遥信
+		ctx.channel().writeAndFlush(sb.toString());
 	}
 
 	/**
@@ -486,7 +510,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 				event.setSwitchId(device.getId());
 				event.setValue(new BigDecimal(Double.valueOf("" + Integer.parseInt(value[i - 1], 16)) / 10));
 				event.setTag(i);
-				event.setHitchReason(HITCH_REASON);
+				event.setHitchReason(TemperatureMeasureHitchEvent.OVER_VALUE);
 				event.setHitchTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
 				event.setGroupId(device.getGroupId());
 				event.setMaxHitchValue(device.getMaxHitchValue());
