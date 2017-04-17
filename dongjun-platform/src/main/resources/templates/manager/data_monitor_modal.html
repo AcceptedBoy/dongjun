@@ -1,0 +1,204 @@
+<div id="upload_modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal"
+            aria-hidden="true">×</button>
+    <h3 id="myModalLabel">上传excel</h3>
+  </div>
+  <div class="modal-body">
+    <form id="upload_form" class="form-horizontal" onsubmit="return false">
+      <div class="control-group">
+        <label class="control-label" for="file">文件位置</label>
+        <div class="controls">
+          <input type="file" id="file" name="file" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+        <button id="uploadxls_btn" class="btn btn-primary" onclick="modal.uploadFile()">添加</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Add_Switch_Modal -->
+<div id="edit_dataMonitor_modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal"
+            aria-hidden="true">×</button>
+    <h3>添加开关</h3>
+  </div>
+  <div class="modal-body">
+    <div id="add_dataMonitor_form" class="form-horizontal">
+        <!-- action="edit_switch" -->
+      <div class="control-group">
+        <label class="control-label" for="editDataMonitorName">名称</label>
+        <div class="controls">
+          <input type="text" id="editDataMonitorName" name="name" />
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="editDataMonitorAddress">地址</label>
+        <div class="controls">
+          <input type="text" id="editDataMonitorAddress" name="address" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+        <button id="add_switch_confirm_btn" class="btn btn-primary"
+                aria-hidden="true" onclick="modal.save()">添加</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  var modal = function(){
+    var urls = {};
+    var completeFnc = null;
+    var nowId = {
+      groupId: -1,
+      id: -1
+    }
+    var status = {
+      isAdd: true
+    }
+    var panel = {
+      edit: $('#edit_dataMonitor_modal'),
+      upload: $('#upload_modal')
+    }
+    return {
+      setOption: function(o) {
+        completeFnc = o.completeFnc
+        urls = {
+          add: o.url.add,
+          edit: o.url.edit,
+          del: o.url.del,
+          upload: o.url.upload
+        }
+      },
+      addDataMonitor: function() {
+        status.isAdd = true
+        this.clearForm()
+      },
+      clearForm: function() {
+        var inputs = panel.edit.find('input')
+        for (var i = inputs.length - 1; i >= 0; i--) {
+          var input = inputs[i]
+          input.value = ''
+        }
+      },
+      save: function() {
+        var curModal = panel.edit
+        var inputs = curModal.find('input')
+        var data = {}
+        for (var i = inputs.length - 1; i >= 0; i--) {
+          var input = inputs[i]
+          if(!$.trim(input.value)) {
+            input.focus()
+            alert('您还有选项暂未填写')
+            return
+          }
+          data[input.name] = input.value
+        }
+
+        var params = {
+          'name' : data.name,
+          'address' : data.address,
+          'groupId' : selectManager.getCompany(),
+        }
+
+        if(!status.isAdd) {
+          params['id'] = nowId.id
+        }
+
+        $.ajax({
+          type : 'post',
+          url : status.isAdd ? urls.add : urls.edit,
+          async : false,
+          data : params,
+          success : function(data) {
+            if(data.success) {
+              completeFnc(params.groupId)
+              alert('操作成功')
+              curModal.modal('hide')
+            } else {
+              alert('失败 ')
+            }
+          }
+        })
+      },
+      editDataMonitor: function(data) {
+        status.isAdd = false
+        var inputs = panel.edit.find('input')
+        nowId.id = data.id
+        Array.prototype.forEach.call(inputs, function(item) {
+          item.value = data[item.name]
+        })
+      },
+      delDataMonitor: function(id) {
+        nowId.id = id
+        var delModal = Popup.Confirm({
+          title: '警告',
+          text: '您确定要删除吗？请慎重考虑',
+          cancelText: '关闭',
+          confirmText: '删除',
+          confirm: this.sureDel.bind(this)
+        })
+      },
+      sureDel: function() {
+        $.ajax({
+          type: 'POST',
+          url: urls.del,
+          data: {
+            'id': nowId.id
+          },
+          success: function(data) {
+            if(data.success) {
+              completeFnc(selectManager.getCompany())
+              alert('操作成功')
+            } else {
+              alert('失败')
+            }
+          }
+        })
+      },
+      uploadFile: function(e) {
+        var ev = e || window.event
+        ev.preventDefault()
+
+        var uploadModal = panel.upload
+        var file = uploadModal.find('#file')[0].files[0]
+        if(!file) {
+          alert('请选择文件')
+          return
+        }
+        var platformId = selectManager.getCompany()
+        var fD = new FormData()
+        fD.append('platformId', platformId)
+        fD.append('file', file)
+        $.ajax({
+          url: urls.upload,
+          type: 'POST',
+          data: fD,
+          processData: false,
+          contentType: false,
+          beforeSend: function(data) {
+            console.log(`发送...`)
+            console.log(data)
+          },
+          success: function(data) {
+            if(data.success) {
+              uploadModal.find('.close').click()
+              alert('操作成功')
+              completeFnc(data.text)
+            }
+          },
+          error: function(data) {
+            console.log(data)
+            alert('出错了')
+          }
+        })
+      }
+    }
+  }()
+</script>
