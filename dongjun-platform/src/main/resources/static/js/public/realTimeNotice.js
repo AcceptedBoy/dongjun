@@ -33,6 +33,13 @@ dj.jsLoad('../../js/websocket/sockjs.min.js', function() {
 					value: '报警值',
 					maxHitchValue: '温度上限',
 					minHitchValue: '温度下限'
+				},
+				// 设置限制条数10，超过则跳转
+				limit: {
+					num: 10,
+					action: function() {
+						location.pathname = 'templates/event/index.html'
+					}
 				}
 			})
 

@@ -10,7 +10,7 @@
       <div class="control-group">
         <label class="control-label" for="inputSensorTag">传感器编号</label>
         <div class="controls">
-          <input type="text" id="inputSensorTag" name="sensorTag" />
+          <input type="number" id="inputSensorTag" name="sensorTag" max="16" min="1" placeholder="1~16" />
         </div>
       </div>
       <div class="control-group">
@@ -83,10 +83,14 @@
     var urls = {};
     var completeFnc = null;
     var now = {
-      deviceId: '',
-      sensorId: ''
+      deviceId: '',   // 温度设备id
+      sensorId: ''    // 传感器id
     }
     return {
+      /**
+       * 配置
+       * @param {[type]} o [description]
+       */
       setOption: function(o) {
         completeFnc = o.completeFnc
         urls = {
@@ -109,6 +113,11 @@
       setSensorId: function(sensorId) {
         now.sensorId = sensorId
       },
+
+      /**
+       * 清空表单内容
+       * @return {[type]} [description]
+       */
       clearSensor: function() {
         var inputs = $('#add_sensor_modal').find('input')
         for (var i = inputs.length - 1; i >= 0; i--) {
@@ -116,10 +125,18 @@
           input.value = ''
         }
       },
+
+      /**
+       * 保存修改
+       * @param  {Boolean} isAdd 是否是添加设备
+       * @return {[type]}        [description]
+       */
       save: function(isAdd) {
         var curModal = isAdd ? $('#add_sensor_modal') : $('#edit_sensor_modal')
         var inputs = curModal.find('input')
         var data = {}
+
+        // 依次检查input是否为空，并放入data中
         for (var i = inputs.length - 1; i >= 0; i--) {
           var input = inputs[i]
           if(!$.trim(input.value)) {
@@ -133,19 +150,25 @@
           data[dataName] = input.value
         }
 
+        // check tag
+        var tag = parseInt(data.tag)
+        if(tag <= 0 || tag > 16) {
+          alert('传感器编号应在 1 ~ 16 之间')
+          return
+        }
+
+        // params for send
         var params = {
           'name' : data.name,
-          'tag' : data.tag,
+          'tag' : tag,
           'deviceId' : now.deviceId,
         }
 
-        console.log(params)
-
+        // 如果不是增加设备，则需要添加当前设备的id作为参数
         if(!isAdd) {
           params['id'] = now.sensorId
         }
 
-        console.log(params)
         $.ajax({
           type : 'POST',
           url : isAdd ? urls.add : urls.edit,
@@ -162,6 +185,12 @@
           }
         })
       },
+
+      /**
+       * 修改设备信息，填充表单内容
+       * @param  {[type]} data 设备的相关数据
+       * @return {[type]}      [description]
+       */
       editSensor: function(data) {
         this.setSensorId(data.id)
         var inputs = $('#edit_sensor_modal').find('input')
@@ -174,9 +203,20 @@
           item.value = data[name]
         })
       },
+
+      /**
+       * 删除设备，设置当前id
+       * @param  {[type]} sensorId [description]
+       * @return {[type]}          [description]
+       */
       delSensor: function(sensorId) {
         this.setSensorId(sensorId)
       },
+
+      /**
+       * 确定删除
+       * @return {[type]} [description]
+       */
       sureDel: function() {
         $.ajax({
           type: 'post',
