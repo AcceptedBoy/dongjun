@@ -338,4 +338,11 @@ public class User extends AbstractBean {
     public void setGmtModified(Date gmtModified) {
         this.gmtModified = gmtModified;
     }
+
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", name=" + name + ", password=" + password + ", realName=" + realName
+				+ ", controlCode=" + controlCode + ", phone=" + phone + ", email=" + email + ", address=" + address
+				+ ", companyId=" + companyId + "]";
+	}
 }

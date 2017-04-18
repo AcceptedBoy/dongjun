@@ -306,4 +306,12 @@ public class Company extends AbstractBean {
     public void setGmtModified(Date gmtModified) {
         this.gmtModified = gmtModified;
     }
+
+	@Override
+	public String toString() {
+		return "Company [id=" + id + ", name=" + name + ", description=" + description + ", address=" + address
+				+ ", mainStaff=" + mainStaff + ", mainStaffId=" + mainStaffId + ", phone=" + phone + ", email=" + email
+				+ "]";
+	}
+    
 }
