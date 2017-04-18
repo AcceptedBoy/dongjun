@@ -55,6 +55,9 @@ public class TemperatureModuleController {
 	@RequestMapping("/list")
 	public ResponseMessage list(String monitorId) {
 		List<TemperatureModule> module = moduleService.selectByParameters(MyBatisMapUtil.warp("group_id", monitorId));
+		if (0 == module.size()) {
+			return ResponseMessage.warning(null);
+		}
 		if (null == module || module.size() > 1) {
 			return ResponseMessage.warning("操作失败");
 		}
