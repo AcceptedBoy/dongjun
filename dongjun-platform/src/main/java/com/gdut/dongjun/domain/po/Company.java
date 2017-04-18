@@ -313,5 +313,4 @@ public class Company extends AbstractBean {
 				+ ", mainStaff=" + mainStaff + ", mainStaffId=" + mainStaffId + ", phone=" + phone + ", email=" + email
 				+ "]";
 	}
-    
 }
