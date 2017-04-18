@@ -26,6 +26,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -45,7 +46,6 @@ import com.gdut.dongjun.domain.po.TemperatureMeasureHitchEvent;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.po.authc.Role;
 import com.gdut.dongjun.domain.po.authc.UserRole;
-import com.gdut.dongjun.domain.po.authc.UserRoleKey;
 import com.gdut.dongjun.domain.vo.HitchEventVO;
 import com.gdut.dongjun.dto.HitchEventDTO;
 import com.gdut.dongjun.service.CompanyService;
@@ -70,7 +70,7 @@ public class UserController {
 
 	private static final String PLATFORM_ADMIN = "platform_group_admin";
 
-	//等前端该接口后，删掉
+	// 等前端该接口后，删掉
 	private static final String MAINSTAFF = "yes";
 
 	@Autowired
@@ -97,6 +97,12 @@ public class UserController {
 	private SimpMessagingTemplate template;
 
 	private static final Logger logger = Logger.getLogger(UserController.class);
+
+	@RequestMapping(value = "/dongjun")
+	public String dongjun() {
+
+		return "login";
+	}
 
 	@RequestMapping(value = "/dongjun/login")
 	public String login() {
@@ -134,10 +140,10 @@ public class UserController {
 			session.setAttribute("currentUser", user);
 			SecurityUtils.getSubject().getSession().setTimeout(-1000l);
 			userLogService.createNewLog(user);
-			//记录在线用户
+			// 记录在线用户
 			userService.remarkLogIn(user);
 			// if no exception, that's it, we're done!
-			//登陆成功后，等前端页面加载完成，5秒后返回未读的报警消息
+			// 登陆成功后，等前端页面加载完成，5秒后返回未读的报警消息
 			DefaultThreadManager.delayExecute(new Runnable() {
 
 				@Override
@@ -145,20 +151,21 @@ public class UserController {
 					List<PersistentHitchMessage> list = messageService.getAllUnreadHitchMessage(user.getId());
 					List<HitchEventDTO> dtos = new ArrayList<HitchEventDTO>();
 					for (PersistentHitchMessage message : list) {
-						switch(message.getHitchType()) {
-						case 3 : {
+						switch (message.getHitchType()) {
+						case 3: {
 							HitchEventDTO dto = warpIntoDTO(message);
 							dtos.add(dto);
 							break;
 						}
-						default : break;
+						default:
+							break;
 						}
 					}
 					for (HitchEventDTO dto : dtos) {
 						template.convertAndSend("/queue/user-" + user.getId() + "/hitch", dto);
 					}
 				}
-				
+
 				private HitchEventDTO warpIntoDTO(PersistentHitchMessage message) {
 					HitchEventVO vo = new HitchEventVO();
 					vo.setId(message.getHitchEventId());
@@ -168,7 +175,7 @@ public class UserController {
 					vo.setType(message.getHitchType());
 					return hitchEventService.wrapIntoDTO(vo);
 				}
-				
+
 			}, 5);
 		} catch (UnknownAccountException uae) {
 			// username wasn't in the system, show them an error message?
@@ -184,9 +191,9 @@ public class UserController {
 			// unexpected condition - error?
 			logger.error("login error!");
 		} catch (JMSException e) {
-			//注销已登录用户
+			// 注销已登录用户
 			currentUser.logout();
-			//抛出至ExceptionHandler
+			// 抛出至ExceptionHandler
 			throw e;
 		}
 		return LoginResult.LOGIN_PASS.value();
@@ -240,7 +247,6 @@ public class UserController {
 	}
 
 	/**
-	 * 注册用户，如果mainStaff为"yes"则为公司创始人，权限变为platform_group_admin，否则是guest
 	 * TODO涉及多个表的修改，考虑添加事务
 	 * 
 	 * @param user
@@ -249,61 +255,60 @@ public class UserController {
 	 */
 	@RequestMapping(value = "/dongjun/elecon/user_registy", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseMessage doRegisty(User user, String mainStaff) {
+	public ResponseMessage doRegisty(User user) {
 		List<Role> roles = roleService.selectByParameters(null);
 		user.setId(UUIDUtil.getUUID());
 		if (userService.updateByPrimaryKey(user) == 1) {
 			UserRole ur = new UserRole();
-			if (MAINSTAFF.equals(mainStaff)) {
-				for (Role role : roles) {
-					if (PLATFORM_ADMIN.equals(role.getRole())) {
-						ur.setRoleId(role.getId());
-						break;
-					}
-				}
-			} else {
-				for (Role role : roles) {
-					if (GUEST.equals(role.getRole())) {
-						ur.setRoleId(role.getId());
-						break;
-					}
+			for (Role role : roles) {
+				if (GUEST.equals(role.getRole())) {
+					ur.setRoleId(role.getId());
+					break;
 				}
 			}
 			ur.setUserId(user.getId());
 			urService.insert(ur);
 
-			// 修改公司的负责人
-			if (MAINSTAFF.equals(mainStaff)) {
-				Company c = companyService.selectByPrimaryKey(user.getCompanyId());
-				c.setMainStaffId(user.getId());
-				if (companyService.updateByPrimaryKey(c) == 0) {
-					return ResponseMessage.warning("操作失败");
-				}
-			}
 		} else {
 			return ResponseMessage.warning("操作失败");
 		}
 		return ResponseMessage.success("操作成功");
 	}
 
-	@InitBinder("company")  
-	public void initAccountBinder(WebDataBinder binder) {  
-	    binder.setFieldDefaultPrefix("company.");  
-	} 
-
-	@InitBinder("user")  
-	public void initUserBinder(WebDataBinder binder) {  
-	    binder.setFieldDefaultPrefix("user.");  
+	@InitBinder("company")
+	public void initAccountBinder(WebDataBinder binder) {
+		binder.setFieldDefaultPrefix("company.");
 	}
-	
-	@NeededTest
+
+	@InitBinder("user")
+	public void initUserBinder(WebDataBinder binder) {
+		binder.setFieldDefaultPrefix("user.");
+	}
+
 	@RequestMapping(value = "/dongjun/elecon/company_registry", method = RequestMethod.POST)
 	@ResponseBody
 	@Transactional
-	public ResponseMessage edit(@ModelAttribute("company") Company com, @ModelAttribute("user") User user) {
-		//注册用户并赋予公司管理员角色
+	public ResponseMessage edit(
+			@ModelAttribute("company") Company com, BindingResult result1,  
+			@ModelAttribute("user") User user, BindingResult result2) {
+		// 注册用户并赋予公司管理员角色
 		List<Role> roles = roleService.selectByParameters(null);
+		
+		PlatformGroup pg = new PlatformGroup();
+		pg.setId(UUIDUtil.getUUID());
+		pg.setGroupId("default"); // 默认组别
+		byte num = 0;
+		pg.setIsDefault(num);
+		pg.setName(com.getName());
+		pg.setCompanyId(com.getId());
+		pg.setType(num);
+		user.setCompanyId(pg.getId());
 		user.setId(UUIDUtil.getUUID());
+		//注册公司
+		com.setId(UUIDUtil.getUUID());
+		com.setMainStaffId(user.getId());
+		pg.setCompanyId(com.getId());
+
 		if (userService.updateByPrimaryKey(user) == 1) {
 			UserRole ur = new UserRole();
 			for (Role role : roles) {
@@ -317,24 +322,12 @@ public class UserController {
 		} else {
 			logger.warn("Exception : 注册用户失败");
 		}
-		//注册公司
-		com.setId(UUIDUtil.getUUID());
-		com.setMainStaffId(user.getId());
-		PlatformGroup pg = new PlatformGroup();
-		pg.setId(UUIDUtil.getUUID());
-		pg.setGroupId("default"); // 默认组别
-		byte num = 0;
-		pg.setIsDefault(num);
-		pg.setName(com.getName());
-		pg.setCompanyId(com.getId());
-		pg.setType(num);
-		pgService.updateByPrimaryKey(pg);
+		if (0 == pgService.updateByPrimaryKey(pg)) {
+			return ResponseMessage.danger("操作失败");
+		}
 		if (companyService.updateByPrimaryKey(com) == 0) {
 			return ResponseMessage.danger("操作失败");
 		}
-		//更新用户对公司的外键
-		user.setCompanyId(pg.getId());
-		userService.updateByPrimaryKey(user);
 		return ResponseMessage.success("操作成功");
 	}
 
@@ -342,7 +335,7 @@ public class UserController {
 	@RequestMapping("/dongjun/user/information")
 	@ResponseBody
 	public ResponseMessage getPersonalImformation(HttpSession session) {
-		User user = userService.selectByPrimaryKey(((User)session.getAttribute("currentUser")).getId());
+		User user = userService.selectByPrimaryKey(((User) session.getAttribute("currentUser")).getId());
 		return ResponseMessage.success(user);
 	}
 

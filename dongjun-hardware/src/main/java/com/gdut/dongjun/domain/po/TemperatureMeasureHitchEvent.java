@@ -7,6 +7,9 @@ import com.gdut.dongjun.domain.po.abstractmodel.AbstractHitchEvent;
 
 public class TemperatureMeasureHitchEvent extends AbstractHitchEvent {
 	
+	public static final String OVER_VALUE = "监测温度超过所设阈值";
+	public static final String ELECTRICITY_LACK = "传感器电量过少";
+	
     public TemperatureMeasureHitchEvent() {
 		super();
 	}
