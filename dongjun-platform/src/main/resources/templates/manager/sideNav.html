@@ -5,7 +5,7 @@
     <li><a href="#line_manager">公司管理</a></li>
     <li><a href="#equipment_manager">设备管理</a></li>
     <li class="nav-header">设备管理</li>
-    <li><a href="#temperature_look">温度监控</a></li>
+    <li><a href="#data_monitor">数据监控</a></li>
     <li class="nav-header">GPRS管理</li>
     <li><a href="#GPRS_manager">GPRS管理</a></li>
   </ul>
@@ -48,13 +48,10 @@
 
     var router = new dj.Router()
     router.start({
-      '': loadTemperature,
-      'low_voltage': loadLow,
-      'high_voltage': loadHigh,
-      'control_measure': loadControlMeasure,
+      '': loadDataMonitor,
       'substation_manager': substationLoad,
       'line_manager': lineLoad,
-      'temperature_look': loadTemperature,
+      'data_monitor': loadDataMonitor,
       'equipment_manager': loadEquip,
       'GPRS_manager': loadGPRSManager
     })
@@ -66,7 +63,7 @@
         })
       })
     }
-
+/*
     function loadLow() {
       dj.jsLoad('/js/manager/selectManager.js', function(){
         dj.inserCmp('low_voltage_modal.html', $('.managerModal')[0], function(){
@@ -83,7 +80,7 @@
           })
         })
       })
-    }
+    }*/
 
     function loadEquip() {
       loadLink('/css/equipment_manager.css', function() {
@@ -93,7 +90,7 @@
       })
     }
 
-    function loadControlMeasure() {
+/*    function loadControlMeasure() {
       dj.jsLoad('/js/manager/selectManager.js', function(){
         dj.inserCmp('control_measure_modal.html', $('.managerModal')[0], function(){
           dj.inserCmp('control_measure.html', $('.container')[0])
@@ -101,13 +98,23 @@
 
         })
       })
-    }
+    }*/
 
     function loadTemperature() {
       dj.jsLoad('/js/manager/selectManager.js', function(){
         dj.inserCmp('temperature_modal.html', $('.managerModal')[0], function(){
           loadLink('/css/equipment_manager.css')
           dj.inserCmp('temperature.html', $('.container')[0])
+
+        })
+      })
+    }
+
+    function loadDataMonitor() {
+      dj.jsLoad('/js/manager/selectManager.js', function(){
+        dj.inserCmp('data_monitor_modal.html', $('.managerModal')[0], function(){
+          loadLink('/css/equipment_manager.css')
+          dj.inserCmp('data_monitor.html', $('.container')[0])
 
         })
       })

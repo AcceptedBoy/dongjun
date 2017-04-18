@@ -131,7 +131,7 @@
             {
               'data': 'id',
               'render': function(data) {
-                return '<a href="#edit_sensor_modal" role="button" class="btn" data-toggle="modal" data-fnc="edit" data-id="'+ data +'">修改 &raquo;</a>'
+                return '<a href="#edit_module_modal" role="button" class="btn" data-toggle="modal" data-fnc="edit" data-id="'+ data +'">修改 &raquo;</a>'
               }
             },
             {
@@ -142,8 +142,8 @@
             },
           ],
           'language': {
-            'emptyTable': '<a style="cursor: pointer;">点击添加新的数据</a>',
-            'zeroRecords': '<a style="cursor: pointer;">点击添加新的数据</a>',
+            'emptyTable': '<a style="cursor: pointer;" onclick="TemModuleModal.addTemModule()">点击添加新的数据</a>',
+            'zeroRecords': '<a style="cursor: pointer;" onclick="TemModuleModal.addTemModule()">点击添加新的数据</a>',
             'loadingRecords': '正在加载数据...'
           },
           'initComplete': function(setting, json) {
@@ -157,12 +157,12 @@
                   var data = Array.prototype.find.call(table.data(), function(item) {
                     return item.id == id
                   })
-                  TemModuleModal.editSensor(data)
+                  TemModuleModal.editTemModule(data)
                 }
               } else if(fnc == 'del') {
                 var id = target.data('id')
                 if(TemModuleModal) {
-                  TemModuleModal.delSensor(id)
+                  TemModuleModal.delTemModule(id)
                 }
               }
             })
@@ -171,10 +171,10 @@
         this.draw = this.redraw
         return this
       },
-      redraw: function(id) {
+      redraw: function() {
         table.ajax.url(store.url)
         var param = {
-          monitorId: id
+          monitorId: now.monitorId
         }
         table.settings()[0].ajax.data = param
         table.ajax.reload()

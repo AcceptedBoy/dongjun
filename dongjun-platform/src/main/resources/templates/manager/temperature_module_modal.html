@@ -88,7 +88,9 @@
         now.moduleId = moduleId
       },
       addTemModule: function() {
-
+        status.isAdd = true
+        this.clearForm()
+        panel.edit.modal('show')
       },
       /**
        * 清空表单内容
@@ -122,32 +124,25 @@
           data[input.name] = input.value
         }
 
-        // params for send
-        // var params = {
-        //   'name' : data.name,
-        //   'tag' : tag,
-        //   'groupId' : selectManager.getCompany(),
-        // }
-
         data.groupId = selectManager.getCompany()
 
         // 如果不是增加设备，则需要添加当前设备的id作为参数
-        if(!isAdd) {
+        if(!status.isAdd) {
           data['id'] = now.moduleId
         }
 
         $.ajax({
           type : 'POST',
-          url : isAdd ? urls.add : urls.edit,
+          url : status.isAdd ? urls.add : urls.edit,
           async : false,
           data : data,
           success : function(data) {
             if(data.success) {
-              completeFnc(now.monitorId)
+              completeFnc()
               alert('操作成功')
-              curModal..modal('hide')
+              curModal.modal('hide')
             } else {
-              alert('失败 ')
+              alert('失败')
             }
           }
         })
@@ -159,6 +154,7 @@
        * @return {[type]}      [description]
        */
       editTemModule: function(data) {
+        status.isAdd = false
         this.setModuleId(data.id)
         var inputs = panel.edit.find('input')
         Array.prototype.forEach.call(inputs, function(item) {
@@ -171,7 +167,7 @@
        * @param  {[type]} id [description]
        * @return {[type]}          [description]
        */
-      delSensor: function(id) {
+      delTemModule: function(id) {
         this.setModuleId(id)
         var delModal = Popup.Confirm({
           title: '警告',
@@ -195,7 +191,7 @@
           },
           success: function(data) {
             if(data.success) {
-              completeFnc(now.monitorId)
+              completeFnc()
             } else {
               alert('操作失败')
             }
