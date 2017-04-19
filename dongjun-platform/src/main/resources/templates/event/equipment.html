@@ -23,48 +23,50 @@
       },
       init: function(option) {
         var _self = this;
-        url = option.url;
-        table = $('#equipment_event_list').DataTable({
-          'destroy': true,  // destroy之后才能重新加载
-          'ajax': {
-            'url': option.url,
-            'type': 'POST',
-            'dataSrc': 'text'
-          },
-          'columns': [
-            {
-              'data': 'name'
+        url = option.url || '';
+        if(url) {
+          table = $('#equipment_event_list').DataTable({
+            'destroy': true,  // destroy之后才能重新加载
+            'ajax': {
+              'url': option.url,
+              'type': 'POST',
+              'dataSrc': 'text'
             },
-            {
-              'data': 'tag'
+            'columns': [
+              {
+                'data': 'name'
+              },
+              {
+                'data': 'tag'
+              },
+              {
+                'data': 'hitchTime',
+                'render': _self.renderTime
+              },
+              {
+                'data': 'hitchReason'
+              },
+              {
+                'data': 'value'
+              },
+              {
+                'data': 'maxHitchValue'
+              },
+              {
+                'data': 'minHitchValue'
+              },
+            ],
+            'language': {
+              'paginate': {
+                'next': '下一页',
+                'previous': '上一页'
+              },
+              'emptyTable': '找不到相关数据',
+              'zeroRecords': '找不到相关数据',
+              'loadingRecords': '正在加载数据...'
             },
-            {
-              'data': 'hitchTime',
-              'render': _self.renderTime
-            },
-            {
-              'data': 'hitchReason'
-            },
-            {
-              'data': 'value'
-            },
-            {
-              'data': 'maxHitchValue'
-            },
-            {
-              'data': 'minHitchValue'
-            },
-          ],
-          'language': {
-            'paginate': {
-              'next': '下一页',
-              'previous': '上一页'
-            },
-            'emptyTable': '找不到相关数据',
-            'zeroRecords': '找不到相关数据',
-            'loadingRecords': '正在加载数据...'
-          },
-        })
+          })
+        }
       },
       redraw: function(id) {
         table.ajax.reload();
