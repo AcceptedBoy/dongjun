@@ -40,14 +40,14 @@
         html += '<div class="control-group">' +
             '<label class="control-label" for="'+ this.data[i].inputId +'">' + this.data[i].label + '</label>' +
             '<div class="controls">' +
-                '<textarea id="'+ this.data[i].inputId +'" rows="3" cols="20" />' +
+                '<textarea id="'+ this.data[i].inputId +'" name="'+ this.data[i].inputName +'" rows="3" cols="20" />' +
             '</div>' +
         '</div>'
       } else {
         html += '<div class="control-group">' +
             '<label class="control-label" for="'+ this.data[i].inputId +'">' + this.data[i].label + '</label>' +
             '<div class="controls">' +
-                '<input type="'+ this.data[i].inputType +'" id="'+ this.data[i].inputId +'" />' +
+                '<input type="'+ this.data[i].inputType +'" name="'+ this.data[i].inputName +'" id="'+ this.data[i].inputId +'" />' +
             '</div>' +
         '</div>'
       }
