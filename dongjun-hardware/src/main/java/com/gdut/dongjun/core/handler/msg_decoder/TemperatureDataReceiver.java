@@ -326,7 +326,6 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 
 			if (list != null && list.size() != 0) {
 				TemperatureModule module = list.get(0);
-//				TemperatureDevice device = list.get(0);
 				String id = module.getId();
 				gprs.setId(id);
 
@@ -386,12 +385,6 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			sb.append("eb90eb90eb90" + CharUtils.newString(data, 10, 18) + "16");
 			ctx.channel().writeAndFlush(sb.toString()); // 全遥测确认报文，提示控制器发送全遥信
 		}
-		//更新在线时间
-		//TODO 更新在线时间有意义吗？
-//		TemperatureDevice device = new TemperatureDevice();
-//		device.setId(deviceId);
-//		device.setOnlineTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
-//		deviceService.updateByPrimaryKeySelective(device);
 	}
 
 	/**
@@ -401,7 +394,6 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	 * @param data
 	 */
 	private void handleRemoteSignal(ChannelHandlerContext ctx, char[] data) {
-		// TODO 等有报文例子之后再写,判断长度
 		if (data.length != (26 + 55 + 2) * BYTE) {
 			logger.info("非法全遥信报文，长度不足" + String.valueOf(data));
 			return ;
@@ -417,7 +409,6 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 					event.setId(UUIDUtil.getUUID());
 					event.setTag(tag);
 					event.setType(2);
-					event.setValue(null);
 					event.setHitchReason(TemperatureMeasureHitchEvent.ELECTRICITY_LACK);
 					event.setGroupId(device.getGroupId());
 					event.setHitchTime(TimeUtil.timeFormat(new Date()));
@@ -441,25 +432,6 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		StringBuilder sb = new StringBuilder();
 		sb.append("eb90eb90eb90" + CharUtils.newString(data, 10, 18) + "16");
 		ctx.channel().writeAndFlush(sb.toString()); // 全遥测确认报文，提示控制器发送全遥信
-	}
-
-	/**
-	 * 遥信事件的处理，返回确认遥信 TODO
-	 * 
-	 * @param ctx
-	 * @param data
-	 */
-	private void confirmSignalChangeInfo(ChannelHandlerContext ctx, String data) {
-
-//		for (int i = 26, j = Integer.valueOf(data.substring(16, 18)); j > 0; i += 6, --j) {
-//			 TODO 遥信值的处理
-//			 changeState(data.substring(22, 26), data.substring(i, i + 4),
-//			 data.substring(i + 4, i + 6));
-//		}
-		// 返回确认遥信事件
-		String resu = new TemperatureDeviceCommandUtil(data.substring(10, 14)).confirmRemoteSignalChangeEvent();
-		logger.info("遥信变位事件确定---------" + resu);
-		ctx.writeAndFlush(resu);
 	}
 
 	public Integer changeSignalAddress(String signalAddress) {
