@@ -1,0 +1,366 @@
+<!-- Add_Switch_Modal -->
+<div id="edit_module_modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal"
+            aria-hidden="true">×</button>
+    <h3>添加温度数据</h3>
+  </div>
+  <div class="modal-body">
+    <div class="form-horizontal">
+      <div class="control-group">
+        <label class="control-label" for="editTemModuleNumber">设备号码</label>
+        <div class="controls">
+          <input type="text" id="editTemModuleNumber" name="deviceNumber" />
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="editTemModuleName">开关名称</label>
+        <div class="controls">
+          <input type="text" id="editTemModuleName" name="name" />
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="editTemModuleAddress">地址</label>
+        <div class="controls">
+          <input type="text" id="editTemModuleAddress" name="address" />
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="editTemModuleSim">SIM</label>
+        <div class="controls">
+          <input type="text" id="editTemModuleSim" name="simNumber"/>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="editTemModuleMaxHitchValue">上限</label>
+        <div class="controls">
+          <input type="number" id="editTemModuleMaxHitchValue" name="maxHitchValue" step="0.01"/>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="editTemModuleMinHitchValue">下限</label>
+        <div class="controls">
+          <input type="number" id="editTemModuleMinHitchValue" name="minHitchValue" step="0.01"/>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+        <button class="btn btn-primary" aria-hidden="true" onclick="TemModuleModal.save()">添加</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  var TemModuleModal = function(){
+    var urls = {};
+    var completeFnc = null;
+    var now = {
+      groupId: '',    // PlatformGroup的id
+      monitorId: '',  // data monitor id
+      moduleId: '',   // temperature module id
+    }
+    var status = {
+      isAdd: true
+    }
+    var panel = {
+      edit: $('#edit_module_modal')
+    }
+    return {
+      /**
+       * 配置
+       * @param {[type]} o [description]
+       */
+      setOption: function(o) {
+        completeFnc = o.completeFnc
+        urls = {
+          add: o.url.add,
+          edit: o.url.edit,
+          del: o.url.del,
+        }
+      },
+      /**
+       * 设置当前传感器所属温度设备的id
+       * @param {[type]} moduleId [description]
+       */
+      setModuleId: function(moduleId) {
+        now.moduleId = moduleId
+      },
+      addTemModule: function() {
+        status.isAdd = true
+        this.clearForm()
+        panel.edit.modal('show')
+      },
+      /**
+       * 清空表单内容
+       * @return {[type]} [description]
+       */
+      clearForm: function() {
+        var inputs = panel.edit.find('input')
+        for (var i = inputs.length - 1; i >= 0; i--) {
+          var input = inputs[i]
+          input.value = ''
+        }
+      },
+
+      /**
+       * 保存修改
+       * @return {[type]}        [description]
+       */
+      save: function() {
+        var curModal = panel.edit
+        var inputs = curModal.find('input')
+        var data = {}
+
+        // 依次检查input是否为空，并放入data中
+        for (var i = inputs.length - 1; i >= 0; i--) {
+          var input = inputs[i]
+          if(!$.trim(input.value)) {
+            input.focus()
+            alert('您还有选项暂未填写')
+            return
+          }
+          data[input.name] = input.value
+        }
+
+        data.groupId = selectManager.getCompany()
+
+        // 如果不是增加设备，则需要添加当前设备的id作为参数
+        if(!status.isAdd) {
+          data['id'] = now.moduleId
+        }
+
+        $.ajax({
+          type : 'POST',
+          url : status.isAdd ? urls.add : urls.edit,
+          async : false,
+          data : data,
+          success : function(data) {
+            if(data.success) {
+              completeFnc()
+              alert('操作成功')
+              curModal.modal('hide')
+            } else {
+              alert('失败')
+            }
+          }
+        })
+      },
+
+      /**
+       * 修改设备信息，填充表单内容
+       * @param  {[type]} data 设备的相关数据
+       * @return {[type]}      [description]
+       */
+      editTemModule: function(data) {
+        status.isAdd = false
+        this.setModuleId(data.id)
+        var inputs = panel.edit.find('input')
+        Array.prototype.forEach.call(inputs, function(item) {
+          item.value = data[item.name]
+        })
+      },
+
+      /**
+       * 删除设备，设置当前id
+       * @param  {[type]} id [description]
+       * @return {[type]}          [description]
+       */
+      delTemModule: function(id) {
+        this.setModuleId(id)
+        var delModal = Popup.Confirm({
+          title: '警告',
+          text: '您确定要删除吗？请慎重考虑',
+          cancelText: '关闭',
+          confirmText: '删除',
+          confirm: this.sureDel.bind(this)
+        })
+      },
+
+      /**
+       * 确定删除
+       * @return {[type]} [description]
+       */
+      sureDel: function() {
+        $.ajax({
+          type: 'post',
+          url: urls.del,
+          data: {
+            'id': now.moduleId
+          },
+          success: function(data) {
+            if(data.success) {
+              completeFnc()
+            } else {
+              alert('操作失败')
+            }
+          },
+          error: function() {
+            alert('操作失败')
+          }
+        })
+      }
+    }
+  }()
+
+  var sensorModal = function(){
+    var urls = {};
+    var completeFnc = null;
+    var now = {
+      deviceId: '',   // 温度设备id
+      sensorId: ''    // 传感器id
+    }
+    return {
+      /**
+       * 配置
+       * @param {[type]} o [description]
+       */
+      setOption: function(o) {
+        completeFnc = o.completeFnc
+        urls = {
+          add: o.url.add,
+          edit: o.url.edit,
+          del: o.url.del,
+        }
+      },
+      /**
+       * 设置当前传感器所属温度设备的id
+       * @param {[type]} deviceId [description]
+       */
+      setDeviceId: function(deviceId) {
+        now.deviceId = deviceId
+      },
+      /**
+       * 设置当前传感器的id
+       * @param {[type]} sensorId [description]
+       */
+      setSensorId: function(sensorId) {
+        now.sensorId = sensorId
+      },
+
+      /**
+       * 清空表单内容
+       * @return {[type]} [description]
+       */
+      clearSensor: function() {
+        var inputs = $('#add_sensor_modal').find('input')
+        for (var i = inputs.length - 1; i >= 0; i--) {
+          var input = inputs[i]
+          input.value = ''
+        }
+      },
+
+      /**
+       * 保存修改
+       * @param  {Boolean} isAdd 是否是添加设备
+       * @return {[type]}        [description]
+       */
+      save: function(isAdd) {
+        var curModal = isAdd ? $('#add_sensor_modal') : $('#edit_sensor_modal')
+        var inputs = curModal.find('input')
+        var data = {}
+
+        // 依次检查input是否为空，并放入data中
+        for (var i = inputs.length - 1; i >= 0; i--) {
+          var input = inputs[i]
+          if(!$.trim(input.value)) {
+            input.focus()
+            alert('您还有选项暂未填写')
+            return
+          }
+          var dataName = (input.name).replace(/^sensor(\w)/, function(match, $1) {
+            return $1.toLowerCase()
+          })
+          data[dataName] = input.value
+        }
+
+        // check tag
+        var tag = parseInt(data.tag)
+        if(tag <= 0 || tag > 16) {
+          alert('传感器编号应在 1 ~ 16 之间')
+          return
+        }
+
+        // params for send
+        var params = {
+          'name' : data.name,
+          'tag' : tag,
+          'deviceId' : now.deviceId,
+        }
+
+        // 如果不是增加设备，则需要添加当前设备的id作为参数
+        if(!isAdd) {
+          params['id'] = now.sensorId
+        }
+
+        $.ajax({
+          type : 'POST',
+          url : isAdd ? urls.add : urls.edit,
+          async : false,
+          data : params,
+          success : function(data) {
+            if(data.success) {
+              completeFnc(now.deviceId)
+              alert('操作成功')
+              curModal.find('.close').click()
+            } else {
+              alert('失败 ')
+            }
+          }
+        })
+      },
+
+      /**
+       * 修改设备信息，填充表单内容
+       * @param  {[type]} data 设备的相关数据
+       * @return {[type]}      [description]
+       */
+      editSensor: function(data) {
+        this.setSensorId(data.id)
+        var inputs = $('#edit_sensor_modal').find('input')
+        var name
+        Array.prototype.forEach.call(inputs, function(item) {
+          name = item.name.replace(/^sensor(\w)/, function(match, $1) {
+            return $1.toLowerCase()
+          })
+          console.log(name)
+          item.value = data[name]
+        })
+      },
+
+      /**
+       * 删除设备，设置当前id
+       * @param  {[type]} sensorId [description]
+       * @return {[type]}          [description]
+       */
+      delSensor: function(sensorId) {
+        this.setSensorId(sensorId)
+      },
+
+      /**
+       * 确定删除
+       * @return {[type]} [description]
+       */
+      sureDel: function() {
+        $.ajax({
+          type: 'post',
+          url: urls.del,
+          data: {
+            'id': now.sensorId
+          },
+          success: function(data) {
+            if(data.success) {
+              completeFnc(now.deviceId)
+            } else {
+              alert('操作失败')
+            }
+          },
+          error: function() {
+            alert('操作失败')
+          }
+        })
+      }
+    }
+  }()
+</script>

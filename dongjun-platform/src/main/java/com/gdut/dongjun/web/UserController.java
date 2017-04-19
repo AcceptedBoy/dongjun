@@ -293,7 +293,22 @@ public class UserController {
 			@ModelAttribute("user") User user, BindingResult result2) {
 		// 注册用户并赋予公司管理员角色
 		List<Role> roles = roleService.selectByParameters(null);
+		
+		PlatformGroup pg = new PlatformGroup();
+		pg.setId(UUIDUtil.getUUID());
+		pg.setGroupId("default"); // 默认组别
+		byte num = 0;
+		pg.setIsDefault(num);
+		pg.setName(com.getName());
+		pg.setCompanyId(com.getId());
+		pg.setType(num);
+		user.setCompanyId(pg.getId());
 		user.setId(UUIDUtil.getUUID());
+		//注册公司
+		com.setId(UUIDUtil.getUUID());
+		com.setMainStaffId(user.getId());
+		pg.setCompanyId(com.getId());
+
 		if (userService.updateByPrimaryKey(user) == 1) {
 			UserRole ur = new UserRole();
 			for (Role role : roles) {
@@ -307,24 +322,12 @@ public class UserController {
 		} else {
 			logger.warn("Exception : 注册用户失败");
 		}
-		// 注册公司
-		com.setId(UUIDUtil.getUUID());
-		com.setMainStaffId(user.getId());
-		PlatformGroup pg = new PlatformGroup();
-		pg.setId(UUIDUtil.getUUID());
-		pg.setGroupId("default"); // 默认组别
-		byte num = 0;
-		pg.setIsDefault(num);
-		pg.setName(com.getName());
-		pg.setCompanyId(com.getId());
-		pg.setType(num);
-		pgService.updateByPrimaryKey(pg);
+		if (0 == pgService.updateByPrimaryKey(pg)) {
+			return ResponseMessage.danger("操作失败");
+		}
 		if (companyService.updateByPrimaryKey(com) == 0) {
 			return ResponseMessage.danger("操作失败");
 		}
-		// 更新用户对公司的外键
-		user.setCompanyId(pg.getId());
-		userService.updateByPrimaryKey(user);
 		return ResponseMessage.success("操作成功");
 	}
 

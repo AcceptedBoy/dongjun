@@ -211,7 +211,7 @@
           $("#search_btn").unbind().click(function(event) {
             // chartNodes.clearTag();
             // chartManager.handleSearch(chartManager.get('showVchart'), 0, 'v_data_list')
-            chartManager.handleClickSearch(chartManager.get('tem'), 't_data_list', timeModel.getId()) // 利用时间对象获取已经点击的树节点的id，不好
+            chartManager.handleClickSearch(chartManager.get('tem'), 't_data_list', timeModel.getName(), timeModel.getId()) // 利用时间对象获取已经点击的树节点的id，不好
           });
           $('#dataBar').click(function(event) {
             var target = event.target;
@@ -285,7 +285,7 @@
                   $("#search_btn").unbind().click(function(event) {
                     // chartNodes.clearTag();
                     // chartManager.handleTemSearch(chartManager.get('tem'), 't_data_list')
-                    chartManager.handleClickSearch(chartManager.get('tem'), 't_data_list', timeModel.getId()) // 利用时间对象获取已经点击的树节点的id，不好
+                    chartManager.handleClickSearch(chartManager.get('tem'), 't_data_list', timeModel.getName(), timeModel.getId()) // 利用时间对象获取已经点击的树节点的id，不好
                   })
                   break;
               }
@@ -302,6 +302,25 @@
       var checkNodes = [];
       var temNodes = [];
       return {
+  	  	moveLegend: function(op) {
+          op.legend.orient = 'vertical';
+          op.legend.x = 'right';
+          op.legend.y = '25';
+        },
+        showTitle: function(op, text) {
+        	op.title = {
+           		text: text,
+           		x: 'center',
+           		backgroundColor: '#b2cde5',
+           		borderColor: '#2b7ec6',
+           		borderWidth: 4,
+           		padding: 13,
+           		textStyle: {
+           			color: '#2b7ec6',
+           			fontSize: 25
+           		}
+           	}
+        },
         get: function() {
           return checkNodes;
         },
@@ -460,11 +479,6 @@
                 "series":[]
             }, true);
         },
-        moveLegend: function(op) {
-          op.legend.orient = 'vertical';
-          op.legend.x = 'right';
-          op.legend.y = '25';
-        },
         /* changeName: function(name, param) {
           console.log('changename: ', param);
           if(Object.prototype.toString.call(param) == '[object Array]') {
@@ -573,7 +587,7 @@
                 success: function(res) {
                   chartView.hideLoading(chart);
                   if(res) {
-                	  chartManager.moveLegend(res);
+                	  chartNodes.moveLegend(res);
                 	  chart.setOption(res, true);
                       chartManager.show_table(tablename, chartManager.createTable(chart, false), false);
                   } else {
@@ -620,7 +634,7 @@
                 success: function(res) {
                   chartView.hideLoading(chart);
                   if(res) {
-                	  chartManager.moveLegend(res);
+                	  chartNodes.moveLegend(res);
                 	  chart.setOption(res, true);
                       chartManager.show_table(tablename, chartManager.createTable(chart, true), true);
                   }
@@ -912,60 +926,57 @@
 		// 	}
 		// },
     handleClick: function(event, treeId, treeNode) {
-      var cov = 0;
+      /* var cov = 0;
       var tablename = '';
       var tab = chartManager.getActive()
       switch(tab._dom.id) {
         case 'VoltageChart': cov = 1; tablename = 'v_data_list'; break;
         case 'current': cov = 0; tablename = 'c_data_list'; break;
         case 'power': cov = 2; tablename = 'p_data_list'; break;
-      }
+      } */
       if(timeModel.getTem() != 1) {
-    	timeModel.setId(treeNode.id)
         timeModel.startTem();
         timeModel.setTem(1);
       }
-      this.handleClickSearch(chartManager.get('tem'), 't_data_list', treeNode.id)
+      var begin_time = $('#begin_search_date').val()
+      var end_time = $('#end_search_date').val()
+      timeModel.setData({
+    	  bgtime: begin_time,
+  		  endtime: end_time,
+  		  id: treeNode.id,
+  		  name: treeNode.name
+      })
+      this.handleClickSearch(chartManager.get('tem'), 't_data_list', treeNode.name, treeNode.id, begin_time, end_time)
     },
-    handleClickSearch: function(chart, tablename, id, bgtime, endtime) {
-      var begin_time = ''
-      var end_time = ''
-	  if(bgtime && endtime) {
-		  begin_time = bgtime;
-	      end_time = endtime;
-	  } else {
-		  begin_time = $('#begin_search_date').val();
-	      end_time = $('#end_search_date').val();
+    handleClickSearch: function(chart, tablename, name, id, bgtime, endtime) {
+	  if(!(bgtime && endtime)) {
+		  bgtime = $('#begin_search_date').val()
+		  endtime = $('#end_search_date').val()
 	  }
-      
-      if(begin_time && end_time && id) {
-   	  	timeModel.setTime({
-         	bgtime:$('#begin_search_date').val(),
-         	endtime:$('#end_search_date').val()
-         })
+      if(id) {
         chartView.showLoading(chart);
         $.ajax({
           url: '/dongjun/select_chart_by_device_id',
           type: 'GET',
           data: {
         	monitorId: id,
-            beginDate: begin_time,
-            endDate: end_time
+            beginDate: bgtime,
+            endDate: endtime
           },
           success: function(res) {
             chartView.hideLoading(chart);
             if(res) {
-            	console.log(res)
-              chartManager.moveLegend(res);
-              chart.setOption(res, true)
-              chartManager.show_table(tablename, chartManager.createTable(chart, true), true);
+            	chartNodes.showTitle(res, name)	
+            	chartNodes.moveLegend(res)
+            	chart.setOption(res, true)
+            	chartManager.show_table(tablename, chartManager.createTable(chart, true), true);
             } else {
               alert('没有数据')
             }
           }
         })
       } else {
-        alert('请选择时间或设备树的节点')
+        alert('请选择设备树的节点')
       }
       
     }
@@ -987,64 +998,63 @@
     	var id = ''
     	var bgtime = ''
     	var endtime = ''
+    	var name = ''
+    	
+    	function plusMin(time) {
+    		var bgs = time.split(':')
+			var min = bgs[0].split(' ')
+			var Submin = Number(min[1]) + 1
+			min[1] = Submin
+			bgs = min.join(' ')
+			var updateTime = time.split(':')
+			updateTime[0] = bgs
+			updateTime[1] = '00'
+			return updateTime.join(':')
+    	}
+    	function plus(time, min) {
+    		var sub = time.split(':')
+    		sub[1] = min
+    		return sub.join(':')
+    	}
+    	
     	return {
-    		setTime: function(timeObj) {
-    			bgtime = timeObj.bgtime
-    			endtime = timeObj.endtime
-    		},
-    		// 临时做的兼容...
-    		configureTime: function() {
-    			var bg = Number(bgtime.split(':')[1])
-    			var end = Number(endtime.split(':')[1])
-    			if(bg == 59) {
-    				// 将前面的时间进行一个59分到00分的过渡
-    				var bgs = bgtime.split(':')
-    				var min = bgs[0].split(' ')
-    				var Smin = Number(min[1]) + 1
-    				min[1] = Smin
-    				bgs = min.join(' ')
-    				var b = bgtime.split(':')
-    				b[0] = bgs
-    				b[1] = '00'
-    				bgtime = b.join(':')
-    				// 后面的时间正常+1
-    				var e = endtime.split(':')
-    				end += 1
-    				e[1] = end
-    				endtime = e.join(':')
-    			} else if(end == 59) {
-    				// 将后面的时间进行一个59分到00分的过渡
-    				var ends = endtime.split(':')
-    				var min = ends[0].split(' ')
-    				var Smin = Number(min[1]) + 1
-    				min[1] = Smin
-    				ends = min.join(' ')
-    				var e = endtime.split(':')
-    				e[0] = ends
-    				e[1] = '00'
-    				endtime = e.join(':')
-    				// 前面的时间正常+1
-    				var b = bgtime.split(':')
-    				bg += 1
-    				b[1] = bg
-    				bgtime = b.join(':')
-    			} else {
-    				bg += 1
-    				end += 1
-    				var b = bgtime.split(':')
-    				b[1] = bg
-    				bgtime = b.join(':')
-    				var e = endtime.split(':')
-    				e[1] = end
-    				endtime = e.join(':')	
-    			}
-    		},
-    		setId: function(tag) {
-    			id = tag
+    		setData: function(option) {
+    			bgtime = option.bgtime
+    			endtime = option.endtime
+    			id = option.id
+    			name = option.name
     		},
     		getId: function() {
     			if(id) {
     				return id	
+    			}
+    		},
+    		getName: function() {
+    			if(name) {
+    				return name
+    			}
+    		},
+    		// 临时做的兼容...
+    		configureTime: function(begin, end) {
+    			var bg = Number(bgtime.split(':')[1])
+    			var end = Number(endtime.split(':')[1])
+    			if(bg == 59) {
+    				// 将前面的时间进行一个59分到00分的过渡
+    				bgtime = plusMin(bgtime)
+    				// 后面的时间正常+1
+    				endtime = plus(endtime, ++end)
+    			} else if(end == 59) {
+    				// 将后面的时间进行一个59分到00分的过渡
+    				endtime = plusMin(endtime)
+    				// 前面的时间正常+1
+    				bgtime = plus(bgtime, ++bg)
+    			} else {
+    				bgtime = plus(bgtime, ++bg)
+    				endtime = plus(endtime, ++end)
+    			}
+    			if(begin && end) {
+    				$(begin).val(bgtime)
+    				$(end).val(endtime)
     			}
     		},
     		getEle: function() {
@@ -1078,9 +1088,8 @@
     		},
     		startTem: function() {
     			temTimer = setInterval(function(){
-    				timeModel.configureTime()
-    				// chartManager.initail_datetimepicker()
-    				chartManager.handleClickSearch(chartManager.get('tem'), 't_data_list', id, bgtime, endtime);
+    				timeModel.configureTime($('#begin_search_date'), $('#end_search_date'))
+    				chartManager.handleClickSearch(chartManager.get('tem'), 't_data_list', name, id);
     			}, interval);
     		}
     	};

@@ -1,0 +1,370 @@
+<div id="data_monitor_panel">
+  <div class="form-inline">
+    <div class="form-group span3">
+      <label class="span3" style="line-height: 2em">组别:</label>
+      <select class="groups span9"></select>
+    </div>
+    <div class="form-group span3">
+      <label class="span3" style="line-height: 2em">公司:</label>
+      <select class='companys span9'></select>
+    </div>
+    <div></div>
+    <div class="form-group span5">
+        <a href="#edit_dataMonitor_modal" class="btn btn-primary" id="add_dataMonitor_btn" data-toggle="modal" data-backdrop="static">添加设备</a>
+<!--         <a href="/dongjun/downloadEmptytemExcel" class="btn btn-primary" id="export_model_btn" data-backdrop="static">导出模板</a>
+        <a href="#upload_modal" class="btn btn-primary" id="add_switch_btn" data-toggle="modal" data-backdrop="static">批量导入</a>
+        <a href="/dongjun/downloadtemExcel" class="btn btn-primary" id="export_switch_btn" data-backdrop="static">导出excel</a> -->
+    </div>
+  </div>
+
+  <table id="switch_list" class="table table-bordered table-striped table-hover table-condensed success">
+    <thead>
+      <td>名称</td>
+      <td>地址</td>
+      <td>温度模块</td>
+      <td>电能表模块</td>
+      <td>修改</td>
+      <td>删除</td>
+    </thead>
+  </table>
+</div>
+
+<div id="temperature_module_panel" class="hide">
+  数据加载中。。。
+</div>
+
+<div id="power_module_panel" class="hide">
+  数据加载中。。。
+</div>
+
+
+<script>
+  var Popup = function() {
+    var c = null
+    return {
+      Confirm: function(data) {
+        if(!c) {
+          c = new Confirm(data)
+          return c
+        } else {
+          return c.reset(data).show()
+        }
+      }
+    }
+  }()
+
+  var Confirm = function(data) {
+    this.title = data.title
+    this.text = data.text
+    this.confirm = data.confirm
+    this.fail = data.fail
+    this.panel = document.createElement('div')
+    this.titleNode = document.createElement('h3')
+    this.textNode = document.createElement('p')
+    this.closeBtn = document.createElement('button')
+    this.cancelBtn = document.createElement('button')
+    this.cancelText = data.cancelText || '取消'
+    this.confirmBtn = document.createElement('button')
+    this.confirmText = data.confirmText || '确认'
+    this.init()
+  }
+
+  Confirm.prototype.init = function() {
+    this.panel.className = 'modal hide fade'
+    this.panel.setAttribute('tabindex', '-1')
+    this.panel.setAttribute('role', 'dialog')
+    this.panel.setAttribute('aria-labelledby', 'myModalLabel')
+    this.panel.setAttribute('aria-hidden', 'true')
+    // header
+    var header = document.createElement('div')
+    header.className = 'modal-header'
+    this.closeBtn.className = 'close'
+    this.closeBtn.dataset.dismiss = 'modal'
+    this.closeBtn.setAttribute('aria-hidden', 'true')
+    this.closeBtn.innerHTML = '×'
+    header.appendChild(this.closeBtn)
+    this.titleNode.innerHTML = this.title
+    header.appendChild(this.titleNode)
+    this.panel.appendChild(header)
+
+    // body
+    var body = document.createElement('div')
+    body.className = 'modal-body'
+    this.textNode.innerHTML = this.text
+    body.appendChild(this.textNode)
+    this.panel.appendChild(body)
+
+    // footer
+    var footer = document.createElement('div')
+    footer.className = 'modal-footer'
+    this.cancelBtn.innerHTML = this.cancelText
+    this.cancelBtn.className = 'btn'
+    this.cancelBtn.dataset.dismiss = 'modal'
+    this.cancelBtn.setAttribute('aria-hidden', 'true')
+    footer.appendChild(this.cancelBtn)
+    this.confirmBtn.innerHTML = this.confirmText
+    this.confirmBtn.className = 'btn btn-danger'
+    this.confirmBtn.dataset.dismiss = 'modal'
+    this.confirmBtn.setAttribute('aria-hidden', 'true')
+    footer.appendChild(this.confirmBtn)
+    this.panel.appendChild(footer)
+
+    document.body.appendChild(this.panel)
+    this.bindEvent()
+    this.show()
+  }
+
+  Confirm.prototype.bindEvent = function() {
+    this.closeBtn.onclick = this.fail
+    this.cancelBtn.onclick = this.fail
+    this.confirmBtn.onclick = this.confirm
+  }
+
+  Confirm.prototype.reset = function(data) {
+    this.title = data.title
+    this.text = data.text
+    this.confirm = data.confirm
+    this.fail = data.fail
+    this.cancelText = data.cancelText || '取消'
+    this.confirmText = data.confirmText || '确认'
+    this.titleNode.innerHTML = this.title
+    this.textNode.innerHTML = this.text
+    this.cancelBtn.innerHTML = this.cancelText
+    this.confirmBtn.innerHTML = this.confirmText
+    this.bindEvent()
+    return this
+  }
+
+  Confirm.prototype.show = function(data) {
+    $(this.panel).modal('show')
+    return this
+  }
+
+  Confirm.prototype.hide = function(data) {
+    $(this.panel).modal('hide')
+    return this
+  }
+
+  var panelObserver = function() {
+    var __message = {}
+    return {
+      regist: function(type, fnc) {
+        if(!__message[type]) {
+          __message[type] = [fnc]
+        } else {
+          __message[type].push(fnc)
+        }
+      },
+      fire: function(type, agrs) {
+        if(!__message[type]) {
+          console.warn('没有事件 '+ type)
+          return
+        }
+        __message[type].forEach(function(fnc) {
+          fnc(agrs, type)
+        })
+      }
+    }
+  }()
+
+  var managerTable = function() {
+    var table = null;
+    var defUrl = '/dongjun/data_monitor/list';
+    return {
+      getTable: function(){
+        return table;
+      },
+      init: function(o) {
+        var _self = this;
+        table = $('#switch_list').DataTable({
+          'ajax': {
+            'url': defUrl,
+            'type': 'POST',
+            'dataSrc': 'text',
+            'data': o.data
+          },
+          'columns': [
+            { 'data': 'name' },
+            { 'data': 'address' },
+            {
+              'data': 'id',
+              'render': function(data, type, row) {
+                return '<a role="button" class="btn" data-fnc="goToTemModule" data-name="'+ row.name +'"  data-id="'+ data +'">查看</a>'
+              }
+            },
+            {
+              'data': 'id',
+              'render': function(data, type, row) {
+                return '<a role="button" class="btn" data-fnc="goToPowerModule" data-name="'+ row.name +'"  data-id="'+ data +'">查看</a>'
+              }
+            },
+            {
+              data: 'id',
+              width: '50px',
+              orderable: false,
+              render: function(data, type, row) {
+                return '<a href="#edit_dataMonitor_modal" role="button" class="btn" data-toggle="modal" data-fnc="edit"  data-id="'+data+'">修改</a>'
+              }
+            },
+            {
+              data: 'id',
+              orderable: false,
+              width: '50px',
+              render: function(data) {
+                return '<a role="button" class="btn btn-danger" data-toggle="modal" data-fnc="del" data-id="'+data+'">删除</a>'
+              }
+            },
+          ],
+          'language': {
+            'paginate': {
+              'next': '下一页',
+              'previous': '上一页'
+            },
+            'emptyTable': '找不到相关数据',
+            'zeroRecords': '找不到相关数据',
+            'loadingRecords': '正在加载数据...'
+          },
+          'initComplete': function() {
+
+            $(this[0]).click(function(event) {
+              var target = $(event.target)
+              var fnc = target.data('fnc')
+              switch(fnc) {
+                // 切换至温度子模块
+                case 'goToTemModule':
+                  panelCtrl.show('temModule', function() {
+                    // 触发显示温度子模块
+                    panelObserver.fire('showTemModule', {
+                      id: target.data('id'),
+                      name: target.data('name')
+                    })
+                  })
+                  return
+                // 删除功能
+                case 'del':
+                  modal.delDataMonitor(target.data('id'))
+                  return
+                // 编辑功能
+                case 'edit':
+                  var id = target.data('id')
+                  var data = Array.prototype.find.call(table.data(), function(item) {
+                    return item.id == id
+                  })
+                  modal.editDataMonitor(data)
+                  return
+              }
+            })
+
+            // 添加数据监控
+            $('#add_dataMonitor_btn').on('click', modal.addDataMonitor)
+          }
+        })
+      },
+      redraw: function(id) {
+        if(id == -1){
+          console.log('clear')
+          table.clear().draw()
+          return
+        }
+
+        // post
+        table.ajax.url(defUrl)
+        var param = {
+          platformGroupId: id
+        };
+        table.settings()[0].ajax.data = param
+        table.ajax.reload()
+      }
+    }
+  }()
+
+  // 切换表格
+  var panelCtrl = function(){
+    var hasLoad = ['dataMonitor']
+    var template = {
+      temModule: ['temperature_module.html']
+    }
+    var panel = {
+      dataMonitor: $('#data_monitor_panel'),
+      temModule: $('#temperature_module_panel'),
+      powerModule: $('#power_module_panel')
+    }
+    var currentPanel = {
+      dom: panel.dataMonitor,
+      name: 'dataMonitor'
+    }
+    return {
+      now: function() {
+        return currentPanel
+      },
+      hasLoad: function() {
+        return hasLoad
+      },
+      show: function(panelName, fnc) {
+        if(panelName == currentPanel.name) {
+          return
+        }
+        panel[panelName].show(300)
+        currentPanel.dom.hide(300)
+
+        this.__updateCurrent(panelName)
+        if(hasLoad.indexOf(panelName) == -1) {
+          this.__loadTpl(panelName, fnc)
+        } else {
+          if(fnc) {
+            fnc()
+          }
+        }
+      },
+      __loadTpl: function(tplName, fnc) {
+        var me = this
+        dj.inserCmp(template[tplName], panel[tplName][0], function() {
+          hasLoad.push(tplName)
+          if(fnc) {
+            fnc()
+          }
+        })
+      },
+      __updateCurrent: function(panelName) {
+        currentPanel.dom = panel[panelName]
+        currentPanel.name = panelName
+      }
+    }
+  }()
+
+  // 注册返回数据监控面板
+  panelObserver.regist('backToDataMonitor', function() {
+    panelCtrl.show('dataMonitor')
+  })
+
+  modal.setOption({
+    url: {
+      add: '/dongjun/data_monitor/edit',
+      edit: '/dongjun/data_monitor/edit',
+      del: '/dongjun/data_monitor/del',
+      upload: '/dongjun/uploadtemDeviceExcel'
+    },
+    completeFnc: managerTable.redraw
+  })
+
+  selectManager.setOption({
+    url: {
+      'group': '/dongjun/group/gruop_list',
+      'company': '/dongjun/platform_group/platform_group_list_by_group_id'
+    },
+    node: {
+      'group': '.groups',
+      'company': '.companys'
+    },
+    completeFnc: managerTable.redraw
+  })
+
+  selectManager.loadGroups()
+  selectManager.autoListen()
+
+  managerTable.init({
+    data: {
+      platformGroupId: selectManager.getCompany()
+    }
+  })
+</script>
