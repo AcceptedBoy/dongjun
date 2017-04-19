@@ -2,13 +2,8 @@
 </div>
 <table id="equipment_event_list" class="table table-bordered table-striped table-hover table-condensed success" width="100%">
   <thead>
-    <td>设备名称</td>
-    <td>传感器编号</td>
-    <td>报警时间</td>
     <td>报警原因</td>
-    <td>报警值</td>
-    <td>上限</td>
-    <td>下限</td>
+    <td>报警时间</td>
   </thead>
 </table>
 
@@ -34,27 +29,11 @@
             },
             'columns': [
               {
-                'data': 'name'
-              },
-              {
-                'data': 'tag'
-              },
-              {
-                'data': 'hitchTime',
-                'render': _self.renderTime
-              },
-              {
                 'data': 'hitchReason'
               },
               {
-                'data': 'value'
-              },
-              {
-                'data': 'maxHitchValue'
-              },
-              {
-                'data': 'minHitchValue'
-              },
+                'data': 'hitchTime'
+              }
             ],
             'language': {
               'paginate': {
