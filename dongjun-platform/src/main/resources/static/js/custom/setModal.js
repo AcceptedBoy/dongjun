@@ -1,3 +1,39 @@
+/**
+ * usage:
+ *
+ * var modal = $.modal({
+ *  id: 'addModal',
+ *  dom: '#app',
+ *  title: '哈哈',
+ *  formId: 'form',
+ *  bodyArr: [{
+ *   inputId: '123',
+ *   inputType: 'text',
+ *   inputName: '123',
+ *   label: '我去',
+ *   reg: function(val) {   val是表单内容的值，return true表示通过，return false表示不通过
+ *    console.log(val)
+ *    return true
+ *   }
+ * }, {
+ *   inputId: '2323',
+ *   inputType: 'textarea',
+ *   inputName: '2323',
+ *   label: '我去',
+ *   reg: function(val) {
+ *     console.log(val)
+ *     return true
+ *   }
+ * }],
+ * completeFn: function(e) {
+ *   console.log(this)
+ *   console.log(e)
+ * },
+ * completeText: '添加',
+ * completeId: 'comfirm'
+ * })
+ */
+
 (function() {
   function Modal(option) {
     if(this instanceof Modal) {
