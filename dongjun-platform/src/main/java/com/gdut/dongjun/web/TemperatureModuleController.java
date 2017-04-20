@@ -6,9 +6,11 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.gdut.dongjun.HitchConst;
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.DataMonitorSubmodule;
 import com.gdut.dongjun.domain.po.TemperatureModule;
@@ -47,11 +49,21 @@ public class TemperatureModuleController {
 	 */
 	@ResponseBody
 	@RequestMapping("/edit")
-	public ResponseMessage edit(TemperatureModule module) {
+	@Transactional
+	public ResponseMessage edit(TemperatureModule module, String monitorId) {
 		if (null == module.getId() || "".equals(module.getId())) {
 			module.setId(UUIDUtil.getUUID());
 		}
 		if (0 == moduleService.updateByPrimaryKey(module)) {
+			return ResponseMessage.warning("操作失败");
+		}
+		DataMonitorSubmodule submodule = new DataMonitorSubmodule();
+		submodule.setId(UUIDUtil.getUUID());
+		submodule.setAvailable(1);
+		submodule.setDataMonitorId(monitorId);
+		submodule.setModuleId(module.getId());
+		submodule.setModuleType(HitchConst.MODULE_TEMPERATURE);
+		if (0 == submoduleService.updateByPrimaryKey(submodule)) {
 			return ResponseMessage.warning("操作失败");
 		}
 		return ResponseMessage.success("操作成功");
@@ -74,7 +86,7 @@ public class TemperatureModuleController {
 	@ResponseBody
 	@RequestMapping("/list")
 	public ResponseMessage list(String monitorId) {
-		List<DataMonitorSubmodule> subList = submoduleService.selectByParameters(MyBatisMapUtil.warp("monitor_id", monitorId));
+		List<DataMonitorSubmodule> subList = submoduleService.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
 		String id = null;
 		for (DataMonitorSubmodule sub : subList) {
 			if (sub.getModuleType() == 3) {
