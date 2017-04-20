@@ -1,21 +1,30 @@
 package com.gdut.dongjun.core;
 
 import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.gdut.dongjun.core.handler.thread.DeviceOnlineTask;
 import com.gdut.dongjun.domain.po.TemperatureModule;
 import com.gdut.dongjun.service.TemperatureModuleService;
 
 /**
- * 存储ctx，存储温度传感器报警阈值，存储GPRS
+ * 存储ctx，存储温度传感器报警阈值
  * @author Gordan_Deng
  * @date 2017年3月3日
  */
 @Component
 public class TemperatureCtxStore extends GPRSCtxStore {
+	
+	//TODO
+	//保存在线的温度设备的地址
+	private static final List<String> deviceList = new CopyOnWriteArrayList<String>();
+	private static final HashMap<String, DeviceOnlineTask> taskMap = 
+			new HashMap<String, DeviceOnlineTask>();
 	
 	/**
 	 * spring是根据set方法来注入的，对于static类变量，只能通过set方法来实现注入

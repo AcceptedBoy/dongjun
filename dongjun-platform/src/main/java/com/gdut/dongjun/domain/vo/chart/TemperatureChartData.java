@@ -73,8 +73,9 @@ public class TemperatureChartData extends ChartData {
 			
 			if (!j.hasNext()) {
 				flag = 0;
+			} else {
+				j_time = ((TemperatureMeasure)j.next()).getDate();
 			}
-			j_time = ((TemperatureMeasure)j.next()).getDate();
 			int count = 0;
 			for (; ;) {
 				if (i.hasNext()) {
