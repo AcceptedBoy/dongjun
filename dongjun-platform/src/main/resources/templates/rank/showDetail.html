@@ -356,7 +356,7 @@
 					$('.detailEmpolyee').css('display', 'inline-block')
 					$('.arrow').css('display', 'inline-block')
 					$('.detailGuest').css('display', 'inline-block')
-					$('.companyContainer').append('<button data-toggle="modal" data-backdrop="static" data-target="#edit_company_modal" class="edit_btn btn" onclick="companyModal.setVal()">edit</button>')
+					$('.companyContainer').append('<button data-toggle="modal" data-backdrop="static" data-target="#edit_company_modal" class="edit_btn btn" onclick="companyModal.setVal()">修改</button>')
 					$('.detail').append('<div class="changeBtn btn" onclick="rank.changeWindow()">切换</div>')
 					$('.detail').append('<div data-toggle="modal" data-backdrop="static" data-target="#add_modal" class="addBtn btn" onclick="addModal.renderTb()">增加设备</div>')
 					$('.addBtn').css('display', 'inline-block')
@@ -377,9 +377,9 @@
 			changeWindow: function() {
 				var hide = $('.detailEmpolyee').css('display')
 				if(hide == 'inline-block') {
-					$('.detailEmpolyee').hide(100)
+					$('.detailEmpolyee').hide(250)
 					$('.arrow').hide()
-					$('.detailGuest').hide(100)
+					$('.detailGuest').hide(250)
 					$('.normalInfor').css('display', 'block')
 				} else {
 					$('.detailEmpolyee').css('display', 'inline-block')

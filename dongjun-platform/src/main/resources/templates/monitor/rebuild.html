@@ -112,7 +112,7 @@
       this._tablename = tablename
       this._isActive = isActive
     }
-    
+
     Chart.prototype.clearChart = function() {
     	if(this.chart) {
     		this.chart.setOption({
@@ -219,7 +219,7 @@
           success: function(res) {
             chartView.hideLoading(that.chart);
             if(res) {
-              chartView.showTitle(res, name)  
+              chartView.showTitle(res, name)
               chartView.moveLegend(res)
               that.chart.setOption(res, true)
               that.showTable()
@@ -335,19 +335,19 @@
           op.title = {
               text: text,
               x: 'center',
-              backgroundColor: '#b2cde5',
-              borderColor: '#2b7ec6',
-              borderWidth: 4,
+              backgroundColor: 'white',
+              // borderColor: '#2b7ec6',
+              // borderWidth: 4,
               padding: 13,
               textStyle: {
-                color: '#2b7ec6',
-                fontSize: 25
+                color: 'black',
+                fontSize: 23
               }
             }
         },
       };
     }();
-    
+
     var chartController = function() {
       return {
         /**
@@ -409,7 +409,7 @@
 	    var bgtime = ''
 	    var endtime = ''
 	    var name = ''
-    	
+
 	    return {
     		setData: function(option) {
     			bgtime = option.bgtime
@@ -419,7 +419,7 @@
     		},
     		getId: function() {
     			if(id) {
-    				return id	
+    				return id
     			}
     		},
     		getName: function() {
@@ -434,7 +434,7 @@
    * @return {[type]} [瞎分的...]
    */
     var chartManager = function() {
-      
+
       var temperature = new TemChart('temperature', 't_data_list', true)
       var voltageChart = new EleChart('VoltageChart', 'v_data_list', false)
       var currentChart = new EleChart('current', 'c_data_list', false)
@@ -540,7 +540,7 @@
             $('#begin_search_date').val(year + '-' + lastMonth + '-' + yesterday + ' ' + lastHour + ':' + minute);
             $('#end_search_date').val(year + '-' + month + '-' + today + ' ' + hour + ':' + minute);
           }
-          
+
           timer = null;
         },
       newHandleClick: function(event, treeId, treeNode) {
@@ -551,17 +551,17 @@
         }
       }
     // TODO
-    
+
       };
     }();
-    
+
     var timeModel = function() {
     	var elecFlag = 0;
     	var temFlag = 0;
     	var elecTimer = null;
     	var temTimer = null;
     	var interval = 60000;
-    	
+
     	function plusMin(time) {
     		var bgs = time.split(':')
 			var min = bgs[0].split(' ')
@@ -578,7 +578,7 @@
     		sub[1] = min
     		return sub.join(':')
     	}
-    	
+
     	return {
     		// 临时做的兼容...
     		configureTime: function(begin, end, bgtime, endtime) {
