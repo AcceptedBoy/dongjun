@@ -58,4 +58,8 @@ public abstract class ScheduledTask implements Runnable {
 		this.isAvailable = isAvailable;
 	}
 	
+	public void cancel() {
+		this.isAvailable = false;
+	}
+	
 }

@@ -67,7 +67,7 @@ public abstract class HitchEventThread implements Runnable {
 	public HitchEventVO wrapHitchEventVO(AbstractHitchEvent event) {
 		HitchEventVO vo = new HitchEventVO();
 		vo.setId(event.getId());
-		vo.setSwitchId(event.getSwitchId());
+		vo.setMonitorId(event.getSwitchId());
 		vo.setGroupId(event.getGroupId());
 		vo.setType(event.getType());
 		vo.setGroupId(event.getGroupId());

@@ -2,6 +2,11 @@ package com.gdut.dongjun.domain.vo;
 
 import java.io.Serializable;
 
+/**
+ * 通过cxf回调平台版的推送方法，此vo类用于前端推送报警信息
+ * @author Gordan_Deng
+ * @date 2017年4月20日
+ */
 public class HitchEventVO implements Serializable {
 	
 	private static final long serialVersionUID = 7492353823737332433L;
@@ -10,7 +15,7 @@ public class HitchEventVO implements Serializable {
 	
 	private Integer type;
 	
-	private String switchId;
+	private String monitorId;
 	
 	private String groupId;
 
@@ -38,12 +43,12 @@ public class HitchEventVO implements Serializable {
 		this.groupId = groupId;
 	}
 
-	public String getSwitchId() {
-		return switchId;
+	public String getMonitorId() {
+		return monitorId;
 	}
 
-	public void setSwitchId(String switchId) {
-		this.switchId = switchId;
+	public void setMonitorId(String monitorId) {
+		this.monitorId = monitorId;
 	}
 
 	public static long getSerialversionuid() {

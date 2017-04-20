@@ -7,12 +7,12 @@ public class HitchEventVO implements Serializable {
 	private static final long serialVersionUID = 2069917454567540315L;
 	
 	private String id;
-	
+	//后面再加个const类吧 TODO
 	private Integer type;
 	
 	private String groupId;
 	
-	private String switchId;
+	private String monitorId;
 
 	public String getId() {
 		return id;
@@ -42,12 +42,12 @@ public class HitchEventVO implements Serializable {
 		return serialVersionUID;
 	}
 
-	public String getSwitchId() {
-		return switchId;
+	public String getMonitorId() {
+		return monitorId;
 	}
 
-	public void setSwitchId(String switchId) {
-		this.switchId = switchId;
+	public void setMonitorId(String monitorId) {
+		this.monitorId = monitorId;
 	}
 
 	@Override

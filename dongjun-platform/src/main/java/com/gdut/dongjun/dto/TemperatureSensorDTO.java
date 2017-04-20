@@ -4,6 +4,7 @@ import com.gdut.dongjun.domain.po.TemperatureSensor;
 
 public class TemperatureSensorDTO {
 	
+	private static final String NO_TYPE = "无类型";
 	private static final String IN_A = "进线A相";
 	private static final String IN_B = "进线B相";
 	private static final String IN_C = "进线C相";
@@ -31,6 +32,7 @@ public class TemperatureSensorDTO {
 		dto.setTag(sensor.getTag());
 		dto.setDeviceId(sensor.getDeviceId());
 		switch (sensor.getType()) {
+		case 0 : dto.setTypeName(NO_TYPE); break;
 		case 1 : dto.setTypeName(IN_A); break;
 		case 2 : dto.setTypeName(IN_B); break;
 		case 3 : dto.setTypeName(IN_C); break;

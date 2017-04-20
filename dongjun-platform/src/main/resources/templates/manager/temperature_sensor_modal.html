@@ -1,80 +1,37 @@
-<!-- Add_Switch_Modal -->
-<div id="add_sensor_modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div id="edit_TemSensor_modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal"
-            aria-hidden="true" onclick="sensorModal.clearSensor()">×</button>
-    <h3>添加传感器</h3>
-  </div>
-  <div class="modal-body">
-    <div id="add_sensor_form" class="form-horizontal">
-      <div class="control-group">
-        <label class="control-label" for="inputSensorTag">传感器编号</label>
-        <div class="controls">
-          <input type="number" id="inputSensorTag" name="sensorTag" max="16" min="1" placeholder="1~16" />
-        </div>
-      </div>
-      <div class="control-group">
-        <label class="control-label" for="inputSensorName">传感器名称</label>
-        <div class="controls">
-          <input type="text" id="inputSensorName" name="sensorName" />
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn" data-dismiss="modal" aria-hidden="true" onclick="sensorModal.clearSensor()">取消</button>
-        <button id="add_switch_confirm_btn" class="btn btn-primary"
-                aria-hidden="true" onclick="sensorModal.save(true)">添加</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Edit_Switch_Modal -->
-<div id="edit_sensor_modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal"
+    <button type="button" class="close"
+            data-dismiss="modal"
             aria-hidden="true">×</button>
     <h3>编辑传感器</h3>
   </div>
   <div class="modal-body">
-    <div id="edit_sensor_form" class="form-horizontal">
-        <!-- action="edit_switch" -->
+    <div class="form-horizontal">
       <div class="control-group">
-        <label class="control-label" for="editSensorTag">传感器编号</label>
+        <label class="control-label" for="editTemSensorType">传感器类型</label>
         <div class="controls">
-          <input type="text" id="editSensorTag" name="sensorTag"/>
+          <input type="text" id="editTemSensorType" name="typeText" readonly />
         </div>
       </div>
       <div class="control-group">
-        <label class="control-label" for="editSensorName">传感器名称</label>
+        <label class="control-label" for="editTemSensorTag">传感器编号</label>
         <div class="controls">
-          <input type="text" id="editSensorName" name="sensorName" />
+          <input type="text" id="editTemSensorTag" name="tag"/>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="editTemSensorName">传感器名称</label>
+        <div class="controls">
+          <input type="text" id="editTemSensorName" name="name" />
         </div>
       </div>
       <div class="modal-footer">
         <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
         <button id="edit_switch_confirm_btn" class="btn btn-primary"
                 aria-hidden="true" onclick="sensorModal.save(false)">确定</button>
-        <!--  btn-primary -->
       </div>
     </div>
 
-  </div>
-</div>
-
-<!--delete Modal -->
-<div id="del_sensor_modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal"
-            aria-hidden="true">×</button>
-    <h3 id="myModalLabel">警告</h3>
-  </div>
-  <div class="modal-body">
-    <p>您确定要删除这个传感器吗？请慎重考虑</p>
-  </div>
-  <div class="modal-footer">
-    <button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
-    <a id="del_confirm_btn" class="btn btn-danger" data-dismiss="modal"
-       aria-hidden="true" onclick="sensorModal.sureDel()">删除</a>
   </div>
 </div>
 
@@ -84,7 +41,14 @@
     var completeFnc = null;
     var now = {
       deviceId: '',   // 温度设备id
-      sensorId: ''    // 传感器id
+      sensorId: '',    // 传感器id
+      sensorType: -1
+    }
+    var status = {
+      isAdd: true
+    }
+    var panel = {
+      edit: $('#edit_TemSensor_modal')
     }
     return {
       /**
@@ -99,55 +63,68 @@
           del: o.url.del,
         }
       },
-      /**
-       * 设置当前传感器所属温度设备的id
-       * @param {[type]} deviceId [description]
-       */
-      setDeviceId: function(deviceId) {
-        now.deviceId = deviceId
+      setNow: function(key, value) {
+        now[key] = value
+        return this
       },
-      /**
-       * 设置当前传感器的id
-       * @param {[type]} sensorId [description]
-       */
-      setSensorId: function(sensorId) {
-        now.sensorId = sensorId
+      addSensor: function(data) {
+        status.isAdd = true
+        this.setNow('deviceId', data.deviceId)
+            .setNow('sensorType', data.type)
+        var inputs = panel.edit.find('input')
+        console.log(data)
+        Array.prototype.forEach.call(inputs, function(item) {
+          item.value = data[item.name] || ''
+        })
+        panel.edit.modal('show')
       },
-
       /**
        * 清空表单内容
        * @return {[type]} [description]
        */
-      clearSensor: function() {
-        var inputs = $('#add_sensor_modal').find('input')
+      clearForm: function() {
+        var inputs = panel.edit.find('input')
         for (var i = inputs.length - 1; i >= 0; i--) {
           var input = inputs[i]
           input.value = ''
         }
       },
-
+      /**
+       * 修改设备信息，填充表单内容
+       * @param  {[type]} data 设备的相关数据
+       * @return {[type]}      [description]
+       */
+      editSensor: function(data) {
+        status.isAdd = false
+        this.setNow('sensorId', data.id)
+            .setNow('deviceId', data.deviceId)
+            .setNow('sensorType', data.type)
+        var inputs = panel.edit.find('input')
+        Array.prototype.forEach.call(inputs, function(item) {
+          item.value = data[item.name]
+        })
+        panel.edit.modal('show')
+      },
       /**
        * 保存修改
        * @param  {Boolean} isAdd 是否是添加设备
        * @return {[type]}        [description]
        */
       save: function(isAdd) {
-        var curModal = isAdd ? $('#add_sensor_modal') : $('#edit_sensor_modal')
+        var curModal = panel.edit
         var inputs = curModal.find('input')
         var data = {}
 
         // 依次检查input是否为空，并放入data中
         for (var i = inputs.length - 1; i >= 0; i--) {
           var input = inputs[i]
+          if(input.name == 'typeText') continue
           if(!$.trim(input.value)) {
             input.focus()
             alert('您还有选项暂未填写')
             return
           }
-          var dataName = (input.name).replace(/^sensor(\w)/, function(match, $1) {
-            return $1.toLowerCase()
-          })
-          data[dataName] = input.value
+          data[input.name] = input.value
         }
 
         // check tag
@@ -162,55 +139,46 @@
           'name' : data.name,
           'tag' : tag,
           'deviceId' : now.deviceId,
+          'type': now.sensorType
         }
 
         // 如果不是增加设备，则需要添加当前设备的id作为参数
-        if(!isAdd) {
+        if(!status.isAdd) {
           params['id'] = now.sensorId
         }
 
         $.ajax({
           type : 'POST',
-          url : isAdd ? urls.add : urls.edit,
+          url : status.isAdd ? urls.add : urls.edit,
           async : false,
           data : params,
           success : function(data) {
             if(data.success) {
-              completeFnc(now.deviceId)
+              completeFnc()
               alert('操作成功')
-              curModal.find('.close').click()
+              curModal.modal('hide')
             } else {
               alert('失败 ')
             }
           }
         })
       },
-
-      /**
-       * 修改设备信息，填充表单内容
-       * @param  {[type]} data 设备的相关数据
-       * @return {[type]}      [description]
-       */
-      editSensor: function(data) {
-        this.setSensorId(data.id)
-        var inputs = $('#edit_sensor_modal').find('input')
-        var name
-        Array.prototype.forEach.call(inputs, function(item) {
-          name = item.name.replace(/^sensor(\w)/, function(match, $1) {
-            return $1.toLowerCase()
-          })
-          console.log(name)
-          item.value = data[name]
-        })
-      },
-
       /**
        * 删除设备，设置当前id
        * @param  {[type]} sensorId [description]
        * @return {[type]}          [description]
        */
-      delSensor: function(sensorId) {
-        this.setSensorId(sensorId)
+      delSensor: function(data) {
+        this.setNow('sensorId', data.id)
+            .setNow('deviceId', data.deviceId)
+            .setNow('sensorType', data.type)
+        var delModal = Popup.Confirm({
+          title: '警告',
+          text: '您确定要删除吗？请慎重考虑',
+          cancelText: '关闭',
+          confirmText: '删除',
+          confirm: this.sureDel.bind(this)
+        })
       },
 
       /**
@@ -226,7 +194,7 @@
           },
           success: function(data) {
             if(data.success) {
-              completeFnc(now.deviceId)
+              completeFnc()
             } else {
               alert('操作失败')
             }

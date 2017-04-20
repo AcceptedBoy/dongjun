@@ -6,8 +6,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
-import com.gdut.dongjun.domain.po.DataMonitor;
+import com.gdut.dongjun.domain.po.ModuleHitchEvent;
 
 /**
  * 根据po类自动生成对应的dao接口和实现类，service接口和实现类 
@@ -58,8 +57,8 @@ public class CodeCreator {
 	private static final String REPOSITORY_IMPORT = "import org.springframework.stereotype.Repository;";
 	private static final String BASE_DAO_IMPLEMENT_IMPORT = "import com.gdut.dongjun.domain.dao.base.impl.SinglePrimaryKeyBaseDAOImpl;";
 	private static final String IMPORT = "import";
-	private static final String BASE_SERVICE_INTERFACE_IMPORT = "import com.gdut.dongjun.service.base.BaseService;";
-	private static final String BASE_SERVICE_IMPLEMENT_IMPORT = "import com.gdut.dongjun.service.base.impl.BaseServiceImpl;";
+	private static final String BASE_SERVICE_INTERFACE_IMPORT = "import com.gdut.dongjun.service.base.EnhancedService;";
+	private static final String BASE_SERVICE_IMPLEMENT_IMPORT = "import com.gdut.dongjun.service.base.impl.EnhancedServiceImpl;";
 	private static final String SERVICE_IMPORT = "import org.springframework.stereotype.Service;";
 	
 	/**
@@ -124,7 +123,7 @@ public class CodeCreator {
 				+ BASE_SERVICE_INTERFACE_IMPORT + RT_1	//BaseService
 				+ PO_IMPORT + getLastChar(cName) + ";" + RT_2		//po类
 				+ "public interface " + getLastChar(cName)
-				+ "Service extends " + "BaseService" + "<" + getLastChar(cName) + "> {" + RT_2 + "}");
+				+ "Service extends " + "EnhancedService" + "<" + getLastChar(cName) + "> {" + RT_2 + "}");
 		fw.flush();
 		fw.close();
 		showInfo(fileName);
@@ -149,7 +148,7 @@ public class CodeCreator {
 				+ PO_IMPORT + getLastChar(cName) + ";" + RT_2		//po类
 				+ "@Service" + RT_1
 				+ "public class " + getLastChar(cName) + "ServiceImpl extends " 
-				+ "BaseServiceImpl" + "<" + getLastChar(cName) + "> implements " + getLastChar(cName) + "Service {" + RT_1 + " }"); 
+				+ "EnhancedServiceImpl" + "<" + getLastChar(cName) + "> implements " + getLastChar(cName) + "Service {" + RT_1 + " }"); 
 //				+ RT_2 + BLANK_4 + "private " + DAO_URL + "."
 //				+ getLastChar(cName) + "Dao " + getLowercaseChar(getLastChar(cName)) + "Dao;" + RT_2 + BLANK_4
 //				+ "public void set" + getLastChar(cName) + "Dao(" + DAO_URL + "." + getLastChar(cName) + "Dao "
@@ -214,16 +213,16 @@ public class CodeCreator {
 		return simpleDateFormat.format(new Date());
 	}
 	
-//	public static void main(String[] args) throws Exception {
-//		CodeCreator creator = new CodeCreator();
-//		List<Class> list = new ArrayList<Class>();
-//		list.add(DataMonitor.class);
-//		
-//		for (Class c : list) {
-//			creator.createBeanDao(c);	
-//			creator.createBeanDaoImpl(c);
-//			creator.createBeanService(c);
-//			creator.createBeanServiceImpl(c);
-//		}
-//	}
+	public static void main(String[] args) throws Exception {
+		CodeCreator creator = new CodeCreator();
+		List<Class> list = new ArrayList<Class>();
+		list.add(ModuleHitchEvent.class);
+		
+		for (Class c : list) {
+			creator.createBeanDao(c);	
+			creator.createBeanDaoImpl(c);
+			creator.createBeanService(c);
+			creator.createBeanServiceImpl(c);
+		}
+	}
 }
