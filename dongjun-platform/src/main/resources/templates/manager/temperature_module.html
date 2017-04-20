@@ -13,10 +13,8 @@
         <td>设备号码</td>
         <td>名称</td>
         <td>地址</td>
-        <td>sim</td>
         <td>温度上限</td>
         <td>温度下限</td>
-        <td>在线时间</td>
         <td style="width: 70px;">修改</td>
         <td style="width: 70px;">删除</td>
       </thead>
@@ -103,7 +101,7 @@
             'url': store.url,
             'type': 'POST',
             'dataSrc': function(json) {
-              json.text = Object.prototype.toString.call(json.text) == '[object Array]' ? json.text : []
+              json.text = Object.prototype.toString.call(json.text) == '[object Object]' ? [json.text] : []
               return json.text
             },
             'data': {
@@ -114,10 +112,8 @@
             { 'data': 'deviceNumber' },
             { 'data': 'name' },
             { 'data': 'address' },
-            { 'data': 'simNumber'},
             { 'data': 'maxHitchValue'},
             { 'data': 'minHitchValue'},
-            { 'data': 'onlineTime' },
             {
               'data': 'id',
               'width': '70px',

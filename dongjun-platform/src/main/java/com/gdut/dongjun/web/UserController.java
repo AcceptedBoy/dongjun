@@ -36,10 +36,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.gdut.dongjun.annotation.NeededTest;
 import com.gdut.dongjun.domain.model.ErrorInfo;
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.Company;
+import com.gdut.dongjun.domain.po.ModuleHitchEvent;
 import com.gdut.dongjun.domain.po.PersistentHitchMessage;
 import com.gdut.dongjun.domain.po.PlatformGroup;
 import com.gdut.dongjun.domain.po.TemperatureMeasureHitchEvent;
@@ -56,6 +56,7 @@ import com.gdut.dongjun.service.UserLogService;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.authc.RoleService;
 import com.gdut.dongjun.service.authc.UserRoleService;
+import com.gdut.dongjun.service.device.event.ModuleHitchEventService;
 import com.gdut.dongjun.service.device.event.TemperatureMeasureHitchEventService;
 import com.gdut.dongjun.service.impl.enums.LoginResult;
 import com.gdut.dongjun.service.thread.manager.DefaultThreadManager;
@@ -69,9 +70,6 @@ public class UserController {
 	private static final String GUEST = "guest";
 
 	private static final String PLATFORM_ADMIN = "platform_group_admin";
-
-	// 等前端该接口后，删掉
-	private static final String MAINSTAFF = "yes";
 
 	@Autowired
 	private UserService userService;
@@ -93,6 +91,8 @@ public class UserController {
 	private HitchEventService hitchEventService;
 	@Autowired
 	private TemperatureMeasureHitchEventService temEventService;
+	@Autowired
+	private ModuleHitchEventService moduleHitchService;
 	@Autowired
 	private SimpMessagingTemplate template;
 
@@ -151,7 +151,8 @@ public class UserController {
 					List<PersistentHitchMessage> list = messageService.getAllUnreadHitchMessage(user.getId());
 					List<HitchEventDTO> dtos = new ArrayList<HitchEventDTO>();
 					for (PersistentHitchMessage message : list) {
-						switch (message.getHitchType()) {
+						int type = message.getType() / 100;
+						switch (type) {
 						case 3: {
 							HitchEventDTO dto = warpIntoDTO(message);
 							dtos.add(dto);
@@ -168,11 +169,11 @@ public class UserController {
 
 				private HitchEventDTO warpIntoDTO(PersistentHitchMessage message) {
 					HitchEventVO vo = new HitchEventVO();
-					vo.setId(message.getHitchEventId());
+					vo.setId(message.getHitchId());
 					vo.setGroupId(user.getCompanyId());
-					TemperatureMeasureHitchEvent event = temEventService.selectByPrimaryKey(vo.getSwitchId());
-					vo.setSwitchId(event.getSwitchId());
-					vo.setType(message.getHitchType());
+					vo.setMonitorId(message.getMonitorId());
+					vo.setGroupId(message.getGroupId());
+					vo.setType(message.getType());
 					return hitchEventService.wrapIntoDTO(vo);
 				}
 

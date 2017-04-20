@@ -1,6 +1,5 @@
 package com.gdut.dongjun.service.webservice.server.impl;
 
-import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -80,7 +79,7 @@ public class WebsiteServiceImpl implements WebsiteService {
 
 	@Override
 	public void callbackHitchEvent(HitchEventVO event) {
-		LOG.info("报警信息到达，报警设备为" + event.getSwitchId() + "    报警类型为" + event.getType());
+		LOG.info("报警信息到达，报警设备为" + event.getMonitorId() + "    报警类型为" + event.getType());
 		HitchEventDTO dto = hitchEventService.wrapIntoDTO(event);
 		List<User> userList = userService.selectByParameters(MyBatisMapUtil.warp("company_id", event.getGroupId()));
 		if (!CollectionUtils.isEmpty(userList)) {
@@ -91,9 +90,14 @@ public class WebsiteServiceImpl implements WebsiteService {
 					template.convertAndSend("/queue/user-" + user.getId() + "/hitch", dto);
 				} else {
 //					//用户不在线就将消息持久化，等用户上线时再推送
-					PersistentHitchMessage message = new PersistentHitchMessage(UUIDUtil.getUUID(), 
-							event.getType(), event.getId(), new Date(), user.getId());
-					persistentMessageService.updateByPrimaryKey(message);
+					PersistentHitchMessage msg = new PersistentHitchMessage();
+					msg.setId(UUIDUtil.getUUID());
+					msg.setGroupId(event.getGroupId());
+					msg.setHitchId(event.getId());
+					msg.setMonitorId(event.getMonitorId());
+					msg.setType(event.getType());
+					msg.setUserId(user.getId());
+					persistentMessageService.updateByPrimaryKey(msg);
 					//mq功能尚有bug，不开放
 //					try {
 //						mqService.sendHitchMessage(user, dto);

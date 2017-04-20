@@ -17,10 +17,10 @@
 		<javaClientGenerator targetPackage="com.gdut.dongjun.domain.dao"
 			targetProject="D:\\WORKING\\git\\dongjun_dzc\\dongjun-platform" type="XMLMAPPER" />
 
-		<table schema="root" tableName="temperature_sensor1" domainObjectName="TemperatureSensor"
-			enableCountByExample="false" enableUpdateByExample="false"
-			enableDeleteByExample="false" enableSelectByExample="false"
-			selectByExampleQueryId="false" />
+<!-- 		<table schema="root" tableName="user" domainObjectName="User" -->
+<!-- 			enableCountByExample="false" enableUpdateByExample="false" -->
+<!-- 			enableDeleteByExample="false" enableSelectByExample="false" -->
+<!-- 			selectByExampleQueryId="false" /> -->
 
 <!-- 		<table schema="root" tableName="company" domainObjectName="Company" -->
 <!-- 			enableCountByExample="false" enableUpdateByExample="false" -->
@@ -54,10 +54,10 @@
 <!-- 			enableCountByExample="false" enableUpdateByExample="false" -->
 <!-- 			enableDeleteByExample="false" enableSelectByExample="false" -->
 <!-- 			selectByExampleQueryId="false" /> -->
-<!-- 		<table schema="root" tableName="persistent_hitch_message" -->
-<!-- 			domainObjectName="PersistentHitchMessage" enableCountByExample="false" -->
-<!-- 			enableUpdateByExample="false" enableDeleteByExample="false" -->
-<!-- 			enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+		<table schema="root" tableName="persistent_hitch_message"
+			domainObjectName="PersistentHitchMessage" enableCountByExample="false"
+			enableUpdateByExample="false" enableDeleteByExample="false"
+			enableSelectByExample="false" selectByExampleQueryId="false" />
 <!-- 		<table schema="root" tableName="platform_group" -->
 <!-- 			domainObjectName="PlatformGroup" enableCountByExample="false" -->
 <!-- 			enableUpdateByExample="false" enableDeleteByExample="false" -->
@@ -118,15 +118,25 @@
 		<!-- enableUpdateByExample="false" enableDeleteByExample="false" -->
 		<!-- enableSelectByExample="false" selectByExampleQueryId="false" /> -->
 
-		<!-- <table schema="root" tableName="temperature_module" -->
-		<!-- domainObjectName="TemperatureModule" enableCountByExample="false" -->
-		<!-- enableUpdateByExample="false" enableDeleteByExample="false" -->
-		<!-- enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+<!-- 		<table schema="root" tableName="temperature_module" -->
+<!-- 		domainObjectName="TemperatureModule" enableCountByExample="false" -->
+<!-- 		enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 		enableSelectByExample="false" selectByExampleQueryId="false" /> -->
 
-		<!-- <table schema="root" tableName="electronic_module" -->
-		<!-- domainObjectName="ElectronicModule" enableCountByExample="false" -->
-		<!-- enableUpdateByExample="false" enableDeleteByExample="false" -->
-		<!-- enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+<!-- 		<table schema="root" tableName="electronic_module" -->
+<!-- 		domainObjectName="ElectronicModule" enableCountByExample="false" -->
+<!-- 		enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 		enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+		
+<!-- 				<table schema="root" tableName="module_hitch_event" -->
+<!-- 		domainObjectName="ModuleHitchEvent" enableCountByExample="false" -->
+<!-- 		enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 		enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+		
+<!-- 				<table schema="root" tableName="temperature_measure_hitch_event1" -->
+<!-- 		domainObjectName="TemperatureMeasureHitchEvent" enableCountByExample="false" -->
+<!-- 		enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 		enableSelectByExample="false" selectByExampleQueryId="false" /> -->
 
 
 

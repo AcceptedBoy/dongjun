@@ -12,7 +12,8 @@ public abstract class GPRSCtxStore extends CtxStore {
 	//保存在线的GPRS的地址
 	private static final List<String> GPRSList = new CopyOnWriteArrayList<String>();
 	//GPRS地址和防止超时任务的键值对
-	private static final HashMap<String, GPRSExpiredTask> taskMap = new HashMap<String, GPRSExpiredTask>();
+	private static final HashMap<String, GPRSExpiredTask> taskMap = 
+			new HashMap<String, GPRSExpiredTask>();
 
 	public static void addGPRS(String gprs) {
 		if (GPRSList.contains(gprs)) {
@@ -26,7 +27,7 @@ public abstract class GPRSCtxStore extends CtxStore {
 	
 	public static void removeGPRS(String gprs) {
 		GPRSExpiredTask task = taskMap.remove(gprs);
-		task.setAvailable(false);
+		task.cancel();
 		GPRSList.remove(gprs);
 	}
 	

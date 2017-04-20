@@ -165,17 +165,4 @@
       gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <select id="selectByParameters" resultMap="BaseResultMap">
-		select *
-		from
-		temperature_measure_hitch_event1
-		where
-		1 = 1
-		<if test="map != null">
-			<foreach item="item" index="key" collection="map.entrySet()">
-				and ${key} =
-				#{item}
-			</foreach>
-		</if>
-	</select>
 </mapper>

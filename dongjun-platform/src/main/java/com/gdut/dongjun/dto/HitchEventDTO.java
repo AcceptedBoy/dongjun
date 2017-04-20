@@ -6,15 +6,15 @@ public class HitchEventDTO implements Serializable {
 	
 	private static final long serialVersionUID = -7396867530194618589L;
 
-	private String hitchTime;
+	protected String hitchTime;
 	
-	private String hitchReason;
+	protected String hitchReason;
 	
-	private String name;
+	protected String name;
 	
-	private String	groupId;
+	protected String	groupId;
 	//type直接填高压、低压、温度之类的
-	private String type;
+	protected String type;
 
 	public String getHitchReason() {
 		return hitchReason;

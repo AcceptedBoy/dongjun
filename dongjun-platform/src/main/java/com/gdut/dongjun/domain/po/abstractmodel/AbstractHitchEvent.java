@@ -11,7 +11,7 @@ public abstract class AbstractHitchEvent extends AbstractBean {
 	
 	protected String id;
 
-	protected String switchId;
+	protected String monitorId;
 	
 	protected String groupId;
 	
