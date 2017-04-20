@@ -4,7 +4,7 @@
       this.id = option.id || ''
       this.dom = option.dom || '#modal'
       this.header = new ModalHeader(option.title)
-      this.body = new ModalBody(option.bodyArr)
+      this.body = new ModalBody(option.bodyArr, option.formId)
       this.footer = new ModalFooter(option.completeFn, option.completeText, option.completeCtx)
     } else {
       return new Modal(option)
@@ -28,12 +28,13 @@
     '</div>'
   }
 
-  function ModalBody(dataArr) {
+  function ModalBody(dataArr, formId) {
     this.data = dataArr
+    this.id = formId
   }
 
   ModalBody.prototype.init = function() {
-    var html = '<div class="modal-body">'
+    var html = '<div class="modal-body"><div id="'+ this.data.id +'" class="form-horizontal">'
     var length = this.data.length
     for(var i = 0; i < length; i++) {
       if(this.data[i].inputType == 'textarea') {
@@ -52,7 +53,7 @@
         '</div>'
       }
     }
-    html += '</div>'
+    html += '</div></div>'
     return html
   }
 
