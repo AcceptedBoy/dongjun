@@ -20,7 +20,7 @@
     		<span class="caret"></span>
     		</a>
     		<ul class="dropdown-menu">
-    			
+
     		</ul>
     	</div>
 
@@ -32,7 +32,76 @@
 <script>
 	var roles = {};
 
+	function logOut(e){
+		$.ajax({
+			url: '/dongjun/logout',
+			type: 'POST',
+			success: function () {
+				location.href = '/dongjun/login'
+			}
+		})
+	}
+
+	function goRank() {
+		location.href = '../rank/index.html'
+	}
+
+	function JudgeRank() {
+		this.rank = {}
+		this.state = {}
+	}
+
 	(function(){
+
+		JudgeRank.prototype.init = function() {
+			this.addState({
+				type: 'platform_group_admin',
+				fn: function() {
+					$('.dropdown-menu').append('<li onclick="goRank()"><a href="javascript:void(0)" style="text-align: center;">用户管理</a></li>')
+				}
+			}).addState({
+				type: 'super_admin',
+				fn: function() {
+					dj.inserCmp('../public/registerModal.html', document.getElementsByTagName('rigisterModal')[0])
+					$('.dropdown-menu').append('<li data-toggle="modal" data-backdrop="static" data-target="#choose_modal"><a href="javascript:void(0)" style="text-align: center;">注册</a>')
+				}
+			})
+		}
+
+		JudgeRank.prototype.addState = function(data) {
+			var type = data.type
+			if(!this.state[type]) {
+				this.state[type] = [data.fn]
+			} else {
+				this.state[type].push(data.fn)
+			}
+			return this
+		}
+
+		JudgeRank.prototype.changeRanks = function(ranks, gone) {
+			this.rank = {}
+			gone = gone ? gone : []
+			try {
+				for(var i = 0; i < ranks.length; i++) {
+					if(gone.indexOf(ranks[i]) == -1) {
+						this.rank[ranks[i]] = true
+					}
+				}
+			} catch(e) {
+				console.error('changeRank：第二个参数请传入数组')
+			}
+		}
+
+		JudgeRank.prototype.judge = function() {
+			for(var i in this.rank) {
+				if(this.state[i]) {
+					for(var j = 0; j < this.state[i].length; j++) {
+						this.state[i][j]()
+					}
+				}
+			}
+		}
+
 		$.ajax({
 			url: '/islogin',
 			type: 'POST',
@@ -43,6 +112,10 @@
 						location.href = '/dongjun/login'
 					} else {
 						roles.currentRole = res.currentRoles
+						var judgement = new JudgeRank()
+						judgement.init()
+						judgement.changeRanks(roles.currentRole)
+						judgement.judge()
 						Object.defineProperty(roles, 'currentId', {
 							value: res.currentUser
 						})
@@ -66,32 +139,18 @@
 		$(links[pos]).addClass('btn-success');
 	})()
 
-	function logOut(e){
-		$.ajax({
-			url: '/dongjun/logout',
-			type: 'POST',
-			success: function () {
-				location.href = '/dongjun/login'
-			}
-		})
-	}
+	dj.jsLoad('../../js/public/realTimeNotice.js')
 
-	function goRank() {
-		location.href = '../rank/index.html'
-	}
-
-	function judgeRoles(role) {
+	/* function judgeRoles(role) {
 		if(roles.currentRole.indexOf(role) !== -1) {
 			return true
 		} else {
 			return false
 		}
-	}
+	} */
 
-	dj.jsLoad('../../js/public/realTimeNotice.js')
-
-	if(judgeRoles('platform_group_admin')/* false */) {
-		if(judgeRoles('super_admin')/* true */) {
+	/* if(judgeRoles('platform_group_admin')) {
+		if(judgeRoles('super_admin')) {
 			dj.inserCmp('../public/registerModal.html', document.getElementsByTagName('rigisterModal')[0])
 			$('.dropdown-menu').html('<li data-toggle="modal" data-backdrop="static" data-target="#choose_modal"><a href="javascript:void(0)" style="text-align: center;">注册</a></li><li onclick="goRank()"><a href="javascript:void(0)" style="text-align: center;">用户管理</a></li>')
 		} else {
@@ -99,7 +158,7 @@
 		}
 	} else {
 		$('.dropdown-menu').html('<li onclick="goRank()"><a href="javascript:void(0)" style="text-align: center;">个人信息</a></li>')
-	}
-	
-	
+	} */
+
+
 </script>

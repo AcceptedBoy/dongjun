@@ -61,7 +61,7 @@
   <script src="../../js/lib/ZTree/jquery.ztree.core.js"></script>
   <script src="../../js/lib/ZTree/jquery.ztree.excheck.js"></script>
   <!-- <script src="../../js/lib/custom/demo.js"></script> -->
-  
+
   <!-- datatable -->
   <script src="../../js/lib/dataTables/dataTables.bootstrap.js"></script>
   <script src="../../js/lib/dataTables/jquery.dataTables.js"></script>
@@ -84,13 +84,14 @@
   </div>
 
   <script src="../../js/lib/dongjun.js"></script>
+	<script src="../../js/custom/setModal.js"></script>
   <script src="../../js/lib/Date.js"></script>
   <script>
     dj.createComponent('topBar', {
       templateUrl: '../public/topBar.html'
     });
 
-    
+
     dj.createComponent('chartContainer', {
       template: '<div id="chartContainer" class="span10 container"></div>'
     });
@@ -100,13 +101,13 @@
     });
 
     dj.componentIn();
-    
+
     var chart = {};
     dj.inserCmp('./rebuild.html', document.getElementById('chartContainer'), function() {
       dj.inserCmp('./rebuildTree.html', document.getElementById('tree'))
     });
 
-    
+
   </script>
 </body>
 </html>

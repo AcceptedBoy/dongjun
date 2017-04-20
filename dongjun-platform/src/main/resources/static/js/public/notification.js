@@ -73,6 +73,28 @@ var notification = (function(){
 
 			this.listen()
 		},
+		changeDetail: function(type, data, isCover) {
+			switch(type) {
+				case 'edit': 
+					for(var k in data) {
+						if(detailLabel[k] && isCover) {
+							detailLabel[k] = data[k]
+						} else {
+							detailLabel[k] = data[k]
+						}
+					}
+					return
+				case 'delete':
+					if(Object.prototype.toString.call(data) == '[object Array]') {
+						data.forEach(function(key) {
+							delete detailLabel[key]
+						})
+					} else {
+						delete detailLabel[detail]
+					}
+					return
+			}
+		},
 		listen: function() {
 			doms.cover.addEventListener('click', function(e) {
 				var ev = e || window.event
@@ -221,6 +243,14 @@ var notification = (function(){
 				store.ignore = []
 			}
 		},
+		getCurrentTime: function() {
+			var date = new Date()
+			var h = date.getHours()
+	    h = h < 10 ? ('0' + h) : h
+	    var m = date.getMinutes()
+	    m = m < 10 ? ('0' + m) : m
+	    return h + ':' + m
+		},
 		full_alert: function(dataObj) {
 			var data = dataObj.data,
 					type = dataObj.type ? dataObj.type : 'normal'
@@ -265,13 +295,50 @@ var notification = (function(){
 				this.showCover()
 			}
 		},
-		getCurrentTime: function() {
-			var date = new Date()
-			var h = date.getHours()
-	    h = h < 10 ? ('0' + h) : h
-	    var m = date.getMinutes()
-	    m = m < 10 ? ('0' + m) : m
-	    return h + ':' + m
-		}
+		
 	}
 })()
+
+/**
+ * 使用例子：
+ * 配置：
+ * notification.start({
+ * 	simple: {
+ * 		title: 'name',
+ * 		description: 'hitchReason'
+ * 		},
+ * 	detail: {
+ * 		name: '设备名称',
+ * 		type: '设备类型',
+ * 		hitchReason: '报警原因',
+ * 		tag: '传感器',
+ * 		value: '报警值',
+ * 		maxHitchValue: '温度上限',
+ * 		minHitchValue: '温度下限'
+ * 	},
+ * 	limit: {
+ * 		num: 10,
+ * 	 	href: '##',
+ * 	 	action: function() {
+ * 	 		console.log('hahah')
+ * 	 	}
+ * 	 }
+ * })
+ *
+ * 数据：
+ * data: {
+ * 		name: 'name',
+ * 		type: '1',
+ * 		hitchReason: 'fire',
+ * 		tag: '5',
+ * 		value: '150',
+ * 		maxHitchValue: '100',
+ * 		minHitchValue: '20'
+ * }
+ *
+ * 通知：
+ * notification.full_alert({
+ *	 data: data,
+ *	 type: 'danger'
+ * })
+ */

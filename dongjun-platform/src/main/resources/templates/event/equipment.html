@@ -1,0 +1,74 @@
+<div class="form-inline">
+</div>
+<table id="equipment_event_list" class="table table-bordered table-striped table-hover table-condensed success" width="100%">
+  <thead>
+    <td>报警原因</td>
+    <td>报警时间</td>
+  </thead>
+</table>
+
+<script>
+  var equipment = function() {
+    var table = null
+    var url = ''
+
+    return {
+      getTable: function() {
+        return table
+      },
+      init: function(option) {
+        var _self = this;
+        url = option.url || '';
+        if(url) {
+          table = $('#equipment_event_list').DataTable({
+            'destroy': true,  // destroy之后才能重新加载
+            'ajax': {
+              'url': option.url,
+              'type': 'POST',
+              'dataSrc': 'text'
+            },
+            'columns': [
+              {
+                'data': 'hitchReason'
+              },
+              {
+                'data': 'hitchTime'
+              }
+            ],
+            'language': {
+              'paginate': {
+                'next': '下一页',
+                'previous': '上一页'
+              },
+              'emptyTable': '找不到相关数据',
+              'zeroRecords': '找不到相关数据',
+              'loadingRecords': '正在加载数据...'
+            },
+          })
+        }
+      },
+      redraw: function(id) {
+        table.ajax.reload();
+      },
+      renderTime(time) {
+        var date = new Date(time);
+        var y = date.getFullYear();
+        var mt = date.getMonth() + 1;
+        mt = mt < 10 ? ('0' + mt) : mt;
+        var d = date.getDate();
+        d = d < 10 ? ('0' + d) : d;
+        var h = date.getHours();
+        h = h < 10 ? ('0' + h) : h;
+        var m = date.getMinutes();
+        m = m < 10 ? ('0' + m) : m;
+        var s = date.getSeconds()
+        s = s < 10 ? ('0' + s) : s;
+        return y + '-' + mt + '-' + d + ' ' + h + ':' + m + ':' + s
+      }
+    }
+  }()
+
+  equipment.init({
+    url: ''
+  })
+</script>
