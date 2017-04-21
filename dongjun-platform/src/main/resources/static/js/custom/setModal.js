@@ -28,9 +28,10 @@
  *
  *   }
  * }],
- * completeFn: function(e) {
+ * completeFn: function(e, val) {
  *   console.log(this)
  *   console.log(e)
+ *   console.log(val)
  * },
  * completeText: '添加',
  * completeId: 'comfirm'
@@ -75,7 +76,11 @@
         }
       })
       if(isOk) {
-        self.completeFn.call(this, e)
+        var formVal = {}
+        for(var i in body.val) {
+          formVal[i] = body.val[i]()
+        }
+        self.completeFn.call(this, e, formVal)
       }
     })
 
@@ -112,6 +117,7 @@
 
   ModalBody.prototype.init = function() {
     var RegArr = []
+    var val = {}
     var html = '<div class="modal-body"><div id="'+ this.id +'" class="form-horizontal">'
     var length = this.data.length
     for(var i = 0; i < length; i++) {
@@ -128,11 +134,15 @@
           '</div>' +
       '</div>'
       RegArr.push(inputData.getReg())
+      val[this.data[i].inputId] = function() {
+        return $('#' + this.data[i].inputId).val()
+      }
     }
     html += '</div></div>'
     return {
       html: html,
-      reg: RegArr
+      reg: RegArr,
+      val: val
     }
   }
 
