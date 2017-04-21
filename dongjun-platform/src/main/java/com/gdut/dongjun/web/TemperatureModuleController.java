@@ -53,19 +53,25 @@ public class TemperatureModuleController {
 	public ResponseMessage edit(TemperatureModule module, String monitorId) {
 		if (null == module.getId() || "".equals(module.getId())) {
 			module.setId(UUIDUtil.getUUID());
+			if (0 == moduleService.updateByPrimaryKey(module)) {
+				return ResponseMessage.warning("操作失败");
+			}
+			DataMonitorSubmodule submodule = new DataMonitorSubmodule();
+			submodule.setId(UUIDUtil.getUUID());
+			submodule.setAvailable(1);
+			submodule.setDataMonitorId(monitorId);
+			submodule.setModuleId(module.getId());
+			submodule.setModuleType(HitchConst.MODULE_TEMPERATURE);
+			if (0 == submoduleService.updateByPrimaryKey(submodule)) {
+				return ResponseMessage.warning("操作失败");
+			}
+		} else {
+			if (0 == moduleService.updateByPrimaryKeySelective(module)) {
+				return ResponseMessage.warning("操作失败");
+			}
 		}
-		if (0 == moduleService.updateByPrimaryKey(module)) {
-			return ResponseMessage.warning("操作失败");
-		}
-		DataMonitorSubmodule submodule = new DataMonitorSubmodule();
-		submodule.setId(UUIDUtil.getUUID());
-		submodule.setAvailable(1);
-		submodule.setDataMonitorId(monitorId);
-		submodule.setModuleId(module.getId());
-		submodule.setModuleType(HitchConst.MODULE_TEMPERATURE);
-		if (0 == submoduleService.updateByPrimaryKey(submodule)) {
-			return ResponseMessage.warning("操作失败");
-		}
+
+		
 		return ResponseMessage.success("操作成功");
 	}
 	

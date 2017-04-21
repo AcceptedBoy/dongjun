@@ -36,7 +36,7 @@ public class DataMonitorController {
 		if (null == monitor.getId() || "".equals(monitor.getId())) {
 			monitor.setId(UUIDUtil.getUUID());
 		}
-		if (0 == monitorService.updateByPrimaryKey(monitor)) {
+		if (0 == monitorService.updateByPrimaryKeySelective(monitor)) {
 			return ResponseMessage.warning("操作失败");
 		}
 		return ResponseMessage.success("操作成功");

@@ -59,7 +59,7 @@ public class CompanyController {
 			pg.setCompanyId(com.getId());
 			pgService.updateByPrimaryKey(pg);
 		}
-		if (companyService.updateByPrimaryKey(com) == 0) {
+		if (companyService.updateByPrimaryKeySelective(com) == 0) {
 			return ResponseMessage.warning("操作失败");
 		}
 		return ResponseMessage.success(com);

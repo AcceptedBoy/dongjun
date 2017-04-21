@@ -132,7 +132,7 @@ public class PlatformGroupController {
 	public String moveNewGroup(@NotNull String groupId, @NotNull String id) {
 		PlatformGroup group = groupService.selectByPrimaryKey(id);
 		group.setGroupId(groupId);
-		groupService.updateByPrimaryKey(group);
+		groupService.updateByPrimaryKeySelective(group);
 		return groupId;
 	}
 
@@ -155,7 +155,7 @@ public class PlatformGroupController {
 		List<TemperatureModule> switchList2 = temperatureService.selectByParameters(MyBatisMapUtil.warp("group_id", id));
 		for (TemperatureModule tem : switchList2) {
 			tem.setGroupId(defaultGroupId);
-			temperatureService.updateByPrimaryKey(tem);
+			temperatureService.updateByPrimaryKeySelective(tem);
 		}
 		
 		if (groupService.deleteByPrimaryKey(id + "")) {

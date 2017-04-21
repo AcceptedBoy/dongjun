@@ -45,7 +45,7 @@ public class TemperatureSensorController {
 		if (null == sensor.getId()) {
 			sensor.setId(UUIDUtil.getUUID());
 		}
-		if (sensorService.updateByPrimaryKey(sensor) == 0) {
+		if (sensorService.updateByPrimaryKeySelective(sensor) == 0) {
 			return ResponseMessage.warning("操作失败");
 		}
 		return ResponseMessage.success("操作成功");

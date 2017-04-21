@@ -54,7 +54,7 @@ public class DeviceGroupController {
 		if (null == dGroup.getId() || "".equals(dGroup.getId())) {
 			dGroup.setId(UUIDUtil.getUUID());
 		}
-		Integer result = deviceGroupService.updateByPrimaryKey(dGroup);
+		Integer result = deviceGroupService.updateByPrimaryKeySelective(dGroup);
 		if (result == 1) {
 			return ResponseMessage.success("操作成功");
 		} else
@@ -91,7 +91,7 @@ public class DeviceGroupController {
 	}
 
 	/**
-	 * 新增小组联系
+	 * 新增小组联系，修改？不存在的
 	 * 
 	 * @param deviceId
 	 * @param type
