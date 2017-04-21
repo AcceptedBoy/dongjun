@@ -70,7 +70,7 @@ public class TemperatureModuleController {
 	}
 	
 	/**
-	 * TODO 删除和DataMonitor的关联
+	 * TODO 删除和DataMonitor的关联，加事务，抛异常
 	 * @param id
 	 * @return
 	 */
@@ -79,6 +79,10 @@ public class TemperatureModuleController {
 	public ResponseMessage del(String id) {
 		if (!moduleService.deleteByPrimaryKey(id)) {
 			return ResponseMessage.warning("操作失败");
+		}
+		DataMonitorSubmodule submodule = submoduleService.selectByParameters(MyBatisMapUtil.warp("module_id", id)).get(0);
+		if (!submoduleService.deleteByPrimaryKey(submodule.getId())) {
+			return ResponseMessage.warning("操作失败"); 
 		}
 		return ResponseMessage.success("操作成功");
 	}
@@ -101,20 +105,6 @@ public class TemperatureModuleController {
 			}
 		}
 		return ResponseMessage.warning(null);
-	}
-	
-	@ResponseBody
-	@RequestMapping("/hitch/module")
-	public ResponseMessage moduleHitch(String id) {
-		return ResponseMessage.success(moduleHitchService.selectByParameters(MyBatisMapUtil.warp("module_id", id)));
-	}
-	
-	@ResponseBody
-	@RequestMapping("/hitch/measure")
-	public ResponseMessage measureHitch(HttpSession session) {
-		User user = userService.getCurrentUser(session);
-		List<TemperatureMeasureHitchEventDTO> eventList = eventService.selectMeasureHitch(user.getCompanyId());
-		return ResponseMessage.success(eventList);
 	}
 	
 	
