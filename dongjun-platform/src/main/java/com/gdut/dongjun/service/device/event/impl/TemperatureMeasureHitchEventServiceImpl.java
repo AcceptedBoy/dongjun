@@ -12,6 +12,7 @@ import com.gdut.dongjun.domain.po.TemperatureMeasureHitchEvent;
 import com.gdut.dongjun.dto.TemperatureMeasureHitchEventDTO;
 import com.gdut.dongjun.service.base.impl.EnhancedServiceImpl;
 import com.gdut.dongjun.service.device.DataMonitorService;
+import com.gdut.dongjun.service.device.TemperatureModuleService;
 import com.gdut.dongjun.service.device.event.ModuleHitchEventService;
 import com.gdut.dongjun.service.device.event.TemperatureMeasureHitchEventService;
 import com.gdut.dongjun.util.MyBatisMapUtil;
@@ -26,6 +27,8 @@ public class TemperatureMeasureHitchEventServiceImpl extends EnhancedServiceImpl
 	private ModuleHitchEventService moduleHitchService;
 	@Autowired
 	private DataMonitorService monitorService;
+	@Autowired
+	private TemperatureModuleService moduleService;
 	
 	@Override
 	protected boolean isExist(TemperatureMeasureHitchEvent record) {
@@ -45,7 +48,7 @@ public class TemperatureMeasureHitchEventServiceImpl extends EnhancedServiceImpl
 		for (ModuleHitchEvent e : list) {
 			TemperatureMeasureHitchEvent event = mapper.selectByParameters(MyBatisMapUtil.warp("hitch_id", e.getId())).get(0);
 			TemperatureMeasureHitchEventDTO dto = new TemperatureMeasureHitchEventDTO(e, event);
-			dto.setName(monitorService.selectByPrimaryKey(e.getModuleId()).getName());
+			dto.setName(moduleService.selectByPrimaryKey(e.getModuleId()).getName());
 			dtoList.add(dto);
 		}
 		return dtoList;

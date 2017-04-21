@@ -34,7 +34,7 @@ public class ModuleHitchEventController {
 	@Autowired
 	private ModuleHitchEventService moduleHitchService;
 	@Autowired
-	private TemperatureModuleService moduleService;
+	private TemperatureModuleService temModuleService;
 	@Autowired
 	private UserService userService;
 	@Autowired
@@ -69,7 +69,7 @@ public class ModuleHitchEventController {
 	
 	private String getModuleName(int type, String moduleId) {
 		switch (type / 100) {
-		case 3 : return moduleService.selectByPrimaryKey(moduleId).getName();
+		case 3 : return temModuleService.selectByPrimaryKey(moduleId).getName();
 		default : return null;
 		}
 	}
