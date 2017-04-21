@@ -28,9 +28,10 @@
  *
  *   }
  * }],
- * completeFn: function(e) {
+ * completeFn: function(e, val) {
  *   console.log(this)
  *   console.log(e)
+ *   console.log(val)
  * },
  * completeText: '添加',
  * completeId: 'comfirm'
