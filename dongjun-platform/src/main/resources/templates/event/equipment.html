@@ -2,6 +2,7 @@
 </div>
 <table id="equipment_event_list" class="table table-bordered table-striped table-hover table-condensed success" width="100%">
   <thead>
+    <td>设备名称</td>
     <td>报警原因</td>
     <td>报警时间</td>
   </thead>
@@ -24,10 +25,13 @@
             'destroy': true,  // destroy之后才能重新加载
             'ajax': {
               'url': option.url,
-              'type': 'POST',
+              'type': 'GET',
               'dataSrc': 'text'
             },
             'columns': [
+              {
+                'data': 'name'
+              },
               {
                 'data': 'hitchReason'
               },
@@ -69,6 +73,6 @@
   }()
 
   equipment.init({
-    url: ''
+    url: '/dongjun/hitch/module'
   })
 </script>

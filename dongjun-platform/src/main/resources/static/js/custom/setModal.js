@@ -11,18 +11,21 @@
  *   inputType: 'text',
  *   inputName: '123',
  *   label: '我去',
- *   reg: function(val) {   val是表单内容的值，return true表示通过，return false表示不通过
- *    console.log(val)
- *    return true
+ *   reg: function(val, err) {   val是表单内容的值，return true表示通过，return false表示不通过
+ *    if(/\.js$/.test(val)) {
+ *      return true
+ *    } else {
+ *      err('请输入xxoo')        err回调函数，接受一个字符串，作为错误提示
+ *      return false
+ *    }
  *   }
  * }, {
  *   inputId: '2323',
  *   inputType: 'textarea',
  *   inputName: '2323',
  *   label: '我去',
- *   reg: function(val) {
- *     console.log(val)
- *     return true
+ *   reg: function(val, err) {
+ *
  *   }
  * }],
  * completeFn: function(e) {
@@ -55,20 +58,26 @@
     var html = '<div id="'+ this.id +'" class="modal hide fade" tabindex="1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">'
     html += this.header.init() + body.html + this.footer.init() + '</div>'
     $(this.dom).append(html)
+
+    $('#' + this.id).find('.input').focus(function(e) {
+      $(this).attr('style', '')
+      $(this).nextAll('.warnTips').text('')
+    })
+
     /**
-     * 给确定按钮添加事件
-     */
-     $('#' + this.eventId).on('click', function(e) {
-       var isOk = true
-       body.reg.forEach(function(fn) {
-         if(!fn()) {
-           isOk = false
-         }
-       })
-       if(isOk) {
-         self.completeFn.call(this, e)
-       }
-     })
+    * 给确定按钮添加事件
+    */
+    $('#' + this.eventId).on('click', function(e) {
+      var isOk = true
+      body.reg.forEach(function(fn) {
+        if(!fn()) {
+          isOk = false
+        }
+      })
+      if(isOk) {
+        self.completeFn.call(this, e)
+      }
+    })
 
     return this
   }
@@ -148,20 +157,29 @@
 
   Input.prototype.chooseType = {
     text: function() {
-      return '<input type="text" name="'+ this.name +'" id="'+ this.id +'" />'
+      return '<input class="input" type="text" name="'+ this.name +'" id="'+ this.id +'" />' + this.chooseType.warnTips
     },
     textarea: function() {
-      return '<textarea id="'+ this.id +'" name="'+ this.name +'" rows="3" cols="20" />'
-    }
+      return '<textarea class="input" id="'+ this.id +'" name="'+ this.name +'" rows="3" cols="20" />' + this.chooseType.warnTips
+    },
+    // otherTypes
+    //
+
+    warnTips: '<span style="margin-left: 10px;" class="warnTips"></span>'
   }
 
   Input.prototype.getReg = function() {
     var self = this
     if(this.reg) {
       return function() {
-        return self.reg.call(self, $('#' + self.id).val())
+        return self.reg.call(self, $('#' + self.id).val(), self.error.bind(self))
       }
     }
+  }
+
+  Input.prototype.error = function(text) {
+    $('#' + this.id).css({borderColor: '#f3b6b6'})
+    $('#' + this.id).nextAll('.warnTips').text(text).css({color: 'red', fontSize: '1.1em'})
   }
 
   Input.prototype.init = function() {
