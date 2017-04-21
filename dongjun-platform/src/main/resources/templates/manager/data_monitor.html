@@ -240,6 +240,9 @@
                     })
                   })
                   return
+                case 'goToPowerModule':
+                  alert('暂未开放, 请等待')
+                  return
                 // 删除功能
                 case 'del':
                   modal.delDataMonitor(target.data('id'))

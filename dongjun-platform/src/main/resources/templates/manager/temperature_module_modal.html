@@ -3,7 +3,7 @@
   <div class="modal-header">
     <button type="button" class="close" data-dismiss="modal"
             aria-hidden="true">×</button>
-    <h3>添加温度数据</h3>
+    <h3>编辑温度数据</h3>
   </div>
   <div class="modal-body">
     <div class="form-horizontal">
@@ -39,7 +39,7 @@
       </div>
       <div class="modal-footer">
         <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
-        <button class="btn btn-primary" aria-hidden="true" onclick="TemModuleModal.save()">添加</button>
+        <button class="btn btn-primary" aria-hidden="true" onclick="TemModuleModal.save()">确定</button>
       </div>
     </div>
   </div>
@@ -78,11 +78,13 @@
        * 设置当前传感器所属温度设备的id
        * @param {[type]} moduleId [description]
        */
-      setModuleId: function(moduleId) {
-        now.moduleId = moduleId
+      setId: function(type, id) {
+        now[type] = id
+        return this
       },
-      addTemModule: function() {
+      addTemModule: function(monitorId) {
         status.isAdd = true
+        this.setId('monitorId', monitorId)
         this.clearForm()
         panel.edit.modal('show')
       },
@@ -119,6 +121,7 @@
         }
 
         data.groupId = selectManager.getCompany()
+        data.monitorId = now.monitorId
 
         // 如果不是增加设备，则需要添加当前设备的id作为参数
         if(!status.isAdd) {
@@ -149,7 +152,7 @@
        */
       editTemModule: function(data) {
         status.isAdd = false
-        this.setModuleId(data.id)
+        this.setId('moduleId', data.id).setId('monitorId', data.monitorId)
         var inputs = panel.edit.find('input')
         Array.prototype.forEach.call(inputs, function(item) {
           item.value = data[item.name]
@@ -162,7 +165,7 @@
        * @return {[type]}          [description]
        */
       delTemModule: function(id) {
-        this.setModuleId(id)
+        this.setId('moduleId', id)
         var delModal = Popup.Confirm({
           title: '警告',
           text: '您确定要删除吗？请慎重考虑',

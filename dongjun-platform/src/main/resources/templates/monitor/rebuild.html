@@ -22,9 +22,14 @@
 
 
   <button style="float: right;" onclick="chart.chartView.handleChange()">
-		<i class="icon-refresh"></i>
+		<i class="icon-random"></i>
   	切换
 	</button>
+	<button style="float: right; margin-right: 5px" onclick="chart.chartManager.refresh()">
+		<i class="icon-refresh"></i>
+  	刷新
+	</button>
+
   <ul class="nav nav-tabs" id="lineBar">
       <li class="active"><a data-toggle="tab" href="#temperature" id="showTchart">温度曲线图</a></li>
       <li><a data-toggle="tab" href="#VoltageChart" id="showVchart">电压曲线图</a></li>
@@ -187,13 +192,11 @@
     TemChart.prototype.handleClick = function(event, treeId, treeNode) {
       var begin_time = $('#begin_search_date').val()
       var end_time = $('#end_search_date').val()
-      if(timeModel.getTem() != 1) {
-        timeModel.startTem();
-        timeModel.setTem(1);
-      }
+      // if(timeModel.getTem() != 1) {
+      //   timeModel.startTem();
+      //   timeModel.setTem(1);
+      // }
       chartNodes.setData({
-        bgtime: begin_time,
-        endtime: end_time,
         id: treeNode.id,
         name: treeNode.name
       })
@@ -298,6 +301,10 @@
             }
           }
         },
+				setTime: function(time) {
+					$('#begin_search_date').val(time.bg)
+					$('#end_search_date').val(time.end)
+				},
         /**
          * [changeChart 隐藏温度显示电压的或者反之]
          * @param  {[type]} toWhat [切去哪里]
@@ -336,8 +343,7 @@
               text: text,
               x: 'center',
               backgroundColor: 'white',
-              // borderColor: '#2b7ec6',
-              // borderWidth: 4,
+              borderColor: 'black',
               padding: 13,
               textStyle: {
                 color: 'black',
@@ -368,25 +374,25 @@
                 case 'showVExcal':
                   if(!$('#showVchart').closest('li').hasClass('active')) {
                 	$('#showVchart').click();
-                    chartManager.setActive('showVchart')
+                    // chartManager.setActive('showVchart')
                   }
                   break;
                 case 'showCExcal':
                   if(!$('#showCchart').closest('li').hasClass('active')) {
                     $('#showCchart').click();
-                    chartManager.setActive('showCchart');
+                    // chartManager.setActive('showCchart');
                   }
                   break;
                 case 'showPExcal':
                 if(!$('#showPchart').closest('li').hasClass('active')) {
                   $('#showPchart').click();
-                  chartManager.setActive('showPchart')
+                  // chartManager.setActive('showPchart')
                 }
                 break;
                 case 'showTExcal':
                 if(!$('#showTchart').closest('li').hasClass('active')) {
                   $('#showTchart').click();
-                  chartManager.setActive('showTchart')
+                  // chartManager.setActive('showTchart')
                 }
                 break;
               }
@@ -406,14 +412,10 @@
      */
     var chartNodes = function() {
     	var id = ''
-	    var bgtime = ''
-	    var endtime = ''
 	    var name = ''
 
 	    return {
     		setData: function(option) {
-    			bgtime = option.bgtime
-    			endtime = option.endtime
     			id = option.id
     			name = option.name
     		},
@@ -426,7 +428,39 @@
     			if(name) {
     				return name
     			}
-    		}
+    		},
+				getNow: function() {
+					var d = new Date()
+					return {
+						h: d.getHours(),
+						m: d.getMinutes()
+					}
+				},
+				splitTime: function(time) {
+					var formTime = time.split(' ')[1].split(':')
+					formTime[0] = Number(formTime[0])
+					formTime[1] = Number(formTime[1])
+					return formTime
+				},
+				changeTime: function(time) {
+					var oldBgDate = $('#begin_search_date').val().split(' ')[0]
+					var oldEndDate = $('#end_search_date').val().split(' ')[0]
+					if(time.h) {
+						time.bg[0] += time.h
+						time.end[0] += time.h
+					}
+					if(time.m) {
+						time.bg[1] += time.m
+						time.end[1] += time.m
+					}
+					var newBg = time.bg.join(':')
+					var newEnd = time.end.join(':')
+					console.log(oldBgDate + ' ' + newBg, oldEndDate + ' ' + newEnd)
+					return {
+						bg: oldBgDate + ' ' + newBg,
+						end: oldEndDate + ' ' + newEnd
+					}
+				}
     	}
      }()
   /**
@@ -442,6 +476,25 @@
       var chartArr = [temperature, voltageChart, currentChart, powerChart]
 
       return {
+				refresh: function() {
+					var now = chartNodes.getNow()
+					var bgtime = chartNodes.splitTime($('#begin_search_date').val())
+					var endtime = chartNodes.splitTime($('#end_search_date').val())
+					if(now.h != endtime[0]) {
+						var _h = now.h - endtime[0]
+					}
+					if(now.m != endtime[1]) {
+						var _m = now.m - endtime[1]
+					}
+					var setTime = {
+						h: _h ? _h : false,
+						m: _m ? _m : false,
+						bg: bgtime,
+						end: endtime
+					}
+					chartView.setTime(chartNodes.changeTime(setTime))
+					chartManager.showChart()
+				},
         setActive: function(chartId) {
           for(var i = 0; i < chartArr.length; i++) {
             chartArr[i].setActive(false)
@@ -544,11 +597,13 @@
           timer = null;
         },
       newHandleClick: function(event, treeId, treeNode) {
-        for(var i = 0; i < chartArr.length; i++) {
-          if(chartArr[i].getActive() === true) {
-            chartArr[i].handleClick(event, treeId, treeNode)
-          }
-        }
+				if(!treeNode.children) {
+					for(var i = 0; i < chartArr.length; i++) {
+						if(chartArr[i].getActive() === true) {
+							chartArr[i].handleClick(event, treeId, treeNode)
+						}
+					}
+				}
       }
     // TODO
 

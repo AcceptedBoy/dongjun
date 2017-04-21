@@ -16,7 +16,6 @@
         <td>温度上限</td>
         <td>温度下限</td>
         <td style="width: 70px;">修改</td>
-        <td style="width: 70px;">删除</td>
       </thead>
     </table>
   </div>
@@ -121,17 +120,10 @@
                 return '<a href="#edit_module_modal" role="button" class="btn" data-toggle="modal" data-fnc="edit" data-id="'+ data +'">修改 &raquo;</a>'
               }
             },
-            {
-              'data': 'id',
-              'width': '70px',
-              'render': function(data) {
-                return '<a class="btn btn-danger" data-id="'+data+'" data-fnc="del">删除&raquo; </a>'
-              }
-            },
           ],
           'language': {
-            'emptyTable': '<a style="cursor: pointer;" onclick="TemModuleModal.addTemModule()">点击添加新的数据</a>',
-            'zeroRecords': '<a style="cursor: pointer;" onclick="TemModuleModal.addTemModule()">点击添加新的数据</a>',
+            'emptyTable': '<a data-fnc="add" style="cursor: pointer;">点击添加新的数据</a>',
+            'zeroRecords': '<a data-fnc="add" style="cursor: pointer;">点击添加新的数据</a>',
             'loadingRecords': '正在加载数据...'
           },
           'initComplete': function(setting, json) {
@@ -145,6 +137,7 @@
                   var data = Array.prototype.find.call(table.data(), function(item) {
                     return item.id == id
                   })
+                  data.monitorId = store.now.monitorId
                   TemModuleModal.editTemModule(data)
                 }
               } else if(fnc == 'del') {
@@ -152,6 +145,8 @@
                 if(TemModuleModal) {
                   TemModuleModal.delTemModule(id)
                 }
+              } else if(fnc == 'add') {
+                TemModuleModal.addTemModule(store.now.monitorId)
               }
             })
           },
@@ -180,11 +175,6 @@
         }
         table.settings()[0].ajax.data = param
         table.ajax.reload()
-        /*if(store.lastId != id) {
-          panelObserver.fire('showSensorTable', {
-            id: id
-          })
-        }*/
         return this
       }
     }
@@ -368,8 +358,11 @@
         edit: '/dongjun/temperature_sensor/edit',
         del: '/dongjun/temperature_sensor/del'
       },
+      availableType: {
+        '0': '无类型'
+      }
     }
-    var TYPES = ['进线A相', '进线B相', '进线C相', '出线A相', '出线B相', '出线C相']
+    var TYPES = ['无类型', '进线A相', '进线B相', '进线C相', '出线A相', '出线B相', '出线C相']
 
     var hasSet = false
     return {
@@ -400,6 +393,9 @@
       getTable: function() {
         return table
       },
+      // getAvailableType() {
+      //   return store.availableType
+      // },
       show: function(deviceId) {
         var me = this
         store.now.deviceId = deviceId || store.now.deviceId
@@ -414,6 +410,9 @@
             },
             success: function(res) {
               var data = typeof res == 'string' ? JSON.parse(res).text : res.text
+              store.availableType = {
+                '0': '无类型'
+              }
               var tds = me.getTds.call(me, data)
               if(hasSet) {
                 table.clear().add(tds)
@@ -427,37 +426,60 @@
       },
       getTds: function(data) {
         var me = this
+        // tdArr 用于检测 6 个type的存在
         var tdArr = [false, false, false, false, false, false]
-        // var tdArr = []
+        // 无类型数组
+        var noTypeArr = []
         data.forEach(function(item) {
-          var type = parseInt(item.type) - 1
+          var type = parseInt(item.type)
           item.typeText = TYPES[type]
-          tdArr[type] = me.SensorRow(item, false)
+          if(type == 0) {
+            noTypeArr.push(me.SensorRow(item, false))
+          } else {
+            // store.existType.push(type)
+            tdArr[type - 1] = me.SensorRow(item, false)
+          }
         })
+        // console.log(tdArr)
         tdArr.forEach(function(item, index) {
           if(!item) {
+            var type = index + 1
+            var typeText = TYPES[type]
+            store.availableType[type] = typeText
             tdArr[index] = me.SensorRow({
-              typeText: TYPES[index],
-              type: index + 1
+              typeText: typeText,
+              type: type
             }, true)
           }
         })
-        return tdArr
+        return tdArr.concat(noTypeArr)
       },
+      /**
+       * 生成行
+       * @param {[type]}  data  数据
+       *                        {
+       *                          typeText: '',
+       *                          type: '',
+       *                          tag: '',
+       *                          name: '',
+       *                          deviceId: ''
+       *                        }
+       * @param {Boolean} isAdd 当此项不存在数据、 需要增加时为true
+       */
       SensorRow: function(data, isAdd) {
         return new SensorRow({
           data: data,
           isAdd: isAdd,
           td: ['typeText', 'tag', 'name'],
           edit: function(data, row) {
-            sensorModal.editSensor(data)
+            sensorModal.editSensor(data, store.availableType)
           },
           del: function(data, row) {
             sensorModal.delSensor(data)
           },
           add: function(data, row) {
             data.deviceId = store.now.deviceId
-            sensorModal.addSensor(data)
+            sensorModal.addSensor(data, store.availableType)
           }
         })
       }

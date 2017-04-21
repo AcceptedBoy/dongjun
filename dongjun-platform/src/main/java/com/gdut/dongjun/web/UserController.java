@@ -39,10 +39,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.gdut.dongjun.domain.model.ErrorInfo;
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.Company;
-import com.gdut.dongjun.domain.po.ModuleHitchEvent;
 import com.gdut.dongjun.domain.po.PersistentHitchMessage;
 import com.gdut.dongjun.domain.po.PlatformGroup;
-import com.gdut.dongjun.domain.po.TemperatureMeasureHitchEvent;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.po.authc.Role;
 import com.gdut.dongjun.domain.po.authc.UserRole;
@@ -256,6 +254,7 @@ public class UserController {
 	 */
 	@RequestMapping(value = "/dongjun/elecon/user_registy", method = RequestMethod.POST)
 	@ResponseBody
+	@Transactional
 	public ResponseMessage doRegisty(User user) {
 		List<Role> roles = roleService.selectByParameters(null);
 		user.setId(UUIDUtil.getUUID());
@@ -347,7 +346,7 @@ public class UserController {
 		if (null == user.getId()) {
 			return ResponseMessage.warning("操作失败");
 		}
-		if (0 == userService.updateByPrimaryKey(user)) {
+		if (0 == userService.updateByPrimaryKeySelective(user)) {
 			return ResponseMessage.warning("操作失败");
 		}
 		return ResponseMessage.success(user);
