@@ -10,7 +10,10 @@
       <div class="control-group">
         <label class="control-label" for="editTemSensorType">传感器类型</label>
         <div class="controls">
-          <input type="text" id="editTemSensorType" name="typeText" readonly />
+          <!-- <input type="text" id="editTemSensorType" name="typeText" readonly /> -->
+          <select name="type" id="editTemSensorType">
+            <option value="1">test</option>
+          </select>
         </div>
       </div>
       <div class="control-group">
@@ -48,8 +51,13 @@
       isAdd: true
     }
     var panel = {
-      edit: $('#edit_TemSensor_modal')
+      edit: $('#edit_TemSensor_modal'),
+      typeSelect: $('#editTemSensorType')
     }
+    panel.typeSelect.on('change', function() {
+      now.sensorType = this.value
+      console.log(this, now.sensorType)
+    })
     return {
       /**
        * 配置
@@ -67,15 +75,12 @@
         now[key] = value
         return this
       },
-      addSensor: function(data) {
+      addSensor: function(data, availableType) {
         status.isAdd = true
         this.setNow('deviceId', data.deviceId)
             .setNow('sensorType', data.type)
-        var inputs = panel.edit.find('input')
-        console.log(data)
-        Array.prototype.forEach.call(inputs, function(item) {
-          item.value = data[item.name] || ''
-        })
+            .fillFormData(data)
+            .setSelect(availableType)
         panel.edit.modal('show')
       },
       /**
@@ -89,20 +94,42 @@
           input.value = ''
         }
       },
+      setSelect: function(availableType) {
+        var select = panel.typeSelect
+        var opts = ''
+        for(var type in availableType) {
+          opts += '<option value=' + type + '>' + availableType[type] + '</option>'
+        }
+        select.html(opts)
+        select.val(now.sensorType)
+        return this
+      },
+      fillFormData: function(data) {
+        var inputs = panel.edit.find('input')
+        Array.prototype.forEach.call(inputs, function(item) {
+          item.value = data[item.name] || ''
+        })
+        return this
+      },
       /**
        * 修改设备信息，填充表单内容
        * @param  {[type]} data 设备的相关数据
        * @return {[type]}      [description]
        */
-      editSensor: function(data) {
+      editSensor: function(data, availableType) {
         status.isAdd = false
+        // availableType[data.type] = data.typeText
+        var aType = {}
+        for(var t in availableType) {
+          aType[t] = availableType[t]
+        }
+        aType[data.type] = data.typeText
+        console.log(availableType)
         this.setNow('sensorId', data.id)
             .setNow('deviceId', data.deviceId)
             .setNow('sensorType', data.type)
-        var inputs = panel.edit.find('input')
-        Array.prototype.forEach.call(inputs, function(item) {
-          item.value = data[item.name]
-        })
+            .fillFormData(data)
+            .setSelect(aType)
         panel.edit.modal('show')
       },
       /**
@@ -129,7 +156,7 @@
 
         // check tag
         var tag = parseInt(data.tag)
-        if(tag <= 0 || tag > 16) {
+        if(isNaN(tag) || tag <= 0 || tag > 16) {
           alert('传感器编号应在 1 ~ 16 之间')
           return
         }
