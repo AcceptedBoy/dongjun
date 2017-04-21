@@ -16,14 +16,18 @@
 		<javaModelGenerator targetPackage="com.gdut.dongjun.domain.po"
 			targetProject="D:\\WORKING\\git\\dongjun_dzc\\dongjun-hardware" />
 		<!-- 生成的映射文件包名和位置 -->
-		<sqlMapGenerator targetPackage="com.gdut.dongjun.domain.dshanao"
+		<sqlMapGenerator targetPackage="com.gdut.dongjun.domain.xml"
 			targetProject="D:\\WORKING\\git\\dongjun_dzc\\dongjun-hardware" />
 		<!-- 生成DAO的包名和位置 -->
 		<javaClientGenerator targetPackage="com.gdut.dongjun.domain.dao"
 			targetProject="D:\\WORKING\\git\\dongjun_dzc\\dongjun-hardware" type="XMLMAPPER" />
 
-		<table schema="root" tableName="temperature_sensor1"
-			domainObjectName="TemperatureSensor" enableCountByExample="false"
+		<table schema="root" tableName="temperature_measure_hitch_event1"
+			domainObjectName="TemperatureMeasureHitchEvent" enableCountByExample="false"
+			enableUpdateByExample="false" enableDeleteByExample="false"
+			enableSelectByExample="false" selectByExampleQueryId="false" />
+					<table schema="root" tableName="module_hitch_event"
+			domainObjectName="ModuleHitchEvent" enableCountByExample="false"
 			enableUpdateByExample="false" enableDeleteByExample="false"
 			enableSelectByExample="false" selectByExampleQueryId="false" />
 <!-- 		<table schema="root" tableName="electronic_module_current" -->

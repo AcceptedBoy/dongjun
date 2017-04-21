@@ -1,10 +1,9 @@
 package com.gdut.dongjun.core.handler.thread;
 
-import org.springframework.stereotype.Component;
-
 import com.gdut.dongjun.domain.po.abstractmodel.AbstractHitchEvent;
 import com.gdut.dongjun.domain.vo.HitchEventVO;
 import com.gdut.dongjun.service.base.BaseService;
+import com.gdut.dongjun.service.base.EnhancedService;
 import com.gdut.dongjun.service.webservice.client.WebsiteServiceClient;
 import com.gdut.dongjun.util.SpringApplicationContextHolder;
 
@@ -13,20 +12,19 @@ import com.gdut.dongjun.util.SpringApplicationContextHolder;
  * @author Gordan_Deng
  * @date 2017年3月8日
  */
-@Component
-public abstract class HitchEventThread implements Runnable {
+public abstract class HitchEventTask<T extends AbstractHitchEvent> implements Runnable {
 	
-	protected AbstractHitchEvent hitchEvent;
+	protected T hitchEvent;
 	
-	protected BaseService service;
+	protected EnhancedService<T> service;
 	
 	protected static WebsiteServiceClient websiteServiceClient;
 	
-	protected HitchEventThread() {
+	protected HitchEventTask() {
 		if (null == websiteServiceClient) {
-			synchronized(HitchEventThread.class) {
+			synchronized(HitchEventTask.class) {
 				if (null == websiteServiceClient) {
-					this.websiteServiceClient = (WebsiteServiceClient)SpringApplicationContextHolder.getSpringBean("websiteServiceClient");
+					HitchEventTask.websiteServiceClient = (WebsiteServiceClient)SpringApplicationContextHolder.getSpringBean("websiteServiceClient");
 				}
 			}
 		}
@@ -55,7 +53,7 @@ public abstract class HitchEventThread implements Runnable {
 	 * 发送报警消息
 	 * @param event
 	 */
-	public void sendHitchEvent(AbstractHitchEvent event) {
+	public void sendHitchEvent(T event) {
 		websiteServiceClient.getService().callbackHitchEvent(wrapHitchEventVO(event));
 	}
 	
@@ -67,18 +65,19 @@ public abstract class HitchEventThread implements Runnable {
 	public HitchEventVO wrapHitchEventVO(AbstractHitchEvent event) {
 		HitchEventVO vo = new HitchEventVO();
 		vo.setId(event.getId());
-		vo.setMonitorId(event.getSwitchId());
+		vo.setMonitorId(event.getMonitorId());
 		vo.setGroupId(event.getGroupId());
 		vo.setType(event.getType());
 		vo.setGroupId(event.getGroupId());
 		return vo;
 	}
 
-	protected BaseService getService() {
+	protected EnhancedService<T> getService() {
 		return service;
 	}
 
-	protected void setService(BaseService service) {
+	protected void setService(EnhancedService<T> service) {
 		this.service = service;
 	}
+
 }
