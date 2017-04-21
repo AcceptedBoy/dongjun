@@ -27,7 +27,7 @@
           'destroy': true,// destroy之后才能重新加载
           'ajax': {
             'url': o.url,
-            'type': 'POST',
+            'type': 'GET',
             'dataSrc': 'text'
           },
           'columns': [
@@ -86,6 +86,6 @@
     }
   }()
   temperatureTable.init({
-    url: '/dongjun/temperature_hitch/list'
+    url: '/dongjun/hitch/measure/temperature'
   });           // 初始化表格
 </script>
