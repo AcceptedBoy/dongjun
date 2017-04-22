@@ -1,0 +1,18 @@
+{ 
+	"data": [{ 
+		"time": 10,
+		"aValue": 12,
+		"bValue": 34,
+		"cValue": 55
+	}, { 
+		"time": 43,
+		"aValue": 13,
+		"bValue": 314,
+		"cValue": 523
+	}, { 
+		"time": 312,
+		"aValue": 32,
+		"bValue": 444,
+		"cValue": 32
+	}] 
+}

@@ -1,25 +1,17 @@
 package com.gdut.dongjun.core;
 
-import com.gdut.dongjun.domain.HighVoltageStatus;
-import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
-import com.gdut.dongjun.service.webservice.client.WebsiteServiceClient;
-import com.gdut.dongjun.service.webservice.server.HardwareService;
-import io.netty.channel.ChannelHandlerContext;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
+import com.gdut.dongjun.service.webservice.client.WebsiteServiceClient;
+
+import io.netty.channel.ChannelHandlerContext;
 
 /**
  * @Title: ClientList.java
@@ -29,33 +21,37 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @date 2015年8月11日 下午4:30:06
  * @version V1.0
  * @see {@link SwitchGPRS}
+ * 
+ * @update: 2017.2.23 Gordan_Deng	把CtxStore存储设备状态的功能进行抽象
+ * 
  */
-@Component
-@Lazy(false)
-public class CtxStore implements InitializingBean, ApplicationContextAware {
+public abstract class CtxStore implements InitializingBean, ApplicationContextAware {
+	
+	private static Logger logger = Logger.getLogger(CtxStore.class);
 
-	private static WebsiteServiceClient websiteServiceClient;
+	protected volatile static WebsiteServiceClient websiteServiceClient;
 
 	private ApplicationContext applicationContext;
+	
+	protected List<SwitchGPRS> ctxlist;
+	
+	protected CtxStore() {
+		ctxlist = new CopyOnWriteArrayList<>();
+	}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		CtxStore.websiteServiceClient = (WebsiteServiceClient)
-				applicationContext.getBean("websiteServiceClient");
+		if (CtxStore.websiteServiceClient == null) {
+			CtxStore.websiteServiceClient = (WebsiteServiceClient)
+					applicationContext.getBean("websiteServiceClient");
+		}
 	}
 
 	@Override
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.applicationContext = applicationContext;
 	}
-
-	/**
-	 * Logger for this class
-	 */
-	private static final Logger logger = Logger.getLogger(CtxStore.class);
-	private static final List<SwitchGPRS> ctxlist = new CopyOnWriteArrayList<>();
-	private static final List<HighVoltageStatus> hstalist = new CopyOnWriteArrayList<HighVoltageStatus>();
-
+	
 	//*****************************
 	//  异步操作不需要这些标志位和方法了
 	//*****************************
@@ -76,10 +72,6 @@ public class CtxStore implements InitializingBean, ApplicationContextAware {
 	public static boolean whetherChangeInfo() {
 		return changeInfo;
 	}
-	
-	private CtxStore() {
-		super();
-	}
 
 	/**
 	 * 
@@ -89,12 +81,12 @@ public class CtxStore implements InitializingBean, ApplicationContextAware {
 	 * @return List<SwitchGPRS>
 	 * @throws
 	 */
-	public static List<SwitchGPRS> getInstance() {
+	public List<SwitchGPRS> getInstance() {
 
 		return ctxlist;
 	}
 	
-	public static ChannelHandlerContext getCtxByAddress(String address) {
+	public ChannelHandlerContext getCtxByAddress(String address) {
 		
 		for(SwitchGPRS gprs : ctxlist) {
 			if(gprs.getAddress() != null && gprs.getAddress().equals(address)) {
@@ -106,19 +98,6 @@ public class CtxStore implements InitializingBean, ApplicationContextAware {
 
 	/**
 	 * 
-	 * @Title: getHighVoltageStatus
-	 * @Description: TODO
-	 * @param @return
-	 * @return List<HighVoltageStatus>
-	 * @throws
-	 */
-	public static List<HighVoltageStatus> getHighVoltageStatus() {
-
-		return hstalist;
-	}
-
-	/**
-	 * 
 	 * @Title: get
 	 * @Description: TODO
 	 * @param @param ctx
@@ -126,7 +105,7 @@ public class CtxStore implements InitializingBean, ApplicationContextAware {
 	 * @return SwitchGPRS
 	 * @throws
 	 */
-	public static SwitchGPRS get(ChannelHandlerContext ctx) {
+	public SwitchGPRS get(ChannelHandlerContext ctx) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("remove(SwitchGPRS) - start");
 		}
@@ -157,7 +136,7 @@ public class CtxStore implements InitializingBean, ApplicationContextAware {
 	 * @return SwitchGPRS
 	 * @throws
 	 */
-	public static SwitchGPRS get(String id) {
+	public SwitchGPRS get(String id) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("remove(SwitchGPRS) - start");
 		}
@@ -180,7 +159,7 @@ public class CtxStore implements InitializingBean, ApplicationContextAware {
 		return null;
 	}
 	
-	public static SwitchGPRS getByAddress(String address) {
+	public SwitchGPRS getByAddress(String address) {
 		
 		if(ctxlist != null) {
 			for(SwitchGPRS gprs : ctxlist) {
@@ -201,7 +180,7 @@ public class CtxStore implements InitializingBean, ApplicationContextAware {
 	 * @return SwitchGPRS
 	 * @throws
 	 */
-	public static String getIdbyAddress(String address) {
+	public String getIdbyAddress(String address) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("remove(SwitchGPRS) - start");
 		}
@@ -225,45 +204,13 @@ public class CtxStore implements InitializingBean, ApplicationContextAware {
 
 	/**
 	 * 
-	 * @Title: getStatusbyId
-	 * @Description: TODO
-	 * @param @param id
-	 * @param @return
-	 * @return HighVoltageStatus
-	 * @throws
-	 */
-	public static HighVoltageStatus getStatusbyId(String id) {
-
-		if (logger.isDebugEnabled()) {
-			logger.debug("remove(SwitchGPRS) - start");
-		}
-		if (ctxlist != null) {
-
-			for (HighVoltageStatus gprs : hstalist) {
-
-				if (gprs != null && gprs.getId() != null && gprs.getId().equals(id)) {
-					return gprs;
-				}
-
-			}
-		} else {
-			logger.info("ctxlist is empty!");
-		}
-		if (logger.isDebugEnabled()) {
-			logger.debug("remove(SwitchGPRS) - end");
-		}
-		return null;
-	}
-
-	/**
-	 * 
 	 * @Title: add
 	 * @Description: TODO
 	 * @param @param ctx
 	 * @return void
 	 * @throws
 	 */
-	public static void add(SwitchGPRS ctx) {
+	public void add(SwitchGPRS ctx) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("add(SwitchGPRS) - start");
 		}
@@ -271,32 +218,11 @@ public class CtxStore implements InitializingBean, ApplicationContextAware {
 		if(ctx != null) {
 
 			//TODO 采用新的
-			websiteServiceClient.getService().callbackCtxChange();
+//			websiteServiceClient.getService().callbackCtxChange();
 			ctxlist.add(ctx);
 		}
-		printCtxStore();
+		//printCtxStore();
 
-		if (logger.isDebugEnabled()) {
-			logger.debug("add(SwitchGPRS) - end");
-		}
-	}
-
-	/**
-	 * 
-	 * @Title: addStatus
-	 * @Description: TODO
-	 * @param @param ctx
-	 * @return void
-	 * @throws
-	 */
-	public static void addStatus(HighVoltageStatus ctx) {
-		if (logger.isDebugEnabled()) {
-			logger.debug("add(SwitchGPRS) - start");
-		}
-
-		hstalist.add(ctx);
-		websiteServiceClient.getService().callbackCtxChange();// TODO trueChange();
-		
 		if (logger.isDebugEnabled()) {
 			logger.debug("add(SwitchGPRS) - end");
 		}
@@ -310,7 +236,7 @@ public class CtxStore implements InitializingBean, ApplicationContextAware {
 	 * @return void
 	 * @throws
 	 */
-	public static void remove(ChannelHandlerContext ctx) {
+	public void remove(ChannelHandlerContext ctx) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("remove(SwitchGPRS) - start");
 		}
@@ -324,7 +250,7 @@ public class CtxStore implements InitializingBean, ApplicationContextAware {
 					ctxlist.remove(gprs);	
 				}
 			}
-			websiteServiceClient.getService().callbackCtxChange();// TODO trueChange();
+//			websiteServiceClient.getService().callbackCtxChange();// TODO trueChange();
 		} else {
 			logger.info("ctxlist is empty, no gprs has bean remove!");
 		}
@@ -341,13 +267,13 @@ public class CtxStore implements InitializingBean, ApplicationContextAware {
 	 * @return void
 	 * @throws
 	 */
-	public static void clear() {
+	public void clear() {
 		if (logger.isDebugEnabled()) {
 			logger.debug("clear() - start");
 		}
 
 		ctxlist.clear();
-		websiteServiceClient.getService().callbackCtxChange(); // TODO trueChange();
+//		websiteServiceClient.getService().callbackCtxChange(); // TODO trueChange();
 		if (logger.isDebugEnabled()) {
 			logger.debug("clear() - end");
 		}
@@ -361,13 +287,13 @@ public class CtxStore implements InitializingBean, ApplicationContextAware {
 	 * @return void
 	 * @throws
 	 */
-	public static void updateSwtichOpen(String id) {
+	public void updateSwtichOpen(String id) {
 
 		SwitchGPRS gprs = get(id);
 		if (gprs != null && id.equals(gprs.getId())) {
 			gprs.setOpen(true);
-			printCtxStore();
-			websiteServiceClient.getService().callbackCtxChange(); // TODO trueChange();
+			//printCtxStore();
+//			websiteServiceClient.getService().callbackCtxChange(); // TODO trueChange();
 		} else {
 			logger.info("ctxlist is empty!");
 		}
@@ -382,7 +308,7 @@ public class CtxStore implements InitializingBean, ApplicationContextAware {
 	 * @return boolean
 	 * @throws
 	 */
-	public static boolean isReady(String id) {
+	public boolean isReady(String id) {
 
 		SwitchGPRS gprs = get(id);
 		if (gprs != null && gprs.getId() != null && gprs.getAddress() != null
@@ -416,7 +342,7 @@ public class CtxStore implements InitializingBean, ApplicationContextAware {
 	 * @return void
 	 * @throws
 	 */
-	public static void excute(String id, String msg) {
+	public void excute(String id, String msg) {
 
 		if (logger.isDebugEnabled()) {
 			logger.debug("excute(String) - start");
@@ -437,14 +363,15 @@ public class CtxStore implements InitializingBean, ApplicationContextAware {
 	}
 
 	/**
-	 * 
+	 * 在生产环境上作用甚微，日志又占空间，故去除
 	 * @Title: printCtxStore
 	 * @Description: TODO
 	 * @param
 	 * @return void
 	 * @throws
 	 */
-	public static void printCtxStore() {
+	@Deprecated
+	public void printCtxStore() {
 		if (logger.isDebugEnabled()) {
 			logger.debug("printCtxStore() - start");
 		}
@@ -464,27 +391,27 @@ public class CtxStore implements InitializingBean, ApplicationContextAware {
 		}
 	}
 
-	public static void remove(String id) {
+	public void remove(String id) {
 		
 		if(id == null) {
 			return;
 		}
 		
-		List<SwitchGPRS> list = CtxStore.getInstance();
+		List<SwitchGPRS> list = getInstance();
 		for(int length = list.size() - 1, i = length; i >= 0; --i) {
 			if(list.get(i).getId() != null && list.get(i).getId().equals(id)) {
 				list.remove(i);
 			}
 		}
-		websiteServiceClient.getService().callbackCtxChange(); // TODO trueChange();
+//		websiteServiceClient.getService().callbackCtxChange(); // TODO trueChange();
 	}
 
-	public static boolean changeOpen(String switchId) {
+	public boolean changeOpen(String switchId) {
 		
-		SwitchGPRS gprs = CtxStore.get(switchId);
+		SwitchGPRS gprs = get(switchId);
 		if(gprs != null) {
 			gprs.setOpen(gprs.isOpen() == true ? false : true);
-			websiteServiceClient.getService().callbackCtxChange(); // TODO trueChange();
+//			websiteServiceClient.getService().callbackCtxChange(); // TODO trueChange();
 			return true;
 		} else {
 			return false;

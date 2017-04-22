@@ -4,15 +4,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Resource;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.gdut.dongjun.domain.dao.authc.UserRoleMapper;
-import com.gdut.dongjun.domain.po.authc.UserRoleKey;
+import com.gdut.dongjun.domain.po.authc.UserRole;
+import com.gdut.dongjun.domain.po.authc.UserRole;
 import com.gdut.dongjun.service.authc.UserRoleService;
-import com.gdut.dongjun.service.base.impl.BaseServiceImpl;
+import com.gdut.dongjun.service.base.impl.EnhancedServiceImpl;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 
 /**
@@ -24,7 +24,7 @@ import com.gdut.dongjun.util.MyBatisMapUtil;
  * @version V1.0
  */
 @Service
-public class UserRoleServiceImpl extends BaseServiceImpl<UserRoleKey> implements
+public class UserRoleServiceImpl extends EnhancedServiceImpl<UserRole> implements
 		UserRoleService {
 	/**
 	 * @ClassName: RoleServiceImpl
@@ -32,23 +32,29 @@ public class UserRoleServiceImpl extends BaseServiceImpl<UserRoleKey> implements
 	 * @author Sherlock-lee
 	 * @date 2015年8月20日 上午7:19:34
 	 */
-	@Resource
+	@Autowired
 	private UserRoleMapper userRoleMapper;
+	
 
 	@Override
-	public int deleteByPrimaryKey(UserRoleKey key) {
+	protected boolean isExist(UserRole record) {
+		return true;
+	}
+
+	@Override
+	public int deleteByPrimaryKey(UserRole key) {
 
 		return userRoleMapper.deleteByPrimaryKey(key);
 	}
 
 	@Override
-	public int insert(UserRoleKey record) {
+	public int insert(UserRole record) {
 
 		return userRoleMapper.insert(record);
 	}
 
 	@Override
-	public int insertSelective(UserRoleKey record) {
+	public int insertSelective(UserRole record) {
 
 		return userRoleMapper.insertSelective(record);
 	}
@@ -59,7 +65,7 @@ public class UserRoleServiceImpl extends BaseServiceImpl<UserRoleKey> implements
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("user_id", tId);
 		map.put("role_id", rId);
-		List<UserRoleKey> list = userRoleMapper
+		List<UserRole> list = userRoleMapper
 				.selectByParameters(MyBatisMapUtil.warp(map));
 
 		if (list != null && list.size() != 0) {
@@ -77,7 +83,7 @@ public class UserRoleServiceImpl extends BaseServiceImpl<UserRoleKey> implements
 			
 			for (String r : roles) {
 
-				UserRoleKey key = new UserRoleKey(userId, r);
+				UserRole key = new UserRole(userId, r);
 				if (userRoleMapper.insertSelective(key) == 0) {
 
 					throw new RuntimeException();// 抛错才会回滚
@@ -103,11 +109,6 @@ public class UserRoleServiceImpl extends BaseServiceImpl<UserRoleKey> implements
 	public int deleteByUserId(String userId) {
 		
 		return userRoleMapper.deleteByUserId(userId);
-	}
-
-	@Override
-	protected boolean isExist(UserRoleKey record) {
-		return true;
 	}
 
 }

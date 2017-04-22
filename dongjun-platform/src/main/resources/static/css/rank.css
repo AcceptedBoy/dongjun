@@ -1,0 +1,215 @@
+/* Welcome to Compass.
+ * In this file you should write your main styles. (or centralize your imports)
+ * Import this file using the following HTML or equivalent:
+ * <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" /> */
+/*@import "compass/reset";*/
+/* line 13, ../sass/screen.scss */
+.companyContainer {
+  border-radius: 2%;
+  /*border: 1px solid black;*/
+  background-color: #dbdbdb;
+  height: min-content;
+  max-height: 35vh;
+  margin: 0 auto;
+  padding: 2%;
+  overflow-y: auto;
+  font-size: 1.2em;
+  min-height: 100px;
+  position: relative;
+}
+/* line 25, ../sass/screen.scss */
+.companyContainer .group {
+  display: inline-block;
+  margin: 5px 30px;
+}
+/* line 29, ../sass/screen.scss */
+.companyContainer .companyName {
+  font-weight: bold;
+}
+/* line 36, ../sass/screen.scss */
+.companyContainer .companyInfor {
+  display: block;
+  padding: 10px 0px;
+}
+/* line 40, ../sass/screen.scss */
+.companyContainer .edit_btn {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  padding: 5px;
+  width: 50px;
+  outline: none;
+}
+/* line 48, ../sass/screen.scss */
+.companyContainer .value {
+  max-width: min-content;
+  word-wrap: break-word;
+  word-break: break-all;
+}
+
+/* line 56, ../sass/screen.scss */
+.detail {
+  height: 53%;
+  margin: 2% 2%;
+  padding: 2%;
+  position: relative;
+  /*overflow-y: hidden;*/
+  font-size: 1.2em;
+  min-height: 300px;
+}
+/* line 64, ../sass/screen.scss */
+.detail .detailEmpolyee {
+  display: none;
+  position: relative;
+  height: 100%;
+  width: 45%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /*#empolyeeList {
+  	box-shadow: -2px 0 20px black;
+  	height: 100%;
+  	width: 100%;
+  	display: inline-block;
+  	overflow-y: auto;
+  }*/
+}
+/* line 71, ../sass/screen.scss */
+.detail .detailEmpolyee::before {
+  content: '员工';
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 5px;
+  font-size: 1.2em;
+  color: white;
+  margin: 0;
+  background-color: #9f9e9c;
+}
+/* line 90, ../sass/screen.scss */
+.detail .addBtn {
+  display: none;
+  position: absolute;
+  top: 0px;
+  right: 20px;
+  padding: 0em 1em;
+}
+
+.detail .changeBtn {
+  display: none;
+  position: absolute;
+  top: 0px;
+  right: 120px;
+  padding: 0em 1em;
+}
+/* line 97, ../sass/screen.scss */
+.detail .arrow {
+  height: 100%;
+  position: relative;
+  display: none;
+  padding: 0 30px;
+  margin: auto;
+}
+/* line 103, ../sass/screen.scss */
+.detail .arrow .center {
+  position: absolute;
+  width: 15px;
+  left: 0;
+  top: 0;
+  -moz-transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);
+}
+/* line 112, ../sass/screen.scss */
+.detail .detailGuest {
+  display: none;
+  position: relative;
+  height: 100%;
+  width: 45%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  /*#equipList {
+  	box-shadow: 2px 0 20px black;
+  	height: 100%;
+  	width: 100%;
+  	display: inline-block;
+  	overflow-y: auto;
+  }*/
+}
+/* line 119, ../sass/screen.scss */
+.detail .detailGuest::before {
+  content: '设备';
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 5px;
+  font-size: 1.2em;
+  color: white;
+  margin: 0;
+  background-color: #9f9e9c;
+}
+/* line 138, ../sass/screen.scss */
+.detail .normalInfor {
+  display: none;
+  position: relative;
+  margin: 0 200px;
+  height: 90%;
+  /* width: 100%; */
+  padding: 1px;
+  background-color: #dbdbdb;
+  border-radius: 2%;
+  min-height: min-content;
+}
+/* line 145, ../sass/screen.scss */
+.detail .normalInfor .header {
+  position: absolute;
+  top: 10px;
+  left: 20px;
+  z-index: 10;
+}
+
+/* line 155, ../sass/screen.scss */
+.inforDetail {
+  width: 100%;
+  height: 30px;
+}
+
+/* line 160, ../sass/screen.scss */
+.header {
+  position: absolute;
+  top: -40px;
+  left: 20px;
+  z-index: 10;
+}
+
+/* line 167, ../sass/screen.scss */
+textarea {
+  resize: none;
+}
+
+.personalInfor {
+	overflow-y: hidden;
+	min-width: min-content;
+	margin: 50px 100px;
+}
+
+.personalInfor > .group {
+	display: block;
+	margin: 10px 10px;
+}
+
+.personalInfor > .group .value {
+	max-width: min-content;
+	word-wrap: break-word;
+	word-break: break-all;
+}
+
+.editBtn {
+	position: absolute;
+	top: 2%;
+	right: 0.5%;
+}
+
+.title {
+	font-weight: bold;
+}

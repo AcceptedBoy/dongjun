@@ -7,13 +7,13 @@ import java.text.SimpleDateFormat;
 import org.springframework.stereotype.Component;
 
 import com.gdut.dongjun.domain.DataZone;
-import com.gdut.dongjun.domain.po.LowVoltageHitchEvent;
+//import com.gdut.dongjun.domain.po.LowVoltageHitchEvent;
 import com.gdut.dongjun.enums.CommandControlCode;
 import com.gdut.dongjun.enums.CurrentVariable;
 import com.gdut.dongjun.enums.DataZoneStructure;
 import com.gdut.dongjun.enums.Phase;
 
-@Component
+//@Component
 public class LowVoltageDeviceCommandUtil{
 
 	private String address;
@@ -280,59 +280,59 @@ public class LowVoltageDeviceCommandUtil{
 	 * @return String[]
 	 * @throws
 	 */
-	public static LowVoltageHitchEvent readHitchEvent(String decodedString) {
-
-		// System.out.println(decodedString.substring(0, 6));
-		// System.out.println(decodedString.substring(6, 12));
-		// System.out.println(decodedString.substring(12, 18));
-		// System.out.println(decodedString.substring(18, 22));
-		// System.out.println(decodedString.substring(22, 26));
-		// System.out.println(decodedString.substring(26, 30));
-		// System.out.println(decodedString.substring(30, 34));
-		System.out.println(decodedString.substring(34, 46));
-		// System.out.println(decodedString.substring(46, 48));
-		// System.out.println(decodedString.substring(48, 50));
-
-		LowVoltageHitchEvent hitchEvent = new LowVoltageHitchEvent();
-
-		hitchEvent.setBehitchCPhaseCurrent(Integer.parseInt(decodedString
-				.substring(0, 6)));
-		hitchEvent.setBehitchBPhaseCurrent(Integer.parseInt(decodedString
-				.substring(6, 12)));
-		hitchEvent.setBehitchAPhaseCurrent(Integer.parseInt(decodedString
-				.substring(12, 18)));
-
-		hitchEvent.setBehitchCPhaseVoltage(Integer.parseInt(decodedString
-				.substring(18, 22)));
-		hitchEvent.setBehitchBPhaseVoltage(Integer.parseInt(decodedString
-				.substring(22, 26)));
-		hitchEvent.setBehitchAPhaseVoltage(Integer.parseInt(decodedString
-				.substring(26, 30)));
-
-		hitchEvent.setResidualCurrent(Integer.valueOf(decodedString.substring(
-				30, 34)));
-
-		DateFormat d = new SimpleDateFormat("yyMMddHHmmss");
-		try {
-			hitchEvent.setHitchTime(d.parse(decodedString.substring(34, 46)));
-		} catch (ParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		// System.out.println(hitchEvent.getHitchTime());
-		hitchEvent.setHitchPhase(Phase.define(decodedString.substring(46, 48))
-				.value());
-
-		String byteString = HexString_BytesUtil
-				.hexStringToByteString(decodedString.substring(48, 50));
-
-		// System.out.println(byteString.substring(0, 5));
-		int i = com.gdut.dongjun.enums.HitchEvent.define(
-				byteString.substring(0, 5)).value();
-		hitchEvent.setHitchReason(i);
-
-		return hitchEvent;
-	}
+//	public static LowVoltageHitchEvent readHitchEvent(String decodedString) {
+//
+//		// System.out.println(decodedString.substring(0, 6));
+//		// System.out.println(decodedString.substring(6, 12));
+//		// System.out.println(decodedString.substring(12, 18));
+//		// System.out.println(decodedString.substring(18, 22));
+//		// System.out.println(decodedString.substring(22, 26));
+//		// System.out.println(decodedString.substring(26, 30));
+//		// System.out.println(decodedString.substring(30, 34));
+//		System.out.println(decodedString.substring(34, 46));
+//		// System.out.println(decodedString.substring(46, 48));
+//		// System.out.println(decodedString.substring(48, 50));
+//
+//		LowVoltageHitchEvent hitchEvent = new LowVoltageHitchEvent();
+//
+//		hitchEvent.setBehitchCPhaseCurrent(Integer.parseInt(decodedString
+//				.substring(0, 6)));
+//		hitchEvent.setBehitchBPhaseCurrent(Integer.parseInt(decodedString
+//				.substring(6, 12)));
+//		hitchEvent.setBehitchAPhaseCurrent(Integer.parseInt(decodedString
+//				.substring(12, 18)));
+//
+//		hitchEvent.setBehitchCPhaseVoltage(Integer.parseInt(decodedString
+//				.substring(18, 22)));
+//		hitchEvent.setBehitchBPhaseVoltage(Integer.parseInt(decodedString
+//				.substring(22, 26)));
+//		hitchEvent.setBehitchAPhaseVoltage(Integer.parseInt(decodedString
+//				.substring(26, 30)));
+//
+//		hitchEvent.setResidualCurrent(Integer.valueOf(decodedString.substring(
+//				30, 34)));
+//
+//		DateFormat d = new SimpleDateFormat("yyMMddHHmmss");
+//		try {
+//			hitchEvent.setHitchTime(d.parse(decodedString.substring(34, 46)));
+//		} catch (ParseException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		// System.out.println(hitchEvent.getHitchTime());
+//		hitchEvent.setHitchPhase(Phase.define(decodedString.substring(46, 48))
+//				.value());
+//
+//		String byteString = HexString_BytesUtil
+//				.hexStringToByteString(decodedString.substring(48, 50));
+//
+//		// System.out.println(byteString.substring(0, 5));
+//		int i = com.gdut.dongjun.enums.HitchEvent.define(
+//				byteString.substring(0, 5)).value();
+//		hitchEvent.setHitchReason(i);
+//
+//		return hitchEvent;
+//	}
 
 	/**
 	 * 

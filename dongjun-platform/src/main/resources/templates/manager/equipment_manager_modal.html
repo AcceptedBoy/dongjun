@@ -1,0 +1,281 @@
+<div id="edit_group_modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal"
+						aria-hidden="true" onclick="modal.resetEditModal()">×</button>
+		<h3>编辑</h3>
+	</div>
+	<div class="modal-body">
+		<div id="add_group_form" class="form-horizontal">
+			<!-- action="edit_switch" -->
+			<div class="control-group">
+				<label class="control-label">组别名称</label>
+				<div class="controls">
+						<input type="text" name="groupName" />
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button class="btn" data-dismiss="modal" aria-hidden="true" onclick="modal.resetEditModal()">取消</button>
+				<button id="add_switch_confirm_btn" class="btn btn-primary"
+								aria-hidden="true" onclick="modal.saveEdit()">添加</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<div id="add_equip_modal" class="modal hide fade" tabindex="-1"
+	role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal"
+			aria-hidden="true">×</button>
+		<h3>选择设备</h3>
+	</div>
+	<div class="modal-body">
+		<table id="equip_add_list" class="table table-bordered table-striped table-hover table-condensed success">
+			<thead>
+				<!-- <td>设备号码</td> -->
+				<td>开关名称</td>
+				<!-- <td>类型</td> -->
+				<td></td>
+			</thead>
+		</table>
+	</div>
+	<div class="modal-footer">
+		<button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+		<button id="edit_switch_confirm_btn" class="btn btn-primary" onclick="modal.addEquips()">确定</button>
+	</div>
+</div>
+
+<!-- delete  -->
+<div id="del_modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+		<h3 id="myModalLabel">警告</h3>
+	</div>
+	<div class="modal-body">
+		<p>您确定要删除吗？请慎重考虑</p>
+	</div>
+	<div class="modal-footer">
+		<button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
+		<a id="del_confirm_btn" class="btn btn-danger" data-dismiss="modal" aria-hidden="true" onclick="modal.sureDel()">删除</a>
+	</div>
+</div>
+
+<script>
+	var modal = function(){
+		var now = {
+			groupId: '-1',
+			equipId: '-1',
+			type: 'group',
+		}
+		var hasChoose = {}
+		var urls = null
+		var equipTable = null
+		var fnc = null
+		var isAdd = true
+		return {
+			init: function(o) {
+				urls = {
+					delGroup: o.url.delGroup,
+					addGroup: o.url.addGroup,
+					addEquip: o.url.addEquip,
+					delEquip: o.url.delEquip
+				}
+				fnc = {
+					equip: o.fnc.equip,
+					group: o.fnc.group
+				}
+			},
+			target: function(id, type) {
+				if(id) {
+					now[type+'Id'] = id
+					now.type = type
+				} else {
+					return now
+				}
+			},
+			setId: function(idType, id) {
+				now[idType] = id
+			},
+			setEquips: function(data) {
+				if(!equipTable) {
+					equipTable = $('#equip_add_list').DataTable({
+						searching: false,
+						lengthChange: false,
+						scrollCollapse: true,
+						pageLength: 5,
+						ajax: {
+							url: '/dongjun/device_group/get_all_device',
+							type: 'POST',
+							dataSrc: 'text'		// data.text 为表格数据
+						},
+						// data: data.text,	// data.text 为表格数据 （重置时无法清空多选框，故改为ajax）
+						columns: [
+							// { data: 'deviceNumber' },
+							{ data: 'name' },
+							// {
+							// 	data: 'type',
+							// 	render: function(data){
+							// 		var typeArray = ['低压', '高压', '管控', '温度']
+							// 		return typeArray[data]
+							// 	}
+							// },
+							{
+								data: 'id',
+								orderable: false,
+								render: function(data, type, row) {
+									return '<input type="checkbox" class="add_equip_checkbox" data-fnc="add_equip" data-type="'+row.type+'" data-eid="'+data+'" />'
+								}
+							}
+						],
+						language: {
+							paginate: {
+								next: '下一页',
+								previous: '上一页'
+							},
+							emptyTable: '找不到相关数据',
+							zeroRecords: '找不到相关数据',
+							loadingRecords: '正在加载数据...'
+						},
+						initComplete: function() {
+							$(this[0]).click(function(event) {
+								var target = $(event.target)
+								var fnc = target.data('fnc')
+								if(fnc == 'add_equip') {
+									if(target[0].checked){
+										hasChoose[target.data('eid')] = target.data('type')
+									} else {
+										delete hasChoose[target.data('eid')]
+									}
+									console.log(hasChoose)
+								}
+							})
+						}
+					})
+				} else {
+					this.resetEquipsList()
+				}
+			},
+			resetEquipsList: function() {
+				hasChoose = {}
+				// 只能清除当前页的多选框，故选择ajax请求
+				// $(equipTable.table().node()).find('.add_equip_checkbox').attr('checked', false)
+				equipTable.ajax.reload()
+			},
+			addEquips: function() {
+				if(this.isEmptyObj(hasChoose)){
+					alert('请选择设备')
+					return
+				}
+				// var deviceId = 'deviceId'
+				var deviceId = ''
+				// var type = 'type'
+				var type = ''
+				for(var id in hasChoose) {
+					// deviceId += '='+id+','
+					deviceId += id+',='
+					// type += '='+ hasChoose[id] + ','
+					type += hasChoose[id] + ',='
+				}
+				// deviceId = deviceId.replace(/,$/, '&')
+				deviceId = deviceId.replace(/,=$/, '')
+				// type = type.replace(/,$/, '&')
+				// type = type.replace(/,=$/, '')
+				// var data = deviceId + type + 'deviceGroupId=' + now.groupId
+				$.ajax({
+					url: urls.addEquip,
+					type: 'POST',
+					data: {
+						//data: data
+						deviceId: deviceId,
+						// type: type,
+						deviceGroupId: now.groupId
+					},
+					success: function(res) {
+						res = typeof res == 'string' ? JSON.parse(res) : res
+						if(res.success) {
+							fnc.equip(now.groupId)
+							$('#add_equip_modal').modal('hide')
+						}
+					}
+				})
+			},
+			isEmptyObj: function(o) {
+				for(var k in o) {
+					return false
+				}
+				return true
+			},
+			editGroup: function(name) {
+				isAdd = false
+				$('#edit_group_modal').find('input[name=groupName]').val(name)
+			},
+			sureDel: function() {
+				var url, data
+				if(now.type == 'group') {
+					url = urls.delGroup
+					data = { id: now.groupId }
+				} else {
+
+					url = urls.delEquip
+					data = {
+						id: now.equipId,
+						deviceGroupId: now.groupId
+					}
+				}
+				console.log(now)
+				$.ajax({
+					url: url,
+					type: 'POST',
+					data: data,
+					success: function(res) {
+						if(!res.success) {
+							alert('删除失败')
+						} else {
+							fnc[now.type]()
+							alert('删除成功')
+						}
+					},
+					error: function() {
+						alert('出错')
+					}
+				})
+			},
+			saveEdit: function() {
+				var _self = this
+				var modal = $('#edit_group_modal')
+				var name = modal.find('input[name=groupName]').val()
+				var data = {}
+				if(!$.trim(name)) {
+					alert('请填写名称')
+					return
+				}
+				data.name = name
+				if(!isAdd) {
+					data.id = now.groupId
+				}
+				$.ajax({
+					url: urls.addGroup,
+
+					type: 'POST',
+					data: data,
+					success: function(res) {
+						if(res.success) {
+							fnc.group()
+							modal.modal('hide')
+							_self.resetEditModal(modal)
+						}
+					}
+				})
+			},
+			resetEditModal: function(modal) {
+				if(modal) {
+					modal.find('input[name=groupName]').val('')
+				} else {
+					$('#edit_group_modal').find('input[name=groupName]').val('')
+				}
+				isAdd = true
+			}
+		}
+	}()
+</script>

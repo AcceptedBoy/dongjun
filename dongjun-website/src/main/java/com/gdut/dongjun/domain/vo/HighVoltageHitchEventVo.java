@@ -8,6 +8,10 @@ import com.gdut.dongjun.domain.po.HighVoltageSwitch;
 
 public class HighVoltageHitchEventVo {
 
+	
+
+	
+
 	private String id;
 
     /**
@@ -16,7 +20,7 @@ public class HighVoltageHitchEventVo {
      *
      * @mbggenerated Thu Mar 24 15:48:59 CST 2016
      */
-    private String switchName;
+    
     
     private String switchAddress;
 
@@ -76,6 +80,18 @@ public class HighVoltageHitchEventVo {
      */
     private String solveWay;
 
+    private String switchName;
+    
+    private String Line_name;
+	
+	
+	public String getLine_name() {
+		return Line_name;
+	}
+
+	public void setLine_name(String line_name) {
+		Line_name = line_name;
+	}
 	public String getId() {
 		return id;
 	}

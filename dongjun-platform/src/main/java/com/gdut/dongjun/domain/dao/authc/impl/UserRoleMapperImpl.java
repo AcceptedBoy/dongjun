@@ -4,7 +4,7 @@ import org.springframework.stereotype.Repository;
 
 import com.gdut.dongjun.domain.dao.authc.UserRoleMapper;
 import com.gdut.dongjun.domain.dao.base.impl.SinglePrimaryKeyBaseDAOImpl;
-import com.gdut.dongjun.domain.po.authc.UserRoleKey;
+import com.gdut.dongjun.domain.po.authc.UserRole;
 
 /**
  * 
@@ -14,7 +14,7 @@ import com.gdut.dongjun.domain.po.authc.UserRoleKey;
  * @since 1.0
  */
 @Repository
-public class UserRoleMapperImpl extends SinglePrimaryKeyBaseDAOImpl<UserRoleKey> implements
+public class UserRoleMapperImpl extends SinglePrimaryKeyBaseDAOImpl<UserRole> implements
 		UserRoleMapper {
 
 	@Override
@@ -24,7 +24,7 @@ public class UserRoleMapperImpl extends SinglePrimaryKeyBaseDAOImpl<UserRoleKey>
 	}
 
 	@Override
-	public int deleteByPrimaryKey(UserRoleKey key) {
+	public int deleteByPrimaryKey(UserRole key) {
 
 		return template.delete(getNamespace("deleteByPrimaryKey"), key);
 	}

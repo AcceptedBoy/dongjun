@@ -1,32 +1,145 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE generatorConfiguration PUBLIC
-		"-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
-		"http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
 <generatorConfiguration>
-	<classPathEntry location="/home/symon/文档/generator/mysql-connector-java-5.1.7-bin.jar" />
+	<classPathEntry
+		location="D:\\WORKING\\plug-in\\mysql-connector-java-5.1.38\\mysql-connector-java-5.1.38\\mysql-connector-java-5.1.38-bin.jar" />
 	<context id="context1" targetRuntime="MyBatis3">
 		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
-						connectionURL="jdbc:mysql://115.28.7.40:3306/elecon" userId="root"
-						password="root">
+			connectionURL="jdbc:mysql://115.28.7.40:3306/elecon_platform?characterEncoding=utf8&amp;useSSL=true"
+			userId="root" password="topview+624">
 		</jdbcConnection>
 		<javaModelGenerator targetPackage="com.gdut.dongjun.domain.po"
-							targetProject="/home/symon/文档/generator" />
+			targetProject="D:\\WORKING\\git\\dongjun_dzc\\dongjun-platform" />
 
 		<sqlMapGenerator targetPackage="com.gdut.dongjun.domain.dao"
-						 targetProject="/home/symon/文档/generator" />
+			targetProject="D:\\WORKING\\git\\dongjun_dzc\\dongjun-platform" />
 
 		<javaClientGenerator targetPackage="com.gdut.dongjun.domain.dao"
-							 targetProject="/home/symon/文档/generator" type="XMLMAPPER" />
+			targetProject="D:\\WORKING\\git\\dongjun_dzc\\dongjun-platform" type="XMLMAPPER" />
 
-		<table schema="root" tableName="high_voltage_switch"
-			   domainObjectName="HighVoltageSwitch" enableCountByExample="false"
-			   enableUpdateByExample="false" enableDeleteByExample="false"
-			   enableSelectByExample="false" selectByExampleQueryId="false" />
+		<table schema="root" tableName="gprs_module" domainObjectName="GPRSModule"
+			enableCountByExample="false" enableUpdateByExample="false"
+			enableDeleteByExample="false" enableSelectByExample="false"
+			selectByExampleQueryId="false" />
 
-		<table schema="root" tableName="platform_group"
-			   domainObjectName="PlatformGroup" enableCountByExample="false"
-			   enableUpdateByExample="false" enableDeleteByExample="false"
-			   enableSelectByExample="false" selectByExampleQueryId="false" />
+<!-- 		<table schema="root" tableName="company" domainObjectName="Company" -->
+<!-- 			enableCountByExample="false" enableUpdateByExample="false" -->
+<!-- 			enableDeleteByExample="false" enableSelectByExample="false" -->
+<!-- 			selectByExampleQueryId="false" /> -->
+
+<!-- 		<table schema="root" tableName="data_monitor" domainObjectName="DataMonitor" -->
+<!-- 			enableCountByExample="false" enableUpdateByExample="false" -->
+<!-- 			enableDeleteByExample="false" enableSelectByExample="false" -->
+<!-- 			selectByExampleQueryId="false" /> -->
+
+<!-- 		<table schema="root" tableName="data_monitor_submodule" -->
+<!-- 			domainObjectName="DataMonitorSubmodule" enableCountByExample="false" -->
+<!-- 			enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 			enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+
+<!-- 		<table schema="root" tableName="device_group" domainObjectName="DeviceGroup" -->
+<!-- 			enableCountByExample="false" enableUpdateByExample="false" -->
+<!-- 			enableDeleteByExample="false" enableSelectByExample="false" -->
+<!-- 			selectByExampleQueryId="false" /> -->
+
+<!-- 		<table schema="root" tableName="device_group_mapping" -->
+<!-- 			domainObjectName="DeviceGroupMapping" enableCountByExample="false" -->
+<!-- 			enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 			enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+<!-- 		<table schema="root" tableName="gprs_module" domainObjectName="GPRSModule" -->
+<!-- 			enableCountByExample="false" enableUpdateByExample="false" -->
+<!-- 			enableDeleteByExample="false" enableSelectByExample="false" -->
+<!-- 			selectByExampleQueryId="false" /> -->
+<!-- 		<table schema="root" tableName="permission" domainObjectName="Permission" -->
+<!-- 			enableCountByExample="false" enableUpdateByExample="false" -->
+<!-- 			enableDeleteByExample="false" enableSelectByExample="false" -->
+<!-- 			selectByExampleQueryId="false" /> -->
+<!-- 		<table schema="root" tableName="persistent_hitch_message" -->
+<!-- 			domainObjectName="PersistentHitchMessage" enableCountByExample="false" -->
+<!-- 			enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 			enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+<!-- 		<table schema="root" tableName="platform_group" -->
+<!-- 			domainObjectName="PlatformGroup" enableCountByExample="false" -->
+<!-- 			enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 			enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+
+<!-- 		<table schema="root" tableName="protocol_port" domainObjectName="ProtocolPort" -->
+<!-- 			enableCountByExample="false" enableUpdateByExample="false" -->
+<!-- 			enableDeleteByExample="false" enableSelectByExample="false" -->
+<!-- 			selectByExampleQueryId="false" /> -->
+<!-- 		<table schema="root" tableName="repair_record" domainObjectName="RepairRecord" -->
+<!-- 			enableCountByExample="false" enableUpdateByExample="false" -->
+<!-- 			enableDeleteByExample="false" enableSelectByExample="false" -->
+<!-- 			selectByExampleQueryId="false" /> -->
+<!-- 		<table schema="root" tableName="role" domainObjectName="Role" -->
+<!-- 			enableCountByExample="false" enableUpdateByExample="false" -->
+<!-- 			enableDeleteByExample="false" enableSelectByExample="false" -->
+<!-- 			selectByExampleQueryId="false" /> -->
+<!-- 		<table schema="root" tableName="role_permission" -->
+<!-- 			domainObjectName="RolePermission" enableCountByExample="false" -->
+<!-- 			enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 			enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+<!-- 		<table schema="root" tableName="temperature_measure" -->
+<!-- 			domainObjectName="TemperatureMeasure" enableCountByExample="false" -->
+<!-- 			enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 			enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+<!-- 		<table schema="root" tableName="temperature_measure_history" -->
+<!-- 			domainObjectName="TemperatureMeasureHistory" enableCountByExample="false" -->
+<!-- 			enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 			enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+<!-- 		<table schema="root" tableName="temperature_sensor" -->
+<!-- 			domainObjectName="TemperatureSensor" enableCountByExample="false" -->
+<!-- 			enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 			enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+<!-- 		<table schema="root" tableName="user" domainObjectName="User" -->
+<!-- 			enableCountByExample="false" enableUpdateByExample="false" -->
+<!-- 			enableDeleteByExample="false" enableSelectByExample="false" -->
+<!-- 			selectByExampleQueryId="false" /> -->
+<!-- 		<table schema="root" tableName="user_device_mapping" -->
+<!-- 			domainObjectName="UserDeviceMapping" enableCountByExample="false" -->
+<!-- 			enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 			enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+<!-- 		<table schema="root" tableName="user_log" domainObjectName="UserLog" -->
+<!-- 			enableCountByExample="false" enableUpdateByExample="false" -->
+<!-- 			enableDeleteByExample="false" enableSelectByExample="false" -->
+<!-- 			selectByExampleQueryId="false" /> -->
+<!-- 		<table schema="root" tableName="user_role" domainObjectName="UserRole" -->
+<!-- 			enableCountByExample="false" enableUpdateByExample="false" -->
+<!-- 			enableDeleteByExample="false" enableSelectByExample="false" -->
+<!-- 			selectByExampleQueryId="false" /> -->
+
+		<!-- <table schema="root" tableName="persistent_hitch_message" -->
+		<!-- domainObjectName="PersistentHitchMessage" enableCountByExample="false" -->
+		<!-- enableUpdateByExample="false" enableDeleteByExample="false" -->
+		<!-- enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+
+		<!-- <table schema="root" tableName="data_monitor_submodule" -->
+		<!-- domainObjectName="DataMonitorSubmodule" enableCountByExample="false" -->
+		<!-- enableUpdateByExample="false" enableDeleteByExample="false" -->
+		<!-- enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+
+<!-- 		<table schema="root" tableName="temperature_module" -->
+<!-- 		domainObjectName="TemperatureModule" enableCountByExample="false" -->
+<!-- 		enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 		enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+
+<!-- 		<table schema="root" tableName="electronic_module" -->
+<!-- 		domainObjectName="ElectronicModule" enableCountByExample="false" -->
+<!-- 		enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 		enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+		
+<!-- 				<table schema="root" tableName="module_hitch_event" -->
+<!-- 		domainObjectName="ModuleHitchEvent" enableCountByExample="false" -->
+<!-- 		enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 		enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+		
+<!-- 				<table schema="root" tableName="temperature_measure_hitch_event1" -->
+<!-- 		domainObjectName="TemperatureMeasureHitchEvent" enableCountByExample="false" -->
+<!-- 		enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 		enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+
+
+
 	</context>
 </generatorConfiguration>
 

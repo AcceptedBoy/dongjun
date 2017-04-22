@@ -22,7 +22,6 @@ function initial_table(id) {
 			{ "data": "simNumber" },
 			{ "data": "inlineIndex" },
 			{ "data": "onlineTime"},
-			{ "data": "isAvailable"},
 			{ "data": null},
 			{ "data": null},// 设置默认值 null，表示列不会获得数据源对象的信息,否则默认值会被覆盖掉
 			{ "data": null},// 设置默认值 null，表示列不会获得数据源对象的信息,否则默认值会被覆盖掉
@@ -50,6 +49,14 @@ function initial_table(id) {
 				"defaultContent": '<a href="#location_switch_modal" role="button" class="location_switch_btn btn btn-primary" data-toggle="modal">设为定位中心</a>'
 			}
 		],
+		 'language': {
+            'paginate': {
+              'next': '下一页',
+              'previous': '上一页'
+            },
+            'emptyTable': '找不到相关数据',
+            'zeroRecords': '找不到相关数据'
+          },
 		"fnInitComplete": function(oSettings, json) {
 			//alert('123')
 			$(".edit_switch_btn").unbind().click(editSwitch);
@@ -82,37 +89,101 @@ function initial_table_low(id) {
 			{ "data": "latitude" },
 			{ "data": "simNumber" },
 			{ "data": "inlineIndex" },
-			{ "data": "onlineTime"},
-			{ "data": null},
+//			{ "data": "onlineTime"},
+//			{ "data": null},
 			{ "data": null},// 设置默认值 null，表示列不会获得数据源对象的信息,否则默认值会被覆盖掉
 			{ "data": null},// 设置默认值 null，表示列不会获得数据源对象的信息,否则默认值会被覆盖掉
-			{ "data": null}
 		],
 		"columnDefs": [
-			{
-				"targets": -4,
+			/*{
+				"targets": -3,
 				"data": null,
 				"defaultContent": '<button class="btn btn enter_map">进入地图 &raquo;</button>'
-			},
+			},*/
 			{
-				"targets": -3,
+				"targets": -2,
 				"data": null,
 				"defaultContent": '<a href="#edit_switch_modal" role="button" class="edit_switch_btn btn" data-toggle="modal">修改 &raquo;</a>'
 			},
 			{
-				"targets": -2,
+				"targets": -1,
 				"data": null,
 				"defaultContent": '<a href="#del_switch_modal" class="del_switch_btn btn btn-danger" data-toggle="modal" data-backdrop="static">删除&raquo; </a>'
+			},
+		],
+		 'language': {
+            'paginate': {
+              'next': '下一页',
+              'previous': '上一页'
+            },
+            'emptyTable': '找不到相关数据',
+            'zeroRecords': '找不到相关数据'
+          },
+		"fnInitComplete": function(oSettings, json) {
+			//alert('123')
+			$(".edit_switch_btn").unbind().click(editSwitch);
+			$(".del_switch_btn").unbind().click(delSwitch);
+			$(".enter_map").unbind().click(enterMap);
+		}
+	});
+}
+
+function initial_table_control(id) {
+
+	$("#" + id).DataTable({
+		"destroy": true,
+		"ajax": {
+			url: '/dongjun/high_voltage_switch_list_by_line_id?lineId=07'
+		},
+		"columns": [
+			{ "data": "deviceNumber" },
+			{ "data": "name" },
+			{ "data": "showName"},
+			{  "data": "id",
+				"sClass": "dpass"
+			},
+			{  "data": "lineId",
+				"sClass": "dpass"
+			},
+			{ "data": "address" },
+			{ "data": "longitude" },
+			{ "data": "latitude" },
+			{ "data": "simNumber" },
+			{ "data": "inlineIndex" },
+			{ "data": "onlineTime"},
+			{ "data": null},// 设置默认值 null，表示列不会获得数据源对象的信息,否则默认值会被覆盖掉
+			{ "data": null},// 设置默认值 null，表示列不会获得数据源对象的信息,否则默认值会被覆盖掉
+		],
+		"columnDefs": [
+			{
+				"targets": -2,
+				"data": null,
+				"defaultContent": '<a href="#edit_switch_modal" role="button" class="edit_switch_btn btn" data-toggle="modal">修改 &raquo;</a>'
 			},
 			{
 				"targets": -1,
 				"data": null,
-				"defaultContent": '<a href="#location_switch_modal" role="button" class="location_switch_btn btn btn-primary" data-toggle="modal">设为定位中心</a>'
-			}
-		]
+				"defaultContent": '<a href="#del_switch_modal" class="del_switch_btn btn btn-danger" data-toggle="modal" data-backdrop="static">删除&raquo; </a>'
+			},
+		],
+		 'language': {
+            'paginate': {
+              'next': '下一页',
+              'previous': '上一页'
+            },
+            'emptyTable': '找不到相关数据',
+            'zeroRecords': '找不到相关数据'
+          },
+		"fnInitComplete": function(oSettings, json) {
+			//alert('123')
+			$(".edit_switch_btn").unbind().click(editSwitch);
+			$(".del_switch_btn").unbind().click(delSwitch);
+			$(".enter_map").unbind().click(enterMap);
+			$(".location_switch_btn").unbind().click(locateSwitch);
+		}
 	});
-}
 
+}
 //	$("#" + id).DataTable({
 //		dom : 'T<"clear">lfrtip',
 //		tableTools : {

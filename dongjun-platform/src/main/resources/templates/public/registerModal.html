@@ -1,0 +1,470 @@
+<!-- chooseMoadl -->
+<div id="choose_modal" class="modal hide fade" tabindex="-1"
+	role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal"
+			aria-hidden="true">×</button>
+		<h3>请选择注册类型</h3>
+	</div>
+	<div class="modal-body">
+		<div class="bigBtn frontBtn" onclick="registerObj.clearCompanyText()" class="btn" data-toggle="modal" data-backdrop="static" data-target="#register_company_modal">
+			<div class="center">
+				<i class="icon-briefcase"></i>
+				公司注册
+			</div>
+		</div>
+		<div class="bigBtn" onclick="registerObj.clearText($('#searchCompanyName'),  $('#registerName'), $('#realName'), $('#registerPassword'), $('#registerPasswordConfirm'), $('#controlCode'), $('#adress'), $('#personalEmail'), $('#phoneNumber'))" class="btn" data-toggle="modal" data-backdrop="static" data-target="#register_worker_modal">
+			<div class="center">
+				<i class="icon-user"></i>
+				用户注册
+			</div>
+		</div>
+	</div>
+
+</div>
+
+<!-- register_Modal -->
+<div id="register_worker_modal" class="modal hide fade" tabindex="-1"
+	role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal"
+			aria-hidden="true">×</button>
+		<h3>注册用户</h3>
+	</div>
+	<div class="modal-body">
+		<div id="register_worker_form" class="form-horizontal"
+			action="edit_substation">
+			<div class="control-group">
+				<label class="control-label" for="searchCompanyName">公司名</label>
+				<div class="controls">
+					<input type="text" list="companyList" id="searchCompanyName" name="searchCompanyName" onblur="registerObj.editCompanyId(this.value)" onkeyup="registerObj.fuzzySearch(this.value)" />
+					<datalist id="companyList">
+
+					</datalist>
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="registerName">用户名</label>
+				<div class="controls">
+					<input type="text" id="registerName" name="name" />
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="realName">真实姓名</label>
+				<div class="controls">
+					<input type="text" id="realName" name="realName" />
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="phoneNumber">手机号码</label>
+				<div class="controls">
+					<input type="text" id="phoneNumber" name="phoneNumber" />
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="personalEmail">电子邮件</label>
+				<div class="controls">
+					<input type="text" id="personalEmail" name="personalEmail" />
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="adress">住址</label>
+				<div class="controls">
+					<textarea id="adress" name="adress" rows="3" cols="20"></textarea>
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="registerPassword">密码</label>
+				<div class="controls">
+					<input type="password" id="registerPassword" name="password" maxLength="16" /><i class="icon-search" style="cursor:pointer;position:relative;left:-7%;" onmousedown="registerObj.showPassWord($('#registerPassword'))" onmouseup="registerObj.hidePassWord($('#registerPassword'))"></i>
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="registerPasswordConfirm">确认密码</label>
+				<div class="controls">
+					<input type="password" id="registerPasswordConfirm" name="passwordConfirm" maxLength="16" /><i class="icon-search" style="cursor:pointer;position:relative;left:-7%;" onmousedown="registerObj.showPassWord($('#registerPasswordConfirm'))" onmouseup="registerObj.hidePassWord($('#registerPasswordConfirm'))"></i>
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="controlCode">操作密码(用于系统操作)</label>
+				<div class="controls">
+					<input type="password" id="controlCode" name="controlCode" maxLength="10" /><i class="icon-search" style="cursor:pointer;position:relative;left:-7%;" onmousedown="registerObj.showPassWord($('#controlCode'))" onmouseup="registerObj.hidePassWord($('#controlCode'))"></i>
+				</div>
+			</div>
+			</div>
+		</div>
+		<div class="modal-footer">
+			<button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+     		<button id="register_confirm_btn" class="btn btn-primary"
+             data-dismiss="modal" aria-hidden="true" onclick="registerObj.registerWorker($('#registerName').val(), $('#realName').val(), $('#registerPassword').val(), $('#controlCode').val(), $('#phoneNumber').val(), $('#personalEmail').val(), $('#adress').val(), this)">确认</button>
+		</div>
+
+	</div>
+
+
+<!-- registerCompany -->
+<div id="register_company_modal" class="modal hide fade" tabindex="-1"
+	role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal"
+			aria-hidden="true">×</button>
+		<h3>注册公司与公司负责人</h3>
+	</div>
+	<div class="modal-body">
+		<div id="register_company_form" class="form-horizontal"
+			action="edit_substation">
+			<fieldset>
+				<legend>公司注册</legend>
+				<div class="control-group">
+					<label class="control-label" for="register_companyName">公司名</label>
+					<div class="controls">
+						<input type="text" id="register_companyName" name="register_companyName" />
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="register_description">公司描述</label>
+					<div class="controls">
+						<textarea id="register_description" name="register_description" rows="3" cols="20"></textarea>
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="register_address">公司地址</label>
+					<div class="controls">
+						<textarea id="register_address" name="register_address"  rows="3" cols="20" ></textarea>
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="register_phone">联系电话</label>
+					<div class="controls">
+						<input type="text" id="register_phone" name="register_phone" />
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="register_email">联系邮箱</label>
+					<div class="controls">
+						<input type="text" id="register_email" name="register_email" />
+					</div>
+				</div>
+			</fieldset>
+			<fieldset>
+				<legend>负责人账号注册</legend>
+				<div class="control-group">
+					<label class="control-label" for="staffName">用户名</label>
+					<div class="controls">
+						<input type="text" id="staffName" name="staffName" />
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="mainStaff">真实姓名</label>
+					<div class="controls">
+						<input type="text" id="mainStaff" name="mainStaff" />
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="staffPassword">用户密码</label>
+					<div class="controls">
+						<input type="password" id="staffPassword" name="staffPassword" maxLength="16" /><i class="icon-search" style="cursor:pointer;position:relative;left:-7%;" onmousedown="registerObj.showPassWord($('#staffPassword'))" onmouseup="registerObj.hidePassWord($('#staffPassword'))"></i>
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="staffControlCode">操作密码(用于系统操作)</label>
+					<div class="controls">
+						<input type="password" id="staffControlCode" name="staffControlCode" maxLength="16" /><i class="icon-search" style="cursor:pointer;position:relative;left:-7%;" onmousedown="registerObj.showPassWord($('#staffControlCode'))" onmouseup="registerObj.hidePassWord($('#staffControlCode'))"></i>
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="staffPhone">联系电话</label>
+					<div class="controls">
+						<input type="text" id="staffPhone" name="staffPhone" />
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="staffEmail">联系邮箱</label>
+					<div class="controls">
+						<input type="text" id="staffEmail" name="staffEmail" />
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="staffAddress">联系地址</label>
+					<div class="controls">
+						<textarea id="staffAddress" name="staffAddress"  rows="3" cols="20"></textarea>
+					</div>
+				</div>
+			</fieldset>
+		</div>
+	</div>
+		<div class="modal-footer">
+			<button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+     		<button id="register_confirm_btn" class="btn btn-primary"
+             data-dismiss="modal" aria-hidden="true" onclick="registerObj.registerCompany($('#register_companyName').val(), $('#register_description').val(), $('#register_address').val(), $('#mainStaff').val(), $('#register_phone').val(), $('#register_email').val(), $('#staffName').val(),$('#staffPassword').val(),$('#staffControlCode').val(),$('#staffPhone').val(),$('#staffEmail').val(),$('#staffAddress').val(), this)">确认</button>
+		</div>
+</div>
+
+
+<script>
+$('#register_worker_modal').on('keydown', function(e){
+	e.stopPropagation()
+})
+
+$('#register_company_modal').on('keydown', function(e){
+	e.stopPropagation()
+})
+
+function throttle(fn, delay) {
+	var timer = null;
+ 	return function(){
+ 		var context = this, args = arguments;
+ 		clearTimeout(timer);
+ 		timer = setTimeout(function(){
+ 			fn.apply(context, args);
+ 		}, delay);
+ 	};
+}
+
+var registerObj = function() {
+	return {
+		companyId: '',
+		companyList: [],
+		mergeKey: function(obj, keyName, val, type) {
+			if(val && Object.prototype.toString.call(keyName) == '[object String]') {
+				obj[keyName] = val
+				if(type) {
+					switch (type) {
+						case 'data':
+							return this.testContent([val], [], [], [], []) ? false : true
+						case 'letter':
+							return this.testContent([], [val], [], [], []) ? false : true
+						case 'num':
+							return this.testContent([], [], [val], [], []) ? false : true
+						case 'phone':
+							return this.testContent([], [], [], [val], []) ? false : true
+						case 'email':
+							return this.testContent([], [], [], [], [val]) ? false : true
+					}
+				}
+				return true
+			}
+			return false
+		},
+		registerWorker: function(name, realName, password, controlCode, phoneNumber, personalEmail, adress, self) {
+			var that = this;
+			if(name && password && controlCode && realName && phoneNumber) {
+				if(this.testContent([name, password, controlCode], [realName], [], [phoneNumber], [])) {
+					if($('#registerPassword').val() == $('#registerPasswordConfirm').val()) {
+						if(this.companyId) {
+							var params = {
+								name: name,
+								realName: realName,
+								password: password,
+								controlCode: controlCode,
+								companyId: that.companyId,
+								phone: phoneNumber,
+							}
+							that.mergeKey(params, 'adress', adress)
+							if(that.mergeKey(params, 'email', personalEmail, 'email')) {
+								$(self).attr('data-dismiss', '');
+								alert('请填入正确的邮箱格式')
+								return
+							}
+							$(self).attr('data-dismiss', 'modal');
+							$.ajax({
+								type: 'POST',
+								url: '/dongjun/elecon/user_registy',
+								data: params,
+								success: function(res) {
+									alert('注册成功！');
+								},
+								error: function(err) {
+									alert('失败！');
+								}
+							});
+						} else {
+							alert('该公司还没有注册');
+						}
+					} else {
+						$(self).attr('data-dismiss', '');
+						alert('确认密码和密码不一致');
+						$('#registerPasswordConfirm').val('')
+					}
+				} else {
+					$(self).attr('data-dismiss', '');
+					/* $('#warnMsg').show();
+					setTimeout(function(){
+						$('#warnMsg').hide();
+					}, 3000); */
+					alert('真实姓名请输入中文，手机号码请输入11位数字');
+				}
+			} else {
+				$(self).attr('data-dismiss', '');
+				alert('注册时请务必填写所有信息');
+			}
+		},
+		registerCompany: function(companyName, description, address, mainStaff, phone, email, staffName, staffPassword, staffControlCode, staffPhone, staffEmail, staffAddress, self) {
+			var that = this;
+			if(companyName && description && address && mainStaff && phone && email && staffName && staffPassword && staffControlCode) {
+				// testContent
+				if(this.testContent([],[mainStaff],[], [phone], [email])) {
+					$(self).attr('data-dismiss', 'modal');
+					var params = {
+						['company.name']: companyName,
+						['company.description']: description,
+						['company.address']: address,
+						['company.mainStaff']: mainStaff,
+						['company.phone']: phone,
+						['company.email']: email,
+						['user.name']: staffName,
+						['user.realName']: mainStaff,
+						['user.password']: staffPassword,
+						['user.controlCode']: staffControlCode
+					}
+					this.mergeKey(params, 'user.address', staffAddress)
+					if(this.mergeKey(params, 'user.phone', staffPhone, 'phone')) {
+						$(self).attr('data-dismiss', '');
+						alert('请正确填入11位的手机号码')
+						return
+					}
+					if(this.mergeKey(params, 'user.email', staffEmail, 'email')) {
+						$(self).attr('data-dismiss', '');
+						alert('请填入正确的邮箱格式')
+						return
+					}
+					// ajax
+					$.ajax({
+						type: 'POST',
+						url: '/dongjun/elecon/company_registry',
+						data: params,
+						success: function(res){
+							if(res.success) {
+								alert('注册成功')
+							} else {
+								alert('注册公司时出现错误')
+							}
+						}
+					})
+				} else {
+					$(self).attr('data-dismiss', '');
+					alert('请填入对应格式的正确信息(例如真实姓名需要为中文，手机号为11位数字)')
+				}
+			} else {
+				$(self).attr('data-dismiss', '');
+				alert('注册时请务必填写所有信息（负责人的邮箱，手机和地址可选填）');
+			}
+		},
+		testContent: function(data, letter, num, phoneNum, email) {
+			for(var i = 0; i<data.length; i++) {
+				if(data[i].replace(/[\w\d]+/, '')) {
+					return false;
+				}
+			}
+			for(var i = 0; i<letter.length; i++) {
+				if(letter[i].replace(/[\u4e00-\u9fa5]+/, '')) {
+					return false;
+				}
+			}
+			for(var i = 0; i<num.length; i++) {
+				if(num[i].replace(/\d+/, '')) {
+					return false;
+				}
+			}
+			for(var i = 0; i<phoneNum.length; i++) {
+				if(!/^\d{11}$/.test(phoneNum[i])) {
+					return false;
+				}
+			}
+			for(var i = 0; i<email.length; i++) {
+				if(!/^(\w)+(\.\w+)*@(\w)+((\.\w+)+)$/.test(email[i])) {
+					return false;
+				}
+			}
+			return true;
+		},
+		clearText: function(companyName, name, realName, password, passConfirm, controlCode, address, email, phone) {
+			$('#choose_modal').modal('hide')
+			$(companyName).val('');
+			$(name).val('');
+			$(realName).val('');
+			$(password).val('');
+			$(passConfirm).val('');
+			$(controlCode).val('');
+			$(address).val('');
+			$(email).val('');
+			$(phone).val('');
+			
+		},
+		clearCompanyText: function() {
+			$('#choose_modal').modal('hide')
+			$('#register_companyName').val('')
+			$('#register_description').val('')
+			$('#register_address').val('')
+			$('#mainStaff').val('')
+			$('#register_phone').val('')
+			$('#register_email').val('')
+			$('#staffName').val('')
+			$('#staffPassword').val('')
+			$('#staffControlCode').val('')
+			$('#staffPhone').val('')
+			$('#staffEmail').val('')
+			$('#staffAddress').val('')
+		},
+		showPassWord: function(self) {
+			$(self).attr('type', 'text');
+		},
+		hidePassWord: function(self) {
+			$(self).attr('type', 'password');
+		},
+		search: function(name) {
+			$.ajax({
+				type: 'POST',
+				url: '/dongjun/elecon/fuzzy_search',
+				data: {
+					name: name
+				},
+				success: function(res) {
+					that.companyList = res.text;
+					if(res.success) {
+						$('#companyList').html(registerObj.joinOp(res.text))
+					} else {
+						//
+					}
+				}
+			})
+		},
+		joinOp: function(opArr) {
+			var html = '';
+			for(var i = 0; i<opArr.length; i++) {
+				html += '<option value="' + opArr[i].name + '" />'
+			}
+			return html
+		},
+		fuzzySearch: throttle(function(name) {
+//			$('#companyList').html(registerObj.joinOp([{name:'哈哈'},{name:'嘿嘿'}]))
+			var that = this;
+			$.ajax({
+				type: 'POST',
+				url: '/dongjun/elecon/fuzzy_search',
+				data: {
+					name: name
+				},
+				success: function(res) {
+					if(res.success && res.text) {
+						that.companyList = res.text;
+						$('#companyList').html(registerObj.joinOp(res.text))
+					} else {
+						console.log('没有找到对应的公司所以搜索不出来')
+					}
+				}
+			})
+		}, 1500),
+		editCompanyId(value) {
+			var that = this;
+			if(this.companyList.length) {
+				this.companyList.forEach(function(company) {
+					if(company.name == value) {
+						that.companyId = company.id
+					}
+				})
+			}
+		},
+	};
+}();
+</script>

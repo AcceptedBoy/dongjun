@@ -68,6 +68,19 @@ public interface BaseService<T> {
 	 */
 	public List<T> selectByParameters(Map<String, Object> map);
 
+	
+	/**
+	 * 
+	 * @Title: deleteByParameters
+	 * @Description: TODO
+	 * @param @param map
+	 * @param @return
+	 * @return int
+	 * @throws
+	 */
+	public int deleteByParameters(Map<String, Object> map);
+	
+	
 	/**
 	 * 
 	 * @Title: updateByPrimaryKeySelective

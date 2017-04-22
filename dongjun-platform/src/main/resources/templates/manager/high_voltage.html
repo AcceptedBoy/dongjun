@@ -1,0 +1,231 @@
+<div class="form-inline">
+  <div class="form-group span3">
+    <label class="span3">组别:</label>
+    <select class="groups span9"></select>
+  </div>
+  <div class="form-group span3">
+    <label class="span3">公司:</label>
+    <select class='companys span9'></select>
+  </div>
+  <div class="form-group span5">
+    <a href="#add_switch_modal" class="btn btn-primary" id="add_switch_btn" data-toggle="modal" data-backdrop="static" onclick="modal.addSwitch()">添加开关</a>
+    <a href="/dongjun/downloadEmptyhvExcel" class="btn btn-primary emptyExcel" id="export_model_btn" data-backdrop="static">导出模板</a>
+    <a href="#upload_modal" class="btn btn-primary" id="add_switch_btn" data-toggle="modal" data-backdrop="static">批量导入</a>
+    <a href="/dongjun/downloadhvExcel" class="btn btn-primary downloadExcel" id="export_switch_btn" data-backdrop="static">导出excel</a>
+  </div>
+</div>
+<table id="switch_list" class="table table-bordered table-striped table-hover table-condensed success">
+  <thead>
+    <td>设备号码</td>
+    <td>开关名称</td>
+    <td>地址</td>
+    <td>SIM</td>
+    <td class="hidden">Id</td>
+    <td>在线时间</td>
+    <td>当前状态</td>
+    <td>修改</td>
+    <td>删除</td>
+  </thead>
+</table>
+
+
+<script>
+  /**
+   * 此代码块引入两个外部的对象： modal、 selectManager
+   * modal 引自: js/manager/voltage_manager_modal.html
+   *   主要功能： 管理可操作的弹窗
+   *             setOption  -- 设置url、完成后的函数
+   *             addSwitch  -- 添加开关的弹窗
+   *             editSwitch -- 修改开关的弹窗
+   *             delSwitch  -- 删除事件
+   * selectManager
+   *   主要功能： 管理单位、配电室选择框
+   */
+(function(){
+
+  var managerTable = function() {
+    var table = null;
+    var defUrl = '';
+    return {
+      getTable: function(){
+        return table;
+      },
+      init: function(o) {
+        if(o.url) {
+          defUrl = o.url
+        }
+        var _self = this;
+        console.log('temTable url')
+        console.log(o.url, defUrl)
+        table = $('#switch_list').DataTable({
+          'destroy': true,// destroy之后才能重新加载
+          'ajax': {
+            'url': o.url,
+            'type': 'POST',
+            'data': o.data
+          },
+          'columns': [
+            { 'data': 'deviceNumber' },
+            { 'data': 'name' },
+            { 'data': 'address' },
+            { 'data': 'simNumber' },
+            {
+              'data': 'id',
+              'sClass': 'dpass',
+            },
+            { 'data': 'onlineTime'},
+            {
+              'data': 'status',
+              'width': '150px',
+              'render': _self.renderCtrl
+            },
+            { 'data': null},// 设置默认值 null，表示列不会获得数据源对象的信息,否则默认值会被覆盖掉
+            { 'data': null},// 设置默认值 null，表示列不会获得数据源对象的信息,否则默认值会被覆盖掉
+          ],
+          'columnDefs': [
+            {
+              'targets': -3,
+              'data': 'groupId',
+              'defaultContent': '<a href="#check_switch_modal" role="button" class="btn" data-toggle="modal">查看状态 &raquo;</a>'
+            },
+            {
+              'targets': -2,
+              'data': null,
+              'defaultContent': '<a href="#edit_switch_modal" role="button" class="edit_switch_btn btn" data-toggle="modal">修改 &raquo;</a>'
+            },
+            {
+              'targets': -1,
+              'data': null,
+              'defaultContent': '<a href="#del_switch_modal" class="del_switch_btn btn btn-danger" data-toggle="modal" data-backdrop="static">删除&raquo; </a>'
+            },
+          ],
+          'language': {
+            'paginate': {
+              'next': '下一页',
+              'previous': '上一页'
+            },
+            'emptyTable': '找不到相关数据',
+            'zeroRecords': '找不到相关数据'
+          },
+          'initComplete': function() {
+
+            $(this[0]).click(function(event) {
+              var target = $(event.target)
+              if(target.hasClass('edit_switch_btn')) {
+                modal.editSwitch(target)
+
+              } else if(target.hasClass('del_switch_btn')) {
+                var targetId = target.closest('tr').find('.dpass')[0].innerHTML
+                modal.delSwitch(targetId)
+
+              } else if(target.hasClass('switchCtrl')) {
+                event.preventDefault()
+                var switchNode = target.prev().prev()
+
+                modal.switchCtrl({
+                  'switchId': switchNode.attr('id'),
+                  'sign': switchNode[0].checked ? 0 : 1 ,
+                  'validate': function(){
+                    if(switchNode[0].checked) {
+                      switchNode[0].checked = false
+                      switchNode.parent().next().html('分闸')
+                    } else {
+                      switchNode[0].checked = true
+                      switchNode.parent().next().html('合闸')
+                    }
+                  }
+                })
+
+              } else if(target.hasClass('statusMsg')) {
+                target.prev().find('label')[0].click()
+              } else if(target.hasClass('switchCtrl-offline')) {
+                event.preventDefault()
+                alert('开关处于离线状态，无法进行操作')
+                return false
+              }
+            })
+          }
+        })
+      },
+      getURL: function() {
+    	console.log(defUrl)
+      },
+      redraw: function(id) {
+
+   	  	if(id == -1){
+	       	console.log('clear')
+	       	table.clear().draw()
+	       	return
+        }
+        // post
+        table.ajax.url(defUrl);
+        var param = {
+          platformId: id
+        };
+        table.settings()[0].ajax.data = param;
+        table.ajax.reload();
+      },
+      // 渲染控制开关
+      renderCtrl: function(data, type, row) {
+        var status = '', trendStatus = '', checked = ''
+        var bgcClass = 'bgc', labelClass = 'switchCtrl', msgClass = 'statusMsg'
+        switch(data) {
+          case '01' :
+            status = '合闸'
+            trendStatus = '点击以分闸'
+            checked = 'checked'
+            break
+          case '00' :
+            status = '分闸'
+            trendStatus = '点击以合闸'
+            break
+          case '-1' :
+            status = '离线'
+            bgcClass = 'bgc-offline'
+            labelClass = 'switchCtrl-offline'
+            msgClass = 'statusMsg-offline'
+        }
+        var switchCtrl = '<div class="checkbox-container">'+
+                            '<div class="checkbox-div">'+
+                              '<input type="checkbox" id="'+ row.id +'" class="switchBox" '+ checked +'/>'+
+                              '<div class="'+bgcClass+'"></div>'+
+                              '<label for="'+row.id+'" class="'+labelClass+'" title="'+trendStatus+'"></label>'+
+                            '</div>'+
+                            '<span class="'+msgClass+'" title="'+trendStatus+'">'+status+'</span>'+
+                          '</div>'
+        return switchCtrl
+      }
+    }
+  }()
+
+  modal.setOption({
+    url: {
+      add: '/dongjun/edit_high_voltage_switch',
+      edit: '/dongjun/edit_high_voltage_switch',
+      del: '/dongjun/del_high_voltage_switch',
+      upload: '/dongjun/uploadhvSwitchExcel',
+      validate: '/dongjun/security_confirm',
+      alterStatus: '/dongjun/control_switch'
+    },
+    completeFnc: managerTable.redraw
+  })
+
+  selectManager.setOption({
+    url: {},
+    node: {
+      group: '.groups',
+      company: '.companys'
+    },
+    completeFnc: managerTable.redraw
+  })
+  selectManager.loadGroups()
+  selectManager.autoListen()
+
+  managerTable.init({
+    url: '/dongjun/high_voltage_switch_list_by_platform_id',
+    data: {
+      platformId: selectManager.getCompany()
+    }
+  })
+})()
+</script>

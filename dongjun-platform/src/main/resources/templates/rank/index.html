@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>电管家维护系统 - 上海东君电气有限公司</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link href="../../css/bootstrap.css" rel="stylesheet" />
+    <style type="text/css">
+        th, td {
+            white-space: nowrap;
+        }
+    </style>
+    <link href="../../css/bootstrap-responsive.css" rel="stylesheet" />
+    <link href="../../css/global.css" rel="stylesheet" />
+    <link rel="stylesheet" href="../../css/rank.css">
+    <link rel="shortcut icon" href="../../img/logo.png" />
+    <link href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"
+        rel="stylesheet" />
+
+	<!-- dataTables -->
+    <link href="../../css/dataTables/dataTables.tableTools.css"
+          rel="stylesheet" />
+    <link href="../../css/dataTables/jquery.dataTables.css" rel="stylesheet" />
+    <link href="../../css/dataTables/dataTables.bootstrap.css"
+          rel="stylesheet" />
+</head>
+<body>
+
+	<div class="container-fluid">
+		<modal></modal>
+		<topBar></topBar>
+		<div class="row-fluid">
+			<company></company>
+			<showDetail></showDetail>
+		</div>
+		<footer>
+            <p>&copy; Company 2013</p>
+        </footer>
+	</div>
+
+	<script src="../../js/lib/jquery.js"></script>
+	<script src="../../js/lib/bootstrap-transition.js"></script>
+	<script src="../../js/lib/bootstrap-alert.js"></script>
+	<script src="../../js/lib/bootstrap-modal.js"></script>
+	<script src="../../js/lib/bootstrap-dropdown.js"></script>
+	<script src="../../js/lib/bootstrap-scrollspy.js"></script>
+	<script src="../../js/lib/bootstrap-tab.js"></script>
+	<script src="../../js/lib/bootstrap-tooltip.js"></script>
+	<script src="../../js/lib/bootstrap-popover.js"></script>
+	<script src="../../js/lib/bootstrap-button.js"></script>
+	<script src="../../js/lib/bootstrap-collapse.js"></script>
+	<script src="../../js/lib/bootstrap-carousel.js"></script>
+	<script src="../../js/lib/bootstrap-typeahead.js"></script>
+
+	<!-- dataTables -->
+	<script src="../../js/lib/dataTables/dataTables.bootstrap.js"></script>
+	<script src="../../js/lib/dataTables/jquery.dataTables.js"></script>
+	<script src="../../js/lib/dataTables/dataTables.tableTools.js"></script>
+	<script src="../../js/lib/dataTables/dataTables_initial.js"></script>
+
+	<script src="../../js/lib/dongjun.js"></script>
+	<script src="../../js/custom/setModal.js"></script>
+	<script>
+	    dj.createComponent('topBar', {
+	    	templateUrl: '../public/topBar.html'
+	    })
+
+	    dj.inserCmp('./company.html', document.getElementsByTagName('company')[0], function() {
+	    	dj.inserCmp('./showDetail.html', document.getElementsByTagName('showDetail')[0], function() {
+	    		console.log('ok')
+	    	})
+	    })
+
+	    dj.componentIn()
+	</script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<table id="operation_log_list" class="table table-bordered table-striped table-hover table-condensed success" width="100%">
+  <thead>
+    <td>操作日期</td>
+    <td>开关名称</td>
+    <td>操作类型</td>
+  </thead>
+</table>
+
+<script>
+  var operationLogTable = function() {
+    var table = null
+    var url = {
+    	all_log: '/dongjun/log/get_operation_log'
+    }
+    return {
+      getTable: function(){
+        return table;
+      },
+      init: function() {
+        var _self = this;
+        table = $('#operation_log_list').DataTable({
+          'ajax': {
+            'url': url.all_log,
+            'dataSrc': 'text.data',
+            'type': 'POST'
+          },
+          'columns': [
+            {
+              'data': 'date',
+              'render': this.renderTime
+            },
+            {
+              'data': 'name',
+              'orderable': false
+            },
+            {
+              'data': 'type',
+              'render': this.renderType,
+              'orderable': false
+            },
+          ],
+          'language': {
+            'paginate': {
+              'next': '下一页',
+              'previous': '上一页'
+            },
+            'emptyTable': '找不到相关数据',
+            'zeroRecords': '找不到相关数据',
+            'loadingRecords': '正在加载数据...'
+          },
+        })
+      },
+      renderType(data) {
+        var types = ['未知错误', '分闸', '合闸']
+        return types[parseInt(data)]
+      },
+      renderTime(time) {
+        time = typeof time === 'string' ? parseInt(time) : time
+        var date = new Date(time)
+        var y = date.getFullYear()
+        var mt = date.getMonth() + 1
+        mt = mt < 10 ? ('0' + mt) : mt
+        var d = date.getDate()
+        d = d < 10 ? ('0' + d) : d
+        var h = date.getHours()
+        h = h < 10 ? ('0' + h) : h
+        var m = date.getMinutes()
+        m = m < 10 ? ('0' + m) : m
+        var s = date.getSeconds()
+        s = s < 10 ? ('0' + s) : s
+        return y + '-' + mt + '-' + d + ' ' + h + ':' + m + ':' + s
+      }
+    }
+  }()
+
+  operationLogTable.init()
+</script>

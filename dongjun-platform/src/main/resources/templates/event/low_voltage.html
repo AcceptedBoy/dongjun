@@ -1,0 +1,165 @@
+<div class="form-inline">
+  <div class="form-group span4">
+    <label class="span2">组别:</label>
+    <select class="substations span10" onchange="selectManager.substationChange()"></select>
+  </div>
+  <div class="form-group span4">
+    <label class="span2">公司:</label>
+    <select class='lines span10' onchange="selectManager.linesChange()"></select>
+  </div>
+  <div class="form-group span4">
+    <label class="span2">开关:</label>
+    <select id='switchs' class='span10' onchange="selectManager.switchsChange()"></select>
+  </div>
+</div>
+<table id="hitch_event_list" class="table table-bordered table-striped table-hover table-condensed success" width="100%">
+  <thead>
+    <td>故障时间</td>
+    <td>故障相位</td>
+    <td>故障原因</td>
+    <td>A相电压</td>
+    <td>B相电压</td>
+    <td>C相电压</td>
+    <td>A相电流</td>
+    <td>B相电流</td>
+    <td>C相电流</td>
+  </thead>
+</table>
+
+<script>
+  var lowVoltageTable = function() {
+    var table = null;
+    var url = '';
+    return {
+      getTable: function(){
+        return table;
+      },
+      init: function(o) {
+        var _self = this;
+        url = o.url;
+        table = $('#hitch_event_list').DataTable({
+          'destroy': true,// destroy之后才能重新加载
+          'ajax': {
+            'url': o.url,
+            'type': 'POST',
+            'data': o.data
+          },
+          'columns': [
+            {
+              'data': 'hitchTime',
+              'render': this.renderTime
+            },
+            {
+              'data': 'hitchPhase'
+            },
+            {
+              'data': 'hitchReason',
+              'render': this.renderReason
+            },
+            {
+              'data': 'behitchAPhaseVoltage'
+            },
+            {
+              'data': 'behitchBPhaseVoltage'
+            },
+            {
+              'data': 'behitchCPhaseVoltage'
+            },
+            {
+              'data': 'behitchAPhaseCurrent'
+            },
+            {
+              'data': 'behitchBPhaseCurrent'
+            },
+            {
+              'data': 'behitchCPhaseCurrent'
+            },
+          ],
+          'language': {
+            'paginate': {
+              'next': '下一页',
+              'previous': '上一页'
+            },
+            'emptyTable': '找不到相关数据',
+            'zeroRecords': '找不到相关数据'
+          },
+        })
+      },
+      redraw: function(id) {
+        // get
+        // url += '?switchId=' + id;
+        // table.ajax.url('http://127.0.0.1:8080/templates/event/refresh').load();
+
+        if(id == -1){
+          // console.log('clear')
+          if(table) {
+            table.clear().draw()
+          }
+          return
+        }
+        // post
+        table.ajax.url(url);
+        var param = {
+          switchId: id
+        };
+        table.settings()[0].ajax.data = param;
+        table.ajax.reload();
+      },
+      renderReason(data) {
+        var reason = data;
+        switch(parseInt(data)) {
+          case 1: reason = '剩余电流'; break;
+          case 2: reason = '缺零'; break;
+          case 3: reason = '过载'; break;
+          case 4: reason = '短路'; break;
+          case 5: reason = '缺相'; break;
+          case 6: reason = '欠压'; break;
+          case 7: reason = '过压'; break;
+          case 8: reason += '接地'; break;
+          case 9: reason = '停电'; break;
+          case 10: reason = '定时试验'; break;
+          case 11: reason = '远程'; break;
+          case 12: reason = '闭锁'; break;
+          case 13: reason = '手动'; break;
+          case 14: reason = '互感器故障'; break;
+          case 15: reason = '合闸失败'; break;
+          case 16: reason = '设置失败'; break;
+        }
+        return reason;
+      },
+      renderTime(time) {
+        var date = new Date(time);
+        var y = date.getFullYear();
+        var mt = date.getMonth() + 1;
+        mt = mt < 10 ? ('0' + mt) : mt;
+        var d = date.getDate();
+        d = d < 10 ? ('0' + d) : d;
+        var h = date.getHours();
+        h = h < 10 ? ('0' + h) : h;
+        var m = date.getMinutes();
+        m = m < 10 ? ('0' + m) : m;
+        var s = date.getSeconds()
+        s = s < 10 ? ('0' + s) : s;
+        return y + '-' + mt + '-' + d + ' ' + h + ':' + m + ':' + s
+      }
+    }
+  }()
+
+  selectManager.setOption({
+    url: {
+      substation: '/dongjun/group/gruop_list',
+      line: '/dongjun/platform_group/platform_group_list_by_group_id',
+      switch: '/dongjun/switch_list_by_platform_id'
+    },
+    node: {},
+    completeFnc: lowVoltageTable.redraw.bind(lowVoltageTable)
+  });
+
+  selectManager.loadSubstations();  // 加载选择项
+  lowVoltageTable.init({
+	  url: '/dongjun/get_low_voltage_hitch_event_by_switch_id',
+	  data: {
+		 switchId: $('#switchs').val()
+	  }
+  });           // 初始化表格
+</script>

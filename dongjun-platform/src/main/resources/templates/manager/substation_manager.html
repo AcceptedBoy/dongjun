@@ -1,0 +1,90 @@
+
+<div class="form-inline">
+	<div class="form-group span3">
+		<a href="#add_switch_modal" class="btn btn-primary"
+			id="add_switch_btn" data-toggle="modal" data-backdrop="static" onclick="clickManager.addSwitch()">添加组别</a>
+	</div>
+</div>
+
+<table id="switch_list"
+	class="table table-bordered table-striped table-hover table-condensed success">
+	<thead>
+		<td>名称</td>
+		<td class="hidden">Id</td>
+		<td class="hidden">线路ID</td>
+	    <td>修改</td>
+	    <td>删除</td>
+	</thead>
+</table>
+
+<script>
+	var clickManager = clickManagers(false);
+	var substationManager = function() {
+		var table = null;
+		var myUrl = '/dongjun/group/gruop_list';
+		return {
+			init: function(){
+				// if(id) {
+				// 	myUrl = 'http://127.0.0.1:8080/templates/manager/substationData?substation_id=' + id;
+				// }
+				table = $('#switch_list').DataTable({
+					"destroy": true,// destroy之后才能重新加载
+			        "ajax": {
+						url : myUrl,
+						type: 'POST'
+					},
+			        "columns": [
+			            { 	"data": "name" },
+			            { 	"data": "id",
+			            	"sClass": "dpass"},
+			            { "data": null},// 设置默认值 null，表示列不会获得数据源对象的信息,否则默认值会被覆盖掉
+			            { "data": null }// 设置默认值 null，表示列不会获得数据源对象的信息,否则默认值会被覆盖掉
+			        ],
+			        // 为下面的列设置默认值
+			        "columnDefs": [ {
+			            "targets": -2,
+			            "data": null,
+			            "defaultContent": '<a href="#edit_switch_modal" role="button" class="edit_switch_btn btn" data-toggle="modal" onclick="clickManager.editSwitch(this)">修改 &raquo;</a>'
+			        },
+			        {
+			            "targets": -1,
+			            "data": null,
+			            "defaultContent": '<a href="#del_switch_modal" class="del_switch_btn btn btn-danger" data-toggle="modal" data-backdrop="static" onclick="clickManager.delSwitch(this)">删除&raquo; </a>'
+			        }],
+			        // "fnInitComplete": function(oSettings, json) {
+			        // 	$(this[0]).click(function(event) {
+			        // 		var target = $(event.target);
+			        // 		// if(target.hasClass('edit_switch_btn')) {
+			        // 		// 	console.log('edit');
+			        // 		// 	clickManager.editSwitch(target);
+			        // 		// }
+			        // 		// if(target.hasClass('del_switch_btn')) {
+			        // 		// 	console.log('del');
+			        // 		// 	clickManager.delSwitch(target);
+			        // 		// }
+			        // 	});
+			        // 	$('#add_switch_btn').click(function() {
+			        // 		console.log('add');
+			        // 		clickManager.addSwitch()
+			        // 	})
+			        // 	// $(".edit_switch_btn").click(editSwitch);
+			        // 	// $(".del_switch_btn").click(delSwitch);
+			        //  }
+			    });
+			},
+			redraw: function(id) {
+				console.log(id);
+				table.ajax.url(myUrl);
+		        table.ajax.reload();
+		        // console.log(`param${param}`);
+			},
+			// expands.
+		}
+	}();
+
+	clickManager.setOption({
+		fn: substationManager.redraw,
+		isLine: false
+	});
+	substationManager.init();
+</script>

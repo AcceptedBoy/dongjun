@@ -60,9 +60,9 @@ public class Application extends SpringBootServletInitializer {
 	public DataSource dataSource() {
 
 		ComboPooledDataSource ds = new ComboPooledDataSource();
-		ds.setJdbcUrl("jdbc:mysql://localhost:3306/elecon?useUnicode=true&amp;charaterEncoding=utf-8&zeroDateTimeBehavior=convertToNull");
+		ds.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/elecon_platform?useUnicode=true&amp;charaterEncoding=utf-8&zeroDateTimeBehavior=convertToNull");
 		ds.setUser("root");
-		ds.setPassword("root");//elecon
+		ds.setPassword("759486");//elecon
 		try {
 			ds.setDriverClass("com.mysql.jdbc.Driver");
 		} catch (PropertyVetoException e) {
@@ -193,7 +193,7 @@ public class Application extends SpringBootServletInitializer {
 
 	/**
 	 * shiro filter
-	 */
+	 */	
 	@Bean(name = "shiroFilter")
 	public ShiroFilterFactoryBean ShiroFilterFactoryBean() {
 
@@ -279,6 +279,7 @@ public class Application extends SpringBootServletInitializer {
 		SpringApplication.run(Application.class, args);
 	}
 
+	//注册Servlet，同样的Bean有FilterRegistrationBean和ServletListenerRegistrationBean
 	@Bean//fix bug: 上次的名字是dispatcherServlet，搞得那些请求都没办法处理了
 	public ServletRegistrationBean cxfServlet() {
 		return new ServletRegistrationBean(new CXFServlet(), "/dongjun-website/ws/*");

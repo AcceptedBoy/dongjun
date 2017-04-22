@@ -1,0 +1,281 @@
+<!-- edit modal(company) -->
+<div id="edit_company_modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"
+                aria-hidden="true">×</button>
+        <h3>修改公司信息</h3>
+    </div>
+
+    <div class="modal-body form-horizontal">
+        <div class="control-group">
+            <label class="control-label" for="companyName">公司名称</label>
+            <div class="controls">
+                <input type="text" id="companyName" name="companyName" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="companyAdress">公司地址</label>
+            <div class="controls">
+                <input type="text" id="companyAdress" name="companyAdress" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="companyStaff">创始人</label>
+            <div class="controls">
+                <input type="text" id="companyStaff" name="companyStaff" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="phone">公司座机</label>
+            <div class="controls">
+                <input type="text" id="phone" name="phone" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="email">公司邮箱</label>
+            <div class="controls">
+                <input type="text" id="email" name="email" />
+            </div>
+        </div>
+        <div class="control-group">
+            <label class="control-label" for="companyInfor">公司介绍</label>
+            <div class="controls">
+                <textarea id="companyInfor" name="companyInfor" rows="5" cols="20"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+        <button id="confirm_edit_btn" class="btn btn-primary" onclick="companyModal.editModal()">修改</button>
+    </div>
+</div>
+
+<!-- add equip modal -->
+<div id="add_modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"
+                aria-hidden="true">×</button>
+        <h3>添加设备</h3>
+    </div>
+
+    <div class="modal-body form-horizontal">
+        <table id="equip_add_list" class="table table-bordered table-striped table-hover table-condensed success">
+            <thead>
+                <td>设备名称</td>
+                <td></td>
+            </thead>
+        </table>
+    </div>
+
+    <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+        <button id="confirm_add_btn" class="btn btn-primary" onclick="addModal.addEquip()">修改</button>
+    </div>
+</div>
+
+<script>
+
+    var addModal = function() {
+        var hasChoose = {}
+        var hasLoad = undefined
+        var table = null
+        var urls = null
+        var now = null
+
+        return {
+            init: function(o) {
+                urls = {
+                    addUrl: o.addUrl,
+                    getUrl: o.getUrl
+                }
+            },
+            getTarget: function(id, type) {
+                if(id) {
+                    now[type+'id'] = id
+                    now.type = type
+                } else {
+                    return now
+                }
+            },
+            setNow: function(setting) {
+                now = setting
+            },
+            setTable: function() {
+                if(now) {
+                    $('.addBtn').attr('data-target', '#add_modal')
+                    if(urls) {
+                        table = $('#equip_add_list').DataTable({
+                            searching: false,
+                            lengthChange: false,
+                            scrollCollapse: true,
+                            pageLength: 5,
+                            ajax: {
+                                url: urls.getUrl,
+                                type: 'POST',
+                                dataSrc: 'text'
+                            },
+                            columns: [{         // 这个函数还是在“+”按钮onclick的时候调用，调用时判断一下now值是否已经设好
+                                data: 'name'
+                            }, {
+                                data: 'id',
+                                orderable: false,
+                                render: function(data, type, row) {
+                                    return '<input type="checkbox" class="add_equip_checkbox" data-fnc="add_equip" data-type="'+row.type+'" data-eid="'+data+'" />'
+                                }
+                            }],
+                            language: {
+                                paginate: {
+                                    next: '下一页',
+                                    previous: '上一页'
+                                },
+                                emptyTable: '找不到相关数据',
+                                zeroRecords: '找不到相关数据'
+                            },
+                            initComplete: function() {
+                                // 记录表格已经load过
+                                hasLoad = true
+
+                                $(this[0]).click(function(event) {
+                                    var target = $(event.target)
+                                    var fnc = target.data('fnc')
+                                    if(fnc == 'add_equip') {
+                                        if(target[0].checked) {
+                                            hasChoose[target.data('eid')] = target.data('type')
+                                        } else {
+                                            delete hasChoose[target.data('eid')]
+                                        }
+                                    }
+                                })
+                            }
+                        })
+                    }
+                } else {
+                    alert('请先选择用户')
+                    $('.addBtn').attr('data-target', '')
+                }
+            },
+            addEquip: function() {
+                if(this.isEmptyObj(hasChoose)) {
+                    alert('请选择设备')
+                    return
+                }
+                var deviceId = ''
+                var type = ''
+                for(var id in hasChoose) {
+                    deviceId += id+',='
+                    type += hasChoose[id] + ',='
+                }
+                deviceId = deviceId.replace(/,=$/, '')
+                type = type.replace(/,=$/, '')
+                // var data = deviceId + type + 'deviceGroupId=' + now.groupId
+                $.ajax({
+                    url: urls.addUrl,
+                    type: 'POST',
+                    data: {
+                        deviceId: deviceId,
+                        deviceType: type,
+                        userId: now,
+                        type: '1',
+                    },
+                    success: function(res) {
+                        res = typeof res == 'string' ? JSON.parse(res) : res
+                        if(res.success) {
+                            // fnc.equip(now.groupId)
+                            // 隐藏并重新渲染设备列表
+                            $('#add_modal').modal('hide')
+                            empolyeeEquipTb.redraw(now)
+                        } else {
+                            alert('炸了')
+                        }
+                    },
+                    error: function(e) {
+                        console.error(e)
+                    }
+                })
+            },
+            isEmptyObj: function(o) {
+                for(var k in o) {
+                    return false
+                }
+                return true
+            },
+            resetModal: function() {
+                hasChoose = {}
+                $(equipTable.table().node()).find('.add_equip_checkbox').attr('checked', false)
+            },
+            redraw: function() {
+                var params = {}
+                if(now) {
+                    params = {
+                        userId: now
+                    }
+                    table.settings()[0].ajax.data = params
+                }
+                hasChoose = {}
+                table.ajax.reload()
+            },
+            renderTb: function() {
+                if(hasLoad) {
+                    this.redraw(now)
+                } else {
+                    this.setTable(now)
+                }
+            }
+            // TODO
+        }
+    }()
+
+    var companyModal = function() {
+        var urls = {}
+        var id = ''
+
+        return {
+            init: function(o, companyId) {
+                urls = {
+                    editUrl: o.editUrl
+                }
+                id = companyId
+            },
+            setVal: function() {
+                $('#companyName').val($('.companyName').children('.value').text())
+                $('#companyAdress').val($('.companyAdress').children('.value').text())
+                $('#companyStaff').val($('.companyStaff').children('.value').text())
+                $('#phone').val($('.phone').children('.value').text())
+                $('#email').val($('.email').children('.value').text())
+                $('#companyInfor').val($('.companyInfor').children('.value').text())
+            },
+            editModal: function() {
+                $.ajax({
+                    url: urls.editUrl,
+                    type: 'POST',
+                    data: {
+                        id: id,
+                        name: $('#companyName').val(),
+                        description: $('#companyInfor').val(),
+                        address: $('#companyAdress').val(),
+                        mainStaff: $('#companyStaff').val(),
+                        phone: $('#phone').val(),
+                        email: $('#email').val(),
+                    },
+                    success: function(res) {
+                        if(res.success) {
+                            showCompany.setCompany(res.text)
+                            $('#edit_company_modal').modal('hide')
+                        } else {
+                        	alert('修改失败')
+                        }
+                    }
+                })
+            },
+            // TODO
+        }
+    }()
+
+    // companyModal.init('/dongjun/company/edit')
+
+    addModal.init({
+        addUrl: '/dongjun/user_device_mapping/edit',
+        getUrl: '/dongjun/company/device'
+    })
+</script>

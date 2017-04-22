@@ -1,0 +1,124 @@
+<div class="input-append">
+	<input id="search_node_key" class="span10" type="text" placeholder="请输入..." />
+	<button id="searchNode" class="btn btn-primary" type="button"><i class="fa fa-search"></i></button>
+</div>
+<div class="well sidebar-nav">
+	<ul id="treeDemo" class="ztree"></ul>
+</div>
+
+
+<script>
+
+	(function() {
+		var chartManager = chart.chartManager || null;
+		var chartController = chart.chartController || null;
+
+		var treeModel = function() {
+			// 记录上一个节点
+			var LastNode = -1;
+
+			return {
+				// 管理上一个点击的节点类型的方法
+				getLast: function() {
+					return LastNode;
+				},
+				setLast: function(node) {
+					LastNode = node;
+				}
+			};
+		}();
+
+		var treeSet = function() {
+			var last_value;
+
+			return {
+				data_filter: function(treeId, parentNode, childNodes) {
+					if (!childNodes)
+						return null;
+					for (var i = 0, l = childNodes.length; i < l; i++) {
+						childNodes[i].name = childNodes[i].name.replace(/\.n/g, '.');
+					}
+					return childNodes;
+				},
+				update: function(nodes, highlight) {
+					var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+
+					for (var i = 0, l = nodes.length; i < l; i++) {
+						nodes[i].highlight = highlight;
+						zTree.updateNode(nodes[i]);// 调用库函数，高亮显示
+					}
+				},
+				zTreeSearch: function(value) {
+					var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+					var nodeList;
+					if (last_value != null) {
+						nodeList = zTree.getNodesByParamFuzzy("name", last_value);
+						this.update(nodeList, false);// 重置状态
+					}
+					last_value = value;
+
+					nodeList = zTree.getNodesByParamFuzzy("name", value);
+					treeSet.update(nodeList, true);
+				},
+				getFontCss: function(treeId, treeNode) {
+					return (!!treeNode.highlight) ? {
+							color : "#5C297F",
+							"font-weight" : "bold"
+						} : {
+							color : "#999999",
+							"font-weight" : "bold"
+						};
+				},
+				setTree: function(zTreeNodeType) {
+					var setting = {
+						async: {
+							enable : true,
+							type: 'get',
+							url : "/dongjun/switch_tree",// 数据源
+							// url: 'http://127.0.0.1:8080/templates/manager/loadTree',
+							autoParam : [ "id", "name=n", "level=lv" ],
+							/*otherParam : {
+							 	"type" : zTreeNodeType,// 0低压 1高压 2管测
+							},*/
+							dataFilter : treeSet.data_filter,// 添加节点名称过滤器
+						},
+						callback: {
+							onAsyncSuccess : treeSet.zTreeOnAsyncSuccess,// 添加动态加载成功回调函数
+							onClick: treeSet.zTreeOnClick
+						},
+						view: {
+							showLine : false,
+							fontCss : treeSet.getFontCss,
+							nameIsHTML: true
+						},
+					};
+					return setting;
+				},
+				zTreeOnAsyncSuccess: function(event, treeId, treeNode, msg) {
+					chartController.initListener();
+				},
+				zTreeOnClick: function(event, treeId, treeNode) {
+					chartManager.newHandleClick(event, treeId, treeNode)
+				},
+				init: function() {
+					$.fn.zTree.init($("#treeDemo"), this.setTree(0));
+
+					$("#searchNode").click(function() {
+						treeSet.zTreeSearch($("#search_node_key").val());
+					});
+
+					// 添加回车事件
+					$(document).keydown(function(event) {
+						var e = event || window.event;
+						if(e.keyCode == 13 && !!$('#search_node_key').val()) {
+							treeSet.zTreeSearch($("#search_node_key").val());
+						}
+					});
+				}
+			};
+		}();
+		
+		treeSet.init();
+	}());
+	
+</script>

@@ -23,8 +23,9 @@ function loadSubstationSet() {
 					options += "<option value='" + data[i].id + "'>" + data[i].name
 							+ "</option>";
 				}
+				
+				$(".substations").html(options);
 				Change_line(default_id);
-				$(".substations").append(options);
 				$(".substations").unbind().change(function(){  // 不知道为什么在低压事件的页面只能在这里添加监听函数
 					Change_line(this.value);
 					$('#searchType').val('变电站');
@@ -65,15 +66,32 @@ function Change_line(lineId) {
 					+ "</option>";
 			}
 			$(".lines").empty().append(options);
+			// 兼容三个页面的请求接口
+			var myUrl;
+			switch (myState) {
+				case 'high':
+					myUrl = 'high_voltage_switch_list_by_line_id'
+					break;
+				case 'low':
+					myUrl = 'switch_list_by_line_id'
+					break;
+				case 'control':
+					myUrl = 'control_measure_switch_list_by_line_id'
+					break;
 
+				default:
+					break;
+			}
 			$.ajax({
 				type : "post",
-				url : 'high_voltage_switch_list_by_line_id',
+				// url : 'high_voltage_switch_list_by_line_id',
+				url: myUrl,
 				async : false,
 				data : {
 					"lineId" : $(".lines").val()
 				},
 				success : function(data) {
+					// console.log(myUrl)
 					console.log($(".lines").val());
 					data = data.data;
 					var options = "";

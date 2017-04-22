@@ -1,0 +1,494 @@
+<div class="detail">
+	<div class="detailEmpolyee">
+		<table id="empolyeeList" class="table table-bordered table-striped table-hover table-condensed success">
+            <thead>
+                <td>名字</td>
+                <td>电话</td>
+                <td>查看</td>
+            </thead>
+        </table>
+	</div>
+	<div class="arrow">
+		<div class="center">
+			<i class="icon-arrow-left icon"></i>
+			<i class="icon-arrow-right icon"></i>
+		</div>
+	</div>
+	<div class="detailGuest">
+			<table id="equipList" class="table table-bordered table-striped table-hover table-condensed success">
+	            <thead>
+	                <td>设备名称</td>
+	                <td>操作</td>
+	            </thead>
+	        </table>
+	</div>
+	<div class="normalInfor">
+		<h4 class="header">个人档案</h4>
+		<button data-toggle="modal" data-backdrop="static" data-target="#edit_user" class="editBtn btn" onclick="userModal.setVal()">修改用户</button>
+		<div class="personalInfor">
+			<div class="group emRealName">
+				<span class="title">姓名：</span>
+				<span class="value"></span>
+			</div>
+			<div class="group emName">
+				<span class="title">用户名：</span>
+				<span class="value"></span>
+			</div>
+			<div class="group emPhone">
+				<span class="title">电话：</span>
+				<span class="value"></span>
+			</div>
+			<div class="group emEmail">
+				<span class="title">邮件：</span>
+				<span class="value"></span>
+			</div>
+			<div class="group emAddress">
+				<span class="title">住址：</span>
+				<span class="value"></span>
+			</div>
+		</div>
+	</div>
+
+	<!-- edit_user_modal -->
+	<div id="edit_user" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	    <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal"
+	                aria-hidden="true">×</button>
+	        <h3>修改用户信息</h3>
+	    </div>
+
+	    <div class="modal-body form-horizontal">
+	    	<div class="control-group">
+	            <label class="control-label" for="userRealName">真实姓名</label>
+	            <div class="controls">
+	                <input type="text" id="userRealName" name="userRealName" disabled="disabled" />
+	            </div>
+	        </div>
+	        <div class="control-group">
+	            <label class="control-label" for="emUserName">用户名</label>
+	            <div class="controls">
+	                <input type="text" id="emUserName" name="emUserName" disabled="disabled" />
+	            </div>
+	        </div>
+	        <div class="control-group">
+	            <label class="control-label" for="userPhone">电话</label>
+	            <div class="controls">
+	                <input type="text" id="userPhone" name="userPhone" />
+	            </div>
+	        </div>
+	        <div class="control-group">
+	            <label class="control-label" for="userEmail">邮件</label>
+	            <div class="controls">
+	                <input type="text" id="userEmail" name="userEmail" />
+	            </div>
+	        </div>
+	        <div class="control-group">
+	            <label class="control-label" for="userAddress">住址</label>
+	            <div class="controls">
+	                <textarea id="userAddress" name="userAddress" rows="5" cols="20"></textarea>
+	            </div>
+	        </div>
+	    </div>
+
+	    <div class="modal-footer">
+	        <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+	        <button id="confirm_edit_user" class="btn btn-primary" onclick="userModal.edit()">修改</button>
+	    </div>
+	</div>
+
+</div>
+
+<script>
+	var userModal = function() {
+		var userMess = {}
+		return {
+			saveVal: function(data) {
+				userMess = data
+			},
+			setVal: function() {
+				$('#userRealName').val(this.filter($('.emRealName').children('.value').text()))
+				$('#emUserName').val(this.filter($('.emName').children('.value').text()))
+				$('#userPhone').val(this.filter($('.emPhone').children('.value').text()))
+				$('#userEmail').val(this.filter($('.emEmail').children('.value').text()))
+				$('#userAddress').val(this.filter($('.emAddress').children('.value').text()))
+			},
+			filter: function(val) {
+				if(val.indexOf('还没有填写') !== -1) {
+					return ''
+				} else {
+					return val
+				}
+			},
+			merge: function() {
+				var obj = {
+					phone: $('#userPhone').val(),
+					email: $('#userEmail').val(),
+					address: $('#userAddress').val()
+				}
+				return Object.assign(userMess, obj)
+			},
+			edit: function() {
+				$.ajax({
+					url: '/dongjun/user/edit',
+					type: 'GET',
+					data: this.merge(),
+					success: function(res) {
+						if(res.success) {
+							$('#edit_user').modal('hide')
+							var user = res.text
+							$('.emPhone').children('.value').text(emInfor.filter(user.phone))
+							$('.emEmail').children('.value').text(emInfor.filter(user.email))
+							$('.emAddress').children('.value').text(emInfor.filter(user.address))
+						}
+					}
+				})
+			}
+		}
+	}()
+
+
+	var empolyeeEquipTb = function() {
+		var table = null
+		var urls = {}
+		var now = null
+		var load = void(233)
+
+		return {
+			init: function(o) {
+				urls = {
+					getUrl: o.getUrl,
+					delUrl: o.delUrl
+				}
+			},
+			setNow: function(id) {
+				now = id
+				addModal.setNow(id)
+			},
+			hasLoad: function() {
+				return load
+			},
+			initTable: function(id) {
+				table = $('#equipList').DataTable({
+					searching: false,
+					scrollY: "100%",
+					scrollCollapse: false,
+					pageLength: 6,
+					lengthChange: false,
+					ajax: {
+						url: urls.getUrl,
+						type: 'POST',
+						// 传参
+						data: {
+							id: id
+						},
+						dataSrc: 'text'
+					},
+					columns: [{
+						data: 'name'
+					}, {
+						// 保存在删除按钮的设备的id
+						data: 'id',
+						render: function(data, type, row) {
+							return '<button data-type="del" class="btn " id="' + data + '">删除</button>'
+						}
+					}],
+					initComplete: function(){
+						$(this[0]).click(function(event) {
+							var target = $(event.target)
+							var id = target.attr('id') // dom节点获取id
+							if(target.data('type') == 'del') {
+								$.ajax({
+									url: urls.delUrl,
+									type: 'POST',
+									data: {
+										id: id
+									},
+									success: function(res) {
+										if(res.success) {
+											alert('删除成功')
+											empolyeeEquipTb.redraw()
+										} else {
+											alert('删除失败')
+										}
+									}
+								})
+							}
+						})
+						load = true
+					},
+					language: {
+						paginate: {
+							next: '下一页',
+							previous: '上一页'
+						},
+						emptyTable: '找不到相关数据',
+						zeroRecords: '找不到相关数据'
+					},
+				})
+			},
+			redraw: function(id) {
+				var params = {}
+				if(id) {
+					params = {
+						id: id
+					}
+					table.settings()[0].ajax.data = params
+				}
+				table.ajax.reload()
+			}
+			// TODO
+		}
+	}()
+
+	var empolyeeTb = function() {
+		var urls = {};
+		var table = null;
+
+		return {
+			init: function(o) {
+				urls = {
+					getUrl: o.getUrl
+				}
+			},
+			initTable: function() {
+				table = $('#empolyeeList').DataTable({
+					scrollY: "100%",
+					searching: false,
+					scrollCollapse: false,
+					pageLength: 6,
+					lengthChange: false,
+					ajax: {
+						url: urls.getUrl,
+						type: 'POST',
+						dataSrc: 'text'
+					},
+					columns: [{
+						data: 'name'
+					}, {
+						data: 'phone'
+					}, {
+						data: 'id',
+						render: function(data, type, row) {
+							return '<button class="btn" data-type="check" id="' + data + '">查看</button>'
+						}
+					}],
+					initComplete: function(){
+						$(this[0]).click(function(event) {
+							var target = $(event.target)
+							var id = target.attr('id')
+							if(target.data('type') == 'check') {
+								// now = id
+								if(empolyeeEquipTb.hasLoad()) {
+									// 重新设定now值（userId）并且重新渲染table
+									empolyeeEquipTb.setNow(id)
+									empolyeeEquipTb.redraw(id)
+								} else {
+									empolyeeEquipTb.setNow(id)
+									empolyeeEquipTb.initTable(id)
+								}
+							}
+						})
+					},
+					language: {
+						paginate: {
+							next: '下一页',
+							previous: '上一页'
+						},
+						emptyTable: '找不到相关数据',
+						zeroRecords: '找不到相关数据'
+					},
+				})
+			},
+			redraw: function() {
+
+			}
+			// TODO
+		}
+	}()
+
+	var emInfor = function() {
+		return {
+			getInfor: function() {
+				$.ajax({
+					url: '/dongjun/user/information',
+					type: 'GET',
+					success: function(res) {
+						if(res) {
+							var data = res.text
+							emInfor.renderInfor(data)
+							userModal.saveVal(data)
+						}
+					}
+				})
+			},
+			renderInfor: function(data) {
+				$('.emRealName').children('.value').text(this.filter(data.realName))
+				$('.emName').children('.value').text(this.filter(data.name))
+				$('.emPhone').children('.value').text(this.filter(data.phone))
+				$('.emEmail').children('.value').text(this.filter(data.email))
+				$('.emAddress').children('.value').text(this.filter(data.address))
+			},
+			filter: function(value) {
+				if(!value) {
+					return '（还没有填写该信息喔）'
+				} else {
+					return value
+				}
+			}
+		}
+	}()
+
+	var rank = function() {
+		return {
+			start: function() {
+				if(this.isAdmin(roles.currentRole)) {
+				 	dj.inserCmp('./editModal.html', document.getElementsByTagName('modal')[0], function() {
+				    	showCompany.renderCompany()
+						empolyeeTb.initTable()
+				    })
+
+				    // 设置显示的东西
+					$('.detailEmpolyee').css('display', 'inline-block')
+					$('.arrow').css('display', 'inline-block')
+					$('.detailGuest').css('display', 'inline-block')
+					$('.companyContainer').append('<button data-toggle="modal" data-backdrop="static" data-target="#edit_company_modal" class="edit_btn btn" onclick="companyModal.setVal()">修改</button>')
+					$('.detail').append('<div class="changeBtn btn" onclick="rank.changeWindow()">切换</div>')
+					$('.detail').append('<div data-toggle="modal" data-backdrop="static" data-target="#add_modal" class="addBtn btn" onclick="addModal.renderTb()">增加设备</div>')
+					$('.addBtn').css('display', 'inline-block')
+					$('.changeBtn').css('display', 'inline-block')
+				} else {
+					$('.normalInfor').css('display', 'block')
+					showCompany.renderCompany()
+				}
+				/* var r = new JudgeRank()
+				r.addState({
+					type: 'platform_group_admin',
+					fn: function() {
+						dj.inserCmp('./editModal.html', document.getElementsByTagName('modal')[0], function() {
+					    	showCompany.renderCompany()
+							empolyeeTb.initTable()
+					    })
+
+					    // 设置显示的东西
+						$('.detailEmpolyee').css('display', 'inline-block')
+						$('.arrow').css('display', 'inline-block')
+						$('.detailGuest').css('display', 'inline-block')
+						$('.companyContainer').append('<button data-toggle="modal" data-backdrop="static" data-target="#edit_company_modal" class="edit_btn btn" onclick="companyModal.setVal()">修改</button>')
+						$('.detail').append('<div class="changeBtn btn" onclick="rank.changeWindow()">切换</div>')
+						$('.detail').append('<div data-toggle="modal" data-backdrop="static" data-target="#add_modal" class="addBtn btn" onclick="addModal.renderTb()">增加设备</div>')
+						$('.addBtn').css('display', 'inline-block')
+						$('.changeBtn').css('display', 'inline-block')
+					}
+				}).addState({
+					type: 'user',
+					fn: function() {
+						$('.normalInfor').css('display', 'block')
+						showCompany.renderCompany()
+					}
+				})
+				r.changeRanks(roles.currentRole)
+				r.judge() */
+				emInfor.getInfor()
+			},
+			isAdmin: function(roleList) {
+				if(roleList.indexOf('platform_group_admin') !== -1) {
+					return true
+				} else {
+					return false
+				}
+			},
+			changeWindow: function() {
+				var hide = $('.detailEmpolyee').css('display')
+				if(hide == 'inline-block') {
+					$('.detailEmpolyee').hide(250)
+					$('.arrow').hide()
+					$('.detailGuest').hide(250)
+					$('.normalInfor').css('display', 'block')
+				} else {
+					$('.detailEmpolyee').css('display', 'inline-block')
+					$('.arrow').css('display', 'inline-block')
+					$('.detailGuest').css('display', 'inline-block')
+					$('.normalInfor').hide()
+				}
+			}
+		}
+	}()
+	
+	/* var r = new JudgeRank()
+	r.addState({
+		type: 'platform_group_admin',
+		fn: function() {
+			dj.inserCmp('./editModal.html', document.getElementsByTagName('modal')[0], function() {
+		    	showCompany.renderCompany()
+				empolyeeTb.initTable()
+		    })
+
+		    // 设置显示的东西
+			$('.detailEmpolyee').css('display', 'inline-block')
+			$('.arrow').css('display', 'inline-block')
+			$('.detailGuest').css('display', 'inline-block')
+			$('.companyContainer').append('<button data-toggle="modal" data-backdrop="static" data-target="#edit_company_modal" class="edit_btn btn" onclick="companyModal.setVal()">修改</button>')
+			$('.detail').append('<div class="changeBtn btn" onclick="rank.changeWindow()">切换</div>')
+			$('.detail').append('<div data-toggle="modal" data-backdrop="static" data-target="#add_modal" class="addBtn btn" onclick="addModal.renderTb()">增加设备</div>')
+			$('.addBtn').css('display', 'inline-block')
+			$('.changeBtn').css('display', 'inline-block')
+		}
+	}).addState({
+		type: 'user',
+		fn: function() {
+			$('.normalInfor').css('display', 'block')
+			showCompany.renderCompany()
+		}
+	})
+	r.changeRanks(roles.currentRole)
+	r.judge() */
+	
+	/* function isAdmin(roleList) {
+		if(roleList.indexOf('platform_group_admin') !== -1) {
+			return true
+		} else {
+			return false
+		}
+	}
+
+	function start() {
+
+		if(isAdmin(roles.currentRole)) {
+		 	dj.inserCmp('./editModal.html', document.getElementsByTagName('modal')[0], function() {
+		    	showCompany.renderCompany()
+				empolyeeTb.initTable()
+		    })
+
+		    // 设置显示的东西
+			$('.detailEmpolyee').css('display', 'inline-block')
+			$('.arrow').css('display', 'inline-block')
+			$('.detailGuest').css('display', 'inline-block')
+			$('.companyContainer').append('<button data-toggle="modal" data-backdrop="static" data-target="#edit_company_modal" class="edit_btn btn" onclick="companyModal.setVal()">edit</button>')
+			$('.detail').append('<div class="changeBtn btn" onclick="changeInfor()">切换</div>')
+			$('.detail').append('<div data-toggle="modal" data-backdrop="static" data-target="#add_modal" class="addBtn btn" onclick="addModal.renderTb()">增加设备</div>')
+			$('.addBtn').css('display', 'inline-block')
+		} else {
+			$('.normalInfor').css('display', 'inline-block')
+			showCompany.renderCompany()
+		}
+		emInfor.getInfor()
+
+	} */
+	
+	// console.log(JudgeRank)
+	
+	
+	empolyeeEquipTb.init({
+		getUrl: '/dongjun/user_device_mapping/get_user_mapping',
+		delUrl: '/dongjun/user_device_mapping/del'
+	})
+	empolyeeTb.init({
+		getUrl: '/dongjun/company/staff'
+	})
+	showCompany.init({
+		getUrl: '/dongjun/company/imformation'
+	})
+
+	rank.start()
+
+</script>

@@ -1,12 +1,12 @@
 package com.gdut.dongjun.service;
 
 import com.gdut.dongjun.domain.po.PlatformGroup;
-import com.gdut.dongjun.service.base.BaseService;
+import com.gdut.dongjun.service.base.EnhancedService;
 
 /**
  * Created by symon on 16-10-18.
  */
-public interface PlatformGroupService extends BaseService<PlatformGroup> {
+public interface PlatformGroupService extends EnhancedService<PlatformGroup> {
 
     /**
      * 根据公司id和类型获取其默认的分组

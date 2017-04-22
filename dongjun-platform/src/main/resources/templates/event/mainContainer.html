@@ -1,0 +1,56 @@
+<div class="row-fluid">
+
+	<div class="span2 container-fluid well sidebar-nav">
+		<ul class="nav nav-list bs-docs-sidenav" id="sideNav">
+      <li class="nav-header">测量值报警</li>
+			<li><a href="#temperature">温度报警事件</a></li>
+			<li class="nav-header">设备报警</li>
+			<li><a href="#equipment">设备报警事件</a></li>
+		</ul>
+	</div>
+
+	<div class="span10 container"></div>
+</div>
+
+<script>
+
+(function(){
+	// 根据地址高亮左边栏按钮, 默认'temperature'
+	$('a[href*=#' + (location.href.split('#')[1] || 'temperature')+']').addClass('btn-success')
+
+	// 点击时改变高亮按钮
+	var navLinks = $('#sideNav').find('a')
+	navLinks.click(function(){
+		navLinks.removeClass('btn-success')
+		$(this).addClass('btn-success')
+	})
+
+
+	// 路由
+	var router = new dj.Router()
+
+	router.start({
+		'': load('temperature.html'),
+		'low_voltage': load('low_voltage.html'),
+		'high_voltage': load('high_voltage.html'),
+		'all_event': load('all_switch_event.html'),
+		'control_measure': load('control_measure.html'),
+		'temperature': load('temperature.html'),
+		'equipment': load('equipment.html')
+	})
+
+	// 闭包
+	function load(url) {
+		return function() {
+			if(!url.match(/all.*event/)) {
+				dj.jsLoad('../../js/event/selectManager.js', function(){
+					dj.inserCmp(url, $('.span10.container').get(0))
+				})
+			} else {
+				dj.inserCmp(url, $('.span10.container').get(0))
+			}
+		}
+	}
+})()
+
+</script>

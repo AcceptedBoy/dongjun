@@ -12,7 +12,7 @@ import com.gdut.dongjun.domain.dao.authc.PermissionMapper;
 import com.gdut.dongjun.domain.dao.authc.RoleMapper;
 import com.gdut.dongjun.domain.po.authc.Permission;
 import com.gdut.dongjun.service.authc.PermissionService;
-import com.gdut.dongjun.service.base.impl.BaseServiceImpl;
+import com.gdut.dongjun.service.base.impl.EnhancedServiceImpl;
 import com.gdut.dongjun.util.MapUtil;
 
 /**
@@ -22,7 +22,7 @@ import com.gdut.dongjun.util.MapUtil;
  * @since 1.0
  */
 @Service
-public class PermissionServiceImpl extends BaseServiceImpl<Permission>
+public class PermissionServiceImpl extends EnhancedServiceImpl<Permission>
 		implements PermissionService {
 
 	@Resource

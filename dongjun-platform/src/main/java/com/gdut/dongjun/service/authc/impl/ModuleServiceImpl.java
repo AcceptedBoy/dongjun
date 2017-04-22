@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import com.gdut.dongjun.domain.dao.authc.ModuleMapper;
 import com.gdut.dongjun.domain.dao.authc.RoleMapper;
@@ -38,6 +39,10 @@ public class ModuleServiceImpl extends BaseServiceImpl<Module> implements
 //	public void setBaseDao(ModuleMapper moduleMapper) {
 //		super.setBaseDao(moduleMapper);
 //	}
+	
+	public static void doSth() {
+		RequestContextHolder.getRequestAttributes();
+	}
 
 	@Override
 	public List<ExtTreeNode> selectModuleTreeByRoleId(String roleId) {

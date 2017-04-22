@@ -1,0 +1,159 @@
+<div class="hero-unit">
+	<div class="row-fluid">
+		<div class="span5">
+			<h2>
+				<img src="../../img/logo.png" style="height: 65px" />电管家维护系统
+          <span class="label label-default">1.12.0</span>
+			</h2>
+		</div>
+		<div id="topBarNav" class="span5 menu" style="padding-top: 20px;">
+				<a href="../monitor/index.html" class="btn banner-btn btn-primary"><i class="fa fa-map-marker"></i>监控</a>
+	      <a href="../manager/index.html" class="btn banner-btn btn-primary"><i class="fa fa-cog"></i>管理</a>
+	      <a href="../event/index.html" class="btn banner-btn btn-primary" id="event"><i class="fa fa-user"></i>事件</a>
+	      <a href="../log/index.html" class="btn banner-btn btn-primary"><i class="fa fa-list-alt"></i>日志</a>
+		</div>
+    <div class="span2 log_out">
+
+    	<div class="btn-group userBtn">
+    		<a class="btn dropdown-toggle" data-toggle="dropdown" href="javascript:void(0)">
+    		用户
+    		<span class="caret"></span>
+    		</a>
+    		<ul class="dropdown-menu">
+
+    		</ul>
+    	</div>
+
+      <button class="btn btn-danger" onclick="logOut()">退出</button>
+    </div>
+	</div>
+	<rigisterModal></rigisterModal>
+</div>
+<script>
+	var roles = {};
+
+	function logOut(e){
+		$.ajax({
+			url: '/dongjun/logout',
+			type: 'POST',
+			success: function () {
+				location.href = '/dongjun/login'
+			}
+		})
+	}
+
+	function goRank() {
+		location.href = '../rank/index.html'
+	}
+
+	function JudgeRank() {
+		this.rank = {}
+		this.state = {}
+	}
+
+	(function(){
+
+		JudgeRank.prototype.init = function() {
+			this.addState({
+				type: 'platform_group_admin',
+				fn: function() {
+					$('.dropdown-menu').append('<li onclick="goRank()"><a href="javascript:void(0)" style="text-align: center;">用户管理</a></li>')
+				}
+			}).addState({
+				type: 'super_admin',
+				fn: function() {
+					dj.inserCmp('../public/registerModal.html', document.getElementsByTagName('rigisterModal')[0])
+					$('.dropdown-menu').append('<li data-toggle="modal" data-backdrop="static" data-target="#choose_modal"><a href="javascript:void(0)" style="text-align: center;">注册</a>')
+				}
+			})
+		}
+
+		JudgeRank.prototype.addState = function(data) {
+			var type = data.type
+			if(!this.state[type]) {
+				this.state[type] = [data.fn]
+			} else {
+				this.state[type].push(data.fn)
+			}
+			return this
+		}
+
+		JudgeRank.prototype.changeRanks = function(ranks) {
+			this.rank = {}
+			for(var i = 0; i < ranks.length; i++) {
+				this.rank[ranks[i]] = true
+			}
+		}
+
+		JudgeRank.prototype.judge = function() {
+			for(var i in this.rank) {
+				console.log(i)
+				if(this.state[i]) {
+					for(var j = 0; j < this.state[i].length; j++) {
+						this.state[i][j]()
+					}
+					break
+				}
+			}
+		}
+
+		$.ajax({
+			url: '/islogin',
+			type: 'POST',
+			async: false,
+			success: function(res) {
+				if(res) {
+					if(res.isLogin == 'false') {
+						location.href = '/dongjun/login'
+					} else {
+						roles.currentRole = res.currentRoles
+						var judgement = new JudgeRank()
+						judgement.init()
+						judgement.changeRanks(roles.currentRole)
+						judgement.judge()
+						Object.defineProperty(roles, 'currentId', {
+							value: res.currentUser
+						})
+					}
+				}
+			},
+			error: function(res) {
+				location.href = '/dongjun/login'
+			}
+		})
+
+		var navPaths = [];
+		var links = $('#topBarNav').find('a');
+		links = Array.prototype.slice.call(links);
+		links.forEach(function(item) {
+			var path = item.href;
+			navPaths.push(path);
+		})
+		var nowPath = location.href.split('#')[0];
+		var pos = navPaths.indexOf(nowPath);
+		$(links[pos]).addClass('btn-success');
+	})()
+
+	dj.jsLoad('../../js/public/realTimeNotice.js')
+
+	/* function judgeRoles(role) {
+		if(roles.currentRole.indexOf(role) !== -1) {
+			return true
+		} else {
+			return false
+		}
+	} */
+
+	/* if(judgeRoles('platform_group_admin')) {
+		if(judgeRoles('super_admin')) {
+			dj.inserCmp('../public/registerModal.html', document.getElementsByTagName('rigisterModal')[0])
+			$('.dropdown-menu').html('<li data-toggle="modal" data-backdrop="static" data-target="#choose_modal"><a href="javascript:void(0)" style="text-align: center;">注册</a></li><li onclick="goRank()"><a href="javascript:void(0)" style="text-align: center;">用户管理</a></li>')
+		} else {
+			$('.dropdown-menu').html('<li onclick="goRank()"><a href="javascript:void(0)" style="text-align: center;">用户管理</a></li>')
+		}
+	} else {
+		$('.dropdown-menu').html('<li onclick="goRank()"><a href="javascript:void(0)" style="text-align: center;">个人信息</a></li>')
+	} */
+
+
+</script>

@@ -129,7 +129,7 @@ public class HighVoltageHitchEventController {
 		if(hardwareClient.getService().changeCtxOpen(switchId)) {
 			HighVoltageHitchEvent event = hitchEventService.getRecentHitchEvent(switchId);
 			if(event != null) {
-				event.setSolveWay("����");
+				event.setSolveWay("忽略");
 				event.setSolveTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
 				event.setSolvePeople(((User)session.getAttribute("currentUser")).getName());
 				hitchEventService.updateByPrimaryKeySelective(event);

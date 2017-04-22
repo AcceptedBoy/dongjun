@@ -1,25 +1,23 @@
 package com.gdut.dongjun.service.impl;
 
-import com.gdut.dongjun.domain.dao.LowVoltageVoltageMapper;
-import com.gdut.dongjun.domain.dao.PlatformGroupMapper;
-import com.gdut.dongjun.domain.dao.impl.PlatformGroupDAOImpl;
-import com.gdut.dongjun.domain.po.PlatformGroup;
-import com.gdut.dongjun.service.PlatformGroupService;
-import com.gdut.dongjun.service.base.impl.BaseServiceImpl;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.gdut.dongjun.domain.dao.PlatformGroupMapper;
+import com.gdut.dongjun.domain.po.PlatformGroup;
+import com.gdut.dongjun.service.PlatformGroupService;
+import com.gdut.dongjun.service.base.impl.EnhancedServiceImpl;
 
 /**
  * Created by symon on 16-10-18.
  */
 @Service
-public class PlatformGroupServiceImpl extends BaseServiceImpl<PlatformGroup>
+public class PlatformGroupServiceImpl extends EnhancedServiceImpl<PlatformGroup>
     implements PlatformGroupService{
 
     @Autowired
@@ -28,7 +26,7 @@ public class PlatformGroupServiceImpl extends BaseServiceImpl<PlatformGroup>
     @Override
     protected boolean isExist(PlatformGroup record) {
         if (record != null
-                && groupMapper.selectByPrimaryKey(String.valueOf(record.getId())) != null) {
+                && groupMapper.selectByPrimaryKey(record.getId() + "") != null) {
 
             return true;
         } else {

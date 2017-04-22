@@ -1,20 +1,19 @@
 package com.gdut.dongjun;
 
-import com.gdut.dongjun.service.webservice.server.HardwareService;
-import com.mchange.v2.c3p0.ComboPooledDataSource;
+import java.beans.PropertyVetoException;
+import java.io.IOException;
+
+import javax.sql.DataSource;
+
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
-import org.springframework.beans.factory.parsing.Location;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
-import org.springframework.boot.context.embedded.EmbeddedServletContainerFactory;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
-import org.springframework.boot.context.embedded.tomcat.TomcatEmbeddedServletContainerFactory;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -22,19 +21,16 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.remoting.rmi.RmiProxyFactoryBean;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
-import javax.sql.DataSource;
-import java.beans.PropertyVetoException;
-import java.io.IOException;
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 @SpringBootApplication
 @EnableAspectJAutoProxy
 @ImportResource("classpath:hardware-service.xml")
 public class Application extends SpringBootServletInitializer {
 	
-	@Autowired
+	@Autowired 
     private ApplicationContext applicationContext;
 	
 	@Override
@@ -80,10 +76,9 @@ public class Application extends SpringBootServletInitializer {
 	public DataSource dataSource() {
 
 		com.mchange.v2.c3p0.ComboPooledDataSource ds = new ComboPooledDataSource();
-		ds.setJdbcUrl("jdbc:mysql://localhost:3306/elecon?useUnicode=true&amp;charaterEncoding=utf-8&" +
-				"zeroDateTimeBehavior=convertToNull");
+		ds.setJdbcUrl("jdbc:mysql://115.28.7.40:3306/elecon_platform?useUnicode=true&amp;charaterEncoding=utf-8&zeroDateTimeBehavior=convertToNull");
 		ds.setUser("root");
-		ds.setPassword("root");//elecon
+		ds.setPassword("topview+624");//elecon
 		try {
 			ds.setDriverClass("com.mysql.jdbc.Driver");
 		} catch (PropertyVetoException e) {
@@ -112,7 +107,7 @@ public class Application extends SpringBootServletInitializer {
 		SqlSessionFactoryBean sFactoryBean = new SqlSessionFactoryBean();
 		sFactoryBean.setDataSource(dataSource());
 
-		String packageSearchPath = "classpath*:com/gdut/dongjun/domain/dao/*.xml";
+		String packageSearchPath = "classpath*:com/gdut/dongjun/domain/dao/**/*.xml";
 		Resource[] resources = null;
 		try {
 			resources = new PathMatchingResourcePatternResolver()
@@ -147,7 +142,16 @@ public class Application extends SpringBootServletInitializer {
 		}
 		return sst;
 	}
+	
+//	@Bean(name = "cacheManager")
+//	public CacheManager cacheManager() {
+//		
+//	}
 
+	/**
+	 * cxf的配置可看resources文件目录下的hardware-service.xml
+	 * @return
+	 */
 	@Bean
 	public ServletRegistrationBean cxfServlet() {
 		return new ServletRegistrationBean(new CXFServlet(), "/dongjun-hardware/ws/*");

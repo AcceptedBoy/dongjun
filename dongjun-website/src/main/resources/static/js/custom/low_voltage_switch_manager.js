@@ -66,7 +66,7 @@ $(document).ready(function() {
 	$(".edit_switch_btn").click(editSwitch);
 	$(".del_switch_btn").click(delSwitch);
 	$(".enter_map").click(enterMap);
-	
+
 
 	/**
 	 * 编辑提交
@@ -87,17 +87,18 @@ $(document).ready(function() {
 				"simNumber" : $("#editSim").val(),
 				"inlineIndex" : $("#editinlineIndex").val(),
 				"deviceNumber":$("#editDeviceNumber").val(),
+				"showName": $("#editShowName").val(),
 			},
 			success : function(data) {
 
 				if(data!=null){
-					
+
 					reloadDataTable(data);
 				}
 			}
 		})
 	});
-	
+
 	$("#add_switch_confirm_btn").click(function() {
 
 		$.ajax({
@@ -114,35 +115,38 @@ $(document).ready(function() {
 				"simNumber" : $("#inputSim").val(),
 				"inlineIndex" : $("#inlineIndex").val(),
 				"deviceNumber":$("#inputDeviceNumber").val(),
+				"showName": $("#inputShowName").val(),
 			},
 			success : function(data) {
 
 				if(data!=null){
-					
+
 					reloadDataTable(data);
 				}
 			}
 		})
 	});
-	
-	
-	
+
+
+
 	$(".lines").change(function(){
 		reloadDataTable(this.value);
 	});
-	
+
 });
 
+var myState = 'low'
+
 /**
- * 
-* @Title: reloadDataTable 
+ *
+* @Title: reloadDataTable
 * @Description: TODO
-* @param    
-* @return void   
+* @param
+* @return void
 * @throws
  */
 function reloadDataTable(lineId){
-	
+
 	$('#switch_list').DataTable( {
 		"destroy": true,
 		"ajax": {
@@ -163,40 +167,48 @@ function reloadDataTable(lineId){
 			{ "data": "latitude" },
 			{ "data": "simNumber" },
 			{ "data": "inlineIndex" },
-			{ "data": "onlineTime"},
-			{ "data": null},
+//			{ "data": "onlineTime"},
+//			{ "data": null},
 			{ "data": null},// 设置默认值 null，表示列不会获得数据源对象的信息,否则默认值会被覆盖掉
 			{ "data": null},// 设置默认值 null，表示列不会获得数据源对象的信息,否则默认值会被覆盖掉
-			{ "data": null}
 		],
 		"columnDefs": [
+//			{
+//				"targets": -3,
+//				"data": null,
+//				"defaultContent": '<button class="btn btn enter_map">进入地图 &raquo;</button>'
+//			},
 			{
-				"targets": -4,
-				"data": null,
-				"defaultContent": '<button class="btn btn enter_map">进入地图 &raquo;</button>'
-			},
-			{
-				"targets": -3,
+				"targets": -2,
 				"data": null,
 				"defaultContent": '<a href="#edit_switch_modal" role="button" class="edit_switch_btn btn" data-toggle="modal">修改 &raquo;</a>'
 			},
 			{
-				"targets": -2,
-				"data": null,
-				"defaultContent": '<a href="#del_switch_modal" class="del_switch_btn btn btn-danger" data-toggle="modal" data-backdrop="static">删除&raquo; </a>'
-			},
-			{
 				"targets": -1,
 				"data": null,
-				"defaultContent": '<a href="#location_switch_modal" role="button" class="location_switch_btn btn btn-primary" data-toggle="modal">设为定位中心</a>'
+				"defaultContent": '<a href="#del_switch_modal" class="del_switch_btn btn btn-danger" data-toggle="modal" data-backdrop="static">删除&raquo; </a>'
 			}
-		]
+		],
+		'language': {
+            'paginate': {
+              'next': '下一页',
+              'previous': '上一页'
+            },
+            'emptyTable': '找不到相关数据',
+            'zeroRecords': '找不到相关数据'
+          },
+		"fnInitComplete": function(oSettings, json) {
+			//alert('123')
+			$(".edit_switch_btn").unbind().click(editSwitch);
+			$(".del_switch_btn").unbind().click(delSwitch);
+			$(".enter_map").unbind().click(enterMap);
+		}
     } );
 }
 
 
 /**
- * 
+ *
  * @Title: addSwitch
  * @Description: TODO
  * @param
@@ -206,9 +218,9 @@ function reloadDataTable(lineId){
 function addSwitch() {
 
 	$("#inputId").val("");
-	
+
 	if($(".lines").val() == null){
-		
+
 		$("#inputLineId").val(
 				$(".edit_switch_btn").parent("td").prevAll()[6].innerHTML);
 	}else{
@@ -221,10 +233,11 @@ function addSwitch() {
 	$("#inputName").val("");
 	$("#inputSim").val("");
 	$("#inlineIndex").val("");
+	$("#inputShowName").val("")
 }
 
 /**
- * 
+ *
  * @Title: editSwitch
  * @Description: TODO
  * @param
@@ -236,18 +249,19 @@ function editSwitch() {
 	var column = $(this).parent("td").prevAll();
 	$("#editDeviceNumber").val(column[9].innerHTML);
 	$("#editName").val(column[8].innerHTML);
-	$("#editId").val(column[7].innerHTML);
-	$("#editLineId").val(column[6].innerHTML);
-	$("#editAddress").val(column[5].innerHTML);
-	$("#editLongitude").val(column[4].innerHTML);
-	$("#editLatitude").val(column[3].innerHTML);
+	$("#editShowName").val(column[7].innerHTML)
+	$("#editId").val(column[6].innerHTML);
+	$("#editLineId").val(column[5].innerHTML);
+	$("#editAddress").val(column[4].innerHTML);
+	$("#editLongitude").val(column[3].innerHTML);
+	$("#editLatitude").val(column[2].innerHTML);
 
-	$("#editSim").val(column[2].innerHTML);
-	$("#editinlineIndex").val(column[1].innerHTML);
+	$("#editSim").val(column[1].innerHTML);
+	$("#editinlineIndex").val(column[0].innerHTML);
 }
 
 /**
- * 
+ *
  * @Title: delSwitch
  * @Description: TODO
  * @param
@@ -264,12 +278,12 @@ function delSwitch() {
 			url : "del_switch",
 			async : false,
 			data : {
-				"switchId" : column[8].innerHTML,
+				"switchId" : column[7].innerHTML,
 			},
 			success : function(data) {
 
 				if(data!=null){
-					
+
 					reloadDataTable(data);
 				}
 			}
@@ -279,7 +293,7 @@ function delSwitch() {
 
 
 /**
- * 
+ *
  * @Title: enterMap
  * @Description: TODO
  * @param
@@ -294,5 +308,3 @@ function enterMap() {
 	localStorage.setItem('latitude', latitude);
 	location.href = "index";
 }
-
-

@@ -1,39 +1,79 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- 日志文件命名是logback-spring.xml，而不是logback.xml，原因是，
+	命名为logback-spring.xml的日志配置文件，spring boot可以为它添加一些spring boot特有的配置项。
+	http://blog.csdn.net/yingxiake/article/details/51276671 -->
+<!-- http://412887952-qq-com.iteye.com/blog/2307244 -->
+
 <configuration>
 	<!--定义日志文件的存储地址 勿在 LogBack 的配置中使用相对路径 -->
-	<property name="LOG_HOME" value="c:/log/dongjun-website" />
+	<property name="LOG_HOME" value="c:/log/dongjun-platform" />
+	
 	<!-- 控制台输出 -->
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<!-- 日志输出编码 -->
-		<Encoding>UTF-8</Encoding>
-		<layout class="ch.qos.logback.classic.PatternLayout">
-			<!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
-			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} -
-				%msg%n
-			</pattern>
-		</layout>
+<!-- 		<Encoding>UTF-8</Encoding> -->
+		<encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+				<charset>UTF-8</charset>
+				<layout class="ch.qos.logback.classic.PatternLayout">
+				<!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
+					<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} -
+						%msg%n
+					</pattern>
+				</layout>
+		</encoder>
+
+<!-- 		<encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder"> -->
+<!-- 			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg %n</pattern> -->
+<!-- 			<charset>UTF-8</charset>  -->
+<!-- 		</encoder> -->
 	</appender>
-	<!-- 按照每天生成日志文件 -->
+	
+	<!-- http://blog.csdn.net/zhoulenihao/article/details/24995397 -->
+	<!-- 按照每天生成日志文件 --> <!-- 然而并不会 -->
+	<!-- SizeBasedTriggeringPolicy和TimeBasedRollingPolicy联合使用方式有问题，
+	当size超过10M后并没有触发TimeBasedRolling生效，是两个都不会生效，现在删了TimeBasedRolling，
+	可以让SizeBasedTriggeringPolicy生效 -->
+	<!-- http://openmind.iteye.com/blog/1840000 -->
 	<appender name="FILE"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<Encoding>UTF-8</Encoding>
+<!-- 		<Encoding>UTF-8</Encoding> -->
+		<!-- 决定文件翻转的行为 -->
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!--日志文件输出的文件名 -->
-			<FileNamePattern>${LOG_HOME}/myApp.log.%d{yyyy-MM-dd}.log
+			<FileNamePattern>${LOG_HOME}/dongjun-platform.log.%d{yyyy-MM-dd}.log
 			</FileNamePattern>
 			<MaxHistory>30</MaxHistory>
 		</rollingPolicy>
-		<layout class="ch.qos.logback.classic.PatternLayout">
+<!-- 		<layout class="ch.qos.logback.classic.PatternLayout"> -->
 			<!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
-			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} -
-				%msg%n
-			</pattern>
-		</layout>
-		<!--日志文件最大的大小 -->
-		<triggeringPolicy
-			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
-			<MaxFileSize>10MB</MaxFileSize>
-		</triggeringPolicy>
+<!-- 			<pattern>%d{yyyy-MM-dd HH	:mm:ss.SSS} [%thread] %-5level %logger{50} - -->
+<!-- 				%msg%n -->
+<!-- 			</pattern> -->
+<!-- 		</layout> -->
+		
+		<encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+			<charset>UTF-8</charset> 
+			<layout class="ch.qos.logback.classic.PatternLayout">
+				<!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
+				<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+			</layout>
+		</encoder>
+		
+		<!--日志文件最大的大小 --> <!-- 决定文件翻转的时机 -->
+<!-- 		<triggeringPolicy -->
+<!-- 			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy"> -->
+<!-- 			<MaxFileSize>10MB</MaxFileSize> -->
+<!-- 		</triggeringPolicy> -->
+		
+		<!-- 估计是spring boot中的logback版本太低，没有这个RollingPolicy -->
+<!-- 		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy"> -->
+<!--       		rollover daily -->
+<!--      		<fileNamePattern>${LOG_HOME}/dongjun-platform.%d{yyyy-MM-dd}.%i.log</fileNamePattern> -->
+<!--        		each file should be at most 100MB, keep 60 days worth of history, but at most 20GB -->
+<!--        		<maxFileSize>100MB</maxFileSize>     -->
+<!--        		<maxHistory>60</maxHistory> -->
+<!--        		<totalSizeCap>20GB</totalSizeCap> -->
+<!--     	</rollingPolicy> -->
 	</appender>
 	<!-- show parameters for hibernate sql 专为 Hibernate 定制 <logger name="org.hibernate.type.descriptor.sql.BasicBinder" 
 		level="TRACE" /> <logger name="org.hibernate.type.descriptor.sql.BasicExtractor" 
@@ -56,20 +96,20 @@
 		<appender-ref ref="FILE" />
 	</root>
 
-	<!--日志异步到数据库 -->
-	<appender name="DB" class="ch.qos.logback.classic.db.DBAppender">
+	<!--日志异步到数据库 待以后添加-->
+<!-- 	<appender name="DB" class="ch.qos.logback.classic.db.DBAppender"> -->
 		<!--日志异步到数据库 -->
-		<connectionSource
-			class="ch.qos.logback.core.db.DriverManagerConnectionSource">
+<!-- 		<connectionSource -->
+<!-- 			class="ch.qos.logback.core.db.DriverManagerConnectionSource"> -->
 			<!--连接池 -->
-			<dataSource class="com.mchange.v2.c3p0.ComboPooledDataSource">
-				<driverClass>com.mysql.jdbc.Driver</driverClass>
-				<url>jdbc:mysql://localhost:3306/elecon</url>
-				<user>root</user>
-				<password>root</password>
-			</dataSource>
-		</connectionSource>
-	</appender>
+<!-- 			<dataSource class="com.mchange.v2.c3p0.ComboPooledDataSource"> -->
+<!-- 				<driverClass>com.mysql.jdbc.Driver</driverClass> -->
+<!-- 				<url>jdbc:mysql://localhost:3306/elecon</url> -->
+<!-- 				<user>root</user> -->
+<!-- 				<password>root</password> -->
+<!-- 			</dataSource> -->
+<!-- 		</connectionSource> -->
+<!-- 	</appender> -->
 </configuration>
 
 

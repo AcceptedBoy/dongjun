@@ -46,11 +46,11 @@ public class DeviceCommonServiceImpl implements DeviceCommonService {
     @Autowired
     private ControlMearsureVoltageService controlVoltageService;
 
-    private int lowVoltage;
+    private int lowVoltage = 0;
 
-    private int highVoltage;
+    private int highVoltage = 1;
 
-    private int controlVoltage;
+    private int controlVoltage = 2;
 
     @Override
     public DeviceService getDeviceService(int type) {

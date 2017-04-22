@@ -1,8 +1,7 @@
 package com.gdut.dongjun.service.impl;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import javax.jms.JMSException;
+import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,11 +10,9 @@ import org.springframework.stereotype.Service;
 import com.gdut.dongjun.domain.dao.UserMapper;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.service.UserService;
-import com.gdut.dongjun.service.base.impl.BaseServiceImpl;
-import com.gdut.dongjun.service.impl.enums.LoginResult;
-import com.gdut.dongjun.util.MyBatisMapUtil;
-
-import javax.servlet.http.HttpSession;
+import com.gdut.dongjun.service.base.impl.EnhancedServiceImpl;
+import com.gdut.dongjun.service.manager.UserHolder;
+import com.gdut.dongjun.service.mq.UserMQService;
 
 /**
  * @Title: UserServiceImpl.java
@@ -26,44 +23,26 @@ import javax.servlet.http.HttpSession;
  * @version V1.0
  */
 @Service
-public class UserServiceImpl extends BaseServiceImpl<User> implements
+public class UserServiceImpl extends EnhancedServiceImpl<User> implements
 		UserService {
-	/**
-	 * @ClassName: UserServiceImpl
-	 * @Description: TODO
-	 * @author Sherlock-lee
-	 * @date 2015年7月24日 下午2:33:08
-	 */
+	
+//	private static final List<User> allCurrentUsers = new CopyOnWriteArrayList<User>();
+	
+	private static final Logger logger = Logger.getLogger(UserServiceImpl.class);
 	@Autowired
 	private UserMapper userMapper;
-	private static final Logger logger = Logger
-			.getLogger(UserServiceImpl.class);
+	@Autowired
+	private UserMQService mqService;
+
 
 	@Override
-	public LoginResult login(String user, String password) {
-
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put("name", user);
-
-		List<User> ulist = userMapper.selectByParameters(MyBatisMapUtil
-				.warp(map));
-
-		if (ulist != null && ulist.size() != 0) {
-
-			for (User user2 : ulist) {
-				if (user2.getPassword() != null) {
-					if (user2.getPassword().equals(password)) {
-						return LoginResult.LOGIN_PASS;
-					} else {
-						return LoginResult.WORNING_PASSWORD;
-					}
-				} else {
-					logger.error("password no is null!");
-				}
-			}
+	protected boolean isExist(User record) {
+		if (record != null
+				&& userMapper.selectByPrimaryKey(record.getId()) != null) {
+			return true;
+		} else {
+			return false;
 		}
-		return LoginResult.USER_NO_EXIST;
-
 	}
 
 	@Override
@@ -72,14 +51,30 @@ public class UserServiceImpl extends BaseServiceImpl<User> implements
 	}
 
 	@Override
-	protected boolean isExist(User record) {
-
-		if (record != null
-				&& userMapper.selectByPrimaryKey(record.getId()) != null) {
-
-			return true;
-		} else {
-			return false;
-		}
+	public boolean isUserOnline(String id) {
+		return UserHolder.isUserLogin(id);
 	}
+	
+	/**
+	 * 记录用户登录
+	 */
+	public void remarkLogIn(User user) throws JMSException {
+		logger.info("用户登录 : " + user.getName());
+		if (UserHolder.isUserLogin(user.getId())) {
+			return ;
+		}
+		//记录在线用户
+		UserHolder.addUser(user);
+		//注册User的MessageHolder，功能暂时考虑放弃
+//		mqService.remarkLogIn(user);
+	}
+	
+	/**
+	 * 记录用户注销
+	 */
+	public void remarkLogOut(User user) {
+		logger.info("用户注销 : " + user.getName());
+		UserHolder.delUser(user);
+	}
+
 }

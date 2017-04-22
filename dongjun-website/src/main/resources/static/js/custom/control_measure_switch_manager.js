@@ -3,14 +3,15 @@ $(document).ready(function() {
 	/**
 	 * 初始化列表
 	 */
-	initial_table("switch_list");
-	loadSubstationSet();	
+	loadSubstationSet();
+	initial_table_control("switch_list");
 	$("#add_switch_btn").click(addSwitch);
 	$(".edit_switch_btn").click(editSwitch);
 	$(".del_switch_btn").click(delSwitch);
 	$(".enter_map").click(enterMap);
-	
-	
+	// reloadDataTable(1);
+
+
 	/**
 	 * 编辑提交
 	 */
@@ -34,13 +35,13 @@ $(document).ready(function() {
 			success : function(data) {
 
 				if(data!=null){
-					
+
 					reloadDataTable(data);
 				}
 			}
 		})
 	});
-	
+
 	$("#add_switch_confirm_btn").click(function() {
 
 		$.ajax({
@@ -61,37 +62,39 @@ $(document).ready(function() {
 			success : function(data) {
 
 				if(data!=null){
-					
+
 					reloadDataTable(data);
 				}
 			}
 		})
 	});
-	
-	
-	
+
+
+
 	$(".lines").click(function(){
-		
+
 		reloadDataTable(this.value);
 	});
-	
+
 });
 
+var myState = 'control'
+
 /**
- * 
-* @Title: reloadDataTable 
+ *
+* @Title: reloadDataTable
 * @Description: TODO
-* @param    
-* @return void   
+* @param
+* @return void
 * @throws
  */
 function reloadDataTable(lineId){
-	
+
 	$('#switch_list').DataTable( {
 		"destroy": true,// destroy之后才能重新加载
 		"ajax": "control_measure_switch_list_by_line_id.action?lineId="+lineId,
         "columns": [
-            { "data": "deviceNumber" },        
+            { "data": "deviceNumber" },
             { "data": "name" },
             { 	"data": "id",
             	"sClass": "dpass"
@@ -99,16 +102,16 @@ function reloadDataTable(lineId){
             { 	"data": "lineId",
             	"sClass": "dpass"
             },
-	        { "data": "address" },   
-	        { "data": "longitude" },   
-	        { "data": "latitude" }, 
+	        { "data": "address" },
+	        { "data": "longitude" },
+	        { "data": "latitude" },
 	        { "data": "simNumber" },
 	        { "data": "inlineIndex" },
 	        { "data": null},
             { "data": null},// 设置默认值 null，表示列不会获得数据源对象的信息,否则默认值会被覆盖掉
             { "data": null }// 设置默认值 null，表示列不会获得数据源对象的信息,否则默认值会被覆盖掉
         ],
-        
+
         // 为下面的列设置默认值
         "columnDefs": [ {
             "targets": -3,
@@ -124,7 +127,7 @@ function reloadDataTable(lineId){
             "data": null,
             "defaultContent": '<a href="#del_switch_modal" class="del_switch_btn btn btn-danger" data-toggle="modal" data-backdrop="static">删除&raquo; </a>'
         }],
-        "fnInitComplete": function(oSettings, json) { 
+        "fnInitComplete": function(oSettings, json) {
 
         	$(".edit_switch_btn").click(editSwitch);
         	$(".del_switch_btn").click(delSwitch);
@@ -134,7 +137,7 @@ function reloadDataTable(lineId){
 }
 
 /**
- * 
+ *
  * @Title: addSwitch
  * @Description: TODO
  * @param
@@ -144,9 +147,9 @@ function reloadDataTable(lineId){
 function addSwitch() {
 
 	$("#inputId").val("");
-	
+
 	if($(".lines").val() == null){
-		
+
 		$("#inputLineId").val(
 				$(".edit_switch_btn").parent("td").prevAll()[6].innerHTML);
 	}else{
@@ -162,7 +165,7 @@ function addSwitch() {
 }
 
 /**
- * 
+ *
  * @Title: editSwitch
  * @Description: TODO
  * @param
@@ -185,7 +188,7 @@ function editSwitch() {
 }
 
 /**
- * 
+ *
  * @Title: delSwitch
  * @Description: TODO
  * @param
@@ -207,7 +210,7 @@ function delSwitch() {
 			success : function(data) {
 
 				if(data!=null){
-					
+
 					reloadDataTable(data);
 				}
 			}
@@ -216,7 +219,7 @@ function delSwitch() {
 }
 
 /**
- * 
+ *
  * @Title: enterMap
  * @Description: TODO
  * @param

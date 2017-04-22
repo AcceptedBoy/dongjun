@@ -1,9 +1,8 @@
 package com.gdut.dongjun.service.webservice.client;
 
-import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
+import com.gdut.dongjun.domain.vo.HitchEventVO;
 import com.gdut.dongjun.service.webservice.client.service.WebsiteService;
 import com.gdut.dongjun.service.webservice.server.HardwareService;
-import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.provider.BinaryDataProvider;
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
@@ -22,7 +21,6 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
-@Lazy(false)
 public class WebsiteServiceClient implements InitializingBean, ApplicationContextAware {
 
     private static List<WebsiteService> websiteList = new ArrayList<>();
@@ -41,7 +39,8 @@ public class WebsiteServiceClient implements InitializingBean, ApplicationContex
     }
 
     private static List<String> ipList = new ArrayList<String>() {{
-        add("localhost:9898");
+    	//这里是复数服务器，以后可以通过xml文件来配置
+    	add("localhost:9091");	
     }};
 
     @Override
@@ -50,7 +49,7 @@ public class WebsiteServiceClient implements InitializingBean, ApplicationContex
         for(String ip : ipList) {
             websiteList.add(
                     JAXRSClientFactory.create(
-                            "http://" + ip + "/dongjun-website/ws/website",
+                            "http://" + ip + "/dongjun-platform/ws/platform",
                             WebsiteService.class,
                             Arrays.asList(JacksonJsonProvider.class,
                                     BinaryDataProvider.class)));
@@ -66,16 +65,15 @@ public class WebsiteServiceClient implements InitializingBean, ApplicationContex
 
     public static class ExtendedService {
 
-        public void callbackCtxChange() {
-            for(WebsiteService websiteService : websiteList) {
-                websiteService.callbackCtxChange(
-                        hardwareService.getActiveSwitchStatus());
-            }
-        }
-
         public void callbackDeviceChange(String switchId, Integer type) {
             for(WebsiteService websiteService : websiteList) {
                 websiteService.callbackDeviceChange(switchId, type);
+            }
+        }
+
+        public void callbackHitchEvent(HitchEventVO event) {
+            for(WebsiteService websiteService : websiteList) {
+                websiteService.callbackHitchEvent(event);
             }
         }
     }

@@ -1,12 +1,12 @@
+var myState = 'control';
 $(document)
 		.ready(
 				function() {
-
 					/**
 					 * 初始化列表
 					 */
-					initial_table("hitch_event_list");
 					loadSubstationSet();
+					initial_table("hitch_event_list");
 					// $(".del_event_btn").click(delSwitch);
 
 					/**
@@ -44,6 +44,14 @@ function loadEvent(_url, switchId) {
 				},  {
 					"data" : "hitchReason"
 				}],
+				'language': {
+		            'paginate': {
+		              'next': '下一页',
+		              'previous': '上一页'
+		            },
+		            'emptyTable': '找不到相关数据',
+		            'zeroRecords': '找不到相关数据'
+		          },
 				"createdRow" : function(row, data, index) {
 
 					var hitchTime = $('td', row).eq(0).text();

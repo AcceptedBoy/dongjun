@@ -26,7 +26,7 @@
   <![endif]-->
 
 	<!-- Fav and touch icons -->
-	<link rel="shortcut icon" href="../../ico/favicon.png" />
+	<link rel="shortcut icon" href="../../img/logo.png" />
 	<link href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" />
 
 </head>
@@ -40,7 +40,7 @@
           <div class="span5">
               <h2>
                   <img src="../../img/logo.png" style="height: 65px" />电网智能监控系统
-                  <span class="label label-default">1.04</span>
+                  <span class="label label-default">1.10</span>
               </h2>
           </div>
           <div class="span6 MENU">
@@ -59,13 +59,13 @@
 			<div class="span2 container-fluid well sidebar-nav">
 				<ul class="nav nav-list bs-docs-sidenav" id="menu">
 					<li class="nav-header">资源管理</li>
-					<li><a href="substation_manager">单位管理</a></li>
-					<li><a href="line_manager">配电室管理</a></li>
-					<li class="nav-header">回路管理</li>
+					<li><a href="substation_manager">变电站管理</a></li>
+					<li><a href="line_manager">线路管理</a></li>
+					<li class="nav-header">设备管理</li>
 					<li><a href="low_voltage_switch_manager">低压开关管理</a></li>
 					<li><a href="high_voltage_switch_manager">高压开关管理</a></li>
 					<li><a href="control_measure_switch_manager" class="btn-success">无功补偿开关管理</a></li>
-          <li><a href="">温度监控</a></li>
+          <!-- <li><a href="">温度监控</a></li> -->
 					<!--<li class="nav-header">事件管理</li>-->
 					<!--<li><a href="low_voltage_hitch_event_manager">低压开关故障事件</a></li>-->
 					<!--<li><a href="high_voltage_hitch_event_manager">高压开关故障事件</a></li>-->
@@ -101,22 +101,6 @@
 						<td>修改</td>
 						<td>删除</td>
 					</thead>
-					<tr th:each="switch:${switches}" th:if="*{switch!=null}">
-						<td th:text="${switch.deviceNumber}"></td>
-						<td th:text="${switch.name}"></td>
-						<td class="hide" th:text="${switch.id}"></td>
-						<td class="hide" th:text="${switch.lineId}"></td>
-						<td th:text="${switch.address}"></td>
-						<td th:text="${switch.longitude}"></td>
-						<td th:text="${switch.latitude}"></td>
-
-						<td th:text="${switch.simNumber}"></td>
-						<td th:text="${switch.inlineIndex}"></td>
-						<td><button class="btn btn enter_map">进入地图 &raquo;</button></td>
-						<td><a href="#edit_switch_modal" role="button"
-							class="edit_switch_btn btn" data-toggle="modal">修改 &raquo;</a></td>
-						<td><a href="#del_switch_modal" class="del_switch_btn btn btn-danger" data-toggle="modal" data-backdrop="static">删除&raquo; </a></td>
-					</tr>
 				</table>
 			</div>
 		</div>
@@ -305,7 +289,7 @@
 
 	<!-- Le javascript
     ================================================== -->
-	<!-- Placed at the end of the document so the pages load faster 
+	<!-- Placed at the end of the document so the pages load faster
 	<script src="//cdn.bootcss.com/bootstrap/3.3.5/js/bootstrap.js"></script>
 	-->
 	<script src="../../js/jquery.js"></script>

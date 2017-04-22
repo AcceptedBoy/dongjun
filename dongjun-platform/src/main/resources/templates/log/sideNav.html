@@ -1,0 +1,47 @@
+<div class="span2 container-fluid well sidebar-nav">
+  <ul class="nav nav-list bs-docs-sidenav" id="sideNav">
+    <li class="nav-header">查看日志</li>
+    <li><a href="#user_log">用户日志</a></li>
+  </ul>
+</div>
+
+<script>
+  (function(){
+
+    // 根据地址高亮左边栏按钮, 默认'user_log'
+    $('a[href*=#' + (location.href.split('#')[1] || 'user_log')+']').addClass('btn-success')
+
+    // 点击时改变高亮按钮
+    var navLinks = $('#sideNav').find('a')
+    navLinks.click(function(){
+      navLinks.removeClass('btn-success')
+      $(this).addClass('btn-success')
+    })
+
+    var routerFnc = {
+      user: function() {
+        dj.inserCmp('user_log.html', $('.container')[0])
+      },
+      operation: function() {
+         dj.inserCmp('operation_log.html', $('.container')[0])
+      }
+    }
+
+    var router = new dj.Router()
+    router.start({
+      '': routerFnc.user,
+      'user_log': routerFnc.user,
+      // 'operation_log': routerFnc.operation
+    })
+
+
+    function loadUserLog() {
+      dj.inserCmp('user_log.html', $('.container')[0])
+    }
+
+    // function loadOperationLog() {
+    //   dj.inserCmp('operation_log.html', $('.container')[0])
+    // }
+  })()
+
+</script>

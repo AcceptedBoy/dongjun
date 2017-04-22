@@ -1,10 +1,16 @@
 package com.gdut.dongjun.service.webservice.client.service;
 
-import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
 import java.util.List;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
+import com.gdut.dongjun.domain.vo.HitchEventVO;
 
 /**
  *
@@ -15,13 +21,18 @@ public interface WebsiteService {
     /**
      * 当开关状态产生变化时执行回调
      */
-    @POST
-    @Path("/callback_ctx_change")
-    @Consumes({MediaType.APPLICATION_JSON})
-    public void callbackCtxChange(List<ActiveHighSwitch> data);
+//    @POST
+//    @Path("/callback_ctx_change")
+//    @Consumes({MediaType.APPLICATION_JSON})
+//    public void callbackCtxChange(List<ActiveHighSwitch> data);
 
     @POST
     @Path("/callback_device_change")
     public void callbackDeviceChange(@FormParam("switchId") String switchId,
                                      @FormParam("type") Integer type);
+    
+    @POST
+    @Path("/callback_hitch_event")
+    @Consumes({MediaType.APPLICATION_JSON})
+    public void callbackHitchEvent(HitchEventVO event);
 }

@@ -1,0 +1,250 @@
+<div class="span7 container-fluid well" style="height: 100%;overflow-y: hidden;">
+	<h3 class="text-center">设备组别
+		<div class="notice-container" style="float:right;cursor: pointer;">
+			<div class="cursor-notice"><a href="#edit_group_modal" data-toggle="modal" style="color: #505050">+</a></div>
+			<div class="cursor-notice-borad-left">添加组别</div>
+		</div>
+	</h3>
+	<hr>
+	<table id="group_list" class="table table-bordered table-striped table-hover table-condensed success">
+		<thead>
+			<td>组别名称</td>
+			<td></td>
+			<td></td>
+			<td></td>
+		</thead>
+	</table>
+</div>
+<div class="span5 container-fluid well" style="height: 100%;overflow-y: hidden;position: relative;">
+	<h3 class="text-center" id="equip_list_header">
+		<span id="equip_list_title">所有设备</span>
+		<div id="backToAll" class="notice-container hide" style="float:left;cursor: pointer;">
+			<div class="cursor-notice"><a style="color: #505050;font-size: 0.8em">◁</a></div>
+			<div class="cursor-notice-borad-right">返回所有设备</div>
+		</div>
+		<div id="addEquip" class="notice-container hide" style="float:right;cursor: pointer;">
+			<div class="cursor-notice">
+				<a href="#add_equip_modal" data-toggle="modal" style="color: #505050" onclick="modal.setEquips()">+</a>
+			</div>
+			<div class="cursor-notice-borad-left">添加设备</div>
+		</div>
+	</h3>
+	<hr>
+	<table id="equipment_list" class="table table-bordered table-striped table-hover table-condensed success">
+		<thead>
+			<!-- <td>设备号码</td> -->
+			<td>开关名称</td>
+			<!-- <td>类型</td> -->
+			<td></td>
+		</thead>
+	</table>
+</div>
+
+<script>
+	(function() {
+
+		// 设备
+		var equipTable = function(){
+			var table = null
+			var urls = {
+				all: '/dongjun/device_group/get_all_device',					//	/dongjun/device_group/get_all_device
+				group: '/dongjun/device_group/get_device_by_device_group_id'	//	/dongjun/device_group/get_device_by_device_group_id
+			}
+			var status = {
+				isAll: true
+			}
+			var store = {
+				deviceGroupId: 'all'
+			}
+			return {
+				getTable: function(){
+					return table
+				},
+				init: function() {
+					table = $('#equipment_list').DataTable({
+						scrollY: "85%",
+						scrollCollapse: false,
+						paging: false,
+						ajax: {
+							url: urls.all,
+							type: 'POST',
+							dataSrc: 'text'		// data.text 为表格数据
+						},
+						columns: [
+							// { data: 'deviceNumber'},
+							{ data: 'name'},
+							// {
+							// 	data: 'type',
+							// 	render: function(data){
+							// 		var typeArray = ['低压', '高压', '管控', '温度']
+							// 		return typeArray[data]
+							// 	}
+							// },
+							{
+								data: 'id',
+								orderable: false,
+								width: '50px',
+								render: function(data) {
+									return '<a href="#del_modal" data-toggle="modal" role="button" class="btn btn-danger" data-fnc="del_equip" data-id="'+data+'">删除</a>'
+								}
+							}
+						],
+						columnDefs: [
+							{
+								targets: -1,
+								visible: false
+							}
+						],
+						initComplete: function(setting, json) {
+							// modal.setEquips(json)
+							$(this[0]).click(function(event) {
+								var target = $(event.target)
+								var fnc = target.data('fnc')
+								if(fnc == 'del_equip') {
+									modal.setId('groupId', store.deviceGroupId)
+									modal.target(target.data('id'), 'equip')
+								}
+							})
+						},
+						drawCallback: function() {
+							var api = this.api()
+							api.column(-1).visible(!status.isAll)
+						},
+						language: {
+							paginate: {
+								next: '下一页',
+								previous: '上一页'
+							},
+							emptyTable: '无相关数据',
+							zeroRecords: '找不到相关数据',
+							loadingRecords: '正在加载数据...'
+						},
+					})
+				},
+				redraw: function(id, name){
+					var header = $('#equip_list_header')
+					if(id) {
+						store.deviceGroupId = id
+					}
+					table.clear().draw()
+					if(store.deviceGroupId == 'all'){
+						header.find('#equip_list_title').text('所有设备')
+						header.find('#backToAll').hide(300)
+						header.find('#addEquip').hide(300)
+						table.ajax.url(urls.all)
+						table.ajax.reload()
+						status.isAll = true
+						// table.column(-1).visible(false)
+					} else {
+						header.find('#equip_list_title').text(name)
+						header.find('#backToAll').show(300)
+						header.find('#addEquip').show(300)
+						table.ajax.url(urls.group)
+						var param = {
+							groupId: store.deviceGroupId
+						}
+						table.settings()[0].ajax.data = param
+						table.ajax.reload()
+						status.isAll = false
+						// table.column(-1).visible(true)
+					}
+				},
+			}
+		}()
+
+		// 设备组别
+		var groupTable = function() {
+			var table = null
+			return {
+				init: function() {
+					table = $('#group_list').DataTable({
+						"scrollY": "85%",
+						"paging": false,
+						ajax: {
+							url: '/dongjun/device_group/get_device_group',	// /dongjun/device_group/get_device_group
+							type: 'POST',
+							dataSrc: 'text'
+						},
+						columns: [
+							{ data: 'name'},
+							{
+								data: 'id',
+								orderable: false,
+								render: function(data, type, row) {
+									return '<a role="button" class="btn" data-toggle="modal" data-fnc="detail" data-name="'+row.name+'" data-id="'+data+'">查看</a>'
+								}
+							},
+							{
+								data: 'id',
+								orderable: false,
+								render: function(data, type, row) {
+									return '<a href="#edit_group_modal" role="button" class="btn" data-toggle="modal" data-fnc="edit" data-name="'+row.name+'" data-id="'+data+'">修改</a>'
+								}
+							},
+							{
+								data: 'id',
+								orderable: false,
+								width: '50px',
+								render: function(data) {
+									return '<a href="#del_modal" role="button" class="btn btn-danger" data-toggle="modal" data-fnc="del_group" data-id="'+data+'">删除</a>'
+								}
+							}
+						],
+						initComplete: function(setting, json) {
+							$(this[0]).click(function(event) {
+								var target = $(event.target)
+								var fnc = target.data('fnc')
+								switch(fnc) {
+									case 'detail':
+										var id = target.data('id')
+										modal.target(id, 'group')
+										equipTable.redraw(id, target.data('name'))
+										break
+									case 'del_group':
+										modal.target(target.data('id'), 'group')
+										break
+									case 'edit':
+										modal.target(target.data('id'), 'group')
+										modal.editGroup(target.data('name'))
+										break
+								}
+							})
+						},
+						language: {
+							paginate: {
+								next: '下一页',
+								previous: '上一页'
+							},
+							emptyTable: '找不到相关数据',
+							zeroRecords: '找不到相关数据',
+							loadingRecords: '正在加载数据...'
+						},
+					})
+				},
+				redraw: function() {
+					table.ajax.reload()
+				}
+			}
+		}()
+
+		equipTable.init()
+		groupTable.init()
+		modal.init({
+			url: {
+				addGroup: '/dongjun/device_group/edit',
+				delGroup: '/dongjun/device_group/del',
+				addEquip: '/dongjun/device_group/edit_device',
+				delEquip: '/dongjun/device_group/del_device'
+			},
+			fnc: {
+				group: groupTable.redraw,
+				equip: equipTable.redraw
+			}
+		})
+
+		$('#backToAll').on('click', function(){
+			equipTable.redraw('all')
+		})
+
+	})()
+</script>

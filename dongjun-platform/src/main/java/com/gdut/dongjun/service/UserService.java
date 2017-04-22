@@ -1,10 +1,10 @@
 package com.gdut.dongjun.service;
 
-import com.gdut.dongjun.domain.po.User;
-import com.gdut.dongjun.service.base.BaseService;
-import com.gdut.dongjun.service.impl.enums.LoginResult;
-
+import javax.jms.JMSException;
 import javax.servlet.http.HttpSession;
+
+import com.gdut.dongjun.domain.po.User;
+import com.gdut.dongjun.service.base.EnhancedService;
 
 /**   
  * @Title: UserService.java 
@@ -14,7 +14,7 @@ import javax.servlet.http.HttpSession;
  * @date 2015年7月24日 下午2:34:11 
  * @version V1.0   
  */
-public interface UserService extends BaseService<User>{
+public interface UserService extends EnhancedService<User>{
 
 	
 	/**
@@ -26,10 +26,17 @@ public interface UserService extends BaseService<User>{
 	* @return boolean   
 	* @throws
 	 */
-	public LoginResult login(String user, String password);
-
-	/**
-	 * symon:获取当前的user，若未登陆返回null
-     */
+//	public LoginResult login(String user, String password);
+	
 	public User getCurrentUser(HttpSession session);
+	
+	public boolean isUserOnline(String id);
+	
+	public void remarkLogIn(User user) throws JMSException;
+	
+	public void remarkLogOut(User user);
+	
+//	public Session getMQSession(User user);
+	
+//	public MessageProducer getMessageProducer(User user);
 }

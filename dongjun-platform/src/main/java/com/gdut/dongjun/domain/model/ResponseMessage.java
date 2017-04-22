@@ -8,6 +8,9 @@ import org.apache.commons.collections.ListUtils;
 
 /**
  * Be used to send message to client or frontend with restful design.
+ * 成员变量success表示请求成功与否
+ * 成员变量type为SUCCESS表示请求成功，WARNING表示由于参数错误等问题导致服务非正常运作
+ * DANGER表示系统逻辑错误
  * @author acceptedboy
  */
 public class ResponseMessage {

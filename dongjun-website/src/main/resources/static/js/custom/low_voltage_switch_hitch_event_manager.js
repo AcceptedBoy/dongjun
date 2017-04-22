@@ -1,5 +1,6 @@
+var myState = 'low';
 $(document).ready(function() {
-
+	
 	/**
 	 * 初始化列表
 	 */
@@ -36,7 +37,15 @@ $(document).ready(function() {
 				{
 					"data": "behitchCPhaseCurrent"
 				},
-			]
+			],
+			'language': {
+	            'paginate': {
+	              'next': '下一页',
+	              'previous': '上一页'
+	            },
+	            'emptyTable': '找不到相关数据',
+	            'zeroRecords': '找不到相关数据'
+	          },
 		})
 
 	//initial_table("hitch_event_list");
@@ -91,6 +100,14 @@ function loadEventListWithSwitchId(_url, switchId) {
 				}, {
 					"data" : "behitchCPhaseCurrent"
 				}, ],
+				'language': {
+		            'paginate': {
+		              'next': '下一页',
+		              'previous': '上一页'
+		            },
+		            'emptyTable': '找不到相关数据',
+		            'zeroRecords': '找不到相关数据'
+		          },
 				"createdRow" : function(row, data, index) {
 
 					var hitchTime = $('td', row).eq(0).text();

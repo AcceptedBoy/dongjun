@@ -1,275 +1,233 @@
 package com.gdut.dongjun.service.impl;
 
-import com.gdut.dongjun.domain.po.*;
-import com.gdut.dongjun.service.*;
-import com.gdut.dongjun.service.base.BaseService;
-import com.gdut.dongjun.util.MyBatisMapUtil;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.FutureTask;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import com.gdut.dongjun.domain.po.BigGroup;
+import com.gdut.dongjun.domain.po.DataMonitor;
+import com.gdut.dongjun.domain.po.DeviceGroup;
+import com.gdut.dongjun.domain.po.DeviceGroupMapping;
+import com.gdut.dongjun.domain.po.PlatformGroup;
+import com.gdut.dongjun.domain.po.TemperatureSensor;
+import com.gdut.dongjun.domain.po.User;
+import com.gdut.dongjun.domain.po.UserDeviceMapping;
+import com.gdut.dongjun.service.DeviceGroupMappingService;
+import com.gdut.dongjun.service.DeviceGroupService;
+import com.gdut.dongjun.service.PlatformGroupService;
+import com.gdut.dongjun.service.UserDeviceMappingService;
+import com.gdut.dongjun.service.UserService;
+import com.gdut.dongjun.service.ZTreeNodeService;
+import com.gdut.dongjun.service.device.DataMonitorService;
+import com.gdut.dongjun.service.device.TemperatureSensorService;
+import com.gdut.dongjun.service.manager.UserHolder;
+import com.gdut.dongjun.util.MyBatisMapUtil;
 
 /**
- * @Title: ZTreeNodeServiceImpl.java
- * @Package com.gdut.dongjun.service.impl
- * @Description: TODO
+ * 这个类用来返回ztree插件要用到的数据树。 添加节点的顺序是BigGroup、PlatformGroup、DeviceGroup。
+ * 各种设备和DeviceGroup处于同一层次的位置 平台版没有高低压管控
+ * 
  * @author Sherlock-lee
- * @date 2015年8月3日 下午5:29:17
- * @version V1.0
+ * @author Gordan_Deng
+ * @date 2017年3月10日
  */
 @Component
 public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 
 	@Autowired
-	private SubstationService substationService;
+	private PlatformGroupService platformGroupService;
 	@Autowired
-	private LineService lineService;
+	private DeviceGroupMappingService mappingService;
 	@Autowired
-	private LowVoltageSwitchService switchService;
+	private DeviceGroupService deviceGroupService;
 	@Autowired
-	private HighVoltageSwitchService switchService2;
+	private TemperatureSensorService sensorService;
 	@Autowired
-	private ControlMearsureSwitchService switchService3;
+	private PlatformGroupService pgService;
+	@Autowired
+	private UserDeviceMappingService UDMappingService;
+	@Autowired
+	private UserService userService;
+	@Autowired
+	private DataMonitorService monitorService;
 
-	@Autowired
-	private PlatformGroupService groupService;
-
-	@Override
-	public List<ZTreeNode> getSwitchTree(String company_id, String type) {
-		// TODO Auto-generated method stub
-		List<ZTreeNode> nodes = new LinkedList<ZTreeNode>();
-		List<Substation> substations = substationService// 取到所有的变电站
-				.selectByCompanyId(company_id);
-
-		@SuppressWarnings("rawtypes")
-		BaseService baseService = null;
-		switch (type) {
-		case "0":
-			baseService = switchService;
-			break;
-		case "1":
-			baseService = switchService2;
-			break;
-		case "2":
-			baseService = switchService3;
-			break;
-		default:
-			break;
+	/**
+	 * 返回用户的设备树。 这个方法是根据书上改写的，理论上线程安全。 value保存的相当于一个执行任务，Future运算完成之后只会返回同一个结果。
+	 * 之所以value保存的是Future而不是List<ZTreeNode>，是因为要根据Future来控制线程安全，
+	 * 而不是用懒汉式加载数据，尽可能防止synchornized的性能损失。
+	 * 
+	 * @param userId
+	 * @return
+	 */
+	public List<ZTreeNode> getUserSwitchTree(final String userId) {
+		while (true) {
+			Future<List<ZTreeNode>> f = UserHolder.getUserSwitchTree(userId);
+			if (null == f) {
+				// 构造FutureTask回调函数
+				Callable<List<ZTreeNode>> eval = new Callable<List<ZTreeNode>>() {
+					@Override
+					public List<ZTreeNode> call() throws Exception {
+						return getSwitchTree(userId);
+					}
+				};
+				FutureTask<List<ZTreeNode>> ft = new FutureTask<List<ZTreeNode>>(eval);
+				// 如果刚好两个线程执行到这里，一个线程执行put方法，返回null；另一个线程执行get方法，
+				// 返回前一个线程弄进去的value。那最后只会有一个线程启动ft.fun()，另一个线程进入f.get()。
+				// 因此线程安全。
+				f = UserHolder.addUserSwitchTree(userId, ft);
+				if (null == f) {
+					f = ft;
+					ft.run();
+				}
+			}
+			try {
+				return f.get();
+			} catch (InterruptedException e) {
+				// 有时候执行方法里面可能会想知道自己的线程是不是被中断了，如果是，在执行方法里面抛出这个方法。
+				UserHolder.removeUserSwitchTree(userId);
+				e.printStackTrace();
+				throw launderThrowable(e.getCause());
+			} catch (ExecutionException e) {
+				UserHolder.removeUserSwitchTree(userId);
+				e.printStackTrace();
+				throw launderThrowable(e.getCause());
+			}
 		}
+	}
 
-		if (substations != null) {
+	private static RuntimeException launderThrowable(Throwable t) {
+		/**
+		 * 如果是运行期异常返回
+		 */
+		if (t instanceof RuntimeException) {
+			return (RuntimeException) t;
+		}
+		/**
+		 * 如果是Error直接抛出
+		 */
+		else if (t instanceof Error) {
+			throw (Error) t;
+		} else {
+			throw new IllegalStateException("Not unchecked", t);
+		}
+	}
 
-			// 遍历所有的变电站
-			for (int i = 0; i < substations.size(); i++) {
+	/**
+	 * 超管返回所有大组、公司、设备
+	 */
+	@Override
+	public List<ZTreeNode> getSwitchTree() {
+		// List<BigGroup> groupList = groupService.selectByParameters(null);
+		// return getAllSwitchTree(groupList);
+		return null;
+	}
 
-				ZTreeNode n1 = new ZTreeNode();
-				if (substations.get(i) != null) {
+	/**
+	 * 普通公司返回当前公司、所属设备
+	 * 
+	 * @return
+	 */
+	@Override
 
-					n1.setId(substations.get(i).getId());
-					n1.setName(substations.get(i).getName());
-					n1.setParentName(null);
-					List<Line> lines = lineService
-							.selectByParameters(MyBatisMapUtil
-									.warp("substation_id", substations.get(i)
-											.getId()));// 取到所有的线路
+	public List<ZTreeNode> getSwitchTree(String userId) {
+		User user = userService.selectByPrimaryKey(userId);
+		List<PlatformGroup> pgList = pgService.selectByParameters(MyBatisMapUtil.warp("id", user.getCompanyId()));
+		return wrap(pgList, null, userId);
+	}
 
-					List<ZTreeNode> lineNodes = new LinkedList<ZTreeNode>();
-
-					// 遍历所有的线路
-					for (int j = 0; j < lines.size(); j++) {
-
-						ZTreeNode n2 = new ZTreeNode();
-						if (lines.get(j) != null) {
-
-							n2.setId(lines.get(j).getId());
-							n2.setName(lines.get(j).getName());
-							n2.setParentName(substations.get(i).getName());
-
-							List<ZTreeNode> switchNodes = new LinkedList<ZTreeNode>();
-							switch (type) {
-							case "0":
-								@SuppressWarnings("unchecked")
-								List<LowVoltageSwitch> switchs = baseService
-										.selectByParameters(MyBatisMapUtil
-												.warp("line_id", lines.get(j)
-														.getId()));// 取到所有的开关
-								// 遍历所有的开关
-								for (int k = 0; k < switchs.size(); k++) {
-
-									ZTreeNode n3 = new ZTreeNode();
-									if (switchs.get(k) != null) {
-										n3.setId(switchs.get(k).getId());
-										n3.setName(switchs.get(k).getName());
-										n3.setParentName(lines.get(j).getName());
-										n3.setLongitude(switchs.get(k)
-												.getLongitude().toString());
-										n3.setLatitude(switchs.get(k)
-												.getLatitude().toString());
-										n3.setLineId(switchs.get(k).getLineId());
-										n3.setAddress(switchs.get(k).getAddress());
-										n3.setType(0);
-										n3.setShowName(switchs.get(k).getShowName());
-									}
-									switchNodes.add(n3);
-								}
-								break;
-							case "1":
-
-								List<HighVoltageSwitch> switchs2 = baseService
-										.selectByParameters(MyBatisMapUtil
-												.warp("line_id", lines.get(j)
-														.getId()));// 取到所有的开关
-								// 遍历所有的开关
-								for (int k = 0; k < switchs2.size(); k++) {
-
-									ZTreeNode n3 = new ZTreeNode();
-									if (switchs2.get(k) != null) {
-
-										n3.setId(switchs2.get(k).getId());
-										n3.setName(switchs2.get(k).getName());
-										n3.setParentName(lines.get(j).getName());
-										//n3.setParentName(switchs2.get(k).getName());
-										n3.setLongitude(switchs2.get(k)
-												.getLongitude().toString());
-										n3.setLatitude(switchs2.get(k)
-												.getLatitude().toString());
-										n3.setLineId(switchs2.get(k).getLineId());
-										n3.setAddress(switchs2.get(k).getAddress());
-										n3.setType(1);
-										n3.setShowName(switchs2.get(k).getShowName());
-									}
-									switchNodes.add(n3);
-								}
-								break;
-							case "2":
-								@SuppressWarnings("unchecked")
-								List<ControlMearsureSwitch> switchs3 = baseService
-										.selectByParameters(MyBatisMapUtil
-												.warp("line_id", lines.get(j)
-														.getId()));// 取到所有的开关
-								// 遍历所有的开关
-								for (int k = 0; k < switchs3.size(); k++) {
-
-									ZTreeNode n3 = new ZTreeNode();
-									if (switchs3.get(k) != null) {
-
-										n3.setId(switchs3.get(k).getId());
-										n3.setName(switchs3.get(k).getName());
-										n3.setParentName(lines.get(j).getName());
-										n3.setLongitude(switchs3.get(k)
-												.getLongitude().toString());
-										n3.setLatitude(switchs3.get(k)
-												.getLatitude().toString());
-										n3.setLineId(switchs3.get(k).getLineId());
-										n3.setAddress(switchs3.get(k).getAddress());
-										n3.setType(2);
-										n3.setShowName(switchs3.get(k).getShowName());
-									}
-									switchNodes.add(n3);
-								}
-								break;
-							default:
-								break;
-							}
-							if(switchNodes != null && switchNodes.size() != 0) {
-								n2.setChildren(switchNodes);
-							}
-						}
-						if(n2 != null && n2.getChildren() != null && !n2.getChildren().isEmpty()) {
-							lineNodes.add(n2);
-						}
-					}
-					if(lineNodes != null && !lineNodes.isEmpty()) {
-						n1.setChildren(lineNodes);
-					}
+	private List<ZTreeNode> wrap(List<PlatformGroup> pgList, String parentName, String userId) {
+		List<ZTreeNode> pgNodes = new LinkedList<ZTreeNode>();
+		for (int j = 0; j < pgList.size(); j++) {
+			ZTreeNode n2 = new ZTreeNode();
+			if (pgList.get(j) != null) {
+				n2.setId(pgList.get(j).getId() + "");
+				n2.setName(pgList.get(j).getName());
+				if (!(null == parentName || "".equals(parentName))) {
+					n2.setParentName(parentName);
 				}
-				if(n1 != null && n1.getChildren() != null && !n1.getChildren().isEmpty()) {
-					nodes.add(n1);
+				List<ZTreeNode> dgNodes = new LinkedList<ZTreeNode>();
+
+				List<DeviceGroup> dgList = deviceGroupService
+						.selectByParameters(MyBatisMapUtil.warp("platform_group_id", pgList.get(j).getId()));
+
+				for (DeviceGroup dg : dgList) {
+					dgNodes.add(getDeviceGroupNode(pgList.get(j), dg));
 				}
+
+				List<DataMonitor> monitors = monitorService
+						.selectByParameters(MyBatisMapUtil.warp("group_id", pgList.get(j).getId()));
+				for (int k = 0; k < monitors.size(); k++) {
+
+					ZTreeNode n3 = new ZTreeNode();
+					if (monitors.get(k) != null) {
+
+						n3.setId(monitors.get(k).getId());
+						n3.setName(monitors.get(k).getName());
+						n3.setParentName(pgList.get(j).getName());
+						n3.setPlatformGroupId(monitors.get(k).getGroupId());
+					}
+					dgNodes.add(n3);
+				}
+				if (dgNodes != null && dgNodes.size() != 0) {
+					n2.setChildren(dgNodes);
+				}
+			}
+			if (n2 != null && n2.getChildren() != null && !n2.getChildren().isEmpty()) {
+				pgNodes.add(n2);
+			}
+		}
+		return pgNodes;
+	}
+
+	public List<ZTreeNode> getAllSwitchTree(List<BigGroup> groupList) {
+		List<ZTreeNode> nodes = new LinkedList<ZTreeNode>();
+		for (int i = 0; i < groupList.size(); i++) {
+			ZTreeNode n1 = new ZTreeNode();
+			if (groupList.get(i) != null) {
+				n1.setId(groupList.get(i).getId() + "");
+				n1.setName(groupList.get(i).getName());
+				n1.setParentName(null);
+				List<PlatformGroup> pgList = platformGroupService
+						.selectByParameters(MyBatisMapUtil.warp("group_id", groupList.get(i).getId()));
+				List<ZTreeNode> pgNodes = wrap(pgList, groupList.get(i).getName(), null);
+				if (pgNodes != null && !pgNodes.isEmpty()) {
+					n1.setChildren(pgNodes);
+				}
+			}
+			if (n1 != null && n1.getChildren() != null && !n1.getChildren().isEmpty()) {
+				nodes.add(n1);
 			}
 		}
 		return nodes;
 	}
 
-	/**
-	 * 获取在主页上显示的分组信息
-	 * @param companyId
-	 * @param deviceType
-	 */
-	@Override
-	public List<ZTreeNode> groupTree(String companyId, Integer deviceType) {
+	private ZTreeNode getDeviceGroupNode(PlatformGroup group, DeviceGroup dg) {
+		List<ZTreeNode> list = new LinkedList<ZTreeNode>();
+		ZTreeNode dgNode = new ZTreeNode();
+		dgNode.setId(dg.getId() + "");
+		dgNode.setName(dg.getName());
+		dgNode.setParentName(group.getName());
 
-		Map<String, Object> params = new HashMap<>();
-		params.put("company_id", companyId);
-		params.put("type", deviceType);
-		List<PlatformGroup> groupList =
-				groupService.selectByParameters(MyBatisMapUtil.warp(params));
-
-		Map<Integer, List<ZTreeNode>> zTreeMap = new HashMap<>();
-		List<ZTreeNode> result = new LinkedList<ZTreeNode>();
-
-		for(PlatformGroup group : groupList) {
-			zTreeMap.put(group.getId(), new LinkedList<ZTreeNode>());
+		List<DeviceGroupMapping> mappingList = mappingService
+				.selectByParameters(MyBatisMapUtil.warp("device_group_id", dg.getId()));
+		for (DeviceGroupMapping mapping : mappingList) {
+			ZTreeNode node4 = new ZTreeNode();
+			DataMonitor monitor = monitorService.selectByPrimaryKey(mapping.getDeviceId());
+			node4.setId(monitor.getId());
+			node4.setName(monitor.getName());
+			node4.setPlatformGroupId(group.getId());
+			node4.setOpen(true);
+			list.add(node4);
 		}
-
-		if(deviceType == 1) {
-			//高压
-			List<HighVoltageSwitch> hvList = switchService2.selectByParameters(null);
-			for(HighVoltageSwitch hvSwitch : hvList) {
-				ZTreeNode deviceNode = new ZTreeNode();
-				deviceNode.setId(hvSwitch.getId());
-				deviceNode.setType(deviceType);
-				deviceNode.setLineId(hvSwitch.getLineId());
-				deviceNode.setName(hvSwitch.getName());
-				deviceNode.setShowName(hvSwitch.getShowName());
-				deviceNode.setLatitude(String.valueOf(hvSwitch.getLatitude()));
-				deviceNode.setLongitude(String.valueOf(hvSwitch.getLongitude()));
-				deviceNode.setAddress(hvSwitch.getAddress());
-				deviceNode.setChildren(null);
-				if(zTreeMap.containsKey(hvSwitch.getGroupId())) {
-					zTreeMap.get(hvSwitch.getGroupId()).add(deviceNode);
-				} else {
-					deviceNode.setChildren(null);
-					result.add(deviceNode);
-				}
-			}
-		}
-
-		for(PlatformGroup group : groupList) {
-			ZTreeNode groupNode = new ZTreeNode();
-			groupNode.setId(String.valueOf(group.getId()));
-			groupNode.setName(group.getName());
-			groupNode.setShowName(group.getName());
-			groupNode.setType(deviceType);
-			//添加子节点
-			groupNode.setChildren(zTreeMap.get(group.getId()));
-			//添加到结果
-			result.add(groupNode);
-		}
-		return result;
+		dgNode.setChildren(list);
+		return dgNode;
 	}
 
-
-	/*@Test
-	public void t() {
-
-		List<ZTreeNode> nodes = new LinkedList<ZTreeNode>();
-
-		// 遍历所有的变电站
-		for (int i = 0; i < 2; i++) {
-
-			ZTreeNode n1 = new ZTreeNode();
-			n1.setId("01");
-			if (i == 1) {
-				n1.setId("02");
-			}
-			nodes.add(n1);
-		}
-	}
-*/
 }

@@ -1,7 +1,7 @@
+var myState = 'high';
 $(document)
 	.ready(
 				function() {
-
 					/**
 					 * 初始化列表
 					 */
@@ -24,7 +24,15 @@ $(document)
 							"data": "solveTime"
 						}, {
 							"data": "solveWay"
-						}]
+						}],
+						'language': {
+				            'paginate': {
+				              'next': '下一页',
+				              'previous': '上一页'
+				            },
+				            'emptyTable': '找不到相关数据',
+				            'zeroRecords': '找不到相关数据'
+				          },
 					});
 					loadSubstationSet();
 					$.ajax({
@@ -94,6 +102,14 @@ function loadEventListWithSwitchId(_url, switchId) {
 					"data": "solveTime"
 				}, {
 					"data": "solveWay"
-				}]
+				}],
+				'language': {
+		            'paginate': {
+		              'next': '下一页',
+		              'previous': '上一页'
+		            },
+		            'emptyTable': '找不到相关数据',
+		            'zeroRecords': '找不到相关数据'
+		          },
 			});
 }

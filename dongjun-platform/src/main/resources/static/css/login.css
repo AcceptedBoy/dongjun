@@ -10,7 +10,7 @@
 }
 
 .banner {
-	background: url(../../img/loginbg.jpg) no-repeat center;
+	background: url(../img/loginbg.jpg) no-repeat center;
 	background-size: 100%;
 	padding: 0;
 	height: 80vh;
@@ -37,6 +37,26 @@
 	width: 240px;
 	height: 40px;
 }
+
+#register_worker_btn {
+	width: 100px;
+	height: 40px;
+}
+
+#register_company_btn {
+	width: 100px;
+	height: 40px;
+	margin-right: 30px;
+}
+
+.registerControl {
+	float: right;
+}
+
+textarea {
+	resize: none;
+}
+
 
 footer {
 	margin-left: 20px;

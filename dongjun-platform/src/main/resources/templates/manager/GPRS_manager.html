@@ -1,0 +1,184 @@
+<div class="form-inline">
+  <div class="form-group span3">
+    <label class="span3">组别:</label>
+    <select class="groups span9"></select>
+  </div>
+  <div class="form-group span3">
+    <label class="span3">公司:</label>
+    <select class='platforms span9'></select>
+  </div>
+  <div class="form-group span5" id="control-btns">
+  </div>
+</div>
+<table id="gprs_list" class="table table-bordered table-striped table-hover table-condensed success">
+  <thead>
+    <td>设备名称</td>
+    <td>地址</td>
+    <td>逻辑地址</td>
+    <td>sim</td>
+    <td>当前状态</td>
+    <td>是否开启</td>
+    <td>修改</td>
+    <td>删除</td>
+  </thead>
+</table>
+
+<script>
+  if (!Array.prototype.find) {
+    Array.prototype.find = function(predicate) {
+      'use strict';
+      if (this == null) {
+        throw new TypeError('Array.prototype.find called on null or undefined');
+      }
+      if (typeof predicate !== 'function') {
+        throw new TypeError('predicate must be a function');
+      }
+      var list = Object(this);
+      var length = list.length >>> 0;
+      var thisArg = arguments[1];
+      var value;
+
+      for (var i = 0; i < length; i++) {
+        value = list[i];
+        if (predicate.call(thisArg, value, i, list)) {
+          return value;
+        }
+      }
+      return undefined;
+    };
+  }
+
+  var managerTable = function() {
+    var table = null;
+    var defUrl = ''; // /dongjun/gprs/company_gprs
+    return {
+      getTable: function(){
+        return table;
+      },
+      init: function(o) {
+        if(o.url) {
+          defUrl = o.url
+        }
+        var _self = this
+        table = $('#gprs_list').DataTable({
+          'destroy': true,// destroy之后才能重新加载
+          'ajax': {
+            'url': defUrl,
+            'type': 'POST',
+            'dataSrc': 'text',
+            'data': o.data
+          },
+          'columns': [
+            { 'data': 'name' },
+            {
+              'data': 'address',
+              'orderable': false
+            },
+            {
+              'data': 'deviceNumber',
+              'orderable': false
+            },
+            {
+              'data': 'simNumber',
+              'orderable': false
+            },
+            {
+              'data': 'status',
+              'render': this.renderStatus
+            },
+            {
+              'data': 'available',
+              'render': this.renderAvailable
+            },
+            {
+              data: 'id',
+              width: '50px',
+              orderable: false,
+              visible: false,
+              render: function(data, type, row) {
+                return '<a href="#edit_GPRS_modal" role="button" class="btn" data-toggle="modal" data-fnc="edit"  data-id="'+data+'">修改</a>'
+              }
+            },
+            {
+              data: 'id',
+              orderable: false,
+              width: '50px',
+              visible: false,
+              render: function(data) {
+                return '<a href="#del_modal" role="button" class="btn btn-danger" data-toggle="modal" data-fnc="del" data-id="'+data+'">删除</a>'
+              }
+            }
+          ],
+          'language': {
+            'paginate': {
+              'next': '下一页',
+              'previous': '上一页'
+            },
+            'emptyTable': '找不到相关数据',
+            'zeroRecords': '找不到相关数据'
+          },
+          'initComplete': function() {
+            $(this[0]).click(function(event) {
+              var target = $(event.target)
+              var fnc = target.data('fnc')
+              if(fnc == 'edit') {
+                if(modal) {
+                  var id = target.data('id')
+                  modal.target(id)
+                  var data = Array.prototype.find.call(table.data(), function(item) {
+                    return item.id == id
+                  })
+                  modal.setEditForm(data)
+                }
+              } else if(fnc == 'del') {
+                var id = target.data('id')
+                if(modal) {
+                  modal.target(id)
+                }
+              }
+            })
+          }
+        })
+      },
+      redraw: function(id) {
+        table.ajax.url(defUrl);
+        var param = {
+          platformId: id
+        };
+        table.settings()[0].ajax.data = param;
+        table.ajax.reload();
+      },
+      renderStatus: function(data, type, row) {
+        var statusColor = ['#F60E0E', '#03CC00'],
+            statusDesc = ['离线', '在线']
+        return '<span style="color: ' + statusColor[+data] + '">'+ statusDesc[+data] +'</span>'
+      },
+      renderAvailable: function(data) {
+        data = data ? 1 : 0
+        var statusColor = ['#F60E0E', '#03CC00'],
+            statusDesc = ['未开启', '已开启']
+        return '<span style="color: ' + statusColor[data] + '">'+ statusDesc[data] +'</span>'
+      }
+    }
+  }()
+
+  selectManager.setOption({
+    url: {},
+    node: {
+      group: '.groups',
+      company: '.platforms'
+    },
+    completeFnc: managerTable.redraw
+  })
+
+  selectManager.loadGroups()
+  selectManager.autoListen()
+
+  managerTable.init({
+    url: '/dongjun/gprs/list', // /dongjun/gprs/list
+    data: {
+      platformId: $('.platforms').val()
+    }
+  })
+
+</script>

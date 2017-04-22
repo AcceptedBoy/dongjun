@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.authc.Role;
 import com.gdut.dongjun.domain.po.authc.RolePermission;
-import com.gdut.dongjun.domain.po.authc.UserRoleKey;
+import com.gdut.dongjun.domain.po.authc.UserRole;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.authc.PermissionService;
 import com.gdut.dongjun.service.authc.RolePermissionService;
@@ -116,7 +116,7 @@ public class AdminController {
 	}
 	
 	private void insertRole(String userId, String roleId) {
-		userRoleService.insert(new UserRoleKey(userId, roleId));
+		userRoleService.insert(new UserRole(userId, roleId));
 	}
 	
 	private void insertPermission(String roleId, String permissionId) {

@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.po.authc.Role;
+import com.gdut.dongjun.domain.po.authc.UserRole;
 import com.gdut.dongjun.domain.po.authc.UserRoleKey;
 
 public class UserRoleVo {
@@ -25,9 +26,9 @@ public class UserRoleVo {
 		roleVo.getRoleList().add(role);
 	}
 	
-	private static List<UserRoleKey> createUserRoleListByUser(String userId, List<UserRoleKey> userRoles) {
-		List<UserRoleKey> resultList = new LinkedList<>();
-		for(UserRoleKey userRole : userRoles) {
+	private static List<UserRole> createUserRoleListByUser(String userId, List<UserRole> userRoles) {
+		List<UserRole> resultList = new LinkedList<>();
+		for(UserRole userRole : userRoles) {
 			if(userRole.equals(userId)) {
 				resultList.add(userRole);
 			}
@@ -36,13 +37,13 @@ public class UserRoleVo {
 	}
 	
 	public static List<UserRoleVo> createList(List<User> users, List<Role> roles, 
-			List<UserRoleKey> userRoles) {
+			List<UserRole> userRoles) {
 		List<UserRoleVo> resultVo = new LinkedList<>();
 		for(User user : users) {
 			UserRoleVo userRoleVo = new UserRoleVo(user, new LinkedList<Role>());
-			List<UserRoleKey> userRoleList = createUserRoleListByUser(user.getId(), userRoles);
+			List<UserRole> userRoleList = createUserRoleListByUser(user.getId(), userRoles);
 			for(Role role : roles) {
-				for(UserRoleKey userRole : userRoleList) {
+				for(UserRole userRole : userRoleList) {
 					if(userRole.getRoleId().equals(role.getId())) {
 						addRole(userRoleVo, role);
 					}

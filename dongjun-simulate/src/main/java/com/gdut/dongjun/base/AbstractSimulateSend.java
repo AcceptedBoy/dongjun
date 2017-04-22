@@ -45,6 +45,7 @@ public abstract class AbstractSimulateSend {
      * @throws IOException
      */
     public void sendToIpWithPort() throws IOException, InterruptedException {
+    	
         for(int i = 0, length = cache.size();; ++i) {
             Socket socket = new Socket(Constant.SEND_IP, Constant.SEND_PORT);
             if(i == length) {

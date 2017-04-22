@@ -1,0 +1,1104 @@
+<div class="form-inline span12">
+	<div class="form-group span4">
+		<label class="span1">从:</label>
+		<div class="input-append date form_date" data-date="" data-date-format="yyyy-mm-dd hh:ii" data-link-field="dtp_input2" data-link-format="yyyy-mm-dd hh:ii">
+			<input id="begin_search_date" class="span10" type="text" />
+        <span class="add-on"><i class="icon-remove"></i></span>
+        <span class="add-on"><i class="icon-th"></i></span>
+		</div>
+	</div>
+	<div class="form-group span5">
+		<label class="span1">到:</label>
+		<div class="input-append date form_date" data-date="" data-date-format="yyyy-mm-dd hh:ii" data-link-field="dtp_input2" data-link-format="yyyy-mm-dd hh:ii">
+			<input id="end_search_date" class="span9" type="text" />
+        <span class="add-on"><i class="icon-remove"></i></span>
+        <span class="add-on"><i class="icon-th"></i></span>
+			<button id="search_btn" class="btn">搜索</button>
+		</div>
+	</div>
+  <!-- 渲染按钮和modal -->
+
+</div>
+
+
+
+<!--<ul class="nav nav-tabs">-->
+	<!--<li class="active"><a data-toggle="tab" href="#VoltageChart">电压曲线图</a></li>-->
+	<!--<li><a data-toggle="tab" href="#current">电流曲线图</a></li>-->
+	<!--<li><a data-toggle="pill" href="#tab3">功率曲线图</a></li>-->
+<!--</ul>-->
+<!--<div class="clean"></div>-->
+<!--<div class="tab-content" style="height: 80%">-->
+    <!--<div class="tab-panel active" id="VoltageChart" style="width: 100%;height:100%;"></div>-->
+    <!--<div class="tab-panel" id="current" style="width: 100%;height:100%;">dhgd hdgfhdhg</div>-->
+<!--</div>-->
+  <button style="float: right;" onclick="chart.chartView.handleChange()">
+		<i class="icon-refresh"></i>
+  	切换
+	</button>
+  <ul class="nav nav-tabs" id="lineBar">
+      <li class="active"><a data-toggle="tab" href="#temperature" id="showTchart">温度曲线图</a></li>
+      <li><a data-toggle="tab" href="#VoltageChart" id="showVchart">电压曲线图</a></li>
+      <li><a data-toggle="tab" href="#current" id="showCchart">电流曲线图</a></li>
+      <li><a data-toggle="tab" href="#power" id="showPchart">功率曲线图</a></li>
+  </ul>
+  <div class="clean"></div>
+  <div class="tab-content" id="lineChart">
+      <div class="tab-pane myChart active" id="temperature"></div>
+      <div class="tab-pane Mychart" id="VoltageChart"></div>
+      <div class="tab-pane Mychart" id="current"></div>
+      <div class="tab-pane Mychart" id="power"></div>
+  </div>
+
+  <ul class="nav nav-tabs" id="dataBar" style="display: none;">
+      <li class="active"><a href="#excalChartT" data-toggle="tab" id="showTExcal">温度数据表格</a></li>
+      <li><a href="#excalChartV" data-toggle="tab" id="showVExcal">电压数据表格</a></li>
+      <li><a href="#excalChartC" data-toggle="tab" id="showCExcal">电流数据表格</a></li>
+      <li><a href="#excalChartP" data-toggle="tab" id="showPExcal">功率数据表格</a></li>
+  </ul>
+  <div class="clean"></div>
+  <div class="tab-content" id="dataChart" style="display: none;">
+      <div class="tab-pane Mychart" id="excalChartV">
+          <table id="v_data_list" class="table table-bordered table-striped table-hover table-condensed success" cellspacing="0" width="100%">
+              <thead>
+              <th>设备</th>
+              <th>时间</th>
+              <th>A相</th>
+              <th>B相</th>
+              <th>C相</th>
+              </thead>
+          </table>
+      </div>
+      <div class="tab-pane Mychart" id="excalChartC">
+          <table id="c_data_list" class="table table-bordered table-striped table-hover table-condensed success" cellspacing="0" width="100%">
+              <thead>
+              <th>设备</th>
+              <th>时间</th>
+              <th>A相</th>
+              <th>B相</th>
+              <th>C相</th>
+              </thead>
+          </table>
+      </div>
+      <div class="tab-pane Mychart" id="excalChartP">
+          <table id="p_data_list" class="table table-bordered table-striped table-hover table-condensed success" cellspacing="0" width="100%">
+              <thead>
+              <th>设备</th>
+              <th>时间</th>
+              <th>A相</th>
+              <th>B相</th>
+              <th>C相</th>
+              </thead>
+          </table>
+      </div>
+      <div class="tab-pane Mychart active" id="excalChartT">
+          <table id="t_data_list" class="table table-bordered table-striped table-hover table-condensed success" cellspacing="0" width="100%">
+              <thead>
+              <th>设备</th>
+              <th>时间</th>
+              <th>温度</th>
+              </thead>
+          </table>
+      </div>
+  </div>
+
+<script>
+  (function() {
+    var chartView = function() {
+      return {
+        handleChange: function() {
+          if($('#lineBar').css('display') == 'none') {
+            $('#dataBar').hide();
+            $('#dataChart').hide();
+            $('#lineBar').show();
+            $('#lineChart').show();
+          } else {
+            $('#lineBar').hide();
+            $('#lineChart').hide();
+            $('#dataBar').show();
+            $('#dataChart').show();
+          }
+        },
+        /*hideParent: function(treeObj) {
+          var node = treeObj.getNodes();
+          var nodes = treeObj.transformToArray(node);
+          for(var i = 0; i<nodes.length; i++) {
+            if(nodes[i].isParent || nodes[i].type == 3) {
+              nodes[i].nocheck = true;
+            }
+            if(nodes[i].type == 3) {
+            	// nodes[i].icon = '../../img/temperature.png'
+            	nodes[i].iconSkin = 'IconTemperature'
+            	this.addChild(nodes[i], treeObj)
+            }
+            if(nodes[i].type == 80) {
+            	nodes[i].iconSkin = 'IconTem'
+            }
+            treeObj.updateNode(nodes[i]);
+          }
+        },*/
+        changeIcon: function(treeObj) {
+          var node = treeObj.getNodes();
+          var nodes = treeObj.transformToArray(node)
+          for(var i = 0; i<nodes.length; i++) {
+            if(!nodes[i].children) {
+              nodes[i].iconSkin = 'IconTem'
+              treeObj.updateNode(nodes[i]);
+            }
+          }
+        },
+        /**
+         * [changeChart 隐藏温度显示电压的或者反之]
+         * @param  {[type]} toWhat [切去哪里]
+         * @return {[type]}        [description]
+         */
+        changeChart: function(toWhat) {
+          console.log('init');
+          if(toWhat == 'temperature') {
+            $('#electricBar').hide();
+            $('#electricContent').hide();
+            $('#temBar').show();
+            $('#temContent').show();
+          }
+          else {
+            $('#electricBar').show();
+            $('#electricContent').show();
+            $('#temBar').hide();
+            $('#temContent').hide();
+          }
+        },
+        showLoading: function(chart) {
+        	chart.hideLoading()
+        	chart.showLoading({
+        		effect: 'ring'
+        	})
+        },
+        hideLoading: function(chart) {
+        	chart.hideLoading()
+        },
+        /*addChild: function(parent, tree) {
+        	tree.addNodes(parent, 0, {
+        		name: '<font color="#2874b0">全部</font>',
+        		type: 100,
+        		open: true,
+        		tag: 'all',
+        		iconSkin: 'IconTem'
+        	})
+        },*/
+      };
+    }();
+    
+    var chartController = function() {
+      return {
+        /**
+         * [initListener 为表格模块的东西添加事件]
+         * @return {[type]} [description]
+         */
+        initListener: function() {
+          // chartView.hideParent($.fn.zTree.getZTreeObj("treeDemo"))
+          chartView.changeIcon($.fn.zTree.getZTreeObj("treeDemo"))
+          chartView.changeChart()
+          chartManager.clearChart(chartManager.get('showVchart'))
+          chartManager.clearChart(chartManager.get('tem'))
+          $('#begin_search_date').change(function(){
+            // chartNodes.clearTag();
+            console.log('clear1');
+          });
+          $('#end_search_date').change(function(){
+            // chartNodes.clearTag();
+            console.log('clear2');
+          });
+          $("#search_btn").unbind().click(function(event) {
+            // chartNodes.clearTag();
+            // chartManager.handleSearch(chartManager.get('showVchart'), 0, 'v_data_list')
+            chartManager.handleClickSearch(chartManager.get('tem'), 't_data_list', timeModel.getName(), timeModel.getId()) // 利用时间对象获取已经点击的树节点的id，不好
+          });
+          $('#dataBar').click(function(event) {
+            var target = event.target;
+            if((target.id == 'showVExcal')||(target.id == 'showCExcal')||(target.id == 'showPExcal')||(target.id == 'showTExcal')) {
+              switch(target.id) {
+                case 'showVExcal':
+                  if(!$('#showVchart').closest('li').hasClass('active')) {
+                    $('#showVchart').click();
+                  }
+                  break;
+                case 'showCExcal':
+                  if(!$('#showCchart').closest('li').hasClass('active')) {
+                    $('#showCchart').click();
+                  }
+                  break;
+                case 'showPExcal':
+                if(!$('#showPchart').closest('li').hasClass('active')) {
+                  $('#showPchart').click();
+                }
+                break;
+                case 'showTExcal':
+                if(!$('#showTchart').closest('li').hasClass('active')) {
+                  $('#showTchart').click();
+                }
+                break;
+              }
+            }
+          });
+          $('#lineBar').click(function(event) {
+            var target = event.target;
+            if((target.id == 'showVchart')||(target.id == 'showCchart')||(target.id == 'showPchart')||(target.id == 'showTchart')) {
+              console.log('echart')
+              // chartNodes.clearTag();
+              if(target.id != 'showTchart') {
+            	  chartManager.setActive(chartManager.get(target.id));
+              }
+              switch(target.id) {
+                case 'showVchart':
+                  console.log('showVchart');
+                  chartManager.handleSearch(chartManager.get(target.id), 0, 'v_data_list');
+                  timeModel.setActive(chartManager.get(target.id), 0, 'v_data_list')
+                  var vid = target.id;
+                  $("#search_btn").unbind().click(function(event) {
+                    // chartNodes.clearTag();
+                    chartManager.handleSearch(chartManager.get(vid), 0, 'v_data_list')
+                  })
+                  break;
+                case 'showCchart':
+                  console.log('showCchart')
+                  chartManager.handleSearch(chartManager.get(target.id), 1, 'c_data_list');
+                  timeModel.setActive(chartManager.get(target.id), 1, 'c_data_list')
+                  var cid = target.id;
+                  $("#search_btn").unbind().click(function(event) {
+                    // chartNodes.clearTag();
+                    chartManager.handleSearch(chartManager.get(cid), 1, 'c_data_list')
+                  })
+                  break;
+                case 'showPchart':
+                  console.log('showPchart')
+                  chartManager.handleSearch(chartManager.get(target.id), 2, 'p_data_list');
+                  timeModel.setActive(chartManager.get(target.id), 2, 'p_data_list')
+                  var pid = target.id;
+                  $("#search_btn").unbind().click(function(event) {
+                    // chartNodes.clearTag();
+                    chartManager.handleSearch(chartManager.get(pid), 2, 'p_data_list')
+                  })
+                  break;
+                case 'showTchart':
+                  console.log('showTchart')
+                  var pid = target.id;
+                  $("#search_btn").unbind().click(function(event) {
+                    // chartNodes.clearTag();
+                    // chartManager.handleTemSearch(chartManager.get('tem'), 't_data_list')
+                    chartManager.handleClickSearch(chartManager.get('tem'), 't_data_list', timeModel.getName(), timeModel.getId()) // 利用时间对象获取已经点击的树节点的id，不好
+                  })
+                  break;
+              }
+            }
+          });
+        }
+      };
+    }();
+    /**
+     * [chartNodes 用来装已选节点的数组]
+     * @return {[type]} [description]
+     */
+    var chartNodes = function() {
+      var checkNodes = [];
+      var temNodes = [];
+      return {
+  	  	moveLegend: function(op) {
+          op.legend.orient = 'vertical';
+          op.legend.x = 'right';
+          op.legend.y = '25';
+        },
+        showTitle: function(op, text) {
+        	op.title = {
+           		text: text,
+           		x: 'center',
+           		backgroundColor: '#b2cde5',
+           		borderColor: '#2b7ec6',
+           		borderWidth: 4,
+           		padding: 13,
+           		textStyle: {
+           			color: '#2b7ec6',
+           			fontSize: 25
+           		}
+           	}
+        },
+        get: function() {
+          return checkNodes;
+        },
+        getTem: function() {
+          return temNodes;
+        },
+        addTem: function(node) {
+          temNodes.push({
+            node: node,
+            tag: 0
+          })
+        },
+        delTem: function(node) {
+          for(var i = 0; i < temNodes.length; i++) {
+            if(node.id == temNodes[i].node.id) {
+              temNodes.splice(i, 1);
+              break;
+            }
+          }
+        },
+        addCheck: function(node) {
+          checkNodes.push({
+            node: node,
+            tag: 0
+          });
+        },
+        delCheck: function(node) {
+          for(var i = 0; i < checkNodes.length; i++) {
+            if(node.id == checkNodes[i].node.id) {
+              checkNodes.splice(i, 1);
+              break;
+            }
+          }
+        },
+        setCheck: function (arr) {
+        	checkNodes = arr
+        },
+        noCheck: function(treeObj, nodes) {
+        	nodes.forEach(function(node) {
+        		if(node.type != 80) {
+        			treeObj.checkNode(node, false, false, false)	
+        		}
+        	})
+        },
+        setTem: function (arr) {
+        	temNodes = arr
+        },
+        noCheckTem: function(treeObj, nodes) {
+        	nodes.forEach(function(node) {
+        		if(node.type == 80 || node.type == 100) {
+        			treeObj.checkNode(node, false, false, false)	
+        		}
+        	})
+        },
+        clearTag: function() {
+              if(checkNodes.length != 0) {
+                  console.log('clear')
+                  for(var i = 0; i<checkNodes.length; i++) {
+                    checkNodes[i].tag = 0;
+                  }
+              }
+          },
+        clearArr: function() {
+          checkNodes.splice(0);
+        },
+        getList: function(isTem) {
+        	var arr = [];
+        	var arr2 = [];
+        	if(isTem) {
+        		for(var i = 0; i < temNodes.length; i++) {
+        			arr.push(temNodes[i].node.id)
+        		}
+        		return {
+        			tagList: arr.join(',='),
+        			id: temNodes[0].node.getParentNode().id,
+        		}
+        	} else {
+        		for(var i = 0; i < checkNodes.length; i++) {
+        			arr.push(checkNodes[i].node.id)
+        			arr2.push(checkNodes[i].node.type)
+        		}
+        		return {
+        			idList: arr.join(',='),
+        			typeList: arr2.join(',=')
+        		}
+        	}
+        }
+      };
+    }();
+  /**
+   * [chartManager 管理表格的行为]
+   * @return {[type]} [瞎分的...]
+   */
+    var chartManager = function() {
+      var voltageChart = echarts.init(document.getElementById('VoltageChart'));
+      var currentChart = echarts.init(document.getElementById('current'));
+      var powerChart = echarts.init(document.getElementById('power'));
+      var temperature = echarts.init(document.getElementById('temperature'));
+      var activeTab = temperature;
+      // var LastNode = undefined;
+      return {
+        /**
+         * [get 从外部获得闭包保存的私密表格]
+         * @param  {[type]} chart [目标]
+         * @return {[type]}       []
+         */
+        get: function(chart) {
+          switch(chart) {
+            case 'showVchart': return voltageChart;
+            case 'showCchart': return currentChart;
+            case 'showPchart': return powerChart;
+            case 'tem': return temperature;
+          }
+        },
+        getActive: function() {
+          return activeTab;
+        },
+        setActive: function(newTab) {
+          activeTab = newTab;
+        },
+        /**
+         * [clearChart 可以理解为清空表格]
+         * @param  {[type]} chart [目标表格]
+         * @return {[type]}       [description]
+         */
+        clearChart: function(chart) {
+          chart.setOption({
+                "title": {
+                    "text": ""
+                },
+                "tooltip": {
+                    "trigger": "axis"
+                },
+                "legend": {
+                    "data": []
+                },
+                "toolbox": {
+                    "feature": {
+                        "saveAsImage": {}
+                    }
+                },
+                "grid": {
+                    "buttom": "",
+                    "left": "",
+                    "containLabel": true,
+                    "right": ""
+                },
+                "xAxis": [{
+                    "type": "category",
+                    "boundaryGap": false,
+                    "data": []
+                }],
+                "yAxis": [{
+                    "type": "value"
+                }],
+                "series":[]
+            }, true);
+        },
+        /* changeName: function(name, param) {
+          console.log('changename: ', param);
+          if(Object.prototype.toString.call(param) == '[object Array]') {
+            for(var i = 0; i<param.length; i++) {
+              param[i].name = name + '的' + param[i].name;
+            }
+            return param;
+          }
+          else {
+            for(var i = 0; i<param.data.length; i++) {
+              param.data[i] = name + '的' + param.data[i];
+            }
+            return param;
+          }
+        }, */
+        /**
+         * [removeOption 消除图中的折线]
+         * @param  {[type]} name  [树节点的名字]
+         * @param  {[type]} chart [目标表格]
+         * @return {[type]}       []
+         */
+        // removeOption: function(node, chart, tablename, num) {
+        //   var name = node.name;
+        //   var oldSer = chart.getOption().series;
+        //   var oldLen = chart.getOption().legend[0];
+        //   var newOp = chart.getOption();
+        //   var sFlag = '';
+        //   var lFlag = '';
+        //   if(oldSer[0]) {
+        //     for(var i = 0; i<oldSer.length; i++) {
+        //       if(oldSer[i].name.indexOf(name) != -1) {
+        //         sFlag = i;
+        //         break;
+        //       }
+        //     }
+        //   }
+        //   if(oldLen.data[0]) {
+        //     for(var j = 0; j<oldLen.data.length; j++) {
+        //       if(oldLen.data[j].indexOf(name) != -1) {
+        //         lFlag = j;
+        //         break;
+        //       }
+        //     }
+        //   }
+        //   if(sFlag) {
+        //     // oldSer.splice(sFlag,3);
+        //     oldSer.splice(sFlag,num);
+        //     newOp.series = oldSer;
+        //   }
+        //   if(lFlag) {
+        //     // oldLen.data.splice(lFlag,3);
+        //     oldLen.data.splice(lFlag,num);
+        //     newOp.legend = oldLen;
+        //   }
+        //   if(sFlag === 0 && lFlag === 0) {
+        //     // oldSer.splice(sFlag,3);
+        //     // oldLen.data.splice(lFlag,3);
+        //     oldSer.splice(sFlag,num);
+        //     oldLen.data.splice(lFlag,num);
+        //     newOp.series = oldSer;
+        //     newOp.legend = oldLen;
+        //   }
+        //   chart.setOption(newOp, true);
+        //   if(tablename == 't_data_list') {
+        // 	  /* console.log('_____清空温度') */
+        // 	  chartManager.show_table(tablename, chartManager.createTable(chart, true), true);
+        //   }
+        //   else {
+        // 	  /* console.log('_____清空电压 ') */
+        // 	  chartManager.show_table(tablename, chartManager.createTable(chart, false), false);
+        //   }
+        // },
+        /**
+         * [handleSearch 高压低压和管控设备的搜索]
+         * @param  {[type]} chart [目标表格]
+         * @param  {[type]} cov   [...见下一个函数]
+         * @return {[type]}       []
+         */
+        handleSearch: function(chart, cov, tablename) {
+          console.log('startSearch');
+          console.log(chart);
+          var begin_time = $('#begin_search_date').val();
+          var end_time = $('#end_search_date').val();
+          var nodeId = [];
+          var nodeType = [];
+          var checkNodes = chartNodes.get();
+          var data = chartNodes.getList(false);
+          
+          if(begin_time && end_time) {
+            if(data.idList.length != 0) {
+              nodeId = data.idList
+              nodeType = data.typeList
+              chartView.showLoading(chart);
+              $.ajax({
+                url: '/dongjun/select_chart_by_switch_id',
+                // url: 'http://127.0.0.1:8080/templates/manager/loadChart',
+                type: 'GET',
+                data: {
+                  switchId: nodeId,	
+                  type: nodeType,
+                  beginDate: begin_time,
+                  endDate: end_time,
+                  cov: cov
+                  // id: nodeId
+                },
+                success: function(res) {
+                  chartView.hideLoading(chart);
+                  if(res) {
+                	  chartNodes.moveLegend(res);
+                	  chart.setOption(res, true);
+                      chartManager.show_table(tablename, chartManager.createTable(chart, false), false);
+                  } else {
+                	  chartManager.clearChart(chart);
+                	  confirm('没有数据哦');
+                  }
+                }
+              })
+            }
+            else {
+              chartManager.clearChart(chart);
+            }
+          } else {
+            alert('请选择时间来查询表格');
+          }
+        },
+        /**
+         * [handleTemSearch 温度设备的信息搜索]
+         * @param  {[type]} chart [目标表格]
+         * @param  {[type]} cov   [传给后台的辨别表格种类的东西]
+         * @return {[type]}       [description]
+         */
+        handleTemSearch: function(chart, tablename) {
+          console.log('startTemSearch');
+          console.log(chart);
+          var begin_time = $('#begin_search_date').val();
+          var end_time = $('#end_search_date').val();
+          var data = chartNodes.getList(true);
+          var taglist = data.tagList;
+          var id = data.id;
+          
+          if(begin_time && end_time) {
+            if(taglist.length != 0) {
+              chartView.showLoading(chart);
+              $.ajax({
+                url: '/dongjun/select_chart_by_device_id',
+                type: 'GET',
+                data: {
+                  id: id,
+                  tagList: taglist,
+                  beginDate: begin_time,
+                  endDate: end_time,
+                },
+                success: function(res) {
+                  chartView.hideLoading(chart);
+                  if(res) {
+                	  chartNodes.moveLegend(res);
+                	  chart.setOption(res, true);
+                      chartManager.show_table(tablename, chartManager.createTable(chart, true), true);
+                  }
+                  else {
+                	  chartManager.clearChart(chart);
+                	  alert('没有数据哦');
+                  }
+                }
+              })
+            }
+            else {
+              chartManager.clearChart(chart);
+            }
+          }
+          else {
+        	  alert('请输入时间来查询表格');
+          }
+        },
+        createTable: function(chart, temperature) {
+          var op = chart.getOption();
+          if(op.series[0]) {
+            var arr = [];
+            if(temperature) {
+              for(var j = 0; j<op.series.length; j++) {
+                for(var i = 0; i<op.xAxis[0].data.length; i++) {
+                  arr.push({
+                    "name": op.legend[0].data[j],
+                    "time": op.xAxis[0].data[i],
+                    "temperatrue": op.series[0+j].data[i]
+                  });
+                }
+              }
+            }
+            else {
+              for(var j = 0; j<((op.series.length)/3); j++) { // j要除以3
+                for(var i = 0; i<op.xAxis[0].data.length; i++) {
+                  arr.push({
+                    "name": op.legend[0].data[j*3].split('A')[0], // j要乘以3
+                    "time": op.xAxis[0].data[i],
+                    "aValue": op.series[0+j*3].data[i], // j要乘以3
+                    "bValue": op.series[1+j*3].data[i],
+                    "cValue": op.series[2+j*3].data[i]
+                  });
+                }
+              }
+            }
+            return arr;
+          }
+          else {
+            return false
+          }
+        },
+        show_table: function(tablename, data, temperature) {
+          if(data) {
+            if(temperature) {
+              $('#' + tablename).DataTable( {
+                "destroy": true,// destroy之后才能重新加载
+                "ordering": false,
+                "info":     false,
+                "columns" : [{
+                  "data" : "name"
+                }, {
+                  "data" : "time"
+                }, {
+                  "data" : "temperatrue"
+                }],
+                "data": data
+              });
+            }
+            else {
+              $('#' + tablename).DataTable( {
+                "destroy": true,// destroy之后才能重新加载
+                "ordering": false,
+                "info":     false,
+                "columns" : [{
+                  "data" : "name"
+                }, {
+                  "data" : "time"
+                }, {
+                  "data" : "aValue"
+                }, {
+                  "data" : "bValue"
+                }, {
+                  "data" : "cValue"
+                }],
+                "data": data
+              });
+            }
+          }
+          else {
+            if(temperature) {
+              $('#' + tablename).DataTable( {
+                "destroy": true,// destroy之后才能重新加载
+                "ordering": false,
+                "info":     false,
+                "columns" : [{
+                  "data" : "name"
+                }, {
+                  "data" : "time"
+                }, {
+                  "data" : "temperatrue"
+                }],
+                "data": []
+              });
+            }
+            else {
+              $('#' + tablename).DataTable( {
+                "destroy": true,// destroy之后才能重新加载
+                "ordering": false,
+                "info":     false,
+                "columns" : [{
+                  "data" : "name"
+                }, {
+                  "data" : "time"
+                }, {
+                  "data" : "aValue"
+                }, {
+                  "data" : "bValue"
+                }, {
+                  "data" : "cValue"
+                }],
+                "data": []
+              });
+            }
+          }
+        },
+        /**
+         * [initail_datetimepicker 初始化时间表单]
+         * @return {[type]} []
+         */
+        initail_datetimepicker: function() {
+          var timer = new Date();
+          $('.form_date').datetimepicker({
+            language : 'zh-CN',
+            weekStart : 1,
+            todayBtn : 1,
+            autoclose : true,
+            todayHighlight : 1,
+            startView : 2,
+            minView : 0,
+            forceParse : 0,
+            format: "yyyy-mm-dd hh:ii",
+            minuteStep: 5
+          });
+          var year = timer.getFullYear();
+          var month = timer.getMonth() + 1;
+          var lastMonth = timer.getMonth();
+          var today = timer.getDate();
+          var yesterday = today - 1;
+          yesterday = yesterday.toString();
+          var hour = timer.getHours();
+          hour = hour>=10 ? hour : '0'+hour;
+          var minute = timer.getMinutes();
+          minute = minute >= 10 ? minute : '0'+minute
+          if(Number(hour) > 12) {
+            var lastHour = Number(hour) - 12
+            lastHour = lastHour>=10 ? lastHour : '0'+lastHour;
+            $('#begin_search_date').val(year + '-' + month + '-' + today + ' ' + lastHour + ':' + minute);
+            $('#end_search_date').val(year + '-' + month + '-' + today + ' ' + hour + ':' + minute);
+          } else {
+            if(yesterday == 9) {
+              yesterday = '0' + yesterday;
+              lastMonth = lastMonth + 1;
+            }
+            else if((yesterday>0)&&(yesterday<9)) {
+              today = '0' + today;
+              yesterday = '0' + yesterday;
+              lastMonth = lastMonth + 1;
+            }
+            else if(today == 1) {
+              switch(month) {
+                case 1:
+                case 2:
+                case 4:
+                case 6:
+                case 8:
+                case 9:
+                case 11: yesterday = '31';break;
+                case 5:
+                case 7:
+                case 10:
+                case 12: yesterday = '30';break;
+                case 3: yesterday = '28';break;
+              }
+              today = '0' + today;
+            }
+            else {
+              lastMonth = lastMonth + 1;
+            }
+            var lastHour = 24 - 12 + Number(hour)
+            lastHour = lastHour>=10 ? lastHour : '0'+lastHour;
+            $('#begin_search_date').val(year + '-' + lastMonth + '-' + yesterday + ' ' + lastHour + ':' + minute);
+            $('#end_search_date').val(year + '-' + month + '-' + today + ' ' + hour + ':' + minute);
+          }
+          
+          timer = null;
+        },
+  //       handleAll: function(treeNode, isCheck) {
+		// 	var allNodes = treeNode.getParentNode().children;
+		// 	chartNodes.setTem([])
+		// 	if(isCheck) {
+		// 		for(var i = 1; i < allNodes.length; i++) {
+		// 			chartNodes.addTem(allNodes[i])
+		// 		}
+		// 	}
+		// },
+		// handleCheck: function(event, treeId, treeNode) {
+		// 	var cov = 0;
+		// 	var tablename = '';
+  //     var tab = chartManager.getActive()
+		// 	switch(tab._dom.id) {
+		// 		case 'VoltageChart': cov = 1; tablename = 'v_data_list'; break;
+		// 		case 'current': cov = 0; tablename = 'c_data_list'; break;
+		// 		case 'power': cov = 2; tablename = 'p_data_list'; break;
+		// 	}
+		// 	if(treeNode.checked) {
+		// 		if(treeNode.type == 80) {
+		// 			// chartNodes.addcheck(treeNode);
+		// 			chartNodes.addTem(treeNode);
+		// 			chartManager.handleTemSearch(chartManager.get('tem'), 't_data_list');
+		// 		} else if(treeNode.type == 100 && treeNode.tag == 'all') {
+		// 			chartManager.handleAll(treeNode, true)
+		// 			chartManager.handleTemSearch(chartManager.get('tem'), 't_data_list');
+		// 		} else {
+		// 			chartNodes.addCheck(treeNode);
+		// 			chartManager.handleSearch(tab, cov, tablename);
+		// 		}
+		// 	}
+		// 	else {
+		// 		if(treeNode.type == 80) {
+		// 			chartNodes.delTem(treeNode);
+		// 			chartManager.removeOption(treeNode, chartManager.get('tem'), 't_data_list', 1);
+		// 		} else if(treeNode.type == 100 && treeNode.tag == 'all') {
+		// 			chartManager.handleAll(treeNode, false)
+		// 			chartManager.handleTemSearch(chartManager.get('tem'), 't_data_list');
+		// 		} else {
+		// 			chartNodes.delCheck(treeNode);
+		// 			chartManager.removeOption(treeNode, tab, tablename, 3);	
+		// 		}
+		// 	}
+		// },
+		// handleBeforeCheck: function(treeId, treeNode) {
+		// 	var eleNodes = chartNodes.get();
+		// 	var temNodes = chartNodes.getTem();
+		// 	if(!treeNode.checked) {
+		// 		var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+		// 		var nodes = zTree.getCheckedNodes(true)
+		// 		if(treeNode.type == 80) {
+		// 			for(var i = 0; i < nodes.length; i++) {
+		// 				if(nodes[i].type == 100) {
+		// 					chartNodes.noCheckTem(zTree, [nodes[i]])
+		// 					chartNodes.setTem([])
+		// 				}
+		// 			}
+		// 			if((temNodes.length == 0) && (timeModel.getTem() != 1)) {
+		// 				timeModel.startTem();
+		// 				timeModel.setTem(1);
+		// 			}
+		// 		} else if(treeNode.type == 100) {
+		// 			// 取消别的节点的勾选
+		// 			chartNodes.noCheckTem(zTree, nodes)
+		// 			if(timeModel.getTem() != 1) {
+		// 				timeModel.startTem();
+		// 				timeModel.setTem(1);
+		// 			}
+		// 		} else {
+		// 			if((eleNodes.length == 0) && (timeModel.getEle() != 1)) {
+		// 				timeModel.startElec();
+		// 				timeModel.setEle(1);
+		// 			}
+		// 		}
+		// 	}
+		// 	else {
+		// 		// 取消的情况
+		// 		if(treeNode.type == 80) {
+		// 			if(temNodes.length == 1) {
+		// 				timeModel.clearTemTimer();
+		// 				timeModel.setTem(0);
+		// 			}
+		// 		} else if(treeNode.type == 100) {
+		// 			timeModel.clearTemTimer();
+		// 			timeModel.setTem(0);
+		// 		} else {
+		// 			if(eleNodes.length == 1) {
+		// 				timeModel.clearElecTimer();
+		// 				timeModel.setEle(0);
+		// 			}
+		// 		}
+		// 	}
+		// },
+    handleClick: function(event, treeId, treeNode) {
+      /* var cov = 0;
+      var tablename = '';
+      var tab = chartManager.getActive()
+      switch(tab._dom.id) {
+        case 'VoltageChart': cov = 1; tablename = 'v_data_list'; break;
+        case 'current': cov = 0; tablename = 'c_data_list'; break;
+        case 'power': cov = 2; tablename = 'p_data_list'; break;
+      } */
+      if(timeModel.getTem() != 1) {
+        timeModel.startTem();
+        timeModel.setTem(1);
+      }
+      var begin_time = $('#begin_search_date').val()
+      var end_time = $('#end_search_date').val()
+      timeModel.setData({
+    	  bgtime: begin_time,
+  		  endtime: end_time,
+  		  id: treeNode.id,
+  		  name: treeNode.name
+      })
+      this.handleClickSearch(chartManager.get('tem'), 't_data_list', treeNode.name, treeNode.id, begin_time, end_time)
+    },
+    handleClickSearch: function(chart, tablename, name, id, bgtime, endtime) {
+	  if(!(bgtime && endtime)) {
+		  bgtime = $('#begin_search_date').val()
+		  endtime = $('#end_search_date').val()
+	  }
+      if(id) {
+        chartView.showLoading(chart);
+        $.ajax({
+          url: '/dongjun/select_chart_by_device_id',
+          type: 'GET',
+          data: {
+        	monitorId: id,
+            beginDate: bgtime,
+            endDate: endtime
+          },
+          success: function(res) {
+            chartView.hideLoading(chart);
+            if(res) {
+            	chartNodes.showTitle(res, name)	
+            	chartNodes.moveLegend(res)
+            	chart.setOption(res, true)
+            	chartManager.show_table(tablename, chartManager.createTable(chart, true), true);
+            } else {
+              alert('没有数据')
+            }
+          }
+        })
+      } else {
+        alert('请选择设备树的节点')
+      }
+      
+    }
+    // TODO
+
+      };
+    }();
+    
+    var timeModel = function() {
+    	var elecFlag = 0;
+    	var temFlag = 0;
+    	var tab = chartManager.get('showVchart');
+    	var tablename = 'v_data_list';
+    	var cov = 1;
+    	var elecTimer = null;
+    	var temTimer = null;
+    	var interval = 60000;
+    	// 在这里保存一个树节点的id，做得不好
+    	var id = ''
+    	var bgtime = ''
+    	var endtime = ''
+    	var name = ''
+    	
+    	function plusMin(time) {
+    		var bgs = time.split(':')
+			var min = bgs[0].split(' ')
+			var Submin = Number(min[1]) + 1
+			min[1] = Submin
+			bgs = min.join(' ')
+			var updateTime = time.split(':')
+			updateTime[0] = bgs
+			updateTime[1] = '00'
+			return updateTime.join(':')
+    	}
+    	function plus(time, min) {
+    		var sub = time.split(':')
+    		sub[1] = min
+    		return sub.join(':')
+    	}
+    	
+    	return {
+    		setData: function(option) {
+    			bgtime = option.bgtime
+    			endtime = option.endtime
+    			id = option.id
+    			name = option.name
+    		},
+    		getId: function() {
+    			if(id) {
+    				return id	
+    			}
+    		},
+    		getName: function() {
+    			if(name) {
+    				return name
+    			}
+    		},
+    		// 临时做的兼容...
+    		configureTime: function(begin, end) {
+    			var bg = Number(bgtime.split(':')[1])
+    			var end = Number(endtime.split(':')[1])
+    			if(bg == 59) {
+    				// 将前面的时间进行一个59分到00分的过渡
+    				bgtime = plusMin(bgtime)
+    				// 后面的时间正常+1
+    				endtime = plus(endtime, ++end)
+    			} else if(end == 59) {
+    				// 将后面的时间进行一个59分到00分的过渡
+    				endtime = plusMin(endtime)
+    				// 前面的时间正常+1
+    				bgtime = plus(bgtime, ++bg)
+    			} else {
+    				bgtime = plus(bgtime, ++bg)
+    				endtime = plus(endtime, ++end)
+    			}
+    			if(begin && end) {
+    				$(begin).val(bgtime)
+    				$(end).val(endtime)
+    			}
+    		},
+    		getEle: function() {
+    			return elecFlag;
+    		},
+    		getTem: function() {
+    			return temFlag;
+    		},
+    		setEle: function(num) {
+    			elecFlag = num;
+    		},
+    		setTem: function(num) {
+    			temFlag = num;
+    		},
+    		clearElecTimer: function() {
+    			clearInterval(elecTimer);
+    		},
+    		clearTemTimer: function() {
+    			clearInterval(temTimer);
+    		},
+    		setActive: function(Atab, Acov, Atablename) {
+    			tab = Atab;
+    			cov = Acov;
+    			tablename = Atablename;
+    		},
+    		startElec: function() {
+    			elecTimer = setInterval(function(){
+    				chartManager.handleSearch(tab, cov, tablename);
+          chartManager.initail_datetimepicker()
+    			}, interval);
+    		},
+    		startTem: function() {
+    			temTimer = setInterval(function(){
+    				timeModel.configureTime($('#begin_search_date'), $('#end_search_date'))
+    				chartManager.handleClickSearch(chartManager.get('tem'), 't_data_list', name, id);
+    			}, interval);
+    		}
+    	};
+    }();
+
+    chart.chartView = chartView;
+    chart.chartManager = chartManager;
+    chart.chartController = chartController;
+    chart.chartNodes = chartNodes;
+    chartManager.initail_datetimepicker();
+  }());
+</script>

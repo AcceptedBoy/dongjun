@@ -1,13 +1,19 @@
 package com.gdut.dongjun.service.webservice.server;
 
+import java.util.List;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+import org.springframework.web.bind.annotation.RequestParam;
+
 import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.domain.HighVoltageStatus;
 import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
-import java.rmi.RemoteException;
-import java.util.List;
 
 /**
  *
@@ -18,20 +24,15 @@ public interface HardwareService {
 	/**
 	 * 产生开闸报文并且发送开闸预置
 	 */
-	@POST
-	@Path("/generate_open_msg")
-	@Consumes({MediaType.APPLICATION_JSON})
-	public String generateOpenSwitchMessage(@FormParam("address") String address,
-											@FormParam("type") Integer type);
-	
-	/**
-	 * 产生合闸报文并发送合闸预置报文
+	/*
+	 * 多参数传递、格式为json情况下，不能同时使用{@code @Consumes}和{@code @FormParam}，{@code @FormParam}已经能完成格式转换。
+	 * <a> http://stackoverflow.com/questions/9623616/cxf-jaxrs-how-to-post-more-than-one-parameter
 	 */
-	@POST
-	@Path("/generate_close_msg")
-	@Consumes({MediaType.APPLICATION_JSON})
-	public String generateCloseSwitchMessage(@FormParam("address") String address,
-											 @FormParam("type") Integer type);
+//	@POST
+//	@Path("/generate_open_msg")
+////	@Consumes({MediaType.APPLICATION_JSON})
+//	public String generateOpenSwitchMessage(@FormParam("address") String address,
+//											@FormParam("type") Integer type);
 	
 	/**
 	 * 通过开关id来获取在线开关的地址
@@ -57,37 +58,13 @@ public interface HardwareService {
 	@Consumes({MediaType.APPLICATION_JSON})
 	public SwitchGPRS getSwitchGPRS(String id);
 	
-	/**
-	 * 通过开关id来获取在线开关的高压状态
-	 */
 	@POST
-	@Path("/status_by_id")
+	@Path("/change_temperature_device")
 	@Consumes({MediaType.APPLICATION_JSON})
-	public HighVoltageStatus getStatusbyId(String id);
+	public void changeTemperatureDevice(String id);
 	
-	/**
-	 * 通过开关id来改变开关的状态
-	 */
 	@POST
-	@Path("/change_ctx_open")
+	@Path("/gprs_module_status")
 	@Consumes({MediaType.APPLICATION_JSON})
-	public boolean changeCtxOpen(String switchId);
-	
-	/**
-	 * 获取所有在线开关的详细状态
-	 */
-	@POST
-	@Path("/active_switch_status")
-	@Consumes({MediaType.APPLICATION_JSON})
-	public List<ActiveHighSwitch> getActiveSwitchStatus();
-	
-	/**
-	 * 这个方法只有在等于true的时候软件客户端才会去发请求向这边请求获取所有在线开关的详细
-	 * @see {@link #getActiveSwitchStatus()}
-	 */
-	@Deprecated
-	@POST
-	@Path("/whether_change")
-	@Consumes({MediaType.APPLICATION_JSON})
-	public boolean whetherChangeInfo();
+	public List<Integer> getGPRSModuleStatus(List<String> ids);
 }

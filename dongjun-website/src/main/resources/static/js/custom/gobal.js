@@ -18,7 +18,7 @@ $.ajax({
 	url: '/dongjun/module/get_user_module',
 	method: 'GET'
 }).success(function(data) {
-	if(data.text.length != 0) {
+	/*if(data.text.length != 0) {
 		var item = data.text[0].items
 		$('#menu').append('<li class="nav-header">权限管理</li>')
 		item.forEach(function(item) {
@@ -30,5 +30,5 @@ $.ajax({
 			}
 			$('#menu').append(tag)
 		})
-	}
+	}*/
 })

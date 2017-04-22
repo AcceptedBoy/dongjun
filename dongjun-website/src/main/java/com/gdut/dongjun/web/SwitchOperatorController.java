@@ -82,7 +82,7 @@ public class SwitchOperatorController {
 		map.put("high_voltage_switch_id", switchId);
 		switch(protocol) {
 			case 1:
-				if(highSwitchOperatorService.deleteByParameters(MyBatisMapUtil.warp(map))) {
+				if(highSwitchOperatorService.deleteByParameters(MyBatisMapUtil.warp(map))!=0) {
 					return JsonUtil.SUCCESS;
 				}
 				break;

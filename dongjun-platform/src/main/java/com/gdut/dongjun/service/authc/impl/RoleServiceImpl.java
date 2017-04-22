@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import com.gdut.dongjun.domain.dao.authc.RoleMapper;
 import com.gdut.dongjun.domain.po.authc.Role;
 import com.gdut.dongjun.service.authc.RoleService;
-import com.gdut.dongjun.service.base.impl.BaseServiceImpl;
+import com.gdut.dongjun.service.base.impl.EnhancedServiceImpl;
 
 /**
  * @author Sherlock-lee
@@ -18,7 +18,7 @@ import com.gdut.dongjun.service.base.impl.BaseServiceImpl;
  * @since 1.0
  */
 @Service
-public class RoleServiceImpl extends BaseServiceImpl<Role> implements
+public class RoleServiceImpl extends EnhancedServiceImpl<Role> implements
 		RoleService {
 
 	@Resource
@@ -32,6 +32,7 @@ public class RoleServiceImpl extends BaseServiceImpl<Role> implements
 
 	@Override
 	protected boolean isExist(Role record) {
+		//TODO
 		return true;
 	}
 

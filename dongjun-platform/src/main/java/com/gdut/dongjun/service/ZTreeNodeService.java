@@ -15,12 +15,15 @@ import java.util.List;
 public interface ZTreeNodeService {
 
 	/**
-	 *
-	 * @param company_id 公司id
-	 * @param type 开关类型
+	 * 超管返回设备树
 	 * @return
 	 */
-	public List<ZTreeNode> getSwitchTree(String company_id, String type);
-
-	public List<ZTreeNode> groupTree(String companyId, Integer deviceType);
+	public List<ZTreeNode> getSwitchTree();
+	
+	/**
+	 * 返回用户设备树
+	 * @param companyId
+	 * @return
+	 */
+	public List<ZTreeNode> getSwitchTree(String userId);
 }
