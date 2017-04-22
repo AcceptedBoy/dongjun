@@ -23,7 +23,9 @@
 			<div class="cursor-notice-borad-right">返回所有设备</div>
 		</div>
 		<div id="addEquip" class="notice-container hide" style="float:right;cursor: pointer;">
-			<div class="cursor-notice"><a href="#add_equip_modal" data-toggle="modal" style="color: #505050">+</a></div>
+			<div class="cursor-notice">
+				<a href="#add_equip_modal" data-toggle="modal" style="color: #505050" onclick="modal.setEquips()">+</a>
+			</div>
 			<div class="cursor-notice-borad-left">添加设备</div>
 		</div>
 	</h3>
@@ -50,6 +52,9 @@
 			}
 			var status = {
 				isAll: true
+			}
+			var store = {
+				deviceGroupId: 'all'
 			}
 			return {
 				getTable: function(){
@@ -91,11 +96,12 @@
 							}
 						],
 						initComplete: function(setting, json) {
-							modal.setEquips(json)
+							// modal.setEquips(json)
 							$(this[0]).click(function(event) {
 								var target = $(event.target)
 								var fnc = target.data('fnc')
 								if(fnc == 'del_equip') {
+									modal.setId('groupId', store.deviceGroupId)
 									modal.target(target.data('id'), 'equip')
 								}
 							})
@@ -109,7 +115,7 @@
 								next: '下一页',
 								previous: '上一页'
 							},
-							emptyTable: '找不到相关数据',
+							emptyTable: '无相关数据',
 							zeroRecords: '找不到相关数据',
 							loadingRecords: '正在加载数据...'
 						},
@@ -117,7 +123,11 @@
 				},
 				redraw: function(id, name){
 					var header = $('#equip_list_header')
-					if(id == 'all'){
+					if(id) {
+						store.deviceGroupId = id
+					}
+					table.clear().draw()
+					if(store.deviceGroupId == 'all'){
 						header.find('#equip_list_title').text('所有设备')
 						header.find('#backToAll').hide(300)
 						header.find('#addEquip').hide(300)
@@ -131,7 +141,7 @@
 						header.find('#addEquip').show(300)
 						table.ajax.url(urls.group)
 						var param = {
-							groupId: id
+							groupId: store.deviceGroupId
 						}
 						table.settings()[0].ajax.data = param
 						table.ajax.reload()

@@ -22,12 +22,12 @@
 	</div>
 </div>
 
-<!-- move equip -->
+
 <div id="add_equip_modal" class="modal hide fade" tabindex="-1"
 	role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 	<div class="modal-header">
 		<button type="button" class="close" data-dismiss="modal"
-			aria-hidden="true" onclick="modal.resetEquipsList()">×</button>
+			aria-hidden="true">×</button>
 		<h3>选择设备</h3>
 	</div>
 	<div class="modal-body">
@@ -41,7 +41,7 @@
 		</table>
 	</div>
 	<div class="modal-footer">
-		<button class="btn" data-dismiss="modal" aria-hidden="true" onclick="modal.resetEquipsList()">取消</button>
+		<button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
 		<button id="edit_switch_confirm_btn" class="btn btn-primary" onclick="modal.addEquips()">确定</button>
 	</div>
 </div>
@@ -94,59 +94,73 @@
 					return now
 				}
 			},
+			setId: function(idType, id) {
+				now[idType] = id
+			},
 			setEquips: function(data) {
-				equipTable = $('#equip_add_list').DataTable({
-					searching: false,
-					lengthChange: false,
-					scrollCollapse: true,
-					pageLength: 5,
-					data: data.text,	// data.text 为表格数据
-					columns: [
-						// { data: 'deviceNumber' },
-						{ data: 'name' },
-						// {
-						// 	data: 'type',
-						// 	render: function(data){
-						// 		var typeArray = ['低压', '高压', '管控', '温度']
-						// 		return typeArray[data]
-						// 	}
-						// },
-						{
-							data: 'id',
-							orderable: false,
-							render: function(data, type, row) {
-								return '<input type="checkbox" class="add_equip_checkbox" data-fnc="add_equip" data-type="'+row.type+'" data-eid="'+data+'" />'
-							}
-						}
-					],
-					language: {
-						paginate: {
-							next: '下一页',
-							previous: '上一页'
+				if(!equipTable) {
+					equipTable = $('#equip_add_list').DataTable({
+						searching: false,
+						lengthChange: false,
+						scrollCollapse: true,
+						pageLength: 5,
+						ajax: {
+							url: '/dongjun/device_group/get_all_device',
+							type: 'POST',
+							dataSrc: 'text'		// data.text 为表格数据
 						},
-						emptyTable: '找不到相关数据',
-						zeroRecords: '找不到相关数据',
-						loadingRecords: '正在加载数据...'
-					},
-					initComplete: function() {
-						$(this[0]).click(function(event) {
-							var target = $(event.target)
-							var fnc = target.data('fnc')
-							if(fnc == 'add_equip') {
-								if(target[0].checked){
-									hasChoose[target.data('eid')] = target.data('type')
-								} else {
-									delete hasChoose[target.data('eid')]
+						// data: data.text,	// data.text 为表格数据 （重置时无法清空多选框，故改为ajax）
+						columns: [
+							// { data: 'deviceNumber' },
+							{ data: 'name' },
+							// {
+							// 	data: 'type',
+							// 	render: function(data){
+							// 		var typeArray = ['低压', '高压', '管控', '温度']
+							// 		return typeArray[data]
+							// 	}
+							// },
+							{
+								data: 'id',
+								orderable: false,
+								render: function(data, type, row) {
+									return '<input type="checkbox" class="add_equip_checkbox" data-fnc="add_equip" data-type="'+row.type+'" data-eid="'+data+'" />'
 								}
-								console.log(hasChoose)
 							}
-						})
-					}
-				})
+						],
+						language: {
+							paginate: {
+								next: '下一页',
+								previous: '上一页'
+							},
+							emptyTable: '找不到相关数据',
+							zeroRecords: '找不到相关数据',
+							loadingRecords: '正在加载数据...'
+						},
+						initComplete: function() {
+							$(this[0]).click(function(event) {
+								var target = $(event.target)
+								var fnc = target.data('fnc')
+								if(fnc == 'add_equip') {
+									if(target[0].checked){
+										hasChoose[target.data('eid')] = target.data('type')
+									} else {
+										delete hasChoose[target.data('eid')]
+									}
+									console.log(hasChoose)
+								}
+							})
+						}
+					})
+				} else {
+					this.resetEquipsList()
+				}
 			},
 			resetEquipsList: function() {
 				hasChoose = {}
-				$(equipTable.table().node()).find('.add_equip_checkbox').attr('checked', false)
+				// 只能清除当前页的多选框，故选择ajax请求
+				// $(equipTable.table().node()).find('.add_equip_checkbox').attr('checked', false)
+				equipTable.ajax.reload()
 			},
 			addEquips: function() {
 				if(this.isEmptyObj(hasChoose)){
@@ -202,9 +216,14 @@
 					url = urls.delGroup
 					data = { id: now.groupId }
 				} else {
+
 					url = urls.delEquip
-					data = { id: now.equipId }
+					data = {
+						id: now.equipId,
+						deviceGroupId: now.groupId
+					}
 				}
+				console.log(now)
 				$.ajax({
 					url: url,
 					type: 'POST',
