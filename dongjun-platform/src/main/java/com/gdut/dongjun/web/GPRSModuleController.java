@@ -36,6 +36,8 @@ public class GPRSModuleController {
 	@Autowired
 	private HardwareServiceClient hardwareServiceClient;
 
+	//6f1b9f044e1346f299af9cc0fe7e005d
+	//6f1b9f044e1346f299af9cc0fe7e005d
 	@ResponseBody
 	@RequestMapping("/edit")
 	public ResponseMessage edit(GPRSModule gprs) {
@@ -53,10 +55,10 @@ public class GPRSModuleController {
 				return ResponseMessage.success("操作成功");
 			}
 		} else {
-			GPRSModule module = gprsService.selectByPrimaryKey(gprs.getDeviceNumber());
+//			GPRSModule module = gprsService.selectByPrimaryKey(gprs.getDeviceNumber());
 			List<GPRSModule> modules = gprsService
 					.selectByParameters(MyBatisMapUtil.warp("device_number", gprs.getDeviceNumber()));
-			if (0 != modules.size()) {
+			if (0 != modules.size() && !modules.get(0).getId().equals(gprs.getId())) {
 				return ResponseMessage.warning("该设备地址已经被占用");
 			}
 			if (0 == gprsService.updateByPrimaryKeySelective(gprs)) {
