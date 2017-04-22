@@ -1,7 +1,9 @@
 package com.gdut.dongjun.web;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
@@ -18,7 +20,6 @@ import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.DataMonitor;
 import com.gdut.dongjun.domain.po.DeviceGroup;
 import com.gdut.dongjun.domain.po.DeviceGroupMapping;
-import com.gdut.dongjun.domain.po.PlatformGroup;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.service.DeviceGroupMappingService;
 import com.gdut.dongjun.service.DeviceGroupService;
@@ -48,9 +49,7 @@ public class DeviceGroupController {
 	@ResponseBody
 	public ResponseMessage addGroup(DeviceGroup dGroup, HttpSession session) {
 		User user = (User) session.getAttribute("currentUser");
-		PlatformGroup pg = ((List<PlatformGroup>) (pgService
-				.selectByParameters(MyBatisMapUtil.warp("company_id", user.getCompanyId())))).get(0);
-		dGroup.setPlatformGroupId(pg.getId());
+		dGroup.setPlatformGroupId(user.getCompanyId());	//实际上是PlatformGroup的id
 		if (null == dGroup.getId() || "".equals(dGroup.getId())) {
 			dGroup.setId(UUIDUtil.getUUID());
 		}
@@ -122,8 +121,15 @@ public class DeviceGroupController {
 	@RequiresPermissions("device_group_admin:delete")
 	@RequestMapping("/del_device")
 	@ResponseBody
-	public ResponseMessage delDevice(String id) {
-		if (deviceGroupMappingService.deleteByPrimaryKey(id)) {
+	public ResponseMessage delDevice(String id, String deviceGroupId) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("device_group_id", deviceGroupId);
+		map.put("device_id", id);
+		List<DeviceGroupMapping> list = deviceGroupMappingService.selectByParameters(MyBatisMapUtil.warp(map));
+		if (null == list || 1 != list.size()) {
+			return ResponseMessage.danger("操作失败"); 
+		}
+		if (deviceGroupMappingService.deleteByPrimaryKey(list.get(0).getId())) {
 			return ResponseMessage.success("操作成功");
 		}
 		return ResponseMessage.danger("操作失败");
@@ -138,7 +144,7 @@ public class DeviceGroupController {
 	@RequiresAuthentication
 	@RequestMapping("/get_device_by_device_group_id")
 	@ResponseBody
-	public ResponseMessage getDeviceByDeviceGroupId(int groupId) {
+	public ResponseMessage getDeviceByDeviceGroupId(String groupId) {
 		List<DeviceGroupMapping> mappingList = deviceGroupMappingService
 				.selectByParameters(MyBatisMapUtil.warp("device_group_id", groupId));
 		List<DataMonitor> devices = new LinkedList<DataMonitor>();
