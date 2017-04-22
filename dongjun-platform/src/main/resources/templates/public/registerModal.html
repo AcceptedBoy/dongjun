@@ -13,14 +13,14 @@
 				公司注册
 			</div>
 		</div>
-		<div class="bigBtn" onclick="registerObj.clearText($('#searchCompanyName'),  $('#registerName'), $('#realName'), $('#registerPassword'), $('#registerPasswordConfirm'), $('#controlCode'))" class="btn" data-toggle="modal" data-backdrop="static" data-target="#register_worker_modal">
+		<div class="bigBtn" onclick="registerObj.clearText($('#searchCompanyName'),  $('#registerName'), $('#realName'), $('#registerPassword'), $('#registerPasswordConfirm'), $('#controlCode'), $('#adress'), $('#personalEmail'), $('#phoneNumber'))" class="btn" data-toggle="modal" data-backdrop="static" data-target="#register_worker_modal">
 			<div class="center">
 				<i class="icon-user"></i>
 				用户注册
 			</div>
 		</div>
 	</div>
-	
+
 </div>
 
 <!-- register_Modal -->
@@ -39,7 +39,7 @@
 				<div class="controls">
 					<input type="text" list="companyList" id="searchCompanyName" name="searchCompanyName" onblur="registerObj.editCompanyId(this.value)" onkeyup="registerObj.fuzzySearch(this.value)" />
 					<datalist id="companyList">
-						
+
 					</datalist>
 				</div>
 			</div>
@@ -91,11 +91,6 @@
 					<input type="password" id="controlCode" name="controlCode" maxLength="10" /><i class="icon-search" style="cursor:pointer;position:relative;left:-7%;" onmousedown="registerObj.showPassWord($('#controlCode'))" onmouseup="registerObj.hidePassWord($('#controlCode'))"></i>
 				</div>
 			</div>
-			<div class="control-group">
-				<div class="controls">
-					<label id='warnMsg' class='hide' style='color:red;'>请输入正确的格式（真实姓名请输入中文，用户名和密码由英文和数字组成）</label>
-				</div>
-			</div>
 			</div>
 		</div>
 		<div class="modal-footer">
@@ -103,9 +98,9 @@
      		<button id="register_confirm_btn" class="btn btn-primary"
              data-dismiss="modal" aria-hidden="true" onclick="registerObj.registerWorker($('#registerName').val(), $('#realName').val(), $('#registerPassword').val(), $('#controlCode').val(), $('#phoneNumber').val(), $('#personalEmail').val(), $('#adress').val(), this)">确认</button>
 		</div>
-	
+
 	</div>
-	
+
 
 <!-- registerCompany -->
 <div id="register_company_modal" class="modal hide fade" tabindex="-1"
@@ -121,39 +116,33 @@
 			<fieldset>
 				<legend>公司注册</legend>
 				<div class="control-group">
-					<label class="control-label" for="companyName">公司名</label>
+					<label class="control-label" for="register_companyName">公司名</label>
 					<div class="controls">
-						<input type="text" id="companyName" name="companyName" />
+						<input type="text" id="register_companyName" name="register_companyName" />
 					</div>
 				</div>
 				<div class="control-group">
-					<label class="control-label" for="description">公司描述</label>
+					<label class="control-label" for="register_description">公司描述</label>
 					<div class="controls">
-						<textarea id="description" name="description" rows="3" cols="20"></textarea>
+						<textarea id="register_description" name="register_description" rows="3" cols="20"></textarea>
 					</div>
 				</div>
 				<div class="control-group">
-					<label class="control-label" for="address">公司地址</label>
+					<label class="control-label" for="register_address">公司地址</label>
 					<div class="controls">
-						<input type="text" id="address" name="address" />
+						<textarea id="register_address" name="register_address"  rows="3" cols="20" ></textarea>
 					</div>
 				</div>
 				<div class="control-group">
-					<label class="control-label" for="mainStaff">负责人名字</label>
+					<label class="control-label" for="register_phone">联系电话</label>
 					<div class="controls">
-						<input type="text" id="mainStaff" name="mainStaff" />
+						<input type="text" id="register_phone" name="register_phone" />
 					</div>
 				</div>
 				<div class="control-group">
-					<label class="control-label" for="phone">联系电话</label>
+					<label class="control-label" for="register_email">联系邮箱</label>
 					<div class="controls">
-						<input type="text" id="phone" name="phone" />
-					</div>
-				</div>
-				<div class="control-group">
-					<label class="control-label" for="email">联系邮箱</label>
-					<div class="controls">
-						<input type="text" id="email" name="email" />
+						<input type="text" id="register_email" name="register_email" />
 					</div>
 				</div>
 			</fieldset>
@@ -163,6 +152,12 @@
 					<label class="control-label" for="staffName">用户名</label>
 					<div class="controls">
 						<input type="text" id="staffName" name="staffName" />
+					</div>
+				</div>
+				<div class="control-group">
+					<label class="control-label" for="mainStaff">真实姓名</label>
+					<div class="controls">
+						<input type="text" id="mainStaff" name="mainStaff" />
 					</div>
 				</div>
 				<div class="control-group">
@@ -192,7 +187,7 @@
 				<div class="control-group">
 					<label class="control-label" for="staffAddress">联系地址</label>
 					<div class="controls">
-						<input type="text" id="staffAddress" name="staffAddress" />
+						<textarea id="staffAddress" name="staffAddress"  rows="3" cols="20"></textarea>
 					</div>
 				</div>
 			</fieldset>
@@ -201,7 +196,7 @@
 		<div class="modal-footer">
 			<button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
      		<button id="register_confirm_btn" class="btn btn-primary"
-             data-dismiss="modal" aria-hidden="true" onclick="registerObj.registerCompany($('#companyName').val(), $('#description').val(), $('#address').val(), $('#mainStaff').val(), $('#phone').val(), $('#email').val(), $('#staffName').val(),$('#staffPassword').val(),$('#staffControlCode').val(),$('#staffPhone').val(),$('#staffEmail').val(),$('#staffAddress').val(), this)">确认</button>
+             data-dismiss="modal" aria-hidden="true" onclick="registerObj.registerCompany($('#register_companyName').val(), $('#register_description').val(), $('#register_address').val(), $('#mainStaff').val(), $('#register_phone').val(), $('#register_email').val(), $('#staffName').val(),$('#staffPassword').val(),$('#staffControlCode').val(),$('#staffPhone').val(),$('#staffEmail').val(),$('#staffAddress').val(), this)">确认</button>
 		</div>
 </div>
 
@@ -230,15 +225,31 @@ var registerObj = function() {
 	return {
 		companyId: '',
 		companyList: [],
-		mergeKey: function(obj, keyName, val) {
+		mergeKey: function(obj, keyName, val, type) {
 			if(val && Object.prototype.toString.call(keyName) == '[object String]') {
 				obj[keyName] = val
+				if(type) {
+					switch (type) {
+						case 'data':
+							return this.testContent([val], [], [], [], []) ? false : true
+						case 'letter':
+							return this.testContent([], [val], [], [], []) ? false : true
+						case 'num':
+							return this.testContent([], [], [val], [], []) ? false : true
+						case 'phone':
+							return this.testContent([], [], [], [val], []) ? false : true
+						case 'email':
+							return this.testContent([], [], [], [], [val]) ? false : true
+					}
+				}
+				return true
 			}
+			return false
 		},
 		registerWorker: function(name, realName, password, controlCode, phoneNumber, personalEmail, adress, self) {
 			var that = this;
 			if(name && password && controlCode && realName && phoneNumber) {
-				if(this.testContent([name, password, controlCode], [realName], [])) {
+				if(this.testContent([name, password, controlCode], [realName], [], [phoneNumber], [])) {
 					if($('#registerPassword').val() == $('#registerPasswordConfirm').val()) {
 						if(this.companyId) {
 							var params = {
@@ -249,19 +260,16 @@ var registerObj = function() {
 								companyId: that.companyId,
 								phone: phoneNumber,
 							}
-							that.mergeKey(params, 'email', personalEmail)
 							that.mergeKey(params, 'adress', adress)
+							if(that.mergeKey(params, 'email', personalEmail, 'email')) {
+								$(self).attr('data-dismiss', '');
+								alert('请填入正确的邮箱格式')
+								return
+							}
 							$(self).attr('data-dismiss', 'modal');
 							$.ajax({
 								type: 'POST',
 								url: '/dongjun/elecon/user_registy',
-								// data: {
-								// 	name: name,
-								// 	realName: realName,
-								// 	password: password,
-								// 	controlCode: controlCode,
-								// 	companyId: that.companyId      // '001'
-								// },
 								data: params,
 								success: function(res) {
 									alert('注册成功！');
@@ -280,11 +288,11 @@ var registerObj = function() {
 					}
 				} else {
 					$(self).attr('data-dismiss', '');
-					$('#warnMsg').show();
+					/* $('#warnMsg').show();
 					setTimeout(function(){
 						$('#warnMsg').hide();
-					}, 3000);
-//					alert('请输入正确的格式');
+					}, 3000); */
+					alert('真实姓名请输入中文，手机号码请输入11位数字');
 				}
 			} else {
 				$(self).attr('data-dismiss', '');
@@ -295,7 +303,7 @@ var registerObj = function() {
 			var that = this;
 			if(companyName && description && address && mainStaff && phone && email && staffName && staffPassword && staffControlCode) {
 				// testContent
-				if(this.testContent([],[mainStaff],[phone])) {
+				if(this.testContent([],[mainStaff],[], [phone], [email])) {
 					$(self).attr('data-dismiss', 'modal');
 					var params = {
 						['company.name']: companyName,
@@ -309,9 +317,17 @@ var registerObj = function() {
 						['user.password']: staffPassword,
 						['user.controlCode']: staffControlCode
 					}
-					this.mergeKey(params, 'user.phone', staffPhone)
-					this.mergeKey(params, 'user.email', staffEmail)
 					this.mergeKey(params, 'user.address', staffAddress)
+					if(this.mergeKey(params, 'user.phone', staffPhone, 'phone')) {
+						$(self).attr('data-dismiss', '');
+						alert('请正确填入11位的手机号码')
+						return
+					}
+					if(this.mergeKey(params, 'user.email', staffEmail, 'email')) {
+						$(self).attr('data-dismiss', '');
+						alert('请填入正确的邮箱格式')
+						return
+					}
 					// ajax
 					$.ajax({
 						type: 'POST',
@@ -327,14 +343,14 @@ var registerObj = function() {
 					})
 				} else {
 					$(self).attr('data-dismiss', '');
-					alert('请填入对应格式的信息(真实姓名需要为中文)')
+					alert('请填入对应格式的正确信息(例如真实姓名需要为中文，手机号为11位数字)')
 				}
 			} else {
 				$(self).attr('data-dismiss', '');
-				alert('注册时请务必填写所有信息');
+				alert('注册时请务必填写所有信息（负责人的邮箱，手机和地址可选填）');
 			}
 		},
-		testContent: function(data, letter, num) {
+		testContent: function(data, letter, num, phoneNum, email) {
 			for(var i = 0; i<data.length; i++) {
 				if(data[i].replace(/[\w\d]+/, '')) {
 					return false;
@@ -350,9 +366,19 @@ var registerObj = function() {
 					return false;
 				}
 			}
+			for(var i = 0; i<phoneNum.length; i++) {
+				if(!/^\d{11}$/.test(phoneNum[i])) {
+					return false;
+				}
+			}
+			for(var i = 0; i<email.length; i++) {
+				if(!/^(\w)+(\.\w+)*@(\w)+((\.\w+)+)$/.test(email[i])) {
+					return false;
+				}
+			}
 			return true;
 		},
-		clearText: function(companyName, name, realName, password, passConfirm, controlCode) {
+		clearText: function(companyName, name, realName, password, passConfirm, controlCode, address, email, phone) {
 			$('#choose_modal').modal('hide')
 			$(companyName).val('');
 			$(name).val('');
@@ -360,18 +386,25 @@ var registerObj = function() {
 			$(password).val('');
 			$(passConfirm).val('');
 			$(controlCode).val('');
+			$(address).val('');
+			$(email).val('');
+			$(phone).val('');
+			
 		},
 		clearCompanyText: function() {
 			$('#choose_modal').modal('hide')
-			$('#companyName').val('');
-			$('#description').val('');
-			$('#address').val('');
-			$('#mainStaff').val('');
-			$('#phone').val('');
-			$('#email').val('');
-			$('#staffName').val('');
-			$('#staffPassword').val('');
-			$('#staffControlCode').val('');
+			$('#register_companyName').val('')
+			$('#register_description').val('')
+			$('#register_address').val('')
+			$('#mainStaff').val('')
+			$('#register_phone').val('')
+			$('#register_email').val('')
+			$('#staffName').val('')
+			$('#staffPassword').val('')
+			$('#staffControlCode').val('')
+			$('#staffPhone').val('')
+			$('#staffEmail').val('')
+			$('#staffAddress').val('')
 		},
 		showPassWord: function(self) {
 			$(self).attr('type', 'text');

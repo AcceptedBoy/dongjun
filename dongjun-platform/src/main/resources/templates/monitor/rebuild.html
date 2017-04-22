@@ -242,12 +242,21 @@
       var op = this.chart.getOption()
       if(op.series[0]) {
         var arr = [];
-        for(var j = 0; j<op.series.length; j++) {
-          for(var i = 0; i<op.xAxis[0].data.length; i++) {
+        // for(var j = 0; j<op.series.length; j++) {
+        //   for(var i = 0; i<op.xAxis[0].data.length; i++) {
+        //     arr.push({
+        //       "name": op.legend[0].data[j],
+        //       "time": op.xAxis[0].data[i],
+        //       "temperatrue": op.series[0+j].data[i]
+        //     });
+        //   }
+        // }
+		for(var j = 0; j<op.xAxis[0].data.length; j++) {
+          for(var i = 0; i<op.series.length; i++) {
             arr.push({
-              "name": op.legend[0].data[j],
-              "time": op.xAxis[0].data[i],
-              "temperatrue": op.series[0+j].data[i]
+              "name": op.legend[0].data[i],
+              "time": op.xAxis[0].data[j],
+              "temperatrue": op.series[0+i].data[j]
             });
           }
         }
@@ -436,31 +445,6 @@
 						m: d.getMinutes()
 					}
 				},
-				splitTime: function(time) {
-					var formTime = time.split(' ')[1].split(':')
-					formTime[0] = Number(formTime[0])
-					formTime[1] = Number(formTime[1])
-					return formTime
-				},
-				changeTime: function(time) {
-					var oldBgDate = $('#begin_search_date').val().split(' ')[0]
-					var oldEndDate = $('#end_search_date').val().split(' ')[0]
-					if(time.h) {
-						time.bg[0] += time.h
-						time.end[0] += time.h
-					}
-					if(time.m) {
-						time.bg[1] += time.m
-						time.end[1] += time.m
-					}
-					var newBg = time.bg.join(':')
-					var newEnd = time.end.join(':')
-					console.log(oldBgDate + ' ' + newBg, oldEndDate + ' ' + newEnd)
-					return {
-						bg: oldBgDate + ' ' + newBg,
-						end: oldEndDate + ' ' + newEnd
-					}
-				}
     	}
      }()
   /**
@@ -477,22 +461,7 @@
 
       return {
 				refresh: function() {
-					var now = chartNodes.getNow()
-					var bgtime = chartNodes.splitTime($('#begin_search_date').val())
-					var endtime = chartNodes.splitTime($('#end_search_date').val())
-					if(now.h != endtime[0]) {
-						var _h = now.h - endtime[0]
-					}
-					if(now.m != endtime[1]) {
-						var _m = now.m - endtime[1]
-					}
-					var setTime = {
-						h: _h ? _h : false,
-						m: _m ? _m : false,
-						bg: bgtime,
-						end: endtime
-					}
-					chartView.setTime(chartNodes.changeTime(setTime))
+					chartManager.initail_datetimepicker()
 					chartManager.showChart()
 				},
         setActive: function(chartId) {
@@ -556,8 +525,10 @@
           if(Number(hour) > 12) {
             var lastHour = Number(hour) - 12
             lastHour = lastHour>=10 ? lastHour : '0'+lastHour;
-            $('#begin_search_date').val(year + '-' + month + '-' + today + ' ' + lastHour + ':' + minute);
-            $('#end_search_date').val(year + '-' + month + '-' + today + ' ' + hour + ':' + minute);
+            chartView.setTime({
+            	bg: year + '-' + month + '-' + today + ' ' + lastHour + ':' + minute,
+            	end: year + '-' + month + '-' + today + ' ' + hour + ':' + minute
+            })
           } else {
             if(yesterday == 9) {
               yesterday = '0' + yesterday;
@@ -590,8 +561,10 @@
             }
             var lastHour = 24 - 12 + Number(hour)
             lastHour = lastHour>=10 ? lastHour : '0'+lastHour;
-            $('#begin_search_date').val(year + '-' + lastMonth + '-' + yesterday + ' ' + lastHour + ':' + minute);
-            $('#end_search_date').val(year + '-' + month + '-' + today + ' ' + hour + ':' + minute);
+            chartView.setTime({
+            	bg: year + '-' + lastMonth + '-' + yesterday + ' ' + lastHour + ':' + minute,
+            	end: year + '-' + month + '-' + today + ' ' + hour + ':' + minute
+            })
           }
 
           timer = null;
