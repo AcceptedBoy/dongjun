@@ -18,7 +18,6 @@
 			<table id="equipList" class="table table-bordered table-striped table-hover table-condensed success">
 	            <thead>
 	                <td>设备名称</td>
-	                <td>设备类型</td>
 	                <td>操作</td>
 	            </thead>
 	        </table>
@@ -49,7 +48,7 @@
 			</div>
 		</div>
 	</div>
-	
+
 	<!-- edit_user_modal -->
 	<div id="edit_user" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 	    <div class="modal-header">
@@ -57,7 +56,7 @@
 	                aria-hidden="true">×</button>
 	        <h3>修改用户信息</h3>
 	    </div>
-	
+
 	    <div class="modal-body form-horizontal">
 	    	<div class="control-group">
 	            <label class="control-label" for="userRealName">真实姓名</label>
@@ -90,13 +89,13 @@
 	            </div>
 	        </div>
 	    </div>
-	
+
 	    <div class="modal-footer">
 	        <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
 	        <button id="confirm_edit_user" class="btn btn-primary" onclick="userModal.edit()">修改</button>
 	    </div>
 	</div>
-	
+
 </div>
 
 <script>
@@ -152,7 +151,7 @@
 		var table = null
 		var urls = {}
 		var now = null
-		var load = undefined
+		var load = void(233)
 
 		return {
 			init: function(o) {
@@ -173,7 +172,8 @@
 					searching: false,
 					scrollY: "100%",
 					scrollCollapse: false,
-					paging: false,
+					pageLength: 6,
+					lengthChange: false,
 					ajax: {
 						url: urls.getUrl,
 						type: 'POST',
@@ -185,12 +185,6 @@
 					},
 					columns: [{
 						data: 'name'
-					}, {
-						data: 'deviceType',
-						/* render: function(data) {
-                            var typeArray = ['低压', '高压', '管控', '温度']
-                            return typeArray[data]
-                        } */
 					}, {
 						// 保存在删除按钮的设备的id
 						data: 'id',
@@ -212,7 +206,7 @@
 									success: function(res) {
 										if(res.success) {
 											alert('删除成功')
-											empolyeeEquipTb.redraw()	
+											empolyeeEquipTb.redraw()
 										} else {
 											alert('删除失败')
 										}
@@ -261,7 +255,8 @@
 					scrollY: "100%",
 					searching: false,
 					scrollCollapse: false,
-					paging: false,
+					pageLength: 6,
+					lengthChange: false,
 					ajax: {
 						url: urls.getUrl,
 						type: 'POST',
@@ -310,7 +305,7 @@
 			// TODO
 		}
 	}()
-	
+
 	var emInfor = function() {
 		return {
 			getInfor: function() {
@@ -342,11 +337,11 @@
 			}
 		}
 	}()
-	
+
 	var rank = function() {
 		return {
 			start: function() {
-				if(/* this.isAdmin(roles.currentRole) */true) {
+				if(this.isAdmin(roles.currentRole)) {
 				 	dj.inserCmp('./editModal.html', document.getElementsByTagName('modal')[0], function() {
 				    	showCompany.renderCompany()
 						empolyeeTb.initTable()
@@ -365,6 +360,34 @@
 					$('.normalInfor').css('display', 'block')
 					showCompany.renderCompany()
 				}
+				/* var r = new JudgeRank()
+				r.addState({
+					type: 'platform_group_admin',
+					fn: function() {
+						dj.inserCmp('./editModal.html', document.getElementsByTagName('modal')[0], function() {
+					    	showCompany.renderCompany()
+							empolyeeTb.initTable()
+					    })
+
+					    // 设置显示的东西
+						$('.detailEmpolyee').css('display', 'inline-block')
+						$('.arrow').css('display', 'inline-block')
+						$('.detailGuest').css('display', 'inline-block')
+						$('.companyContainer').append('<button data-toggle="modal" data-backdrop="static" data-target="#edit_company_modal" class="edit_btn btn" onclick="companyModal.setVal()">修改</button>')
+						$('.detail').append('<div class="changeBtn btn" onclick="rank.changeWindow()">切换</div>')
+						$('.detail').append('<div data-toggle="modal" data-backdrop="static" data-target="#add_modal" class="addBtn btn" onclick="addModal.renderTb()">增加设备</div>')
+						$('.addBtn').css('display', 'inline-block')
+						$('.changeBtn').css('display', 'inline-block')
+					}
+				}).addState({
+					type: 'user',
+					fn: function() {
+						$('.normalInfor').css('display', 'block')
+						showCompany.renderCompany()
+					}
+				})
+				r.changeRanks(roles.currentRole)
+				r.judge() */
 				emInfor.getInfor()
 			},
 			isAdmin: function(roleList) {
@@ -391,6 +414,35 @@
 		}
 	}()
 	
+	/* var r = new JudgeRank()
+	r.addState({
+		type: 'platform_group_admin',
+		fn: function() {
+			dj.inserCmp('./editModal.html', document.getElementsByTagName('modal')[0], function() {
+		    	showCompany.renderCompany()
+				empolyeeTb.initTable()
+		    })
+
+		    // 设置显示的东西
+			$('.detailEmpolyee').css('display', 'inline-block')
+			$('.arrow').css('display', 'inline-block')
+			$('.detailGuest').css('display', 'inline-block')
+			$('.companyContainer').append('<button data-toggle="modal" data-backdrop="static" data-target="#edit_company_modal" class="edit_btn btn" onclick="companyModal.setVal()">修改</button>')
+			$('.detail').append('<div class="changeBtn btn" onclick="rank.changeWindow()">切换</div>')
+			$('.detail').append('<div data-toggle="modal" data-backdrop="static" data-target="#add_modal" class="addBtn btn" onclick="addModal.renderTb()">增加设备</div>')
+			$('.addBtn').css('display', 'inline-block')
+			$('.changeBtn').css('display', 'inline-block')
+		}
+	}).addState({
+		type: 'user',
+		fn: function() {
+			$('.normalInfor').css('display', 'block')
+			showCompany.renderCompany()
+		}
+	})
+	r.changeRanks(roles.currentRole)
+	r.judge() */
+	
 	/* function isAdmin(roleList) {
 		if(roleList.indexOf('platform_group_admin') !== -1) {
 			return true
@@ -398,7 +450,7 @@
 			return false
 		}
 	}
-	
+
 	function start() {
 
 		if(isAdmin(roles.currentRole)) {
@@ -422,7 +474,10 @@
 		emInfor.getInfor()
 
 	} */
-
+	
+	// console.log(JudgeRank)
+	
+	
 	empolyeeEquipTb.init({
 		getUrl: '/dongjun/user_device_mapping/get_user_mapping',
 		delUrl: '/dongjun/user_device_mapping/del'

@@ -63,7 +63,6 @@
         <table id="equip_add_list" class="table table-bordered table-striped table-hover table-condensed success">
             <thead>
                 <td>设备名称</td>
-                <td>设备类型</td>
                 <td></td>
             </thead>
         </table>
@@ -119,12 +118,6 @@
                             columns: [{         // 这个函数还是在“+”按钮onclick的时候调用，调用时判断一下now值是否已经设好
                                 data: 'name'
                             }, {
-                                data: 'type',
-                                render: function(data) {
-                                    var typeArray = ['低压', '高压', '管控', '温度']
-                                    return typeArray[data]
-                                }
-                            }, {
                                 data: 'id',
                                 orderable: false,
                                 render: function(data, type, row) {
@@ -152,7 +145,6 @@
                                         } else {
                                             delete hasChoose[target.data('eid')]
                                         }
-                                        console.log('haha===', hasChoose)
                                     }
                                 })
                             }
