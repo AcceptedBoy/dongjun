@@ -113,8 +113,8 @@
 .detail .arrow .center {
   position: absolute;
   width: 15px;
-  left: 50%;
-  top: 50%;
+  left: 0;
+  top: 0;
   -moz-transform: translate(-50%, -50%);
   -ms-transform: translate(-50%, -50%);
   -webkit-transform: translate(-50%, -50%);

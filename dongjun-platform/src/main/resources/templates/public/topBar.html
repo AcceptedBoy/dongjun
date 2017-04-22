@@ -3,7 +3,7 @@
 		<div class="span5">
 			<h2>
 				<img src="../../img/logo.png" style="height: 65px" />电管家维护系统
-          <span class="label label-default">1.10</span>
+          <span class="label label-default">1.2.0</span>
 			</h2>
 		</div>
 		<div id="topBarNav" class="span5 menu" style="padding-top: 20px;">
@@ -78,26 +78,21 @@
 			return this
 		}
 
-		JudgeRank.prototype.changeRanks = function(ranks, gone) {
+		JudgeRank.prototype.changeRanks = function(ranks) {
 			this.rank = {}
-			gone = gone ? gone : []
-			try {
-				for(var i = 0; i < ranks.length; i++) {
-					if(gone.indexOf(ranks[i]) == -1) {
-						this.rank[ranks[i]] = true
-					}
-				}
-			} catch(e) {
-				console.error('changeRank：第二个参数请传入数组')
+			for(var i = 0; i < ranks.length; i++) {
+				this.rank[ranks[i]] = true
 			}
 		}
 
 		JudgeRank.prototype.judge = function() {
 			for(var i in this.rank) {
+				console.log(i)
 				if(this.state[i]) {
 					for(var j = 0; j < this.state[i].length; j++) {
 						this.state[i][j]()
 					}
+					break
 				}
 			}
 		}

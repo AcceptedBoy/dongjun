@@ -78,7 +78,7 @@
       if(isOk) {
         var formVal = {}
         for(var i in body.val) {
-          formVal[i] = body.val[i]()
+          formVal[i] = body.val[i]() ? body.val[i]() : false
         }
         self.completeFn.call(this, e, formVal)
       }
@@ -134,7 +134,7 @@
           '</div>' +
       '</div>'
       RegArr.push(inputData.getReg())
-      val[this.data[i].inputId] = function() {
+      val[this.data[i].inputName] = function() {
         return $('#' + this.data[i].inputId).val()
       }
     }
