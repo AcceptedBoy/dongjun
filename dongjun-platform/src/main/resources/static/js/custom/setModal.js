@@ -7,11 +7,13 @@
  *  title: '哈哈',
  *  formId: 'form',
  *  bodyArr: [{
- *   inputId: '123',
+ *   inputId: '123',        表单的id（可选）
+ *   val: '123',            预设值（可选）
+ *   allowBlank: true       是否设置为可选填框（可选，默认为false）
  *   inputType: 'text',
  *   inputName: '123',
  *   label: '我去',
- *   reg: function(val, err) {   val是表单内容的值，return true表示通过，return false表示不通过
+ *   reg: function(val, err) {   val是表单内容的值，return true表示通过，return false表示不通过(可选)
  *    if(/\.js$/.test(val)) {
  *      return true
  *    } else {
@@ -43,6 +45,7 @@
     if(this instanceof Modal) {
       this.eventId = option.completeId
       this.id = option.id || ''
+      this.formId = option.formId || ''
       this.dom = option.dom || '#modal'
       this.completeFn = option.completeFn || function() {}
       this.header = new ModalHeader(option.title)
@@ -77,14 +80,21 @@
       })
       if(isOk) {
         var formVal = {}
-        for(var i in body.val) {
-          formVal[i] = body.val[i]() ? body.val[i]() : false
-        }
+        self.dealVal(formVal)
         self.completeFn.call(this, e, formVal)
       }
     })
 
     return this
+  }
+
+  Modal.prototype.dealVal = function(obj) {
+    var arr = $('#' + this.formId).find('.input')
+    for(var i = 0; i < arr.length; i++) {
+      if(arr[i].value) {
+        obj[arr[i].name] = arr[i].value
+      }
+    }
   }
 
   Modal.prototype.show = function() {
@@ -117,15 +127,17 @@
 
   ModalBody.prototype.init = function() {
     var RegArr = []
-    var val = {}
     var html = '<div class="modal-body"><div id="'+ this.id +'" class="form-horizontal">'
     var length = this.data.length
     for(var i = 0; i < length; i++) {
       var inputData = new Input({
+        formId: this.id,
         type: this.data[i].inputType,
         name: this.data[i].inputName,
         id: this.data[i].inputId,
         reg: this.data[i].reg,
+        allowBlank: this.data[i].allowBlank,
+        val: this.data[i].val
       })
       html += '<div class="control-group">' +
           '<label class="control-label" for="'+ this.data[i].inputId +'">' + this.data[i].label + '</label>' +
@@ -134,15 +146,14 @@
           '</div>' +
       '</div>'
       RegArr.push(inputData.getReg())
-      val[this.data[i].inputName] = function() {
-        return $('#' + this.data[i].inputId).val()
-      }
+      // val[this.data[i].inputName] = function() {
+      //   return $('#' + this.data[i].inputId).val()
+      // }
     }
     html += '</div></div>'
     return {
       html: html,
-      reg: RegArr,
-      val: val
+      reg: RegArr
     }
   }
 
@@ -159,18 +170,28 @@
   }
 
   function Input(option) {
+    this.formId = option.formId
     this.type = option.type || 'text'
     this.name = option.name || ''
     this.id = option.id || ''
     this.reg = option.reg || function() { return true }
+    this.me = ''
+    this.allowBlank = option.allowBlank || false
+    this.val = option.val || ''
   }
 
   Input.prototype.chooseType = {
     text: function() {
-      return '<input class="input" type="text" name="'+ this.name +'" id="'+ this.id +'" />' + this.chooseType.warnTips
+      return {
+        html: '<input class="input" type="text" name="'+ this.name +'" id="'+ this.id +'" value="'+ this.val +'" />' + this.chooseType.warnTips,
+        me: 'input'
+      }
     },
     textarea: function() {
-      return '<textarea class="input" id="'+ this.id +'" name="'+ this.name +'" rows="3" cols="20" />' + this.chooseType.warnTips
+      return {
+        html: '<textarea class="input" id="'+ this.id +'" name="'+ this.name +'" rows="3" cols="20">'+ this.val +'</textarea>' + this.chooseType.warnTips,
+        me: 'textarea'
+      }
     },
     // otherTypes
     //
@@ -180,20 +201,30 @@
 
   Input.prototype.getReg = function() {
     var self = this
-    if(this.reg) {
+    if(self.allowBlank) {
       return function() {
-        return self.reg.call(self, $('#' + self.id).val(), self.error.bind(self))
+        if($('#' + self.formId).find(self.me + '[name='+ self.name +']').val()) {
+          return self.reg.call(self, $('#' + self.formId).find(self.me + '[name='+ self.name +']').val(), self.error.bind(self))
+        } else {
+          return true
+        }
+      }
+    } else {
+      return function() {
+        return self.reg.call(self, $('#' + self.formId).find(self.me + '[name='+ self.name +']').val(), self.error.bind(self))
       }
     }
   }
 
   Input.prototype.error = function(text) {
-    $('#' + this.id).css({borderColor: '#f3b6b6'})
-    $('#' + this.id).nextAll('.warnTips').text(text).css({color: 'red', fontSize: '1.1em'})
+    $('#' + this.formId).find(this.me + '[name='+ this.name +']').css({borderColor: '#f3b6b6'})
+    $('#' + this.formId).find(this.me + '[name='+ this.name +']').nextAll('.warnTips').text(text).css({color: 'red'})
   }
 
   Input.prototype.init = function() {
-    return this.chooseType[this.type].bind(this)()
+    var initData = this.chooseType[this.type].bind(this)()
+    this.me = initData.me
+    return initData.html
   }
 
   $.modal = Modal
