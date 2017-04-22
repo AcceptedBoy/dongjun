@@ -36,8 +36,8 @@
         document.getElementsByTagName('head')[0].appendChild(link)
       }
     }()
-    // 根据地址高亮左边栏按钮, 默认'temperature_look'
-    $('a[href*=#' + (location.href.split('#')[1] || 'temperature_look')+']').addClass('btn-success')
+    // 根据地址高亮左边栏按钮, 默认'data_monitor'
+    $('a[href*=#' + (location.href.split('#')[1] || 'data_monitor')+']').addClass('btn-success')
 
     // 点击时改变高亮按钮
     var navLinks = $('#sideNav').find('a')

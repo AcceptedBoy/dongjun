@@ -1,4 +1,4 @@
-<div class="span5 container-fluid well" style="height: 100%;overflow-y: hidden;">
+<div class="span7 container-fluid well" style="height: 100%;overflow-y: hidden;">
 	<h3 class="text-center">设备组别
 		<div class="notice-container" style="float:right;cursor: pointer;">
 			<div class="cursor-notice"><a href="#edit_group_modal" data-toggle="modal" style="color: #505050">+</a></div>
@@ -15,7 +15,7 @@
 		</thead>
 	</table>
 </div>
-<div class="span7 container-fluid well" style="height: 100%;overflow-y: hidden;position: relative;">
+<div class="span5 container-fluid well" style="height: 100%;overflow-y: hidden;position: relative;">
 	<h3 class="text-center" id="equip_list_header">
 		<span id="equip_list_title">所有设备</span>
 		<div id="backToAll" class="notice-container hide" style="float:left;cursor: pointer;">
@@ -30,9 +30,9 @@
 	<hr>
 	<table id="equipment_list" class="table table-bordered table-striped table-hover table-condensed success">
 		<thead>
-			<td>设备号码</td>
+			<!-- <td>设备号码</td> -->
 			<td>开关名称</td>
-			<td>类型</td>
+			<!-- <td>类型</td> -->
 			<td></td>
 		</thead>
 	</table>
@@ -41,11 +41,15 @@
 <script>
 	(function() {
 
+		// 设备
 		var equipTable = function(){
 			var table = null
 			var urls = {
 				all: '/dongjun/device_group/get_all_device',					//	/dongjun/device_group/get_all_device
 				group: '/dongjun/device_group/get_device_by_device_group_id'	//	/dongjun/device_group/get_device_by_device_group_id
+			}
+			var status = {
+				isAll: true
 			}
 			return {
 				getTable: function(){
@@ -62,15 +66,15 @@
 							dataSrc: 'text'		// data.text 为表格数据
 						},
 						columns: [
-							{ data: 'deviceNumber'},
+							// { data: 'deviceNumber'},
 							{ data: 'name'},
-							{
-								data: 'type',
-								render: function(data){
-									var typeArray = ['低压', '高压', '管控', '温度']
-									return typeArray[data]
-								}
-							}, 
+							// {
+							// 	data: 'type',
+							// 	render: function(data){
+							// 		var typeArray = ['低压', '高压', '管控', '温度']
+							// 		return typeArray[data]
+							// 	}
+							// },
 							{
 								data: 'id',
 								orderable: false,
@@ -96,13 +100,18 @@
 								}
 							})
 						},
+						drawCallback: function() {
+							var api = this.api()
+							api.column(-1).visible(!status.isAll)
+						},
 						language: {
 							paginate: {
 								next: '下一页',
 								previous: '上一页'
 							},
 							emptyTable: '找不到相关数据',
-							zeroRecords: '找不到相关数据'
+							zeroRecords: '找不到相关数据',
+							loadingRecords: '正在加载数据...'
 						},
 					})
 				},
@@ -114,24 +123,26 @@
 						header.find('#addEquip').hide(300)
 						table.ajax.url(urls.all)
 						table.ajax.reload()
-						table.column(3).visible(false)
+						status.isAll = true
+						// table.column(-1).visible(false)
 					} else {
 						header.find('#equip_list_title').text(name)
 						header.find('#backToAll').show(300)
 						header.find('#addEquip').show(300)
-						table.ajax.url(urls.group);
+						table.ajax.url(urls.group)
 						var param = {
 							groupId: id
 						}
 						table.settings()[0].ajax.data = param
 						table.ajax.reload()
-						table.column(3).visible(true)
+						status.isAll = false
+						// table.column(-1).visible(true)
 					}
 				},
 			}
 		}()
 
-
+		// 设备组别
 		var groupTable = function() {
 			var table = null
 			return {
@@ -188,7 +199,16 @@
 										break
 								}
 							})
-						}
+						},
+						language: {
+							paginate: {
+								next: '下一页',
+								previous: '上一页'
+							},
+							emptyTable: '找不到相关数据',
+							zeroRecords: '找不到相关数据',
+							loadingRecords: '正在加载数据...'
+						},
 					})
 				},
 				redraw: function() {

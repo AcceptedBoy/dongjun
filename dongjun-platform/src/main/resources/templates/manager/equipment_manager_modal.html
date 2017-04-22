@@ -33,9 +33,9 @@
 	<div class="modal-body">
 		<table id="equip_add_list" class="table table-bordered table-striped table-hover table-condensed success">
 			<thead>
-				<td>设备号码</td>
+				<!-- <td>设备号码</td> -->
 				<td>开关名称</td>
-				<td>类型</td>
+				<!-- <td>类型</td> -->
 				<td></td>
 			</thead>
 		</table>
@@ -102,15 +102,15 @@
 					pageLength: 5,
 					data: data.text,	// data.text 为表格数据
 					columns: [
-						{ data: 'deviceNumber' },
+						// { data: 'deviceNumber' },
 						{ data: 'name' },
-						{
-							data: 'type',
-							render: function(data){
-								var typeArray = ['低压', '高压', '管控', '温度']
-								return typeArray[data]
-							}
-						},
+						// {
+						// 	data: 'type',
+						// 	render: function(data){
+						// 		var typeArray = ['低压', '高压', '管控', '温度']
+						// 		return typeArray[data]
+						// 	}
+						// },
 						{
 							data: 'id',
 							orderable: false,
@@ -125,7 +125,8 @@
 							previous: '上一页'
 						},
 						emptyTable: '找不到相关数据',
-						zeroRecords: '找不到相关数据'
+						zeroRecords: '找不到相关数据',
+						loadingRecords: '正在加载数据...'
 					},
 					initComplete: function() {
 						$(this[0]).click(function(event) {
@@ -165,15 +166,15 @@
 				// deviceId = deviceId.replace(/,$/, '&')
 				deviceId = deviceId.replace(/,=$/, '')
 				// type = type.replace(/,$/, '&')
-				type = type.replace(/,=$/, '')
-				var data = deviceId + type + 'deviceGroupId=' + now.groupId
+				// type = type.replace(/,=$/, '')
+				// var data = deviceId + type + 'deviceGroupId=' + now.groupId
 				$.ajax({
 					url: urls.addEquip,
 					type: 'POST',
 					data: {
 						//data: data
 						deviceId: deviceId,
-						type: type,
+						// type: type,
 						deviceGroupId: now.groupId
 					},
 					success: function(res) {
@@ -236,7 +237,7 @@
 				}
 				$.ajax({
 					url: urls.addGroup,
-					
+
 					type: 'POST',
 					data: data,
 					success: function(res) {
