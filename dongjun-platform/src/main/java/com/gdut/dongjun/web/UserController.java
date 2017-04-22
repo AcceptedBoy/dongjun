@@ -258,6 +258,7 @@ public class UserController {
 	public ResponseMessage doRegisty(User user) {
 		List<Role> roles = roleService.selectByParameters(null);
 		user.setId(UUIDUtil.getUUID());
+		user.setAvailable(1);
 		if (userService.updateByPrimaryKey(user) == 1) {
 			UserRole ur = new UserRole();
 			for (Role role : roles) {

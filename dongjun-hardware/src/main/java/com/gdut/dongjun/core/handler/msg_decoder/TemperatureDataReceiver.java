@@ -15,16 +15,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.gdut.dongjun.core.GPRSCtxStore;
+import com.gdut.dongjun.core.HitchConst;
 import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.core.TemperatureCtxStore;
 import com.gdut.dongjun.core.handler.thread.HitchEventManager;
+import com.gdut.dongjun.domain.po.DataMonitorSubmodule;
+import com.gdut.dongjun.domain.po.ModuleHitchEvent;
 //import com.gdut.dongjun.domain.po.TemperatureDevice;
 import com.gdut.dongjun.domain.po.TemperatureMeasure;
 import com.gdut.dongjun.domain.po.TemperatureMeasureHistory;
 import com.gdut.dongjun.domain.po.TemperatureMeasureHitchEvent;
 import com.gdut.dongjun.domain.po.TemperatureModule;
 import com.gdut.dongjun.domain.po.TemperatureSensor;
+import com.gdut.dongjun.service.DataMonitorSubmoduleService;
 import com.gdut.dongjun.service.GPRSModuleService;
+import com.gdut.dongjun.service.ModuleHitchEventService;
 //import com.gdut.dongjun.service.TemperatureDeviceService;
 import com.gdut.dongjun.service.TemperatureMeasureHistoryService;
 import com.gdut.dongjun.service.TemperatureMeasureService;
@@ -96,6 +101,10 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	private TemperatureModuleService temModuleService;
 	@Autowired
 	private TemperatureCtxStore ctxStore;
+	@Autowired
+	private DataMonitorSubmoduleService submoduleService;	
+	@Autowired
+	private ModuleHitchEventService moduleHitchEventService;
 
 	private static final Logger logger = LoggerFactory.getLogger(TemperatureDataReceiver.class);
 
@@ -405,15 +414,22 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 				if (data[i + 1] == '1') {
 					int tag = (i - index - 39 * BYTE) / 2 + 1;
 					TemperatureModule device = temModuleService.selectByPrimaryKey(deviceId);
-					TemperatureMeasureHitchEvent event = new TemperatureMeasureHitchEvent();
-					event.setId(UUIDUtil.getUUID());
-					event.setTag(tag);
-					event.setType(2);
-					event.setHitchReason(TemperatureMeasureHitchEvent.ELECTRICITY_LACK);
-					event.setGroupId(device.getGroupId());
-					event.setHitchTime(TimeUtil.timeFormat(new Date()));
-					event.setSwitchId(deviceId);
-					hitchEventManager.addHitchEvent(event);
+					List<DataMonitorSubmodule> submoduleList = submoduleService.selectByParameters(MyBatisMapUtil.warp("module_id", device.getId()));
+					if (null == submoduleList || 1 != submoduleList.size()) {
+						logger.info("该温度子模块没有注册");
+						return ;
+					}
+					//以后要改一下这里 TODO
+					DataMonitorSubmodule submodule = submoduleList.get(0);
+					ModuleHitchEvent moduleHitch = new ModuleHitchEvent();
+					moduleHitch.setId(UUIDUtil.getUUID());
+					moduleHitch.setGroupId(device.getGroupId());
+					moduleHitch.setHitchReason(HitchConst.HITCH_ELECTRICITY_LACK);
+					moduleHitch.setHitchTime(new Date());
+					moduleHitch.setModuleId(device.getId());
+					moduleHitch.setMonitorId(submodule.getDataMonitorId());
+					moduleHitch.setType(310);
+					moduleHitchEventService.updateByPrimaryKey(moduleHitch);
 				}
 			}
 		}
@@ -475,19 +491,33 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			// 插入报警数据
 			if (TemperatureCtxStore.isAboveBound(deviceId, Double.valueOf("" + Integer.parseInt(value[i - 1], 16)) / 10)) {
 				TemperatureModule device = temModuleService.selectByPrimaryKey(deviceId);
-//				TemperatureDevice device = deviceService.selectByPrimaryKey(deviceId);
+				List<DataMonitorSubmodule> submoduleList = submoduleService.selectByParameters(MyBatisMapUtil.warp("module_id", device.getId()));
+				if (null == submoduleList || 1 != submoduleList.size()) {
+					logger.info("该温度子模块没有注册");
+					return ;
+				}
+				DataMonitorSubmodule submodule = submoduleList.get(0);
+				ModuleHitchEvent moduleHitch = new ModuleHitchEvent();
+				moduleHitch.setId(UUIDUtil.getUUID());
+				moduleHitch.setGroupId(device.getGroupId());
+				moduleHitch.setHitchReason(HitchConst.HITCH_OVER_TEMPERATURE);
+				moduleHitch.setHitchTime(new Date());
+				moduleHitch.setModuleId(device.getId());
+				moduleHitch.setMonitorId(submodule.getDataMonitorId());
+				moduleHitch.setType(301);
+				moduleHitchEventService.updateByPrimaryKey(moduleHitch);
+				
 				// TODO 其实报警事事件应该是时间戳中的时间
 				TemperatureMeasureHitchEvent event = new TemperatureMeasureHitchEvent();
 				event.setId(UUIDUtil.getUUID());
-				event.setSwitchId(device.getId());
+				event.setMonitorId(submodule.getDataMonitorId());
 				event.setValue(new BigDecimal(Double.valueOf("" + Integer.parseInt(value[i - 1], 16)) / 10));
 				event.setTag(i);
-				event.setHitchReason(TemperatureMeasureHitchEvent.OVER_VALUE);
-				event.setHitchTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
 				event.setGroupId(device.getGroupId());
 				event.setMaxHitchValue(device.getMaxHitchValue());
 				event.setMinHitchValue(device.getMinHitchValue());
-				event.setType(3);
+				event.setType(301);
+				event.setHitchId(moduleHitch.getId());
 				// 把报警事件塞进线程池
 				hitchEventManager.addHitchEvent(event);
 			}

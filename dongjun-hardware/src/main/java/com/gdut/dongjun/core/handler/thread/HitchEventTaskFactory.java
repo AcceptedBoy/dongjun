@@ -5,7 +5,7 @@ import org.springframework.context.ApplicationContextAware;
 
 import com.gdut.dongjun.domain.po.abstractmodel.AbstractHitchEvent;
 
-public abstract class HitchEventThreadFactory implements ApplicationContextAware {
+public abstract class HitchEventTaskFactory<T extends AbstractHitchEvent> implements ApplicationContextAware {
 	
 	protected static ApplicationContext applicationContext;
 
@@ -13,5 +13,5 @@ public abstract class HitchEventThreadFactory implements ApplicationContextAware
 	 * 建造报警事件
 	 * @return
 	 */
-	public abstract HitchEventThread buildHitchEventThread(AbstractHitchEvent event);
+	public abstract HitchEventTask<T> buildHitchEventTask(T event);
 }

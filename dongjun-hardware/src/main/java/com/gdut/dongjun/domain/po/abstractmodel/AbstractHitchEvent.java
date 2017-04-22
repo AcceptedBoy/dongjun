@@ -9,15 +9,11 @@ public abstract class AbstractHitchEvent extends AbstractBean {
 
 	protected String id;
 
-	protected String switchId;
+	protected String monitorId;
 	
 	protected String groupId;
 	
 	protected Integer type;
-	
-	protected String hitchTime;
-	
-	protected String hitchReason;
 
 	public String getId() {
 		return id;
@@ -27,12 +23,12 @@ public abstract class AbstractHitchEvent extends AbstractBean {
 		this.id = id;
 	}
 
-	public String getSwitchId() {
-		return switchId;
+	public String getMonitorId() {
+		return monitorId;
 	}
 
-	public void setSwitchId(String switchId) {
-		this.switchId = switchId;
+	public void setMonitorId(String monitorId) {
+		this.monitorId = monitorId;
 	}
 
 	public String getGroupId() {
@@ -49,21 +45,5 @@ public abstract class AbstractHitchEvent extends AbstractBean {
 
 	public void setType(Integer type) {
 		this.type = type;
-	}
-
-	public String getHitchTime() {
-		return hitchTime;
-	}
-
-	public void setHitchTime(String hitchTime) {
-		this.hitchTime = hitchTime;
-	}
-
-	public String getHitchReason() {
-		return hitchReason;
-	}
-
-	public void setHitchReason(String hitchReason) {
-		this.hitchReason = hitchReason;
 	}
 }

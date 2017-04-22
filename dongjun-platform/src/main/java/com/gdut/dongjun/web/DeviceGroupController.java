@@ -102,14 +102,14 @@ public class DeviceGroupController {
 	@RequestMapping(value = "/edit_device", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseMessage addDevice(@RequestParam(value = "deviceId") String deviceId,
-			@RequestParam(value = "type") String type, @RequestParam(value = "deviceGroupId") String deviceGroupId) {
+			@RequestParam(value = "deviceGroupId") String deviceGroupId) {
 		// type 0低压 1高压 2管控 3温度
 		String[] splitId = deviceId.split(",=");
-		String[] types = type.split(",=");
 		DeviceGroupMapping mapping = new DeviceGroupMapping();
 		mapping.setDeviceGroupId(deviceGroupId);
 		for (int i = 0; i < splitId.length; i++) {
-			mapping.setType(Integer.parseInt(types[i]));
+			//保留字段type，默认0
+			mapping.setType(0);
 			mapping.setDeviceId(splitId[i]);
 			mapping.setId(UUIDUtil.getUUID());
 			if (deviceGroupMappingService.updateByPrimaryKey(mapping) == 0) {

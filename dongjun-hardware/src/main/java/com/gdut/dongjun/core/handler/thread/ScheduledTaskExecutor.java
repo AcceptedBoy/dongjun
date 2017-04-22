@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 
 /**
@@ -15,30 +16,34 @@ import org.springframework.beans.factory.InitializingBean;
  * @date 2017年3月29日
  */
 public class ScheduledTaskExecutor implements InitializingBean {
+	
+	private static final int ROUND_TIME = 3600;
 
 	//执行指针会每秒移到ArrayList下一格，轮询里面的List<ScheduledTask>是否可以执行
-	private static final List<List<ScheduledTask>> scheduledTaskList = new ArrayList<List<ScheduledTask>>(3600);
+	private static final List<List<ScheduledTask>> scheduledTaskList = 
+			new ArrayList<List<ScheduledTask>>(ROUND_TIME);
 	
 	//执行指针
 	private static AtomicInteger currentIndex = new AtomicInteger(0);
 	
+	//线程池
 	private static ExecutorService fixedPool = ThreadPoolHolder.fixedPool; 
-	
-//	private static final int ROUND_TIME = 3600;
+
+	private Logger logger = Logger.getLogger(ScheduledTaskExecutor.class);
 	
 	/**
 	 * 添加任务
 	 * @param task
 	 */
 	 public static void addScheduledTask(ScheduledTask task) {
-		 Integer serialNumber = (task.getExecuteTime() - 3600 * task.getRound() + currentIndex.get()) % 3600;
+		 Integer serialNumber = (task.getExecuteTime() - ROUND_TIME * task.getRound() + currentIndex.get()) % ROUND_TIME;
 		 task.setSerialNumber(serialNumber);
 		 List<ScheduledTask> list = getTaskList(serialNumber);
 		 list.add(task);
 	 }
 	 
 	 private static List<ScheduledTask> getTaskList(Integer index) {
-		 if (null == index || index < 0 || index >= 3600) {
+		 if (null == index || index < 0 || index >= ROUND_TIME) {
 			 return null;
 		 }
 		 return scheduledTaskList.get(index);
@@ -77,12 +82,14 @@ public class ScheduledTaskExecutor implements InitializingBean {
 						task.setRound(task.getRound() - 1);
 					}
 				}
-				currentIndex.set((currentIndex.get() + 1) % 3600);
+				currentIndex.set((currentIndex.get() + 1) % ROUND_TIME);
 				try {
 					Thread.sleep(1000 * 1);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
-					//TODO 万一这个线程崩了，能干什么？重新开一个线程？
+					logger.error(ScheduledTaskExecutor.class.getName() + "被中止，尝试重启线程");
+					Thread t = new ExecutorThread();
+					t.start();
 				}
 			}
 		}

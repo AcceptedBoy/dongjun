@@ -33,6 +33,7 @@ public class DataMonitorController {
 	@ResponseBody
 	@RequestMapping("/edit")
 	public ResponseMessage edit(DataMonitor monitor) {
+		monitor.setAvailable(1);
 		if (null == monitor.getId() || "".equals(monitor.getId())) {
 			monitor.setId(UUIDUtil.getUUID());
 		}
