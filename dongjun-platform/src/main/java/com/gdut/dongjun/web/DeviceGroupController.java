@@ -122,8 +122,8 @@ public class DeviceGroupController {
 	@RequiresPermissions("device_group_admin:delete")
 	@RequestMapping("/del_device")
 	@ResponseBody
-	public ResponseMessage delDevice(int id) {
-		if (deviceGroupMappingService.deleteByPrimaryKey(id + "")) {
+	public ResponseMessage delDevice(String id) {
+		if (deviceGroupMappingService.deleteByPrimaryKey(id)) {
 			return ResponseMessage.success("操作成功");
 		}
 		return ResponseMessage.danger("操作失败");

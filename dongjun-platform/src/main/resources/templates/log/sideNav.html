@@ -2,7 +2,6 @@
   <ul class="nav nav-list bs-docs-sidenav" id="sideNav">
     <li class="nav-header">查看日志</li>
     <li><a href="#user_log">用户日志</a></li>
-    <li><a href="#operation_log">操作日志</a></li>
   </ul>
 </div>
 
@@ -32,7 +31,7 @@
     router.start({
       '': routerFnc.user,
       'user_log': routerFnc.user,
-      'operation_log': routerFnc.operation
+      // 'operation_log': routerFnc.operation
     })
 
 
@@ -40,9 +39,9 @@
       dj.inserCmp('user_log.html', $('.container')[0])
     }
 
-    function loadOperationLog() {
-      dj.inserCmp('operation_log.html', $('.container')[0])
-    }
+    // function loadOperationLog() {
+    //   dj.inserCmp('operation_log.html', $('.container')[0])
+    // }
   })()
 
 </script>
