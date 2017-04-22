@@ -29,14 +29,6 @@ public abstract class AbstractHitchEvent extends AbstractBean {
 		this.id = id;
 	}
 
-	public String getSwitchId() {
-		return switchId;
-	}
-
-	public void setSwitchId(String switchId) {
-		this.switchId = switchId;
-	}
-
 	public String getGroupId() {
 		return groupId;
 	}

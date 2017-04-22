@@ -17,7 +17,7 @@ import com.gdut.dongjun.domain.po.TemperatureMeasureHitchEvent;
 public class HitchEventManager {
 	
 	@Autowired
-	private TemperatureHitchEventThreadFactory temHitchEventThreadFactroy;
+	private TemperatureHitchEventTaskFactory temHitchEventThreadFactroy;
 
 	protected static ExecutorService fixedPool = ThreadPoolHolder.fixedPool;
 	
@@ -26,6 +26,6 @@ public class HitchEventManager {
 	 * @param event
 	 */
 	public void addHitchEvent(TemperatureMeasureHitchEvent event) {
-		fixedPool.execute(temHitchEventThreadFactroy.buildHitchEventThread(event));
+		fixedPool.execute(temHitchEventThreadFactroy.buildHitchEventTask(event));
 	}
 }
