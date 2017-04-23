@@ -27,7 +27,9 @@ public abstract class GPRSCtxStore extends CtxStore {
 	
 	public static void removeGPRS(String gprs) {
 		GPRSExpiredTask task = taskMap.remove(gprs);
-		task.cancel();
+		if (null != task) {
+			task.cancel();
+		}
 		GPRSList.remove(gprs);
 	}
 	

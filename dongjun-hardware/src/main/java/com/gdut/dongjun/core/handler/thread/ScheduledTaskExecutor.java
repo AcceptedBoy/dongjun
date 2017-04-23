@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.stereotype.Component;
 
 /**
  * TODO 用ROUND_TIME替代固定的时间
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.InitializingBean;
  * @author Gordan_Deng
  * @date 2017年3月29日
  */
+@Component
 public class ScheduledTaskExecutor implements InitializingBean {
 	
 	private static final int ROUND_TIME = 3600;
@@ -55,6 +57,10 @@ public class ScheduledTaskExecutor implements InitializingBean {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
+		for (int i = 0; i < ROUND_TIME; i++) {
+			List<ScheduledTask> list = new ArrayList<ScheduledTask>();
+			scheduledTaskList.add(list);
+		}
 		//开启工作线程
 		Thread t = new ExecutorThread();
 		t.start();

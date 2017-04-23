@@ -161,6 +161,9 @@ public class SeparatedTextDecoder extends ByteToMessageDecoder {
 		 * 心跳包报文示范，共10个字节
 		 * 000a0003000133343231
 		 */
+		if (text.length != GPRSLoginPackageLength && text.length != GPRSOnlinePackageLegnth ) {
+			return false;
+		}
 		int code = text[0] & 0xFF;
 		int code1 = text[1] & 0xFF;
 		int code2 = text[3] & 0xFF;
