@@ -132,13 +132,6 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			// 从CtxStore中取出当前ChannelHandlerContext
 			ctxStore.remove(ctx);
 			GPRSCtxStore.removeGPRS(gprsAddress);
-			if (gprs.getId() != null) {
-				//TODO ???有意义吗现在
-//				TemperatureModule module = temModuleService.selectByPrimaryKey(gprs.getId());
-//				TemperatureDevice device = deviceService.selectByPrimaryKey(gprs.getId());
-//				device.setOnlineTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
-//				deviceService.updateByPrimaryKey(device);
-			}
 		}
 	}
 
@@ -195,6 +188,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 				} else if (CharUtils.equals(data, 6, 8, CODE_03)) {
 					logger.info(gprsAddress + " GPRS模块在线");
 				}
+				return true;
 			} else {
 				//如果网站上没注册gprs，否决此报文
 				logger.info("未注册GPRS模块地址" + gprsAddress);
@@ -205,15 +199,17 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		//若GPRS模块注册不成功，报文不通过
 		AttributeKey<String> key = AttributeKey.valueOf("GPRSAddress");
 		Attribute<String> attr = ctx.attr(key);
-		if ((null == attr.get() || "".equals(attr.get())) ) {
-			//TODO 重新设计GPRS在线情况
-//				|| !GPRSCtxStore.isGPRSAlive(gprsAddress)) {
+		if ((null == attr.get() || "".equals(attr.get()))
+				|| !GPRSCtxStore.isGPRSAlive(attr.get())) {
 			return false;
 		}
 		/*
 		 * TODO 做时间戳 + 设备地址 + 校验和的验证工作，如果不行就记录非法报文数量。 非法报文数量超过一定程度后封锁该设备地址。
 		 * 一旦一天积聚量超过一定程度over。 一旦某段时间内非法报文数量过多over。
 		 */
+		if (!checkSum(data)) {
+			return false;
+		}
 		return true;
 	}
 
@@ -601,9 +597,28 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		return false;
 	}
 	
-	//TODO
-	private boolean checkJIAOYANHE(char[] jiaoyanhe, char[] data) {
-		return true;
+	/**
+	 * 校验和是从控制域到信息元素集所有字节的算术和，忽略进位
+	 * @param data
+	 * @return
+	 */
+	private boolean checkSum(char[] data) {
+		if (data.length < 6 * BYTE) {
+			return false;
+		}
+		int index = 4 * BYTE;
+		int endIndex = data.length - 2 * BYTE;
+		int sum = 0;
+		for (; index < endIndex; index += 2) {
+			sum += (16 * CharUtils.charToInt(data[index]) + CharUtils.charToInt(data[index + 1]));
+		}
+		sum &= 0xff;	//忽略进位
+		int checkSum = 16 * CharUtils.charToInt(data[data.length - 2 * BYTE]) 
+				+ CharUtils.charToInt(data[data.length - BYTE]);	//报文中的校验和
+		if (sum == checkSum) {
+			return true;
+		}
+		return false;
 	}
 	
 	//TODO

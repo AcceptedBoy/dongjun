@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.DataMonitor;
+import com.gdut.dongjun.service.DeviceGroupMappingService;
+import com.gdut.dongjun.service.UserDeviceMappingService;
 import com.gdut.dongjun.service.device.DataMonitorService;
 import com.gdut.dongjun.service.device.DataMonitorSubmoduleService;
 import com.gdut.dongjun.service.device.TemperatureModuleService;
@@ -28,6 +30,10 @@ public class DataMonitorController {
 	private DataMonitorSubmoduleService submoduleService;
 	@Autowired
 	private TemperatureSensorService sensorSerivce;
+	@Autowired
+	private DeviceGroupMappingService deviceGroupMappingService;
+	@Autowired
+	private UserDeviceMappingService userDeviceMappingService;
 	
 
 	@ResponseBody
@@ -43,11 +49,24 @@ public class DataMonitorController {
 		return ResponseMessage.success("操作成功");
 	}
 	
-	//TODO 删除monitor要删除什么，至少要删除mapping，删除所有子模块，删除监控数据
+	//TODO 删除monitor要删除什么，至少要删除devicegroupmapping，userdevicemapping,删除所有子模块，删除监控数据
 	@ResponseBody
 	@RequestMapping("/del")
 	public ResponseMessage del(String id) {
+		//删除DataMonitor
 		if (!monitorService.deleteByPrimaryKey(id)) {
+			return ResponseMessage.warning("操作失败");
+		}
+		//删除DeviceGroupMapping
+		if (0 == deviceGroupMappingService.deleteByParameters(MyBatisMapUtil.warp("device_id", id))) {
+			return ResponseMessage.warning("操作失败");
+		}
+		//删除UserDeviceMapping
+		if (0 == userDeviceMappingService.deleteByParameters(MyBatisMapUtil.warp("device_id", id))) {
+			return ResponseMessage.warning("操作失败");
+		}
+		//删除DataMonitorSubmodule
+		if (0 == submoduleService.deleteByParameters(MyBatisMapUtil.warp("data_monitor_id", id))) {
 			return ResponseMessage.warning("操作失败");
 		}
 		return ResponseMessage.success("操作成功");

@@ -45,12 +45,15 @@
 			MyBatis Generator, do not modify. This element was generated on Sat Apr 22 
 			16:38:08 CST 2017. -->
 		insert into gprs_module (id, name, address,
-		sim_number, device_number, group_id,
+		sim_number, device_number,
+		group_id,
 		available, gmt_create, gmt_modified
 		)
-		values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
+		values
+		(#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
 		#{address,jdbcType=VARCHAR},
-		#{simNumber,jdbcType=VARCHAR}, #{deviceNumber,jdbcType=VARCHAR}, #{groupId,jdbcType=VARCHAR},
+		#{simNumber,jdbcType=VARCHAR},
+		#{deviceNumber,jdbcType=VARCHAR}, #{groupId,jdbcType=VARCHAR},
 		#{available,jdbcType=BIT}, #{gmtCreate,jdbcType=TIMESTAMP},
 		#{gmtModified,jdbcType=TIMESTAMP}
 		)
@@ -158,13 +161,18 @@
 			16:38:08 CST 2017. -->
 		update gprs_module
 		set name = #{name,jdbcType=VARCHAR},
-		address = #{address,jdbcType=VARCHAR},
-		sim_number = #{simNumber,jdbcType=VARCHAR},
-		device_number = #{deviceNumber,jdbcType=VARCHAR},
-		group_id = #{groupId,jdbcType=VARCHAR},
+		address =
+		#{address,jdbcType=VARCHAR},
+		sim_number =
+		#{simNumber,jdbcType=VARCHAR},
+		device_number =
+		#{deviceNumber,jdbcType=VARCHAR},
+		group_id =
+		#{groupId,jdbcType=VARCHAR},
 		available = #{available,jdbcType=BIT},
 		gmt_create = #{gmtCreate,jdbcType=TIMESTAMP},
-		gmt_modified = #{gmtModified,jdbcType=TIMESTAMP}
+		gmt_modified =
+		#{gmtModified,jdbcType=TIMESTAMP}
 		where id = #{id,jdbcType=VARCHAR}
 	</update>
 	<select id="selectByParameters" resultMap="BaseResultMap">
@@ -177,4 +185,15 @@
 			</foreach>
 		</if>
 	</select>
+	<delete id="deleteByParameters">
+		delete from gprs_module
+		where
+		1 = 1
+		<if test="map != null">
+			<foreach item="item" index="key" collection="map.entrySet()">
+				and ${key} =
+				#{item}
+			</foreach>
+		</if>
+	</delete>
 </mapper>
