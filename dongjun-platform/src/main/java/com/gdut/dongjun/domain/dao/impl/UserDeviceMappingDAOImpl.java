@@ -22,4 +22,9 @@ public class UserDeviceMappingDAOImpl extends SinglePrimaryKeyBaseDAOImpl<UserDe
 		return template.selectList(getNamespace("selectMappingEnableToGenerateByUserId"), userId);
 	}
 
+	@Override
+	public List<String> selectMonitorIdByUserId(String id) {
+		return template.selectList(getNamespace("selectMonitorIdByUserId"), id);
+	}
+
 }

@@ -1,7 +1,6 @@
 package com.gdut.dongjun.web;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
@@ -15,10 +14,12 @@ import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.GPRSModule;
 import com.gdut.dongjun.domain.po.PlatformGroup;
 import com.gdut.dongjun.domain.po.User;
+import com.gdut.dongjun.domain.po.authc.Role;
 import com.gdut.dongjun.dto.GPRSModuleDTO;
 import com.gdut.dongjun.service.GPRSModuleService;
 import com.gdut.dongjun.service.PlatformGroupService;
 import com.gdut.dongjun.service.UserService;
+import com.gdut.dongjun.service.authc.RoleService;
 import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.UUIDUtil;
@@ -35,6 +36,8 @@ public class GPRSModuleController {
 	private UserService userService;
 	@Autowired
 	private HardwareServiceClient hardwareServiceClient;
+	@Autowired
+	private RoleService roleService;
 
 	//6f1b9f044e1346f299af9cc0fe7e005d
 	//6f1b9f044e1346f299af9cc0fe7e005d
@@ -71,8 +74,22 @@ public class GPRSModuleController {
 
 	@ResponseBody
 	@RequestMapping("/list")
-	public ResponseMessage lisGPRSModule(String platformId) {
-		List<GPRSModule> modules = gprsService.selectByParameters(MyBatisMapUtil.warp("group_id", platformId));
+	public ResponseMessage lisGPRSModule(String platformId, HttpSession session) {
+		User user = userService.getCurrentUser(session);
+		List<Role> roleList = roleService.selectByUserId(user.getId());
+		boolean flag = false;
+		List<GPRSModule> modules = null;
+		for (Role r : roleList) {
+			if (r.getRole() == "super_admin") {
+				flag = true;
+				break;
+			}
+		}
+		if (flag) {
+			modules = gprsService.selectByParameters(MyBatisMapUtil.warp("group_id", platformId));
+		} else {
+			modules = gprsService.selectByParameters(MyBatisMapUtil.warp("group_id", user.getCompanyId()));
+		}
 		return ResponseMessage.success(wrapIntoDTO(modules));
 	}
 

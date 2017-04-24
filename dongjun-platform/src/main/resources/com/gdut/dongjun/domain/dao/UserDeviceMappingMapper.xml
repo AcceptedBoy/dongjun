@@ -151,4 +151,7 @@
 			</foreach>
 		</if>
 	</delete>
+	<select id="selectMonitorIdByUserId" resultType="java.lang.String">
+		select device_id from user_device_mapping where user_id = #{id, jdbcType=VARCHAR}
+	</select>
 </mapper>

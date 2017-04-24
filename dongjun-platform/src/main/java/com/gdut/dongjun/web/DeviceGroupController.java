@@ -24,6 +24,7 @@ import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.service.DeviceGroupMappingService;
 import com.gdut.dongjun.service.DeviceGroupService;
 import com.gdut.dongjun.service.PlatformGroupService;
+import com.gdut.dongjun.service.UserDeviceMappingService;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.device.DataMonitorService;
 import com.gdut.dongjun.util.MyBatisMapUtil;
@@ -43,6 +44,8 @@ public class DeviceGroupController {
 	private PlatformGroupService pgService;
 	@Autowired
 	private DataMonitorService monitorService;
+	@Autowired
+	private UserDeviceMappingService userMappingService;
 
 	@RequiresPermissions("device_group_admin:edit")
 	@RequestMapping("/edit")
@@ -137,19 +140,22 @@ public class DeviceGroupController {
 
 	/**
 	 * 根据DeviceGroup的id返回DataMonitor
-	 * 
+	 * TODO
 	 * @param groupId
 	 * @return
 	 */
 	@RequiresAuthentication
 	@RequestMapping("/get_device_by_device_group_id")
 	@ResponseBody
-	public ResponseMessage getDeviceByDeviceGroupId(String groupId) {
+	public ResponseMessage getDeviceByDeviceGroupId(String groupId, HttpSession session) {
 		List<DeviceGroupMapping> mappingList = deviceGroupMappingService
 				.selectByParameters(MyBatisMapUtil.warp("device_group_id", groupId));
 		List<DataMonitor> devices = new LinkedList<DataMonitor>();
+		List<String> ids = userMappingService.selectMonitorIdByUserId(userService.getCurrentUser(session).getId());
 		for (DeviceGroupMapping mapping : mappingList) {
-			devices.add(monitorService.selectByPrimaryKey(mapping.getDeviceId()));
+			if (ids.contains(mapping.getDeviceId())) {
+				devices.add(monitorService.selectByPrimaryKey(mapping.getDeviceId()));
+			}
 		}
 		return ResponseMessage.success(devices);
 	}

@@ -52,7 +52,7 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 	@Autowired
 	private PlatformGroupService pgService;
 	@Autowired
-	private UserDeviceMappingService UDMappingService;
+	private UserDeviceMappingService userMappingService;
 	@Autowired
 	private UserService userService;
 	@Autowired
@@ -157,23 +157,25 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 				List<DeviceGroup> dgList = deviceGroupService
 						.selectByParameters(MyBatisMapUtil.warp("platform_group_id", pgList.get(j).getId()));
 
+				List<String> ids = userMappingService.selectMonitorIdByUserId(userId);
 				for (DeviceGroup dg : dgList) {
-					dgNodes.add(getDeviceGroupNode(pgList.get(j), dg));
+					dgNodes.add(getDeviceGroupNode(pgList.get(j), dg, ids));
 				}
 
 				List<DataMonitor> monitors = monitorService
 						.selectByParameters(MyBatisMapUtil.warp("group_id", pgList.get(j).getId()));
 				for (int k = 0; k < monitors.size(); k++) {
+					if (ids.contains(monitors.get(k).getId())) {
+						ZTreeNode n3 = new ZTreeNode();
+						if (monitors.get(k) != null) {
 
-					ZTreeNode n3 = new ZTreeNode();
-					if (monitors.get(k) != null) {
-
-						n3.setId(monitors.get(k).getId());
-						n3.setName(monitors.get(k).getName());
-						n3.setParentName(pgList.get(j).getName());
-						n3.setPlatformGroupId(monitors.get(k).getGroupId());
+							n3.setId(monitors.get(k).getId());
+							n3.setName(monitors.get(k).getName());
+							n3.setParentName(pgList.get(j).getName());
+							n3.setPlatformGroupId(monitors.get(k).getGroupId());
+						}
+						dgNodes.add(n3);
 					}
-					dgNodes.add(n3);
 				}
 				if (dgNodes != null && dgNodes.size() != 0) {
 					n2.setChildren(dgNodes);
@@ -208,7 +210,7 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 		return nodes;
 	}
 
-	private ZTreeNode getDeviceGroupNode(PlatformGroup group, DeviceGroup dg) {
+	private ZTreeNode getDeviceGroupNode(PlatformGroup group, DeviceGroup dg, List<String> ids) {
 		List<ZTreeNode> list = new LinkedList<ZTreeNode>();
 		ZTreeNode dgNode = new ZTreeNode();
 		dgNode.setId(dg.getId() + "");
@@ -218,13 +220,15 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 		List<DeviceGroupMapping> mappingList = mappingService
 				.selectByParameters(MyBatisMapUtil.warp("device_group_id", dg.getId()));
 		for (DeviceGroupMapping mapping : mappingList) {
-			ZTreeNode node4 = new ZTreeNode();
-			DataMonitor monitor = monitorService.selectByPrimaryKey(mapping.getDeviceId());
-			node4.setId(monitor.getId());
-			node4.setName(monitor.getName());
-			node4.setPlatformGroupId(group.getId());
-			node4.setOpen(true);
-			list.add(node4);
+			if (ids.contains(mapping.getDeviceId())) {
+				ZTreeNode node4 = new ZTreeNode();
+				DataMonitor monitor = monitorService.selectByPrimaryKey(mapping.getDeviceId());
+				node4.setId(monitor.getId());
+				node4.setName(monitor.getName());
+				node4.setPlatformGroupId(group.getId());
+				node4.setOpen(true);
+				list.add(node4);
+			}
 		}
 		dgNode.setChildren(list);
 		return dgNode;
