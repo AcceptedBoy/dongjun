@@ -29,7 +29,7 @@ public class GPRSExpiredTask extends ScheduledTask {
 			isConnected = false;
 			GPRSExpiredTask task = this;
 			task.setExecuteTime(EXPIRED_TIME);
-			ScheduledTaskExecutor.addScheduledTask(task);
+			ScheduledTaskExecutor.submit(task);
 		} else {
 			GPRSCtxStore.removeGPRS(address);
 		}

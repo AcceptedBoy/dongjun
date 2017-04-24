@@ -60,6 +60,8 @@ import io.netty.util.AttributeKey;
  * 
  * 还有，报文解析的时候怎么做到当用到新的协议，后台改动最少的代码来使得协议上线。
  * 责任链或许会引起性能问题，但不失为一个好方法
+ * 
+ * TODO如果找不到温度模块就舍弃报文
  * @author Gordan_Deng
  * @date 2017年3月23日
  */
@@ -203,8 +205,9 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		//若GPRS模块注册不成功，报文不通过
 		AttributeKey<String> key = AttributeKey.valueOf("GPRSAddress");
 		Attribute<String> attr = ctx.attr(key);
-		if ((null == attr.get() || "".equals(attr.get()))
-				|| !GPRSCtxStore.isGPRSAlive(gprsAddress)) {
+		if ((null == attr.get() || "".equals(attr.get())) ) {
+			//TODO 重新设计GPRS在线情况
+//				|| !GPRSCtxStore.isGPRSAlive(gprsAddress)) {
 			return false;
 		}
 		/*
