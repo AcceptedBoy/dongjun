@@ -10,4 +10,6 @@ public interface UserDeviceMappingService extends EnhancedService<UserDeviceMapp
 	public List<UserDeviceMapping> selectMappingEnableToSeeByUserId(String id);
 	
 	public List<UserDeviceMapping> selectMappingEnableToGenerateByUserId(String id);
+
+	public List<String> selectMonitorIdByUserId(String id);
 }

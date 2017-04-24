@@ -37,4 +37,9 @@ public class UserDeviceMappingServiceImpl extends EnhancedServiceImpl<UserDevice
 		return mapper.selectMappingEnableToGenerateByUserId(id);
 	}
 
+	@Override
+	public List<String> selectMonitorIdByUserId(String id) {
+		return mapper.selectMonitorIdByUserId(id);
+	}
+
 }
