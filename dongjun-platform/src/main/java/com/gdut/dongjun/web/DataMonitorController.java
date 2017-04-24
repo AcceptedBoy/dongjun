@@ -1,5 +1,6 @@
 package com.gdut.dongjun.web;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpSession;
@@ -13,10 +14,12 @@ import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.DataMonitor;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.po.UserDeviceMapping;
+import com.gdut.dongjun.domain.po.authc.Role;
 import com.gdut.dongjun.service.DeviceGroupMappingService;
 import com.gdut.dongjun.service.PlatformGroupService;
 import com.gdut.dongjun.service.UserDeviceMappingService;
 import com.gdut.dongjun.service.UserService;
+import com.gdut.dongjun.service.authc.RoleService;
 import com.gdut.dongjun.service.device.DataMonitorService;
 import com.gdut.dongjun.service.device.DataMonitorSubmoduleService;
 import com.gdut.dongjun.service.device.TemperatureModuleService;
@@ -42,6 +45,8 @@ public class DataMonitorController {
 	private UserDeviceMappingService userDeviceMappingService;
 	@Autowired
 	private UserService userService;
+	@Autowired
+	private RoleService roleService;
 	@Autowired
 	private PlatformGroupService pgService;
 
@@ -99,15 +104,39 @@ public class DataMonitorController {
 	 */
 	@ResponseBody
 	@RequestMapping("/list")
-	public Object list(String platformGroupId) {
-		List<DataMonitor> list = monitorService.selectByParameters(MyBatisMapUtil.warp("group_id", platformGroupId));
-//		HashMap<String, Object> map = (HashMap<String, Object>) MapUtil.warp("draw", 1);
-//		int size = list.size();
-//		map.put("recordsTotal", size);
-//		map.put("data", list);
-//		map.put("recordsFiltered", size);
-//		return map;
+	public Object list(String platformGroupId, HttpSession session) {
+		User user = userService.getCurrentUser(session);
+		List<DataMonitor> list = null;
+		List<Role> roles = roleService.selectByUserId(user.getId());
+		List<String> roleList = new ArrayList<String>();
+		for (Role r : roles) {
+			roleList.add(r.getRole());
+		}
+		if (roleList.contains("super_admin")) {
+			list = monitorService.selectByParameters(MyBatisMapUtil.warp("group_id", platformGroupId));
+		}
+		else {
+			list = monitorService.selectByParameters(MyBatisMapUtil.warp("group_id", platformGroupId));
+			List<String> ids = userDeviceMappingService.selectMonitorIdByUserId(user.getId());
+			for (DataMonitor m : list) {
+				if (!ids.contains(m.getId())) {
+					list.remove(m);
+				}
+			}
+		}
 		return ResponseMessage.success(list);
+	}
+	
+	/**
+	 * 用户能看什么就返回什么
+	 * @param session
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping("/list_authc")
+	public ResponseMessage listByAuth(HttpSession session) {
+		User user = userService.getCurrentUser(session);
+		return ResponseMessage.success(monitorService.selectByUserMapping(user));
 	}
 	
 //	@RequiresAuthentication

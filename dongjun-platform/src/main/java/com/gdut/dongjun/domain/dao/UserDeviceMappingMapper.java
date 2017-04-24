@@ -10,4 +10,6 @@ public interface UserDeviceMappingMapper extends SinglePrimaryKeyBaseMapper<User
 	public List<UserDeviceMapping> selectMappingEnableToSeeByUserId(String userId);
 	
 	public List<UserDeviceMapping> selectMappingEnableToGenerateByUserId(String userId);
+
+	public List<String> selectMonitorIdByUserId(String id);
 }
