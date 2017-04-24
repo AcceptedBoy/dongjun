@@ -139,4 +139,16 @@
 		user_device_mapping where
 		user_id = #{userId} and type = 2
 	</select>
+	
+	<delete id="deleteByParameters">
+		delete from user_device_mapping
+		where
+		1 = 1
+		<if test="map != null">
+			<foreach item="item" index="key" collection="map.entrySet()">
+				and ${key} =
+				#{item}
+			</foreach>
+		</if>
+	</delete>
 </mapper>

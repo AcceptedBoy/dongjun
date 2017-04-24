@@ -173,4 +173,16 @@
 	<select id="getCount" resultType="java.lang.Integer" parameterType="java.lang.String">
 		select count(*) from temperature_measure_history where device_id = #{deviceId}
 	</select>
+	
+	<delete id="deleteByParameters">
+		delete from temperature_measure_history
+		where
+		1 = 1
+		<if test="map != null">
+			<foreach item="item" index="key" collection="map.entrySet()">
+				and ${key} =
+				#{item}
+			</foreach>
+		</if>
+	</delete>
 </mapper>

@@ -176,4 +176,16 @@
 			</foreach>
 		</if>
 	</select>
+
+	<delete id="deleteByParameters">
+		delete from temperature_measure_history
+		where
+		1 = 1
+		<if test="map != null">
+			<foreach item="item" index="key" collection="map.entrySet()">
+				and ${key} =
+				#{item}
+			</foreach>
+		</if>
+	</delete>
 </mapper>

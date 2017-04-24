@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ScheduledTaskExecutor implements InitializingBean {
 	
-	private static final int ROUND_TIME = 3600;
+	public static final int ROUND_TIME = 3600;
 
 	//执行指针会每秒移到ArrayList下一格，轮询里面的List<ScheduledTask>是否可以执行
 	private static final List<List<ScheduledTask>> scheduledTaskList = 
@@ -37,7 +37,7 @@ public class ScheduledTaskExecutor implements InitializingBean {
 	 * 添加任务
 	 * @param task
 	 */
-	 public static void addScheduledTask(ScheduledTask task) {
+	 public static void submit(ScheduledTask task) {
 		 Integer serialNumber = (task.getExecuteTime() - ROUND_TIME * task.getRound() + currentIndex.get()) % ROUND_TIME;
 		 task.setSerialNumber(serialNumber);
 		 List<ScheduledTask> list = getTaskList(serialNumber);

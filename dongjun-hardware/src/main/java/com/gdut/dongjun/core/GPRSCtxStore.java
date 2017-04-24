@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.gdut.dongjun.core.handler.thread.GPRSExpiredTask;
+import com.gdut.dongjun.core.handler.thread.ScheduledTaskExecutor;
 
 public abstract class GPRSCtxStore extends CtxStore {
 
@@ -21,8 +22,13 @@ public abstract class GPRSCtxStore extends CtxStore {
 			return ;
 		} else {
 			GPRSList.add(gprs);
-			taskMap.put(gprs, new GPRSExpiredTask(gprs));
+			addExpiredTask(gprs, new GPRSExpiredTask(gprs));
 		}
+	}
+	
+	private static void addExpiredTask(String address, GPRSExpiredTask task) {
+		ScheduledTaskExecutor.submit(task);
+		taskMap.put(address, task);
 	}
 	
 	public static void removeGPRS(String gprs) {

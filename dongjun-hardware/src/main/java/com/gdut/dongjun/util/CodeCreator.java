@@ -210,11 +210,19 @@ public class CodeCreator {
 	 * 
 	 * @return
 	 */
+<<<<<<< HEAD
 //	public static String getDate() {
 //		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 //		return simpleDateFormat.format(new Date());
 //	}
 //	
+=======
+	public static String getDate() {
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+		return simpleDateFormat.format(new Date());
+	}
+	
+>>>>>>> dzc
 //	public static void main(String[] args) throws Exception {
 //		CodeCreator creator = new CodeCreator();
 //		List<Class> list = new ArrayList<Class>();
