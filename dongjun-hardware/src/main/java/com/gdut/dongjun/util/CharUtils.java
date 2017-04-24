@@ -6,6 +6,8 @@ import java.util.Arrays;
  * TODO
  */
 public class CharUtils {
+	
+	private static final String HEX_STR = "0123456789abcdef";
 
     public static char[] removeSpecChar(char[] src, char c) {
         int i = 0, j = 0;
@@ -161,4 +163,13 @@ public class CharUtils {
     	}
     	return tar;
     }
+    
+    /**
+     * 16进制char型数据转为int型
+     * @param c
+     * @return
+     */
+	public static int charToInt(char c) {
+		return  HEX_STR.indexOf(c);
+	}
 }

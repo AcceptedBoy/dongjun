@@ -23,7 +23,7 @@ public class DeviceOnlineTask extends ScheduledTask {
 			isActive = false;
 			DeviceOnlineTask task = this;
 			task.setExecuteTime(EXPIRED_TIME);
-			ScheduledTaskExecutor.addScheduledTask(task);
+			ScheduledTaskExecutor.submit(task);
 		} else {
 			//TODO 通知前端设备下线了
 			

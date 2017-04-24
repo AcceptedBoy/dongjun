@@ -24,10 +24,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.BigGroup;
 import com.gdut.dongjun.service.BigGroupService;
+import com.gdut.dongjun.service.PersistentHitchMessageService;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.device.temperature.TemperatureMeasureService;
 import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 import com.gdut.dongjun.service.webservice.server.WebsiteService;
+import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.UUIDUtil;
 
 @Controller
@@ -46,6 +48,17 @@ public class TestController implements InitializingBean {
 	private TemperatureMeasureService measureService;
 	
 	private Logger logger = Logger.getLogger(TestController.class);	
+	
+	@Autowired
+	private PersistentHitchMessageService msgService;
+	
+	//成功
+	@ResponseBody
+	@RequestMapping("/del_all")
+	public ResponseMessage delall() {
+		msgService.deleteByParameters(MyBatisMapUtil.warp("hitch_id", "1"));
+		return ResponseMessage.success("success!");
+	}
 	
 //	@RequestMapping("/send")
 //	@ResponseBody
@@ -245,4 +258,5 @@ public class TestController implements InitializingBean {
 		return new ResponseEntity<byte[]>(FileUtils.readFileToByteArray(file),
 				headers, HttpStatus.CREATED);
 	}
+
 }

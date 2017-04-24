@@ -7,6 +7,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.stereotype.Component;
 
 /**
  * TODO 用ROUND_TIME替代固定的时间
@@ -15,9 +16,10 @@ import org.springframework.beans.factory.InitializingBean;
  * @author Gordan_Deng
  * @date 2017年3月29日
  */
+@Component
 public class ScheduledTaskExecutor implements InitializingBean {
 	
-	private static final int ROUND_TIME = 3600;
+	public static final int ROUND_TIME = 3600;
 
 	//执行指针会每秒移到ArrayList下一格，轮询里面的List<ScheduledTask>是否可以执行
 	private static final List<List<ScheduledTask>> scheduledTaskList = 
@@ -35,7 +37,7 @@ public class ScheduledTaskExecutor implements InitializingBean {
 	 * 添加任务
 	 * @param task
 	 */
-	 public static void addScheduledTask(ScheduledTask task) {
+	 public static void submit(ScheduledTask task) {
 		 Integer serialNumber = (task.getExecuteTime() - ROUND_TIME * task.getRound() + currentIndex.get()) % ROUND_TIME;
 		 task.setSerialNumber(serialNumber);
 		 List<ScheduledTask> list = getTaskList(serialNumber);
@@ -55,6 +57,10 @@ public class ScheduledTaskExecutor implements InitializingBean {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
+		for (int i = 0; i < ROUND_TIME; i++) {
+			List<ScheduledTask> list = new ArrayList<ScheduledTask>();
+			scheduledTaskList.add(list);
+		}
 		//开启工作线程
 		Thread t = new ExecutorThread();
 		t.start();

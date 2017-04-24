@@ -20,7 +20,7 @@ public abstract class ScheduledTask implements Runnable {
 
 	public ScheduledTask(Integer executeTime) {
 		super();
-		this.round = executeTime / 3600;
+		this.round = executeTime / ScheduledTaskExecutor.ROUND_TIME;
 		this.executeTime = executeTime;
 		this.isAvailable = true;
 	}
@@ -47,7 +47,7 @@ public abstract class ScheduledTask implements Runnable {
 
 	public void setExecuteTime(Integer executeTime) {
 		this.executeTime = executeTime;
-		this.round = executeTime / 3600;
+		this.round = executeTime / ScheduledTaskExecutor.ROUND_TIME;
 	}
 
 	public boolean isAvailable() {

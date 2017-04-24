@@ -39,14 +39,11 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 		ctxlist = new CopyOnWriteArrayList<>();
 	}
 
-	//这个方法能不能运行都是个问题，估计不行
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		logger.info("运行CtxStore注入方法");
-		CtxStore.websiteServiceClient = (WebsiteServiceClient)
-				applicationContext.getBean("websiteServiceClient");
 		if (CtxStore.websiteServiceClient == null) {
-			logger.info("CtxStore的WebSiteServiceClient注入失败！！");
+			CtxStore.websiteServiceClient = (WebsiteServiceClient)
+					applicationContext.getBean("websiteServiceClient");
 		}
 	}
 

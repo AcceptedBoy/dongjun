@@ -210,21 +210,29 @@ public class CodeCreator {
 	 * 
 	 * @return
 	 */
+<<<<<<< HEAD
+//	public static String getDate() {
+//		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+//		return simpleDateFormat.format(new Date());
+//	}
+//	
+=======
 	public static String getDate() {
 		SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
 		return simpleDateFormat.format(new Date());
 	}
 	
-	public static void main(String[] args) throws Exception {
-		CodeCreator creator = new CodeCreator();
-		List<Class> list = new ArrayList<Class>();
-		list.add(ModuleHitchEvent.class);
-		
-		for (Class c : list) {
-			creator.createBeanDao(c);	
-			creator.createBeanDaoImpl(c);
-			creator.createBeanService(c);
-			creator.createBeanServiceImpl(c);
-		}
-	}
+>>>>>>> dzc
+//	public static void main(String[] args) throws Exception {
+//		CodeCreator creator = new CodeCreator();
+//		List<Class> list = new ArrayList<Class>();
+//		list.add(ModuleHitchEvent.class);
+//		
+//		for (Class c : list) {
+//			creator.createBeanDao(c);	
+//			creator.createBeanDaoImpl(c);
+//			creator.createBeanService(c);
+//			creator.createBeanServiceImpl(c);
+//		}
+//	}
 }
