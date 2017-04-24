@@ -3,7 +3,7 @@
 		<div class="span5">
 			<h2>
 				<img src="../../img/logo.png" style="height: 65px" />电管家维护系统
-          <span class="label label-default">1.2.0</span>
+          <span class="label label-default">1.12.0</span>
 			</h2>
 		</div>
 		<div id="topBarNav" class="span5 menu" style="padding-top: 20px;">
@@ -46,8 +46,8 @@
 		location.href = '../rank/index.html'
 	}
 
-	function JudgeRank() {
-		this.rank = {}
+	function JudgeRank(arr) {
+		this.rank = arr
 		this.state = {}
 	}
 
@@ -68,6 +68,17 @@
 			})
 		}
 
+		JudgeRank.prototype.rankList = ['guest', 'user', 'line_admin', 'platform_group_admin', 'super_admin']
+
+		JudgeRank.prototype.filter = function() {
+			var self = this
+			return this.rankList.filter(function(item) {
+				if(self.rank.indexOf(item) !== -1) {
+					return true
+				}
+			})
+		}
+
 		JudgeRank.prototype.addState = function(data) {
 			var type = data.type
 			if(!this.state[type]) {
@@ -78,21 +89,19 @@
 			return this
 		}
 
-		JudgeRank.prototype.changeRanks = function(ranks) {
-			this.rank = {}
-			for(var i = 0; i < ranks.length; i++) {
-				this.rank[ranks[i]] = true
-			}
-		}
-
-		JudgeRank.prototype.judge = function() {
-			for(var i in this.rank) {
-				console.log(i)
-				if(this.state[i]) {
-					for(var j = 0; j < this.state[i].length; j++) {
-						this.state[i][j]()
+		JudgeRank.prototype.judge = function(only) {
+			// 调用filter对当前拥有的权限排序
+			var list = this.filter()
+			for(var i = list.length - 1; i >= 0; i--) {
+				var rank = list[i]
+				if(this.state[rank]) {
+					for(var j = 0; j < this.state[rank].length; j++) {
+						this.state[rank][j]()
 					}
-					break
+					// 这个选项可以在执行了一处权限的函数之后就跳出
+					if(only) {
+						break
+					}
 				}
 			}
 		}
@@ -107,9 +116,8 @@
 						location.href = '/dongjun/login'
 					} else {
 						roles.currentRole = res.currentRoles
-						var judgement = new JudgeRank()
+						var judgement = new JudgeRank(roles.currentRole)
 						judgement.init()
-						judgement.changeRanks(roles.currentRole)
 						judgement.judge()
 						Object.defineProperty(roles, 'currentId', {
 							value: res.currentUser

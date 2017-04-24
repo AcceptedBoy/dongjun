@@ -458,6 +458,7 @@
       var currentChart = new EleChart('current', 'c_data_list', false)
       var powerChart = new EleChart('power', 'p_data_list', false)
       var chartArr = [temperature, voltageChart, currentChart, powerChart]
+			var active = null
 
       return {
 				refresh: function() {
@@ -465,14 +466,14 @@
 					chartManager.showChart()
 				},
         setActive: function(chartId) {
-          for(var i = 0; i < chartArr.length; i++) {
-            chartArr[i].setActive(false)
-          }
+					if(active) {
+						active.setActive(false)
+					}
           switch(chartId) {
-            case 'showTchart': temperature.setActive(true);break
-            case 'showVchart': voltageChart.setActive(true);break
-            case 'showCchart': currentChart.setActive(true);break
-            case 'showPchart': powerChart.setActive(true);break
+            case 'showTchart': temperature.setActive(true);active = temperature;break
+            case 'showVchart': voltageChart.setActive(true);active = voltageChart;break
+            case 'showCchart': currentChart.setActive(true);active = currentChart;break
+            case 'showPchart': powerChart.setActive(true);active = powerChart;break
           }
         },
         showChart: function() {

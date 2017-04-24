@@ -1,6 +1,7 @@
 package com.gdut.dongjun.service;
 
 import com.gdut.dongjun.domain.po.PlatformGroup;
+import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.service.base.EnhancedService;
 
 /**
@@ -15,4 +16,6 @@ public interface PlatformGroupService extends EnhancedService<PlatformGroup> {
      * @return
      */
     public PlatformGroup getDefaultGroup(String companyId, int type);
+    
+    public User selectBossByPlatformId(String platformId);
 }

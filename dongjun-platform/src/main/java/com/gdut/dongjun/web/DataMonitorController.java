@@ -13,8 +13,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.DataMonitor;
 import com.gdut.dongjun.domain.po.User;
+import com.gdut.dongjun.domain.po.UserDeviceMapping;
 import com.gdut.dongjun.domain.po.authc.Role;
 import com.gdut.dongjun.service.DeviceGroupMappingService;
+import com.gdut.dongjun.service.PlatformGroupService;
 import com.gdut.dongjun.service.UserDeviceMappingService;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.authc.RoleService;
@@ -45,13 +47,26 @@ public class DataMonitorController {
 	private UserService userService;
 	@Autowired
 	private RoleService roleService;
-	
+	@Autowired
+	private PlatformGroupService pgService;
+
 	@ResponseBody
 	@RequestMapping("/edit")
-	public ResponseMessage edit(DataMonitor monitor) {
+	public ResponseMessage edit(DataMonitor monitor, HttpSession session) {
 		monitor.setAvailable(1);
 		if (null == monitor.getId() || "".equals(monitor.getId())) {
 			monitor.setId(UUIDUtil.getUUID());
+			//更新UserDeviceMapping
+			User user = userService.getCurrentUser(session);
+			UserDeviceMapping m = new UserDeviceMapping();
+			m.setId(UUIDUtil.getUUID());
+			m.setDeviceId(monitor.getId());
+			m.setUserId(user.getId());
+			userDeviceMappingService.updateByPrimaryKey(m);
+			User boss = pgService.selectBossByPlatformId(user.getCompanyId());
+			m.setId(UUIDUtil.getUUID());
+			m.setUserId(boss.getId());
+			userDeviceMappingService.updateByPrimaryKey(m);
 		}
 		if (0 == monitorService.updateByPrimaryKeySelective(monitor)) {
 			return ResponseMessage.warning("操作失败");
