@@ -9,8 +9,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import com.gdut.dongjun.domain.dao.PlatformGroupMapper;
+import com.gdut.dongjun.domain.po.Company;
 import com.gdut.dongjun.domain.po.PlatformGroup;
+import com.gdut.dongjun.domain.po.User;
+import com.gdut.dongjun.service.CompanyService;
 import com.gdut.dongjun.service.PlatformGroupService;
+import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.base.impl.EnhancedServiceImpl;
 
 /**
@@ -22,6 +26,10 @@ public class PlatformGroupServiceImpl extends EnhancedServiceImpl<PlatformGroup>
 
     @Autowired
     private PlatformGroupMapper groupMapper;
+    @Autowired
+    private CompanyService comService;
+    @Autowired
+    private UserService userService;
 
     @Override
     protected boolean isExist(PlatformGroup record) {
@@ -47,4 +55,11 @@ public class PlatformGroupServiceImpl extends EnhancedServiceImpl<PlatformGroup>
             return list.get(0);
         }
     }
+
+	@Override
+	public User selectBossByPlatformId(String platformId) {
+		PlatformGroup pg = this.selectByPrimaryKey(platformId);
+		Company c = comService.selectByPrimaryKey(pg.getCompanyId());
+		return userService.selectByPrimaryKey(c.getMainStaffId());
+	}
 }

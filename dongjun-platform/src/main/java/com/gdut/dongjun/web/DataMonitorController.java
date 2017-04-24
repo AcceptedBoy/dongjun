@@ -2,6 +2,8 @@ package com.gdut.dongjun.web;
 
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,8 +11,12 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.DataMonitor;
+import com.gdut.dongjun.domain.po.User;
+import com.gdut.dongjun.domain.po.UserDeviceMapping;
 import com.gdut.dongjun.service.DeviceGroupMappingService;
+import com.gdut.dongjun.service.PlatformGroupService;
 import com.gdut.dongjun.service.UserDeviceMappingService;
+import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.device.DataMonitorService;
 import com.gdut.dongjun.service.device.DataMonitorSubmoduleService;
 import com.gdut.dongjun.service.device.TemperatureModuleService;
@@ -34,14 +40,28 @@ public class DataMonitorController {
 	private DeviceGroupMappingService deviceGroupMappingService;
 	@Autowired
 	private UserDeviceMappingService userDeviceMappingService;
-	
+	@Autowired
+	private UserService userService;
+	@Autowired
+	private PlatformGroupService pgService;
 
 	@ResponseBody
 	@RequestMapping("/edit")
-	public ResponseMessage edit(DataMonitor monitor) {
+	public ResponseMessage edit(DataMonitor monitor, HttpSession session) {
 		monitor.setAvailable(1);
 		if (null == monitor.getId() || "".equals(monitor.getId())) {
 			monitor.setId(UUIDUtil.getUUID());
+			//更新UserDeviceMapping
+			User user = userService.getCurrentUser(session);
+			UserDeviceMapping m = new UserDeviceMapping();
+			m.setId(UUIDUtil.getUUID());
+			m.setDeviceId(monitor.getId());
+			m.setUserId(user.getId());
+			userDeviceMappingService.updateByPrimaryKey(m);
+			User boss = pgService.selectBossByPlatformId(user.getCompanyId());
+			m.setId(UUIDUtil.getUUID());
+			m.setUserId(boss.getId());
+			userDeviceMappingService.updateByPrimaryKey(m);
 		}
 		if (0 == monitorService.updateByPrimaryKeySelective(monitor)) {
 			return ResponseMessage.warning("操作失败");
