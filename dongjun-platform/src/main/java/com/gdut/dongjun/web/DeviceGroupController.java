@@ -66,11 +66,11 @@ public class DeviceGroupController {
 	@RequiresPermissions("device_group_admin:delete")
 	@RequestMapping("/del")
 	@ResponseBody
-	public ResponseMessage delGroup(Integer id) {
+	public ResponseMessage delGroup(String id) {
 		if (null == id) {
 			return ResponseMessage.danger("操作失败");
 		}
-		if (deviceGroupService.deleteByPrimaryKey(id + "")) {
+		if (deviceGroupService.deleteByPrimaryKey(id)) {
 			List<DeviceGroupMapping> mappings = deviceGroupMappingService
 					.selectByParameters(MyBatisMapUtil.warp("device_group_id", id));
 			for (DeviceGroupMapping m : mappings) {

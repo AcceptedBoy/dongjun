@@ -14,7 +14,7 @@ import com.gdut.dongjun.core.initializer.ServerInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 
-@Component("TemperatureServerInitializer")
+@Component("TemperatureServerInitializer") 
 public class TemperatureServerInitializer extends ServerInitializer {
 
 	@Resource
