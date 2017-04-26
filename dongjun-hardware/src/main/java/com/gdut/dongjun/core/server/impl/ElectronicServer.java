@@ -12,7 +12,7 @@ import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.core.initializer.ServerInitializer;
 import com.gdut.dongjun.core.message.impl.ElectronicModuleMessageCreator;
 import com.gdut.dongjun.core.server.NetServer;
-
+//AbstractNioChannel AbstractChannel AbstractChannelHandlerContext
 @Service("ElectronicServer")
 public class ElectronicServer extends NetServer {
 
