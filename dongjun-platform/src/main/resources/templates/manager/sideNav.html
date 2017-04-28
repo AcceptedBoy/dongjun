@@ -1,18 +1,113 @@
-<div class="span2 container-fluid well sidebar-nav">
-  <ul class="nav nav-list bs-docs-sidenav" id="sideNav">
-    <li class="nav-header">资源管理</li>
-    <li><a href="#substation_manager">组别管理</a></li>
-    <li><a href="#line_manager">公司管理</a></li>
-    <li><a href="#equipment_manager">设备管理</a></li>
-    <li class="nav-header">设备管理</li>
-    <li><a href="#data_monitor">数据监控</a></li>
-    <li class="nav-header">GPRS管理</li>
-    <li><a href="#GPRS_manager">GPRS管理</a></li>
-  </ul>
-</div>
+<!-- <div class="span2 container-fluid well sidebar-nav" id="manager_side_nav_container">
+</div> -->
 
 <script>
   (function(){
+    var SideNav = function(node, data) {
+      this.el = null
+      this.parentNode = node
+      this.children = []
+      this.id = data.id
+      this.list = data.list || []
+      this.init()
+    }
+    SideNav.prototype = {
+      constructor: SideNav,
+      init: function() {
+        this.el = document.createElement('ul')
+        this.el.id = this.id
+        this.el.className = 'nav nav-list bs-docs-sidenav'
+        this.list.forEach(function(item) {
+          console.log(item)
+          switch(item.type) {
+            case 'header':
+              this.add(new SideNavHeader(item.text))
+              break
+            case 'item':
+              this.add(new SideNavItem({
+                text: item.text,
+                href: item.href
+              }))
+              break
+          }
+        }.bind(this))
+      },
+      show: function() {
+        console.log(this.el)
+        this.parentNode.appendChild(this.el)
+        return this
+      },
+      add: function(child) {
+        this.el.appendChild(child.getEl())
+        this.children.push(child)
+        return this
+      },
+      getEl: function() {
+        return this.el
+      }
+    }
+
+    var SideNavHeader = function(data) {
+      this.el = document.createElement('li')
+      this.data = data
+      this.init()
+    }
+    SideNavHeader.prototype.init = function() {
+      this.el.className = 'nav-header'
+      this.el.innerHTML = this.data
+    }
+
+    SideNavHeader.prototype.getEl = function() {
+      return this.el
+    }
+
+    var SideNavItem = function(data) {
+      SideNavHeader.call(this, data)
+    }
+
+    SideNavItem.prototype = new SideNavHeader()
+    SideNavItem.prototype.init = function() {
+      this.el.className = ''
+      this.el.innerHTML = '<a href="#'+ this.data.href +'">' + this.data.text + '</a>'
+    }
+
+    var NavData = [{
+      type: 'header',
+      text: '资源管理'
+    }, {
+      type: 'item',
+      href: 'substation_manager',
+      text: '组别管理',
+      superAdmin: true
+    }, {
+      type: 'item',
+      href: 'line_manager',
+      text: '公司管理',
+      superAdmin: true
+    }, {
+      type: 'item',
+      href: 'equipment_manager',
+      text: '组别管理'
+    }, {
+      type: 'header',
+      text: '设备管理'
+    }, {
+      type: 'item',
+      href: 'data_monitor',
+      text: '数据监控'
+    }];
+
+    if(roles.currentRole.indexOf('super_admin') == -1) {
+      NavData = NavData.filter(function(item) {
+        return !item.superAdmin
+      })
+    }
+
+    (new SideNav($('#manager_side_nav_container')[0], {
+      id: 'sideNav',
+      list: NavData
+    })).show()
+
     // 用于加载css
     var loadLink = function(url, cb) {
       var linkHistory = []
@@ -136,13 +231,13 @@
       })
     }
     function loadGPRSManager() {
-      dj.jsLoad('/js/manager/selectManager.js', function() {
+      // dj.jsLoad('/js/manager/selectManager.js', function() {
         dj.inserCmp('GPRS_manager.html', $('.container')[0], function() {
           if(roles.currentRole.indexOf('super_admin') != -1) {
             dj.inserCmp('GPRS_manager_modal.html', $('.managerModal')[0])
           }
         })
-      })
+      // })
     }
   })()
 

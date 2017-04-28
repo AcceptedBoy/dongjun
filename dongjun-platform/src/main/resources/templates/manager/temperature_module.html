@@ -1,13 +1,13 @@
 <div id="temperature_info_panel">
   <div class="container-fluid well" style="height: 100%;overflow-y: hidden;position: relative;">
-    <h3 class="text-center" id="sensor_list_header">
+<!--     <h3 class="text-center" id="sensor_list_header">
       <span id="temperature_info_title">温度模块</span>
       <div id="tem_info_back" class="notice-container" style="float:left;cursor: pointer;">
         <div class="cursor-notice"><a style="color: #505050;font-size: 0.8em">◁</a></div>
         <div class="cursor-notice-borad-right">返回温度设备</div>
       </div>
-    </h3>
-    <hr>
+    </h3> -->
+    <!-- <hr> -->
     <table id="temperature_info_list" class="table table-bordered table-striped table-hover table-condensed success" style="width: 100%">
       <thead>
         <td>设备号码</td>
@@ -55,10 +55,10 @@
         store.dom = setting.dom
         store.url = setting.url
         // 返回按钮
-        store.dom.back.on('click', function() {
-          panelObserver.fire('backToDataMonitor')
-          store.lastId = store.now.monitorId
-        })
+        // store.dom.back.on('click', function() {
+        //   panelObserver.fire('backToDataMonitor')
+        //   store.lastId = store.now.monitorId
+        // })
         this.loadModal()
       },
       loadModal: function() {
@@ -180,6 +180,10 @@
     }
   }()
 
+  /**
+   * 传感器表格
+   * @param {[type]} setting [description]
+   */
   var SensorTable = function(setting) {
     this.setting = setting
     this.rows = []
@@ -252,6 +256,10 @@
     return this.el
   }
 
+  /**
+   * 传感器列表的行
+   * @param {[type]} setting [description]
+   */
   var SensorRow = function(setting) {
 
     this.setting = setting
@@ -261,7 +269,6 @@
     this.addBtn = null
     this.init()
   }
-
   SensorRow.prototype.init = function() {
     var data = this.setting.data
     // create tds
