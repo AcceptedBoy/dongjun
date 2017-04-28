@@ -185,7 +185,7 @@ public abstract class NetServer {
 	 */
 	protected abstract void timedCVReadTask();
 
-	public int getPort() {
+	public Integer getPort() {
 		return port;
 	}
 

@@ -25,6 +25,11 @@ import org.springframework.web.filter.CharacterEncodingFilter;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
+/**
+ * http://www.jianshu.com/p/58fad8e42379 netty reactor线程理解
+ * @author Gordan_Deng
+ * @date 2017年4月27日
+ */
 @SpringBootApplication
 @EnableAspectJAutoProxy
 @ImportResource("classpath:hardware-service.xml")

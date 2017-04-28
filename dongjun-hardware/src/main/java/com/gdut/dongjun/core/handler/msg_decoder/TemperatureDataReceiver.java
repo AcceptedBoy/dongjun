@@ -138,7 +138,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		//AbstractChannel-EventLoop  AbstractNioEventLoop-NioEventLoop
-		//果然进入了SingleThreadEventExecutor
+		//果然进入了 SingleThreadEventExecutor
 			//NioEventLoop AbstractNioMessageChannel
 		//每一个Channel对应一个EventLoop，一个EventLoop可以对应多个Channel，而每一个EventLoop里都有一个Selector
 		//Channel有读写事件的时候就会生成一个事件加入Selector机制，封装成AbstractNioChannel
