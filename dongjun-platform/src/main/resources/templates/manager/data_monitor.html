@@ -1,15 +1,5 @@
 <div id="data_monitor_panel">
   <div class="form-inline" id="group_company_select">
-  <!--   <div class="form-group span6" id="group_company_select_group">
-      <div class="form-group span6">
-        <label class="span2" style="line-height: 2em">组别:</label>
-        <select class="groups span10"></select>
-      </div>
-      <div class="form-group span6">
-        <label class="span2" style="line-height: 2em">公司:</label>
-        <select class='companys span10'></select>
-      </div>
-    </div> -->
     <div class="form-group span5">
         <a href="#edit_dataMonitor_modal" class="btn btn-primary" id="add_dataMonitor_btn" data-toggle="modal" data-backdrop="static">添加设备</a>
     </div>
@@ -19,8 +9,10 @@
     <thead>
       <td>名称</td>
       <td>地址</td>
+      <td>子模块</td>
+   <!--    <td>GPRS</td>
       <td>温度模块</td>
-      <td>电能表模块</td>
+      <td>电能表模块</td> -->
       <td>修改</td>
       <td>删除</td>
     </thead>
@@ -47,10 +39,10 @@
     <div class="tab-pane fade" id="temperature_module" style="position: relative;">
       数据加载中。。。
     </div>
-    <div class="tab-pane fade" id="GPRS_module">
+    <div class="tab-pane fade" id="GPRS_module" style="width: 100%">
       数据加载中。。。
     </div>
-    <div class="tab-pane fade" id="power_module">
+    <div class="tab-pane fade" id="power_module" style="width: 100%">
       数据加载中。。。
     </div>
   </div>
@@ -178,6 +170,7 @@
           console.warn('没有事件 '+ type)
           return
         }
+        console.log('FIRE:  ' + type)
         __message[type].forEach(function(fnc) {
           fnc(agrs, type)
         })
@@ -185,7 +178,7 @@
     }
   }()
 
-  var managerTable = function() {
+  var monitorManagerTable = function() {
     var table = null;
     var defUrl = '/dongjun/data_monitor/list';
     return {
@@ -204,18 +197,24 @@
           'columns': [
             { 'data': 'name' },
             { 'data': 'address' },
+            // {
+            //   'data': 'id',
+            //   'render': function(data, type, row) {
+            //     return '<a role="button" class="btn" data-fnc="goToGPRSModule" data-name="'+ row.name +'"  data-id="'+ data +'">查看</a>'
+            //   }
+            // },
             {
               'data': 'id',
               'render': function(data, type, row) {
                 return '<a role="button" class="btn" data-fnc="goToTemModule" data-name="'+ row.name +'"  data-id="'+ data +'">查看</a>'
               }
             },
-            {
-              'data': 'id',
-              'render': function(data, type, row) {
-                return '<a role="button" class="btn" data-fnc="goToPowerModule" data-name="'+ row.name +'"  data-id="'+ data +'">查看</a>'
-              }
-            },
+            // {
+            //   'data': 'id',
+            //   'render': function(data, type, row) {
+            //     return '<a role="button" class="btn" data-fnc="goToPowerModule" data-name="'+ row.name +'"  data-id="'+ data +'">查看</a>'
+            //   }
+            // },
             {
               data: 'id',
               width: '50px',
@@ -250,14 +249,10 @@
               switch(fnc) {
                 // 切换至温度子模块
                 case 'goToTemModule':
-                    ModulesTabPanel.show('temperature', target.data('name'), function() {
-                      // 触发显示温度子模块
-                      panelObserver.fire('showTemModule', {
-                        id: target.data('id'),
-                        name: target.data('name')
-                      })
-                    })
-
+                  ModulesTabPanel.show('temperature', target.data('name'), target.data('id'))
+                  return
+                case 'goToGPRSModule':
+                  ModulesTabPanel.show('GPRS', target.data('name'), target.data('id'))
                   return
                 case 'goToPowerModule':
                   alert('暂未开放, 请等待')
@@ -315,8 +310,13 @@
     }
 
     var currentTab = ''
+    var curMonitorId = ''
+    var fireFnc = {
+      temperature: 'showTemModule',
+      GPRS: 'showGPRSModule'
+    }
 
-    var afterLoad = function() {}
+    // var afterLoad = function() {}
 
     var __loadTpl = function(tplName, fnc) {
       if(!template[tplName]) {
@@ -336,24 +336,36 @@
       $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
         var name = e.target.href.split('#')[1].replace(/_module$/, '')
         if(hasLoad.indexOf(name) == -1) {
-          __loadTpl(name, afterLoad)
+          __loadTpl(name, function() {
+            panelObserver.fire(fireFnc[name], {
+              id: curMonitorId
+            })
+          })
         } else {
-          afterLoad()
+          panelObserver.fire(fireFnc[name], {
+            id: curMonitorId
+          })
         }
       })
     })()
 
     return {
-      show: function(name, monitorName, fnc) {
+      show: function(name, monitorName, monitorId) {
         if(currentTab == name) {
-          fnc()
+          panelObserver.fire(fireFnc[name.replace(/_module$/, '')], {
+            id: monitorId
+          })
         } else {
           currentTab = name
         }
-        afterLoad = fnc
+        curMonitorId = monitorId
+        // afterLoad = fnc
         titleNode.text(monitorName)
         panelObserver.fire('toModulesPanel', {})
         $('#modules_panel_tab a[href="#'+ name + '_module' +'"]').tab('show')
+      },
+      getMonitorId: function() {
+        return curMonitorId
       }
     }
   }()
@@ -400,14 +412,14 @@
     panelCtrl.show('dataMonitor')
   })
 
-  modal.setOption({
+  monitorManagerModal.setOption({
     url: {
       add: '/dongjun/data_monitor/edit',
       edit: '/dongjun/data_monitor/edit',
       del: '/dongjun/data_monitor/del',
       upload: '/dongjun/uploadtemDeviceExcel'
     },
-    completeFnc: managerTable.redraw
+    completeFnc: monitorManagerTable.redraw
   });
 
   (function() {
@@ -437,12 +449,12 @@
             'group': '.groups',
             'company': '.companys'
           },
-          completeFnc: managerTable.redraw
+          completeFnc: monitorManagerTable.redraw
         })
         selectManager.loadGroups()
         selectManager.autoListen()
 
-        managerTable.init({
+        monitorManagerTable.init({
           data: {
             platformGroupId: selectManager.getCompany()
           }
@@ -450,7 +462,7 @@
       })
     } else {
       // 非超管
-      managerTable.init()
+      monitorManagerTable.init()
     }
   })()
 

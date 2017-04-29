@@ -52,7 +52,7 @@
 </div>
 
 <script>
-  var modal = function(){
+  var monitorManagerModal = function(){
     var urls = {};
     var completeFnc = null;
     var nowId = {
@@ -104,7 +104,7 @@
         var params = {
           'name' : data.name,
           'address' : data.address,
-          'groupId' : selectManager.getCompany(),
+          'groupId' : selectManager && selectManager.getCompany() || '',
         }
 
         if(!status.isAdd) {
