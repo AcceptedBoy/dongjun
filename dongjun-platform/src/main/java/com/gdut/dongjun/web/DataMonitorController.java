@@ -1,10 +1,9 @@
 package com.gdut.dongjun.web;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.servlet.http.HttpSession;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,7 +13,6 @@ import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.DataMonitor;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.po.UserDeviceMapping;
-import com.gdut.dongjun.domain.po.authc.Role;
 import com.gdut.dongjun.service.DeviceGroupMappingService;
 import com.gdut.dongjun.service.PlatformGroupService;
 import com.gdut.dongjun.service.UserDeviceMappingService;
@@ -56,17 +54,16 @@ public class DataMonitorController {
 		monitor.setAvailable(1);
 		if (null == monitor.getId() || "".equals(monitor.getId())) {
 			monitor.setId(UUIDUtil.getUUID());
-			//更新UserDeviceMapping
-			User user = userService.getCurrentUser(session);
-			UserDeviceMapping m = new UserDeviceMapping();
-			m.setId(UUIDUtil.getUUID());
-			m.setDeviceId(monitor.getId());
-			m.setUserId(user.getId());
-			userDeviceMappingService.updateByPrimaryKey(m);
-			User boss = pgService.selectBossByPlatformId(user.getCompanyId());
-			m.setId(UUIDUtil.getUUID());
-			m.setUserId(boss.getId());
-			userDeviceMappingService.updateByPrimaryKey(m);
+			Subject currentUser = SecurityUtils.getSubject();
+			if (!currentUser.hasRole("platform_admin")) {
+				//更新UserDeviceMapping
+				User user = userService.getCurrentUser(session);
+				UserDeviceMapping m = new UserDeviceMapping();
+				m.setId(UUIDUtil.getUUID());
+				m.setDeviceId(monitor.getId());
+				m.setUserId(user.getId());
+				userDeviceMappingService.updateByPrimaryKey(m);
+			}
 		}
 		if (0 == monitorService.updateByPrimaryKeySelective(monitor)) {
 			return ResponseMessage.warning("操作失败");
@@ -106,38 +103,47 @@ public class DataMonitorController {
 	@RequestMapping("/list")
 	public Object list(String platformGroupId, HttpSession session) {
 		User user = userService.getCurrentUser(session);
-		List<DataMonitor> list = null;
-		List<Role> roles = roleService.selectByUserId(user.getId());
-		List<String> roleList = new ArrayList<String>();
-		for (Role r : roles) {
-			roleList.add(r.getRole());
+		Subject subject = SecurityUtils.getSubject();
+		if (subject.hasRole("platform_admin")) {
+			return ResponseMessage.success(
+					monitorService.selectByParameters(MyBatisMapUtil.warp("group_id", platformGroupId))
+					);
+		} else {
+			return ResponseMessage.success(monitorService.selectByUserMapping(user));
 		}
-		if (roleList.contains("super_admin")) {
-			list = monitorService.selectByParameters(MyBatisMapUtil.warp("group_id", platformGroupId));
-		}
-		else {
-			list = monitorService.selectByParameters(MyBatisMapUtil.warp("group_id", platformGroupId));
-			List<String> ids = userDeviceMappingService.selectMonitorIdByUserId(user.getId());
-			for (DataMonitor m : list) {
-				if (!ids.contains(m.getId())) {
-					list.remove(m);
-				}
-			}
-		}
-		return ResponseMessage.success(list);
+//		User user = userService.getCurrentUser(session);
+//		List<DataMonitor> list = null;
+//		List<Role> roles = roleService.selectByUserId(user.getId());
+//		List<String> roleList = new ArrayList<String>();
+//		for (Role r : roles) {
+//			roleList.add(r.getRole());
+//		}
+//		if (roleList.contains("super_admin")) {
+//			list = monitorService.selectByParameters(MyBatisMapUtil.warp("group_id", platformGroupId));
+//		}
+//		else {
+//			list = monitorService.selectByParameters(MyBatisMapUtil.warp("group_id", platformGroupId));
+//			List<String> ids = userDeviceMappingService.selectMonitorIdByUserId(user.getId());
+//			for (DataMonitor m : list) {
+//				if (!ids.contains(m.getId())) {
+//					list.remove(m);
+//				}
+//			}
+//		}
+//		return ResponseMessage.success(list);
 	}
 	
-	/**
-	 * 用户能看什么就返回什么
-	 * @param session
-	 * @return
-	 */
-	@ResponseBody
-	@RequestMapping("/list_authc")
-	public ResponseMessage listByAuth(HttpSession session) {
-		User user = userService.getCurrentUser(session);
-		return ResponseMessage.success(monitorService.selectByUserMapping(user));
-	}
+//	/**
+//	 * 用户能看什么就返回什么
+//	 * @param session
+//	 * @return
+//	 */
+//	@ResponseBody
+//	@RequestMapping("/list_authc")
+//	public ResponseMessage listByAuth(HttpSession session) {
+//		User user = userService.getCurrentUser(session);
+//		return ResponseMessage.success(monitorService.selectByUserMapping(user));
+//	}
 	
 //	@RequiresAuthentication
 //	@RequestMapping(value = "/downloadEmptytemExcel")

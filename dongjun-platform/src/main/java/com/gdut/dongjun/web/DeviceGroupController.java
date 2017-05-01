@@ -172,6 +172,12 @@ public class DeviceGroupController {
 		User user = userService.getCurrentUser(session);
 		List<DataMonitor> devices = monitorService
 				.selectByParameters(MyBatisMapUtil.warp("group_id", user.getCompanyId()));
+		List<String> ids = userMappingService.selectMonitorIdByUserId(userService.getCurrentUser(session).getId());
+		for (DataMonitor d : devices) {
+			if (!ids.contains(d.getId())) {
+				devices.remove(d);
+			}
+		}
 		return ResponseMessage.success(devices);
 	}
 

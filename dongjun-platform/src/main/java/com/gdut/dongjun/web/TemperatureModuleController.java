@@ -97,7 +97,7 @@ public class TemperatureModuleController {
 	@RequestMapping("/list")
 	public ResponseMessage list(String monitorId) {
 		List<DataMonitorSubmodule> subList = submoduleService.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
-		String id = null;
+		//TODO
 		for (DataMonitorSubmodule sub : subList) {
 			if (sub.getModuleType() == 3) {
 				List<TemperatureModule> module = moduleService.selectByParameters(MyBatisMapUtil.warp("id", sub.getModuleId()));
