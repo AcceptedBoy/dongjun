@@ -14,7 +14,7 @@
       </div>
       <div class="modal-footer">
         <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
-        <button id="uploadxls_btn" class="btn btn-primary" onclick="modal.uploadFile()">添加</button>
+        <button id="uploadxls_btn" class="btn btn-primary" onclick="monitorManagerModal.uploadFile()">添加</button>
       </div>
     </form>
   </div>
@@ -45,14 +45,14 @@
       <div class="modal-footer">
         <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
         <button id="add_switch_confirm_btn" class="btn btn-primary"
-                aria-hidden="true" onclick="modal.save()">添加</button>
+                aria-hidden="true" onclick="monitorManagerModal.save()">添加</button>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-  var modal = function(){
+  var monitorManagerModal = function(){
     var urls = {};
     var completeFnc = null;
     var nowId = {
@@ -104,7 +104,7 @@
         var params = {
           'name' : data.name,
           'address' : data.address,
-          'groupId' : selectManager.getCompany(),
+          'groupId' : selectManager && selectManager.getCompany() || '',
         }
 
         if(!status.isAdd) {
