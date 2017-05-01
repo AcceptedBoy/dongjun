@@ -12,6 +12,8 @@ public class HitchConst {
 	
 	public static final int MODULE_ELECTRICITY = 2;
 	
+	public static final int MODULE_GPRS = 4;
+	
 	//301
 	public static final String HITCH_OVER_TEMPERATURE = "监测温度超过设备所设阈值";
 	
