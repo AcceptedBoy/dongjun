@@ -118,15 +118,27 @@
       this._isActive = isActive
     }
 
+		// 判断和上次渲染的图表是否一样
+		// Chart.prototype.judgeRes = function(res) {
+		// 	if(this.cache) {
+		//
+		// 	} else {
+		// 		return false
+		// 	}
+		// }
+
     Chart.prototype.clearChart = function() {
     	if(this.chart) {
     		this.chart.setOption({
-    			"title": {
+    						"title": {
                     "text": ""
                 },
                 "tooltip": {
                     "trigger": "axis"
                 },
+								"grid": {
+									"bottom": '8%'
+								},
                 "legend": {
                     "data": []
                 },
@@ -204,13 +216,17 @@
     }
 
     TemChart.prototype.showChart = function(name, id, bgtime, endtime) {
-      var that = this
+			// if(!this.shouldReload) {
+			// 	this.shouldReload = true
+			// 	return
+			// }
+      var self = this
       if(!(bgtime && endtime)) {
         bgtime = $('#begin_search_date').val()
         endtime = $('#end_search_date').val()
       }
       if(name && id) {
-        chartView.showLoading(that.chart);
+        chartView.showLoading(self.chart);
         $.ajax({
           url: '/dongjun/select_chart_by_device_id',
           type: 'GET',
@@ -220,21 +236,29 @@
             endDate: endtime
           },
           success: function(res) {
-            chartView.hideLoading(that.chart);
+            chartView.hideLoading(self.chart);
             if(res) {
-              chartView.showTitle(res, name)
-              chartView.moveLegend(res)
-              that.chart.setOption(res, true)
-              that.showTable()
+							// if(self.cache) {
+							// 	if(self.judgeRes(res)) {
+							// 		return
+							// 	} else {
+							// 		self.cache = res
+							// 	}
+							// }
+              // chartView.showTitle(res, name)
+              // chartView.moveLegend(res)
+              chartView.setChart(res, name)
+              self.chart.setOption(res, true)
+              self.showTable()
             } else {
               alert('没有数据')
-              that.clearChart()
+              self.clearChart()
             }
           }
         })
       } else {
         alert('请选择设备树的节点')
-        that.clearChart()
+        self.clearChart()
       }
     }
 
@@ -342,24 +366,45 @@
         hideLoading: function(chart) {
         	chart.hideLoading()
         },
-        moveLegend: function(op) {
-          op.legend.orient = 'vertical';
-          op.legend.x = 'right';
-          op.legend.y = '25';
-        },
-        showTitle: function(op, text) {
-          op.title = {
-              text: text,
-              x: 'center',
-              backgroundColor: 'white',
-              borderColor: 'black',
-              padding: 13,
-              textStyle: {
-                color: 'black',
-                fontSize: 23
-              }
+				seekTime: function(dataArr) {
+					var time = ''
+					for(var i = 0; i < dataArr.length; i++) {
+						if(dataArr[i].data) {
+							time = dataArr[i].name
+							break
+						}
+					}
+					return time
+				},
+				setChart: function(op, text) {
+					var self = this
+					op.grid = {
+						bottom: '8%'
+					}
+					op.title = {
+            text: text,
+            x: 'center',
+            backgroundColor: 'white',
+            borderColor: 'black',
+            padding: 13,
+            textStyle: {
+              color: 'black',
+              fontSize: 23
             }
-        },
+          },
+					op.tooltip.formatter = function(data) {
+						var time = self.seekTime(data)
+						var html = time
+						data.forEach(function(item) {
+							html += '<br/>' + item.seriesName + ' : ' + item.data
+						})
+						return html
+					}
+					op.tooltip.padding = 10
+					op.legend.orient = 'vertical'
+          op.legend.x = 'right'
+          op.legend.y = '25'
+				}
       };
     }();
 
@@ -383,25 +428,21 @@
                 case 'showVExcal':
                   if(!$('#showVchart').closest('li').hasClass('active')) {
                 	$('#showVchart').click();
-                    // chartManager.setActive('showVchart')
                   }
                   break;
                 case 'showCExcal':
                   if(!$('#showCchart').closest('li').hasClass('active')) {
                     $('#showCchart').click();
-                    // chartManager.setActive('showCchart');
                   }
                   break;
                 case 'showPExcal':
                 if(!$('#showPchart').closest('li').hasClass('active')) {
                   $('#showPchart').click();
-                  // chartManager.setActive('showPchart')
                 }
                 break;
                 case 'showTExcal':
                 if(!$('#showTchart').closest('li').hasClass('active')) {
                   $('#showTchart').click();
-                  // chartManager.setActive('showTchart')
                 }
                 break;
               }
@@ -465,6 +506,14 @@
 					chartManager.initail_datetimepicker()
 					chartManager.showChart()
 				},
+				// UnReload: function(chartId) {
+				// 	switch(chartId) {
+        //     case 'showTchart': temperature.setReload(false);break
+        //     case 'showVchart': voltageChart.setReload(false);break
+        //     case 'showCchart': currentChart.setReload(false);break
+        //     case 'showPchart': powerChart.setReload(false);break
+        //   }
+				// },
         setActive: function(chartId) {
 					if(active) {
 						active.setActive(false)
@@ -513,32 +562,32 @@
             format: "yyyy-mm-dd hh:ii",
             minuteStep: 5
           });
-          var year = timer.getFullYear();
-          var month = timer.getMonth() + 1;
-          var lastMonth = timer.getMonth();
-          var today = timer.getDate();
-          var yesterday = today - 1;
-          yesterday = yesterday.toString();
-          var hour = timer.getHours();
-          hour = hour>=10 ? hour : '0'+hour;
-          var minute = timer.getMinutes();
+          var year = timer.getFullYear()
+          var month = timer.getMonth() + 1
+          var lastMonth = timer.getMonth()
+          var today = timer.getDate()
+          var yesterday = today - 1
+          yesterday = yesterday.toString()
+          var hour = timer.getHours()
+          hour = hour>=10 ? hour : '0'+hour
+          var minute = timer.getMinutes()
           minute = minute >= 10 ? minute : '0'+minute
           if(Number(hour) > 12) {
             var lastHour = Number(hour) - 12
-            lastHour = lastHour>=10 ? lastHour : '0'+lastHour;
+            lastHour = lastHour>=10 ? lastHour : '0'+lastHour
             chartView.setTime({
             	bg: year + '-' + month + '-' + today + ' ' + lastHour + ':' + minute,
             	end: year + '-' + month + '-' + today + ' ' + hour + ':' + minute
             })
           } else {
             if(yesterday == 9) {
-              yesterday = '0' + yesterday;
-              lastMonth = lastMonth + 1;
+              yesterday = '0' + yesterday
+              lastMonth = lastMonth + 1
             }
             else if((yesterday>0)&&(yesterday<9)) {
-              today = '0' + today;
-              yesterday = '0' + yesterday;
-              lastMonth = lastMonth + 1;
+              today = '0' + today
+              yesterday = '0' + yesterday
+              lastMonth = lastMonth + 1
             }
             else if(today == 1) {
               switch(month) {
