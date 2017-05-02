@@ -16,6 +16,7 @@ import com.gdut.dongjun.util.TimeUtil;
  * @author Gordan_Deng
  * @date 2017年1月12日
  */
+@Deprecated
 public class SwitchChartDataDecorator extends ChartDataDecorator {
 	
 	private List<SwitchChartData> chartList;

@@ -5,8 +5,6 @@ import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,10 +14,6 @@ import com.gdut.dongjun.HitchConst;
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.DataMonitorSubmodule;
 import com.gdut.dongjun.domain.po.GPRSModule;
-import com.gdut.dongjun.domain.po.PlatformGroup;
-import com.gdut.dongjun.domain.po.TemperatureModule;
-import com.gdut.dongjun.domain.po.User;
-import com.gdut.dongjun.domain.po.authc.Role;
 import com.gdut.dongjun.dto.GPRSModuleDTO;
 import com.gdut.dongjun.service.GPRSModuleService;
 import com.gdut.dongjun.service.PlatformGroupService;
@@ -97,15 +91,12 @@ public class GPRSModuleController {
 				.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
 		// TODO 优化sql
 		for (DataMonitorSubmodule sub : subList) {
-			if (sub.getModuleType() == 3) {
-				List<GPRSModule> module = gprsService.selectByParameters(MyBatisMapUtil.warp("id", sub.getModuleId()));
-				if (0 == module.size()) {
-					return ResponseMessage.warning(null);
-				}
-				if (null == module || module.size() > 1) {
+			if (sub.getModuleType() == HitchConst.MODULE_GPRS) {
+				GPRSModule module = gprsService.selectByPrimaryKey(sub.getModuleId());
+				if (null == module) {
 					return ResponseMessage.warning("操作失败");
 				}
-				return ResponseMessage.success(wrapIntoDTO(module.get(0)));
+				return ResponseMessage.success(wrapIntoDTO(module));
 			}
 		}
 		return ResponseMessage.warning(null);
@@ -116,6 +107,14 @@ public class GPRSModuleController {
 	public ResponseMessage del(String id) {
 		if (!gprsService.deleteByPrimaryKey(id)) {
 			return ResponseMessage.warning("操作失败");
+		}
+		List<DataMonitorSubmodule> submodules = submoduleService.selectByParameters(MyBatisMapUtil.warp("module_id", id));
+		if (0 == submodules.size()) {
+			return ResponseMessage.warning("操作失败");
+		}
+		DataMonitorSubmodule submodule = submodules.get(0);
+		if (!submoduleService.deleteByPrimaryKey(submodule.getId())) {
+			return ResponseMessage.warning("操作失败"); 
 		}
 		return ResponseMessage.success("操作成功");
 	}

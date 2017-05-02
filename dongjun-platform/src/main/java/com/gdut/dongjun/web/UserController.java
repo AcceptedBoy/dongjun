@@ -113,9 +113,9 @@ public class UserController {
 	public Object loginForm(String name, String password, Model model, RedirectAttributes redirectAttributes,
 			HttpSession session) throws JMSException {
 
+		//这一步扔到ApplicationContext吧
 		SecurityUtils.setSecurityManager(manager);
 		Subject currentUser = SecurityUtils.getSubject();
-
 		UsernamePasswordToken token = new UsernamePasswordToken(name, password);
 		token.setRememberMe(true);	//这个项目好像暂时不需要记住我的功能
 

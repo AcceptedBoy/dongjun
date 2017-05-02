@@ -1,6 +1,5 @@
 package com.gdut.dongjun.web;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +18,9 @@ import com.gdut.dongjun.domain.vo.chart.ChartData;
 import com.gdut.dongjun.domain.vo.chart.TemperatureChartData;
 import com.gdut.dongjun.service.device.DataMonitorService;
 import com.gdut.dongjun.service.device.DataMonitorSubmoduleService;
+import com.gdut.dongjun.service.device.ElectronicModuleCurrentService;
+import com.gdut.dongjun.service.device.ElectronicModulePowerService;
+import com.gdut.dongjun.service.device.ElectronicModuleVoltageService;
 import com.gdut.dongjun.service.device.TemperatureModuleService;
 import com.gdut.dongjun.service.device.TemperatureSensorService;
 import com.gdut.dongjun.service.device.temperature.TemperatureMeasureService;
@@ -29,7 +31,7 @@ import com.gdut.dongjun.util.MyBatisMapUtil;
 public class ChartController {
 
 	@Autowired
-	private TemperatureMeasureService measureService;
+	private TemperatureMeasureService temMeasureService;
 	@Autowired
 	private TemperatureSensorService sensorService;
 	@Autowired
@@ -38,6 +40,12 @@ public class ChartController {
 	private DataMonitorService monitorService;
 	@Autowired
 	private DataMonitorSubmoduleService submoduleService;
+	@Autowired
+	private ElectronicModuleCurrentService currentService;
+	@Autowired
+	private ElectronicModulePowerService powerService;
+	@Autowired
+	private ElectronicModuleVoltageService voltageService;
 
 	/**
 	 * 
@@ -277,10 +285,108 @@ public class ChartController {
 		Map<String, Object> measureMap = new HashMap<String, Object>();
 		List<TemperatureSensor> sensors = sensorService.selectByParameters(MyBatisMapUtil.warp("device_id", deviceId));
 		for (TemperatureSensor sensor : sensors) {
-			List<TemperatureMeasure> measures = measureService.selectByTime(deviceId, sensor.getTag(), beginDate, endDate);
+			List<TemperatureMeasure> measures = temMeasureService.selectByTime(deviceId, sensor.getTag(), beginDate, endDate);
 			measureMap.put(sensor.getTag() + "", measures);
 		}
 		return chartData.getJsonChart(measureMap);
 	}
+	
+//	/**
+//	 * 返回电流
+//	 * @param id
+//	 * @param beginDate
+//	 * @param endDate
+//	 * @param sensorAddress
+//	 * @return
+//	 */
+//	@RequiresAuthentication
+//	@RequestMapping("/chart/electronic_current")
+//	@ResponseBody
+//	public ChartData getElectronicCurrentJsonChart(
+//			@RequestParam(required = true) String monitorId, 
+//			@RequestParam(required = true) String beginDate, 
+//			@RequestParam(required = true) String endDate) {
+//		List<DataMonitorSubmodule> mappings = submoduleService.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
+//		String deviceId = null;
+//		for (DataMonitorSubmodule mapping : mappings) {
+//			if (HitchConst.MODULE_ELECTRICITY == mapping.getModuleType()) {
+//				deviceId = mapping.getModuleId();
+//				break;
+//			}
+//		}
+//		Map<Integer, Object> measureMap = new HashMap<Integer, Object>();
+//		for (int type = 1; type <= 6; type++) {
+//			List<TemperatureMeasure> measures = currentService.selectByTime(deviceId, beginDate, endDate);
+//			measureMap.put(type, measures);
+//		}
+//		ElectronicChartData chartData = new ElectronicChartData();
+//		return chartData.getJsonChart(measureMap);
+//	}
+//	
+//	/**
+//	 * 返回电压
+//	 * @param id
+//	 * @param beginDate
+//	 * @param endDate
+//	 * @param sensorAddress
+//	 * @return
+//	 */
+//	@RequiresAuthentication
+//	@RequestMapping("/chart/electronic_current")
+//	@ResponseBody
+//	public ChartData getElectronicVoltageJsonChart(
+//			@RequestParam(required = true) String monitorId, 
+//			@RequestParam(required = true) String beginDate, 
+//			@RequestParam(required = true) String endDate) {
+//		List<DataMonitorSubmodule> mappings = submoduleService.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
+//		String deviceId = null;
+//		for (DataMonitorSubmodule mapping : mappings) {
+//			if (HitchConst.MODULE_ELECTRICITY == mapping.getModuleType()) {
+//				deviceId = mapping.getModuleId();
+//				break;
+//			}
+//		}
+//		Map<Integer, Object> measureMap = new HashMap<Integer, Object>();
+//		for (int type = 1; type <= 6; type++) {
+//			List<TemperatureMeasure> measures = measureService.selectByTime(deviceId, sensor.getTag(), beginDate, endDate);
+//			measureMap.put(type, measures);
+//		}
+//		ElectronicChartData chartData = new ElectronicChartData();
+//		return chartData.getJsonChart(measureMap);
+//	}
+//	
+//	/**
+//	 * 返回功率
+//	 * @param id
+//	 * @param beginDate
+//	 * @param endDate
+//	 * @param sensorAddress
+//	 * @return
+//	 */
+//	@RequiresAuthentication
+//	@RequestMapping("/chart/electronic_current")
+//	@ResponseBody
+//	public ChartData getElectronicPowerJsonChart(
+//			@RequestParam(required = true) String monitorId, 
+//			@RequestParam(required = true) String beginDate, 
+//			@RequestParam(required = true) String endDate) {
+//		List<DataMonitorSubmodule> mappings = submoduleService.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
+//		String deviceId = null;
+//		for (DataMonitorSubmodule mapping : mappings) {
+//			if (HitchConst.MODULE_ELECTRICITY == mapping.getModuleType()) {
+//				deviceId = mapping.getModuleId();
+//				break;
+//			}
+//		}
+//		Map<Integer, Object> measureMap = new HashMap<Integer, Object>();
+//		for (int type = 1; type <= 6; type++) {
+//			List<TemperatureMeasure> measures = measureService.selectByTime(deviceId, sensor.getTag(), beginDate, endDate);
+//			measureMap.put(type, measures);
+//		}
+//		ElectronicChartData chartData = new ElectronicChartData();
+//		return chartData.getJsonChart(measureMap);
+//	}
+	
+	
 	
 }

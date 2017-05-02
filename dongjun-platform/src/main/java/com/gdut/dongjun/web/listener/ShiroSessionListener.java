@@ -1,8 +1,5 @@
 package com.gdut.dongjun.web.listener;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.apache.shiro.session.Session;
 import org.apache.shiro.session.SessionListener;
@@ -31,10 +28,6 @@ public class ShiroSessionListener implements SessionListener, InitializingBean {
 
 	@Override
 	public void onStart(Session session) {
-		System.out.println("session注册");
-		if (null != userService) {
-			System.out.println("userService成功注入!!");
-		}
 	}
 
 	@Override
@@ -54,10 +47,8 @@ public class ShiroSessionListener implements SessionListener, InitializingBean {
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		DefaultWebSessionManager manager = SpringApplicationContextHolder.getBean(DefaultWebSessionManager.class);
-		ShiroSessionListener listener = SpringApplicationContextHolder.getBean(ShiroSessionListener.class);
-		List<SessionListener> listeners = new ArrayList<SessionListener>();
-		listeners.add(listener);
-		manager.setSessionListeners(listeners);
+//		ShiroSessionListener listener = SpringApplicationContextHolder.getBean(ShiroSessionListener.class);
+		manager.getSessionListeners().add(this);
 	}
 
 }

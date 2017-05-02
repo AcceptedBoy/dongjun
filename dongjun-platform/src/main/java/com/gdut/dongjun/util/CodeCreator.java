@@ -5,7 +5,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
+import com.gdut.dongjun.domain.po.ElectronicModuleCurrent;
+import com.gdut.dongjun.domain.po.ElectronicModulePower;
+import com.gdut.dongjun.domain.po.ElectronicModuleVoltage;
 
 /**
  * 根据po类自动生成对应的dao接口和实现类，service接口和实现类 Service的实现类要自己添加未实现的方法
@@ -303,17 +309,18 @@ public class CodeCreator {
 		return simpleDateFormat.format(new Date());
 	}
 
-//	public static void main(String[] args) throws Exception {
-//		CodeCreator creator = new CodeCreator();
-//		List<Class> list = new ArrayList<Class>();
-//		list.add(TestObject.class);
-//
-//		for (Class c : list) {
-//			creator.rewriteXML(c);
-//			creator.createBeanDao(c);
-//			creator.createBeanDaoImpl(c);
-//			creator.createBeanService(c);
-//			creator.createBeanServiceImpl(c);
-//		}
-//	}
+	public static void main(String[] args) throws Exception {
+		CodeCreator creator = new CodeCreator();
+		List<Class> list = new ArrayList<Class>();
+		list.add(ElectronicModuleCurrent.class);
+		list.add(ElectronicModulePower.class);
+		list.add(ElectronicModuleVoltage.class);
+		for (Class c : list) {
+			creator.rewriteXML(c);
+			creator.createBeanDao(c);
+			creator.createBeanDaoImpl(c);
+			creator.createBeanService(c);
+			creator.createBeanServiceImpl(c);
+		}
+	}
 }

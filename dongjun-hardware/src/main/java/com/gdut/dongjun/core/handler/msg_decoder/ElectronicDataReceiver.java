@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.gdut.dongjun.core.ElectronicCtxStore;
+import com.gdut.dongjun.core.GPRSCtxStore;
 import com.gdut.dongjun.core.SwitchGPRS;
-import com.gdut.dongjun.core.TemperatureCtxStore;
 import com.gdut.dongjun.domain.po.ElectronicModule;
 import com.gdut.dongjun.domain.po.ElectronicModuleCurrent;
 import com.gdut.dongjun.domain.po.ElectronicModulePower;
@@ -31,40 +31,39 @@ import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 
 /**
- * 按照协议分类
- * 683100310068C90000000A1C026000000400551618041502010000
- * 请求帧的一种情况
- * 68 地址 68 控制码 数据域长度 数据标识 校验和 16
- * 1   6    1    1       1              4           1        1
- * 读数据的一种情况
- * 68 地址 68 控制码 数据域长度 数据标识	 N1...Nm 校验和 16
- * 1   6    1    1       1              4           N          1        1
- * 地址6个字节，每个字节两个BCD码，总共12个十进制数
+ * 按照协议分类 683100310068C90000000A1C026000000400551618041502010000 请求帧的一种情况 68 地址
+ * 68 控制码 数据域长度 数据标识 校验和 16 1 6 1 1 1 4 1 1 读数据的一种情况 68 地址 68 控制码 数据域长度 数据标识
+ * N1...Nm 校验和 16 1 6 1 1 1 4 N 1 1 地址6个字节，每个字节两个BCD码，总共12个十进制数
+ * 
  * @author Gordan_Deng
  * @date 2017年4月12日
  */
 @Service
 @Sharable
 public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
-	
-	//TODO 考虑下要不要将ElectronicModule直接塞到Attribute里面
+
+	// TODO 考虑下要不要将ElectronicModule直接塞到Attribute里面
 	private static final int BYTE = 2;
-	private static final char[] VOLTAGE = {'0', '2', '0', '1'};
-	private static final char[] CURRENT = {'0', '2', '0', '2'};
-	private static final char[] POWER = {'0', '2', '0', '6'};
-	private static final char[] EXCEPTION = {'0', '3'};
-	private static final char[] A_PHASE = {'0', '1'};
-	private static final char[] B_PHASE = {'0', '2'};
-	private static final char[] C_PHASE = {'0', '3'};
-	private static final char[] CODE_00 = {'0', '0'};
-	private static final char[] DATA_BLOCK_UP = {'F', 'F'};
-	private static final char[] DATA_BLOCK_DOWN = {'f', 'f'};
-	private static final char[] CODE_01 = {'0', '1'};
-	private static final char[] CODE_03 = {'0', '3'};
-	private static final char[] HITCH_VOLTAGE = {}; //TODO
+	private static final char[] VOLTAGE = { '0', '2', '0', '1' };
+	private static final char[] CURRENT = { '0', '2', '0', '2' };
+	private static final char[] POWER = { '0', '2', '0', '6' };
+	private static final char[] EXCEPTION = { '0', '3' };
+	private static final char[] A_PHASE = { '0', '1' };
+	private static final char[] B_PHASE = { '0', '2' };
+	private static final char[] C_PHASE = { '0', '3' };
+	private static final char[] CODE_00 = { '0', '0' };
+	private static final char[] DATA_BLOCK_UP = { 'F', 'F' };
+	private static final char[] DATA_BLOCK_DOWN = { 'f', 'f' };
+	private static final char[] CODE_01 = { '0', '1' };
+	private static final char[] CODE_03 = { '0', '3' };
+	private static final char[] HITCH_VOLTAGE = {}; // TODO
+	private static final char[] EB_UP = new char[] { 'E', 'B', '9', '0' }; 
+	private static final char[] EB_DOWN = new char[] { 'e', 'b', '9', '0' }; 
+	private static final char[] CODE_68 = new char[] { '6', '8' }; 
+	private static final char[] CODE_16 = new char[] { '1', '6' }; 
 	
 	private Logger logger = Logger.getLogger(ElectronicDataReceiver.class);
-	
+
 	@Autowired
 	private ElectronicModuleService moduleService;
 	@Autowired
@@ -79,7 +78,7 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 	private GPRSModuleService gprsService;
 
 	@Override
-	public void channelActive(ChannelHandlerContext ctx) throws Exception { 
+	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		SwitchGPRS gprs = new SwitchGPRS();// 添加ctx到Store中
 		gprs.setCtx(ctx);
 		if (ctxStore.get(ctx) == null) {
@@ -88,7 +87,8 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 	}
 
 	@Override
-	public void channelInactive(ChannelHandlerContext ctx) throws Exception { }
+	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+	}
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -99,7 +99,7 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 			handleIdenCode(ctx, data);
 		}
 	}
-	
+
 	/**
 	 * 获取当前连接的设备地址
 	 * 
@@ -116,10 +116,12 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 			ctx.channel().writeAndFlush(data);
 			return;
 		}
-		//由于每个字节是两个BCD码构成，所以不用调转地址，转进制啥的了，直接显示
-		String address = CharUtils.newString(data, BYTE * 1, BYTE * 7).intern();
+		// 由于每个字节是两个BCD码构成，所以不用调转地址，转进制啥的了，直接显示
+		String address = CharUtils.newString(data, BYTE * 1, BYTE * 7);
+		Integer addressTemp = Integer.parseInt(address);
+		address = String.valueOf(addressTemp);
 		gprs.setAddress(address);
-		
+
 		if (gprs != null) {
 			/*
 			 * 根据反转后的地址查询得到TemperatureDevice的集合
@@ -141,8 +143,8 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 			}
 		}
 	}
-	
-	//TODO
+
+	// TODO
 	public boolean check(ChannelHandlerContext ctx, char[] data) {
 		String gprsAddress = null;
 		// 登录和心跳包
@@ -151,73 +153,107 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 			char[] gprsNumber = CharUtils.subChars(data, 12, 8);
 			StringBuilder sb = new StringBuilder();
 			for (int i = 0; i <= 6; i += 2) {
-				//示范 30 30 30 31，表示0001地址
+				// 示范 30 30 30 31，表示0001地址
 				sb.append(gprsNumber[i + 1]);
 			}
-			//去除开头的0
+			// 去除开头的0
 			gprsAddress = sb.toString();
-			
-			//判断GPRS是否已在网站上注册
+
+			// 判断GPRS是否已在网站上注册
 			String gprsId = gprsService.isGPRSAvailable(gprsAddress);
 			if (null != gprsId) {
-				
+
 				AttributeKey<Integer> key = AttributeKey.valueOf("isGPRSRegisted");
 				Attribute<Integer> attr = ctx.attr(key);
 				if (null == attr.get()) {
 					attr.set(1);
 				}
-				//更新TemperatureCtxStore的GPRSMap，gprsId为空的话啥都不干。
-				TemperatureCtxStore.addGPRS(gprsAddress);
+				// 更新TemperatureCtxStore的GPRSMap，gprsId为空的话啥都不干。
+				GPRSCtxStore.addGPRS(gprsAddress);
 				if (CharUtils.equals(data, 6, 8, CODE_01)) {
-					//GPRS模块登录
+					// GPRS模块登录
 					logger.info(gprsAddress + " GPRS模块登录成功");
 				} else if (CharUtils.equals(data, 6, 8, CODE_03)) {
 					logger.info(gprsAddress + " GPRS模块在线");
 				}
 			} else {
-				//如果网站上没注册gprs，否决此报文
+				// 如果网站上没注册gprs，否决此报文
 				logger.info("未注册GPRS模块地址" + gprsAddress);
 				return false;
 			}
 		}
-		getOnlineAddress(ctx, data);
+
+		// 若GPRS模块注册不成功，报文不通过
+		AttributeKey<String> key = AttributeKey.valueOf("GPRSAddress");
+		Attribute<String> attr = ctx.attr(key);
+		if ((null == attr.get() || "".equals(attr.get())) || !GPRSCtxStore.isGPRSAlive(attr.get())) {
+			return false;
+		}
+
 		return true;
 	}
 
 	private void handleIdenCode(ChannelHandlerContext ctx, char[] data) {
-//		char[] controlCode = CharUtils.subChars(data, BYTE * 8, BYTE);
+		// 登录包、心跳包，或长度过少的报文，忽略
+		if (CharUtils.startWith(data, CODE_00) || data.length < 20) {
+			logger.info("忽略报文" + String.valueOf(data));
+			return;
+		}
+
+		// 68开头16结尾的报文
+		if (!(CharUtils.startWith(data, EB_UP) || CharUtils.startWith(data, EB_DOWN))
+				&& CharUtils.endsWith(data, CODE_16) && CharUtils.startWith(data, CODE_68)) {
+			AttributeKey<Integer> key = AttributeKey.valueOf("isRegisted");
+			Attribute<Integer> attr = ctx.attr(key);
+			if (null == attr.get()) {
+				getOnlineAddress(ctx, data);
+				if (null != ctxStore.get(ctx).getId()) {
+					attr.set(1);
+				}
+			}
+		}
+
+		// char[] controlCode = CharUtils.subChars(data, BYTE * 8, BYTE);
 		char[] identification = CharUtils.subChars(data, BYTE * 10, BYTE * 4);
-		
-		//电压
+
+		// 电压
 		if (CharUtils.startWith(identification, VOLTAGE)) {
 			saveVoltage(ctx, data);
 		}
-		//电流
+		// 电流
 		else if (CharUtils.startWith(identification, CURRENT)) {
 			saveCurrent(ctx, data);
 		}
-		//功率
+		// 功率
 		else if (CharUtils.startWith(identification, POWER)) {
 			savePower(ctx, data);
-		} 
-		//异常
+		}
+		// 异常
 		else if (CharUtils.startWith(identification, EXCEPTION)) {
 			handleException(ctx, data);
+		} else {
+			logger.info("非法报文：" + String.valueOf(data));
 		}
 	}
-	
+
 	public void saveVoltage(ChannelHandlerContext ctx, char[] data) {
 		char[] address = CharUtils.subChars(data, BYTE, BYTE * 6);
-		String deviceNumber = String.valueOf(address);
+		String deviceNumber = String.valueOf(address);	
+		deviceNumber = Integer.parseInt(deviceNumber) + "";
 		ElectronicModule module = moduleService.selectByDeviceNumber(deviceNumber);
+		if (null == module) {
+			logger.info(deviceNumber + "地址的电能表设备尚未在网站上注册");
+			return;
+		}
 		char[] value = CharUtils.subChars(data, BYTE * 14, BYTE * 2);
 		BigDecimal val = new BigDecimal(Double.valueOf(Integer.parseInt(String.valueOf(value), 16)) / 10);
 		ElectronicModuleVoltage voltage = new ElectronicModuleVoltage();
+		voltage.setSubmoduleId(ctxStore.getIdbyAddress(deviceNumber));
 		voltage.setId(UUIDUtil.getUUID());
 		voltage.setGmtCreate(new Date());
 		voltage.setGmtModified(new Date());
-		voltage.setGroupId(module.getGroupId());
-		voltage.setTime(new Date()); 	//TODO
+		
+		voltage.setTime(new Date()); // TODO
 		voltage.setValue(val);
 		if (CharUtils.equals(data, BYTE * 12, BYTE * 13, A_PHASE)) {
 			voltage.setPhase("A");
@@ -228,19 +264,24 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 		}
 		voltageService.updateByPrimaryKey(voltage);
 	}
-	
+
 	public void saveCurrent(ChannelHandlerContext ctx, char[] data) {
 		char[] address = CharUtils.subChars(data, BYTE, BYTE * 6);
-		String deviceNumber = String.valueOf(address);
+		String deviceNumber = String.valueOf(address);	
+		deviceNumber = Integer.parseInt(deviceNumber) + "";
 		ElectronicModule module = moduleService.selectByDeviceNumber(deviceNumber);
+		if (null == module) {
+			logger.info(deviceNumber + "地址的电能表设备尚未在网站上注册");
+			return;
+		}
 		char[] value = CharUtils.subChars(data, BYTE * 14, BYTE * 3);
 		BigDecimal val = new BigDecimal(Double.valueOf(Integer.parseInt(String.valueOf(value), 16)) / 10);
 		ElectronicModuleCurrent current = new ElectronicModuleCurrent();
 		current.setId(UUIDUtil.getUUID());
 		current.setGmtCreate(new Date());
 		current.setGmtModified(new Date());
-		current.setGroupId(module.getGroupId());
-		current.setTime(new Date());//TODO
+		current.setSubmoduleId(ctxStore.getIdbyAddress(deviceNumber));
+		current.setTime(new Date());// TODO
 		current.setValue(val);
 		if (CharUtils.equals(data, BYTE * 12, BYTE * 13, A_PHASE)) {
 			current.setPhase("A");
@@ -251,40 +292,45 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 		}
 		currentService.updateByPrimaryKey(current);
 	}
-	
+
 	public void savePower(ChannelHandlerContext ctx, char[] data) {
 		char[] address = CharUtils.subChars(data, BYTE, BYTE * 6);
-		String deviceNumber = String.valueOf(address);
+		String deviceNumber = String.valueOf(address);	
+		deviceNumber = Integer.parseInt(deviceNumber) + "";
 		ElectronicModule module = moduleService.selectByDeviceNumber(deviceNumber);
+		if (null == module) {
+			logger.info(deviceNumber + "地址的电能表设备尚未在网站上注册");
+			return;
+		}
 		char[] value = CharUtils.subChars(data, BYTE * 14, BYTE * 3);
 		BigDecimal val = new BigDecimal(Double.valueOf(Integer.parseInt(String.valueOf(value), 16)) / 10);
 		ElectronicModulePower power = new ElectronicModulePower();
 		power.setId(UUIDUtil.getUUID());
 		power.setGmtCreate(new Date());
 		power.setGmtModified(new Date());
-		power.setGroupId(module.getGroupId());
-		power.setTime(new Date());//TODO
+		power.setSubmoduleId(ctxStore.getIdbyAddress(deviceNumber));
+		power.setTime(new Date());// TODO
 		power.setValue(val);
 		if (CharUtils.equals(data, BYTE * 12, BYTE * 13, A_PHASE)) {
 			power.setPhase("A");
 		} else if (CharUtils.equals(data, BYTE * 12, BYTE * 13, B_PHASE)) {
 			power.setPhase("B");
-		} else if (CharUtils.equals(data, BYTE* 12, BYTE * 13, C_PHASE)) {
+		} else if (CharUtils.equals(data, BYTE * 12, BYTE * 13, C_PHASE)) {
 			power.setPhase("C");
 		} else if (CharUtils.equals(data, BYTE * 12, BYTE * 13, CODE_00)) {
 			power.setPhase("D");
 		}
 		powerService.updateByPrimaryKey(power);
 	}
-	
+
 	public void handleException(ChannelHandlerContext ctx, char[] data) {
 		logger.info("异常事件");
 	}
-	
+
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
 		// TODO Auto-generated method stub
 		super.exceptionCaught(ctx, cause);
 	}
-	
+
 }

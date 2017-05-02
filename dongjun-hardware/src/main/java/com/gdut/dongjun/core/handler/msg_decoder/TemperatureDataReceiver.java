@@ -137,31 +137,15 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-		//AbstractChannel-EventLoop  AbstractNioEventLoop-NioEventLoop
-		//果然进入了 SingleThreadEventExecutor
-			//NioEventLoop AbstractNioMessageChannel
-		//每一个Channel对应一个EventLoop，一个EventLoop可以对应多个Channel，而每一个EventLoop里都有一个Selector
-		//Channel有读写事件的时候就会生成一个事件加入Selector机制，封装成AbstractNioChannel
-		//这里的得到的EventLoop就是reactor模型
-		System.out.println(Thread.currentThread());
-		System.out.println(ctx.channel().eventLoop().parent());
-		ctx.channel().eventLoop().execute(new Runnable() {
-
-			@Override
-			public void run() {
-				System.out.println("这里是温度监控模块发出的任务！！！");
-			}
-			
-		});
-//		String rowMsg = (String) msg;
-//		logger.info("接收到的报文： " + rowMsg);
-//		char[] data = CharUtils.removeSpace(rowMsg.toCharArray());
-//		// 验证报文合法性，以及做一些注册的工作
-//		if (check(ctx, data)) {
-//			handleIdenCode(ctx, data);
-//		} else {
-//			logger.info("验证失败：" + rowMsg);
-//		}
+		String rowMsg = (String) msg;
+		logger.info("接收到的报文： " + rowMsg);
+		char[] data = CharUtils.removeSpace(rowMsg.toCharArray());
+		// 验证报文合法性，以及做一些注册的工作
+		if (check(ctx, data)) {
+			handleIdenCode(ctx, data);
+		} else {
+			logger.info("验证失败：" + rowMsg);
+		}
 	}
 
 	/**
@@ -187,7 +171,6 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			}
 			//去除开头的0
 			gprsAddress = sb.toString();
-			
 			
 			//判断GPRS是否已在网站上注册
 			String gprsId = gprsService.isGPRSAvailable(gprsAddress);
