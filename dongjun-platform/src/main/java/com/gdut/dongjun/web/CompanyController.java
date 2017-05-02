@@ -48,16 +48,7 @@ public class CompanyController {
 	@ResponseBody
 	public ResponseMessage edit(Company com) {
 		if (null == com.getId() || "".equals(com.getId())) {
-			com.setId(UUIDUtil.getUUID());
-			/* 插入与Company相对应的PlatformGroup */
-			PlatformGroup pg = new PlatformGroup();
-			pg.setId(UUIDUtil.getUUID());
-			pg.setGroupId("default");	//默认组别
-			byte num = 0;
-			pg.setIsDefault(num);
-			pg.setName(com.getName());
-			pg.setCompanyId(com.getId());
-			pgService.updateByPrimaryKey(pg);
+			return ResponseMessage.warning("参数错误，请联系管理员");
 		}
 		if (companyService.updateByPrimaryKeySelective(com) == 0) {
 			return ResponseMessage.warning("操作失败");

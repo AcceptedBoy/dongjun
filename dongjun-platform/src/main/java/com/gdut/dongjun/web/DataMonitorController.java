@@ -55,7 +55,7 @@ public class DataMonitorController {
 		if (null == monitor.getId() || "".equals(monitor.getId())) {
 			monitor.setId(UUIDUtil.getUUID());
 			Subject currentUser = SecurityUtils.getSubject();
-			if (!currentUser.hasRole("platform_admin")) {
+			if (!currentUser.hasRole("platform_group_admin")) {
 				//更新UserDeviceMapping
 				User user = userService.getCurrentUser(session);
 				UserDeviceMapping m = new UserDeviceMapping();
@@ -63,10 +63,15 @@ public class DataMonitorController {
 				m.setDeviceId(monitor.getId());
 				m.setUserId(user.getId());
 				userDeviceMappingService.updateByPrimaryKey(m);
+				monitor.setGroupId(user.getCompanyId());
+				if (0 == monitorService.updateByPrimaryKey(monitor)) {
+					return ResponseMessage.warning("操作失败"); 
+				}
 			}
-		}
-		if (0 == monitorService.updateByPrimaryKeySelective(monitor)) {
-			return ResponseMessage.warning("操作失败");
+		} else {
+			if (0 == monitorService.updateByPrimaryKeySelective(monitor)) {
+				return ResponseMessage.warning("操作失败"); 
+			}
 		}
 		return ResponseMessage.success("操作成功");
 	}
@@ -76,21 +81,13 @@ public class DataMonitorController {
 	@RequestMapping("/del")
 	public ResponseMessage del(String id) {
 		//删除DataMonitor
-		if (!monitorService.deleteByPrimaryKey(id)) {
-			return ResponseMessage.warning("操作失败");
-		}
+		monitorService.deleteByPrimaryKey(id);
 		//删除DeviceGroupMapping
-		if (0 == deviceGroupMappingService.deleteByParameters(MyBatisMapUtil.warp("device_id", id))) {
-			return ResponseMessage.warning("操作失败");
-		}
+		deviceGroupMappingService.deleteByParameters(MyBatisMapUtil.warp("device_id", id));
 		//删除UserDeviceMapping
-		if (0 == userDeviceMappingService.deleteByParameters(MyBatisMapUtil.warp("device_id", id))) {
-			return ResponseMessage.warning("操作失败");
-		}
+		userDeviceMappingService.deleteByParameters(MyBatisMapUtil.warp("device_id", id));
 		//删除DataMonitorSubmodule
-		if (0 == submoduleService.deleteByParameters(MyBatisMapUtil.warp("data_monitor_id", id))) {
-			return ResponseMessage.warning("操作失败");
-		}
+		submoduleService.deleteByParameters(MyBatisMapUtil.warp("data_monitor_id", id));
 		return ResponseMessage.success("操作成功");
 	}
 	
@@ -104,7 +101,7 @@ public class DataMonitorController {
 	public Object list(String platformGroupId, HttpSession session) {
 		User user = userService.getCurrentUser(session);
 		Subject subject = SecurityUtils.getSubject();
-		if (subject.hasRole("platform_admin")) {
+		if (subject.hasRole("platform_group_admin")) {
 			return ResponseMessage.success(
 					monitorService.selectByParameters(MyBatisMapUtil.warp("group_id", platformGroupId))
 					);

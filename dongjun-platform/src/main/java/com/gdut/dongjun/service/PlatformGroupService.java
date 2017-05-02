@@ -1,5 +1,8 @@
 package com.gdut.dongjun.service;
 
+
+import java.util.List;
+
 import com.gdut.dongjun.domain.po.PlatformGroup;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.service.base.EnhancedService;
@@ -18,4 +21,6 @@ public interface PlatformGroupService extends EnhancedService<PlatformGroup> {
     public PlatformGroup getDefaultGroup(String companyId, int type);
     
     public User selectBossByPlatformId(String platformId);
+    
+    public List<PlatformGroup> fuzzySearch(String name);
 }

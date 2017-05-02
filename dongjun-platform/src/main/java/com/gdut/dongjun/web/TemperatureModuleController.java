@@ -2,6 +2,10 @@ package com.gdut.dongjun.web;
 
 import java.util.List;
 
+import javax.servlet.http.HttpSession;
+
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,8 +15,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.gdut.dongjun.HitchConst;
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.DataMonitorSubmodule;
-import com.gdut.dongjun.domain.po.ElectronicModule;
 import com.gdut.dongjun.domain.po.TemperatureModule;
+import com.gdut.dongjun.domain.po.User;
+import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.device.DataMonitorSubmoduleService;
 import com.gdut.dongjun.service.device.TemperatureModuleService;
 import com.gdut.dongjun.util.MyBatisMapUtil;
@@ -26,6 +31,8 @@ public class TemperatureModuleController {
 	private TemperatureModuleService moduleService;
 	@Autowired
 	private DataMonitorSubmoduleService submoduleService;
+	@Autowired
+	private UserService userService;
 	
 	/**
 	 * TODO 要增加和DataMonitor的关联
@@ -35,9 +42,13 @@ public class TemperatureModuleController {
 	@ResponseBody
 	@RequestMapping("/edit")
 	@Transactional
-	public ResponseMessage edit(TemperatureModule module, String monitorId) {
+	public ResponseMessage edit(TemperatureModule module, String monitorId, HttpSession session) {
 		if (null == module.getId() || "".equals(module.getId())) {
-			
+			Subject subject = SecurityUtils.getSubject();
+			if (!subject.hasRole("super_admin")) {
+				User user = userService.getCurrentUser(session);
+				module.setGroupId(user.getCompanyId());
+			}
 			List<TemperatureModule> modules = moduleService
 					.selectByParameters(MyBatisMapUtil.warp("device_number", module.getDeviceNumber()));
 			if (0 != modules.size()) {

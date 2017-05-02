@@ -191,8 +191,12 @@
           'ajax': {
             'url': defUrl,
             'type': 'POST',
-            'dataSrc': 'text',
-            'data': o.data
+            'dataSrc': function(data) {
+              return data.text.filter(function(item) {
+                return item
+              })
+            },
+            'data': o && o.data || undefined
           },
           'columns': [
             { 'data': 'name' },
@@ -259,7 +263,7 @@
                   return
                 // 删除功能
                 case 'del':
-                  modal.delDataMonitor(target.data('id'))
+                  monitorManagerModal.delDataMonitor(target.data('id'))
                   return
                 // 编辑功能
                 case 'edit':
@@ -267,13 +271,13 @@
                   var data = Array.prototype.find.call(table.data(), function(item) {
                     return item.id == id
                   })
-                  modal.editDataMonitor(data)
+                  monitorManagerModal.editDataMonitor(data)
                   return
               }
             })
 
             // 添加数据监控
-            $('#add_dataMonitor_btn').on('click', modal.addDataMonitor)
+            $('#add_dataMonitor_btn').on('click', monitorManagerModal.addDataMonitor.bind(monitorManagerModal))
           }
         })
       },

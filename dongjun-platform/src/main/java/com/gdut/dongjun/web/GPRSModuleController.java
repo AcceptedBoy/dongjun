@@ -5,6 +5,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +16,7 @@ import com.gdut.dongjun.HitchConst;
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.DataMonitorSubmodule;
 import com.gdut.dongjun.domain.po.GPRSModule;
+import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.dto.GPRSModuleDTO;
 import com.gdut.dongjun.service.GPRSModuleService;
 import com.gdut.dongjun.service.PlatformGroupService;
@@ -45,8 +48,14 @@ public class GPRSModuleController {
 	// 6f1b9f044e1346f299af9cc0fe7e005d
 	@ResponseBody
 	@RequestMapping("/edit")
-	public ResponseMessage edit(GPRSModule gprs, String monitorId) {
+	public ResponseMessage edit(GPRSModule gprs, String monitorId, HttpSession session) {
 		if (null == gprs.getId()) {
+			Subject subject = SecurityUtils.getSubject();
+			if (!subject.hasRole("super_admin")) {
+				User user = userService.getCurrentUser(session);
+				gprs.setGroupId(user.getCompanyId());
+			}
+			
 			List<GPRSModule> modules = gprsService
 					.selectByParameters(MyBatisMapUtil.warp("device_number", gprs.getDeviceNumber()));
 			if (0 != modules.size()) {
@@ -99,7 +108,7 @@ public class GPRSModuleController {
 				return ResponseMessage.success(wrapIntoDTO(module));
 			}
 		}
-		return ResponseMessage.warning(null);
+		return ResponseMessage.warning("该子模块没有数据");
 	}
 
 	@ResponseBody

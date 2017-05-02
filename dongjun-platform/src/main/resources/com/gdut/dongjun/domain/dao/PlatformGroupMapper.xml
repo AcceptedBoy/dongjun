@@ -185,4 +185,9 @@
 			</foreach>
 		</if>
 	</delete>
+		<select id="fuzzySearch" parameterType="java.lang.String"
+		resultMap="BaseResultMap">
+		SELECT id, NAME FROM platform_group WHERE NAME LIKE #{name}
+	</select>
+	
 </mapper>

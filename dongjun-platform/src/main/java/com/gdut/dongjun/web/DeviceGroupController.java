@@ -1,5 +1,6 @@
 package com.gdut.dongjun.web;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -47,7 +48,8 @@ public class DeviceGroupController {
 	@Autowired
 	private UserDeviceMappingService userMappingService;
 
-	@RequiresPermissions("device_group_admin:edit")
+//	@RequiresPermissions("device_group_admin:edit")
+	@RequiresAuthentication
 	@RequestMapping("/edit")
 	@ResponseBody
 	public ResponseMessage addGroup(DeviceGroup dGroup, HttpSession session) {
@@ -63,7 +65,8 @@ public class DeviceGroupController {
 			return ResponseMessage.warning("操作失败");
 	}
 
-	@RequiresPermissions("device_group_admin:delete")
+//	@RequiresPermissions("device_group_admin:delete")
+	@RequiresAuthentication
 	@RequestMapping("/del")
 	@ResponseBody
 	public ResponseMessage delGroup(String id) {
@@ -100,7 +103,8 @@ public class DeviceGroupController {
 	 * @param deviceGroupId
 	 * @return
 	 */
-	@RequiresPermissions("device_group_admin:edit")
+//	@RequiresPermissions("device_group_admin:edit")
+	@RequiresAuthentication
 	@RequestMapping(value = "/edit_device", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseMessage addDevice(@RequestParam(value = "deviceId") String deviceId,
@@ -121,7 +125,8 @@ public class DeviceGroupController {
 		return ResponseMessage.success("操作成功");
 	}
 
-	@RequiresPermissions("device_group_admin:delete")
+//	@RequiresPermissions("device_group_admin:delete")
+	@RequiresAuthentication
 	@RequestMapping("/del_device")
 	@ResponseBody
 	public ResponseMessage delDevice(String id, String deviceGroupId) {
@@ -173,12 +178,13 @@ public class DeviceGroupController {
 		List<DataMonitor> devices = monitorService
 				.selectByParameters(MyBatisMapUtil.warp("group_id", user.getCompanyId()));
 		List<String> ids = userMappingService.selectMonitorIdByUserId(userService.getCurrentUser(session).getId());
+		List<DataMonitor> dtos = new ArrayList<DataMonitor>();
 		for (DataMonitor d : devices) {
-			if (!ids.contains(d.getId())) {
-				devices.remove(d);
+			if (ids.contains(d.getId())) {
+				dtos.add(d);
 			}
 		}
-		return ResponseMessage.success(devices);
+		return ResponseMessage.success(dtos);
 	}
 
 }

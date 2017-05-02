@@ -4,6 +4,9 @@ import com.gdut.dongjun.domain.dao.PlatformGroupMapper;
 import com.gdut.dongjun.domain.dao.base.SinglePrimaryKeyBaseMapper;
 import com.gdut.dongjun.domain.dao.base.impl.SinglePrimaryKeyBaseDAOImpl;
 import com.gdut.dongjun.domain.po.PlatformGroup;
+
+import java.util.List;
+
 import org.springframework.stereotype.Repository;
 
 /**
@@ -12,4 +15,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class PlatformGroupDAOImpl extends SinglePrimaryKeyBaseDAOImpl<PlatformGroup>
     implements PlatformGroupMapper {
+
+	@Override
+	public List<PlatformGroup> fuzzySearch(String name) {
+		return template.selectList(getNamespace("fuzzySearch"), name);
+	}
 }

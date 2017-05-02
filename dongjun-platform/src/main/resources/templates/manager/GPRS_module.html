@@ -69,10 +69,17 @@
 				var me = this
 				table = $('#gprs_list').DataTable({
 					'destroy': true,// destroy之后才能重新加载
+					'searching': false,
+          'ordering':  false,
+          'info': false,
+          'paging': false,
 					'ajax': {
 						'url': defUrl,
 						'type': 'POST',
-						'dataSrc': 'text',
+						'dataSrc': function(json) {
+              json.text = Object.prototype.toString.call(json.text) == '[object Object]' ? [json.text] : []
+              return json.text
+            },
 						'data': {
 							'monitorId': curMonitorId
 						}
@@ -103,7 +110,6 @@
 							data: 'id',
 							width: '50px',
 							orderable: false,
-							visible: false,
 							render: function(data, type, row) {
 								return '<a href="#edit_GPRS_modal" role="button" class="btn" data-toggle="modal" data-fnc="edit"  data-id="'+data+'">修改</a>'
 							}
@@ -123,30 +129,32 @@
 							'next': '下一页',
 							'previous': '上一页'
 						},
-						'emptyTable': '找不到相关数据',
-						'zeroRecords': '找不到相关数据'
+						'emptyTable': '<a href="#edit_GPRS_modal" data-toggle="modal" data-backdrop="static">添加GPRS</a>',
+            'zeroRecords': '<a href="#edit_GPRS_modal" data-toggle="modal" data-backdrop="static">添加GPRS</a>',
+						'loadingRecords': '正在加载数据...'
 					},
 					'initComplete': function() {
+						dj.inserCmp('GPRS_manager_modal.html', $('#GPRS_module_panel_modal')[0], function() {
+							// 设置modal
+							GPRSModuleModal.init({
+								url: {
+									edit: '/dongjun/gprs/edit',
+									del: '/dongjun/gprs/del'
+								},
+								complete: me.redraw.bind(me)
+							});
+						}.bind(me));
+
 						(function() {
 							if(roles.currentRole.indexOf('super_admin') != -1) {
 								// 超管
 								// 引入modal
-								dj.inserCmp('GPRS_manager_modal.html', $('#GPRS_module_panel_modal')[0], function() {
-									// 设置modal
-									GPRSModuleModal.init({
-										url: {
-											edit: '/dongjun/gprs/edit',
-											del: '/dongjun/gprs/del'
-										},
-										complete: me.redraw.bind(me)
-									});
-								}.bind(me))
 
 								console.log(table)
 								table.column(-1).visible(true)
-							  table.column(-2).visible(true)
-							  var control_btns = '<a href="#edit_GPRS_modal" class="btn btn-primary" data-toggle="modal" data-backdrop="static">添加GPRS</a>'
-							  $('#control-btns').append(control_btns)
+							  // table.column(-2).visible(true)
+							  // var control_btns = '<a href="#edit_GPRS_modal" class="btn btn-primary" data-toggle="modal" data-backdrop="static">添加GPRS</a>'
+							  // $('#control-btns').append(control_btns)
 							} else {
 								// 非超管
 							}
