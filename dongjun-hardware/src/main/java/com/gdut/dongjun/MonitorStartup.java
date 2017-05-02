@@ -104,7 +104,7 @@ public class MonitorStartup implements InitializingBean {
 		for (ProtocolPort port : ports) {
 			if (port.getRemark().equals("temperature_device")) {
 				temperatureServer.setPort(port.getPort());
-			} else if (port.getRemark().equals("electronic_monitor")) {
+			} else if (port.getRemark().equals("electronic_module")) {
 				electronicServer.setPort(port.getPort());
 			}
 			else {
@@ -116,9 +116,9 @@ public class MonitorStartup implements InitializingBean {
 			logger.info("温度设备端口号：" + temperatureServer.getPort());
 			temperatureServer.start();
 		}
-//		if (null != electronicServer.getPort()) {
-//			logger.info("电能表端口号：" + electronicServer.getPort());
-//			electronicServer.start();
-//		}
+		if (null != electronicServer.getPort()) {
+			logger.info("电能表端口号：" + electronicServer.getPort());
+			electronicServer.start();
+		}
 	}	
 }

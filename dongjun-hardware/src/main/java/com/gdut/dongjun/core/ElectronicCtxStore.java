@@ -10,13 +10,16 @@ public class ElectronicCtxStore extends GPRSCtxStore {
 
 	@Autowired
 	public void setWebsiteServiceClient(WebsiteServiceClient webServiceClient) {
-		if (null == super.websiteServiceClient) {
+		if (null == GPRSCtxStore.websiteServiceClient) {
 			synchronized (ElectronicCtxStore.class) {
-				if (null == super.websiteServiceClient) {
-					super.websiteServiceClient = webServiceClient;
+				if (null == GPRSCtxStore.websiteServiceClient) {
+					GPRSCtxStore.websiteServiceClient = webServiceClient;
 				}
 			}
 		}
 	}
+	
+	
+	
 	
 }
