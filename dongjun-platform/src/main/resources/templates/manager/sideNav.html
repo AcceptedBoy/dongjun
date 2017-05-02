@@ -148,7 +148,7 @@
       'line_manager': lineLoad,
       'data_monitor': loadDataMonitor,
       'equipment_manager': loadEquip,
-      'GPRS_manager': loadGPRSManager
+      // 'GPRS_manager': loadGPRSManager
     })
 
     function loadVoltage() {
@@ -206,12 +206,9 @@
     }
 
     function loadDataMonitor() {
-      dj.jsLoad('/js/manager/selectManager.js', function(){
-        dj.inserCmp('data_monitor_modal.html', $('.managerModal')[0], function(){
-          loadLink('/css/equipment_manager.css')
-          dj.inserCmp('data_monitor.html', $('.container')[0])
-
-        })
+      dj.inserCmp('data_monitor_modal.html', $('.managerModal')[0], function(){
+        loadLink('/css/equipment_manager.css')
+        dj.inserCmp('data_monitor.html', $('.container')[0])
       })
     }
 

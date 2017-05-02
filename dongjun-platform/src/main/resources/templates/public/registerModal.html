@@ -246,7 +246,7 @@ var registerObj = function() {
 			}
 			return false
 		},
-		registerWorker: function(name, realName, password, controlCode, phoneNumber, personalEmail, adress, self) {
+		registerWorker: function(name, realName, password, controlCode, phoneNumber, personalEmail, address, self) {
 			var that = this;
 			if(name && password && controlCode && realName && phoneNumber) {
 				if(this.testContent([name, password, controlCode], [realName], [], [phoneNumber], [])) {
@@ -260,7 +260,7 @@ var registerObj = function() {
 								companyId: that.companyId,
 								phone: phoneNumber,
 							}
-							that.mergeKey(params, 'adress', adress)
+							that.mergeKey(params, 'address', address)
 							if(that.mergeKey(params, 'email', personalEmail, 'email')) {
 								$(self).attr('data-dismiss', '');
 								alert('请填入正确的邮箱格式')
@@ -389,7 +389,7 @@ var registerObj = function() {
 			$(address).val('');
 			$(email).val('');
 			$(phone).val('');
-			
+
 		},
 		clearCompanyText: function() {
 			$('#choose_modal').modal('hide')

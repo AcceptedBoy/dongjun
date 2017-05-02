@@ -120,7 +120,7 @@
           data[input.name] = input.value
         }
 
-        data.groupId = selectManager.getCompany()
+        data.groupId = typeof selectManager == 'undefined' ? undefined : selectManager.getCompany()
         data.monitorId = now.monitorId
 
         // 如果不是增加设备，则需要添加当前设备的id作为参数
@@ -135,9 +135,13 @@
           data : data,
           success : function(data) {
             if(data.success) {
-              completeFnc()
-              alert('操作成功')
-              curModal.modal('hide')
+              if(data.type == 'WARNING') {
+                alert(data.text)
+              } else {
+                completeFnc()
+                alert('操作成功')
+                curModal.modal('hide')
+              }
             } else {
               alert('失败')
             }

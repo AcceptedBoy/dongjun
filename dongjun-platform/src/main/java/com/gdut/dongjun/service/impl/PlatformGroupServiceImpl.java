@@ -62,4 +62,11 @@ public class PlatformGroupServiceImpl extends EnhancedServiceImpl<PlatformGroup>
 		Company c = comService.selectByPrimaryKey(pg.getCompanyId());
 		return userService.selectByPrimaryKey(c.getMainStaffId());
 	}
+
+	@Override
+	public List<PlatformGroup> fuzzySearch(String name) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("%").append(name).append("%");
+		return groupMapper.fuzzySearch(sb.toString());
+	}
 }

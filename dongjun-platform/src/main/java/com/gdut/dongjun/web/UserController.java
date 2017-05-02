@@ -262,7 +262,7 @@ public class UserController {
 		if (userService.updateByPrimaryKey(user) == 1) {
 			UserRole ur = new UserRole();
 			for (Role role : roles) {
-				if (GUEST.equals(role.getRole())) {
+				if ("user".equals(role.getRole())) {
 					ur.setRoleId(role.getId());
 					break;
 				}
@@ -364,7 +364,7 @@ public class UserController {
 	@RequestMapping(value = "/dongjun/elecon/fuzzy_search", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseMessage doFuzzySearch(String name) {
-		return ResponseMessage.success(companyService.fuzzySearch(name));
+		return ResponseMessage.success(pgService.fuzzySearch(name));
 	}
 
 }

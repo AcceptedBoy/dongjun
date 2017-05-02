@@ -132,7 +132,7 @@
 					data.id = now.id
 				}
 				// groupId 对应为 公司id
-				data.groupId = selectManager.getCompany()
+				data.groupId = typeof selectManager == 'undefined' ? undefined : selectManager.getCompany()
 				data.monitorId = ModulesTabPanel.getMonitorId()
         $.ajax({
 					url: urls.edit,
@@ -145,6 +145,7 @@
 						} else {
 							alert(res.errors.message)
 						}
+						_self.resetEditModal()
 					}
 				})
       },

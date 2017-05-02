@@ -55,7 +55,7 @@
 
 		JudgeRank.prototype.init = function() {
 			this.addState({
-				type: 'platform_group_admin',
+				type: 'default',
 				fn: function() {
 					$('.dropdown-menu').append('<li onclick="goRank()"><a href="javascript:void(0)" style="text-align: center;">用户管理</a></li>')
 				}
@@ -92,6 +92,13 @@
 		JudgeRank.prototype.judge = function(only) {
 			// 调用filter对当前拥有的权限排序
 			var list = this.filter()
+
+			if(!!this.state.default) {
+				for(var i = 0; i < this.state.default.length; i++) {
+					this.state.default[i]()
+				}
+			}
+
 			for(var i = list.length - 1; i >= 0; i--) {
 				var rank = list[i]
 				if(this.state[rank]) {
