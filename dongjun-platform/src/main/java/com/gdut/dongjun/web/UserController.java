@@ -113,11 +113,11 @@ public class UserController {
 	public Object loginForm(String name, String password, Model model, RedirectAttributes redirectAttributes,
 			HttpSession session) throws JMSException {
 
+		//这一步扔到ApplicationContext吧
 		SecurityUtils.setSecurityManager(manager);
 		Subject currentUser = SecurityUtils.getSubject();
-
 		UsernamePasswordToken token = new UsernamePasswordToken(name, password);
-		token.setRememberMe(true);
+		token.setRememberMe(true);	//这个项目好像暂时不需要记住我的功能
 
 		Map<String, Object> map = MyBatisMapUtil.warp("name", name);
 		map.put("password", password);
@@ -262,7 +262,7 @@ public class UserController {
 		if (userService.updateByPrimaryKey(user) == 1) {
 			UserRole ur = new UserRole();
 			for (Role role : roles) {
-				if (GUEST.equals(role.getRole())) {
+				if ("user".equals(role.getRole())) {
 					ur.setRoleId(role.getId());
 					break;
 				}
@@ -364,7 +364,7 @@ public class UserController {
 	@RequestMapping(value = "/dongjun/elecon/fuzzy_search", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseMessage doFuzzySearch(String name) {
-		return ResponseMessage.success(companyService.fuzzySearch(name));
+		return ResponseMessage.success(pgService.fuzzySearch(name));
 	}
 
 }

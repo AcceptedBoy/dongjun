@@ -1,7 +1,7 @@
 <div id="edit_GPRS_modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 	<div class="modal-header">
 		<button type="button" class="close" data-dismiss="modal"
-						aria-hidden="true" onclick="modal.resetEditModal()">×</button>
+						aria-hidden="true" onclick="GPRSModuleModal.resetEditModal()">×</button>
 		<h3>编辑</h3>
 	</div>
 	<div class="modal-body">
@@ -38,9 +38,9 @@
 					</div>
 			</div> -->
 			<div class="modal-footer">
-				<button class="btn" data-dismiss="modal" aria-hidden="true" onclick="modal.resetEditModal()">取消</button>
+				<button class="btn" data-dismiss="modal" aria-hidden="true" onclick="GPRSModuleModal.resetEditModal()">取消</button>
 				<button id="add_switch_confirm_btn" class="btn btn-primary"
-								aria-hidden="true" onclick="modal.saveEdit()">确定</button>
+								aria-hidden="true" onclick="GPRSModuleModal.saveEdit()">确定</button>
 			</div>
 		</div>
 	</div>
@@ -57,13 +57,13 @@
 	</div>
 	<div class="modal-footer">
 		<button class="btn" data-dismiss="modal" aria-hidden="true">关闭</button>
-		<a id="del_confirm_btn" class="btn btn-danger" data-dismiss="modal" aria-hidden="true" onclick="modal.sureDel()">删除</a>
+		<a id="del_confirm_btn" class="btn btn-danger" data-dismiss="modal" aria-hidden="true" onclick="GPRSModuleModal.sureDel()">删除</a>
 	</div>
 </div>
 
 <script>
 
-	var modal = function(){
+	var GPRSModuleModal = function(){
 		var now = {
 			id: '-1'
 		}
@@ -93,12 +93,6 @@
 					item.value = data[item.name]
 				})
 			},
-			isEmptyObj: function(o) {
-				for(var k in o) {
-					return false
-				}
-				return true
-			},
 			sureDel: function() {
 				var data = {
 					id: now.id
@@ -111,7 +105,7 @@
 						if(!res.success) {
 							alert(res.errors.message)
 						} else {
-							completeFnc(selectManager.getCompany())
+							completeFnc()
 							alert('删除成功')
 						}
 					},
@@ -138,18 +132,20 @@
 					data.id = now.id
 				}
 				// groupId 对应为 公司id
-				data.groupId = selectManager.getCompany()
+				data.groupId = typeof selectManager == 'undefined' ? undefined : selectManager.getCompany()
+				data.monitorId = ModulesTabPanel.getMonitorId()
         $.ajax({
 					url: urls.edit,
 					type: 'POST',
 					data: data,
 					success: function(res) {
 						if(res.success) {
-							completeFnc(data.groupId)
+							completeFnc()
 							$('#edit_GPRS_modal').modal('hide')
 						} else {
 							alert(res.errors.message)
 						}
+						_self.resetEditModal()
 					}
 				})
       },
@@ -163,21 +159,5 @@
 			}
 		}
 	}();
-
-	modal.init({
-    url: {
-      edit: '/dongjun/gprs/edit',
-      del: '/dongjun/gprs/del'
-    },
-    complete: managerTable.redraw
-  });
-
-	// show the btns
-  (function(){
-		managerTable.getTable().column(-1).visible(true)
-	  managerTable.getTable().column(-2).visible(true)
-	  var control_btns = '<a href="#edit_GPRS_modal" class="btn btn-primary" id="add_switch_btn" data-toggle="modal" data-backdrop="static">添加开关</a>'
-	  $('#control-btns').append(control_btns)
-  })()
 
 </script>

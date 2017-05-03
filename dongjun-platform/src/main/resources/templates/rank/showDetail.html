@@ -103,6 +103,8 @@
 		var userMess = {}
 		return {
 			saveVal: function(data) {
+				data.gmtCreate = void(1)
+				data.gmtModified = void(1)
 				userMess = data
 			},
 			setVal: function() {
@@ -113,7 +115,7 @@
 				$('#userAddress').val(this.filter($('.emAddress').children('.value').text()))
 			},
 			filter: function(val) {
-				if(val.indexOf('还没有填写') !== -1) {
+				if(val.indexOf('没有') !== -1) {
 					return ''
 				} else {
 					return val
@@ -130,7 +132,7 @@
 			edit: function() {
 				$.ajax({
 					url: '/dongjun/user/edit',
-					type: 'GET',
+					type: 'POST',
 					data: this.merge(),
 					success: function(res) {
 						if(res.success) {
@@ -330,7 +332,7 @@
 			},
 			filter: function(value) {
 				if(!value) {
-					return '（还没有填写该信息喔）'
+					return '（没有信息）'
 				} else {
 					return value
 				}
@@ -413,7 +415,7 @@
 			}
 		}
 	}()
-	
+
 	/* var r = new JudgeRank()
 	r.addState({
 		type: 'platform_group_admin',
@@ -442,7 +444,7 @@
 	})
 	r.changeRanks(roles.currentRole)
 	r.judge() */
-	
+
 	/* function isAdmin(roleList) {
 		if(roleList.indexOf('platform_group_admin') !== -1) {
 			return true
@@ -474,10 +476,10 @@
 		emInfor.getInfor()
 
 	} */
-	
+
 	// console.log(JudgeRank)
-	
-	
+
+
 	empolyeeEquipTb.init({
 		getUrl: '/dongjun/user_device_mapping/get_user_mapping',
 		delUrl: '/dongjun/user_device_mapping/del'

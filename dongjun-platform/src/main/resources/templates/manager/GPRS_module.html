@@ -1,0 +1,215 @@
+<div class="container-fluid well" style="height: 100%;overflow-y: hidden;position: relative;">
+
+	<div class="form-inline">
+		<div class="form-group" id="control-btns">
+		</div>
+	</div>
+	<table id="gprs_list" class="table table-bordered table-striped table-hover table-condensed success" style="width: 100%">
+		<thead>
+			<td>设备名称</td>
+			<td>地址</td>
+			<td>逻辑地址</td>
+			<td>sim</td>
+			<td>当前状态</td>
+			<td>是否开启</td>
+			<td>修改</td>
+			<td>删除</td>
+		</thead>
+	</table>
+	<div id="GPRS_module_panel_modal"></div>
+</div>
+
+<script>
+	if (!Array.prototype.find) {
+		Array.prototype.find = function(predicate) {
+			'use strict';
+			if (this == null) {
+				throw new TypeError('Array.prototype.find called on null or undefined');
+			}
+			if (typeof predicate !== 'function') {
+				throw new TypeError('predicate must be a function');
+			}
+			var list = Object(this);
+			var length = list.length >>> 0;
+			var thisArg = arguments[1];
+			var value;
+
+			for (var i = 0; i < length; i++) {
+				value = list[i];
+				if (predicate.call(thisArg, value, i, list)) {
+					return value;
+				}
+			}
+			return undefined;
+		};
+	}
+
+	var GPRSManagerTable = function() {
+		var table = null;
+		var defUrl = ''; // /dongjun/gprs/company_gprs
+		var curMonitorId = ''
+		return {
+			getTable: function(){
+				return table;
+			},
+			init: function(o) {
+				panelObserver.regist('showGPRSModule', function(agrs) {
+					// console.log(agrs)
+					this.setMonitorId(agrs.id).draw()
+				}.bind(this))
+				if(o.url) {
+					defUrl = o.url
+				}
+			},
+			setMonitorId: function(id) {
+				curMonitorId = id
+				return this
+			},
+			draw: function(id) {
+				var me = this
+				table = $('#gprs_list').DataTable({
+					'destroy': true,// destroy之后才能重新加载
+					'searching': false,
+          'ordering':  false,
+          'info': false,
+          'paging': false,
+					'ajax': {
+						'url': defUrl,
+						'type': 'POST',
+						'dataSrc': function(json) {
+              json.text = Object.prototype.toString.call(json.text) == '[object Object]' ? [json.text] : []
+              return json.text
+            },
+						'data': {
+							'monitorId': curMonitorId
+						}
+					},
+					'columns': [
+						{ 'data': 'name' },
+						{
+							'data': 'address',
+							'orderable': false
+						},
+						{
+							'data': 'deviceNumber',
+							'orderable': false
+						},
+						{
+							'data': 'simNumber',
+							'orderable': false
+						},
+						{
+							'data': 'status',
+							'render': this.renderStatus
+						},
+						{
+							'data': 'available',
+							'render': this.renderAvailable
+						},
+						{
+							data: 'id',
+							width: '50px',
+							orderable: false,
+							render: function(data, type, row) {
+								return '<a href="#edit_GPRS_modal" role="button" class="btn" data-toggle="modal" data-fnc="edit"  data-id="'+data+'">修改</a>'
+							}
+						},
+						{
+							data: 'id',
+							orderable: false,
+							width: '50px',
+							visible: false,
+							render: function(data) {
+								return '<a href="#del_modal" role="button" class="btn btn-danger" data-toggle="modal" data-fnc="del" data-id="'+data+'">删除</a>'
+							}
+						}
+					],
+					'language': {
+						'paginate': {
+							'next': '下一页',
+							'previous': '上一页'
+						},
+						'emptyTable': '<a href="#edit_GPRS_modal" data-toggle="modal" data-backdrop="static">添加GPRS</a>',
+            'zeroRecords': '<a href="#edit_GPRS_modal" data-toggle="modal" data-backdrop="static">添加GPRS</a>',
+						'loadingRecords': '正在加载数据...'
+					},
+					'initComplete': function() {
+						dj.inserCmp('GPRS_manager_modal.html', $('#GPRS_module_panel_modal')[0], function() {
+							// 设置modal
+							GPRSModuleModal.init({
+								url: {
+									edit: '/dongjun/gprs/edit',
+									del: '/dongjun/gprs/del'
+								},
+								complete: me.redraw.bind(me)
+							});
+						}.bind(me));
+
+						(function() {
+							if(roles.currentRole.indexOf('super_admin') != -1) {
+								// 超管
+								// 引入modal
+
+								console.log(table)
+								table.column(-1).visible(true)
+							  // table.column(-2).visible(true)
+							  // var control_btns = '<a href="#edit_GPRS_modal" class="btn btn-primary" data-toggle="modal" data-backdrop="static">添加GPRS</a>'
+							  // $('#control-btns').append(control_btns)
+							} else {
+								// 非超管
+							}
+						})()
+						$(this[0]).click(function(event) {
+							var target = $(event.target)
+							var fnc = target.data('fnc')
+							if(fnc == 'edit') {
+								if(GPRSModuleModal) {
+									var id = target.data('id')
+									GPRSModuleModal.target(id)
+									var data = Array.prototype.find.call(table.data(), function(item) {
+										return item.id == id
+									})
+									GPRSModuleModal.setEditForm(data)
+								}
+							} else if(fnc == 'del') {
+								var id = target.data('id')
+								if(GPRSModuleModal) {
+									GPRSModuleModal.target(id)
+								}
+							}
+						})
+					}
+				})
+				this.draw = this.redraw
+				return this
+			},
+			redraw: function(id) {
+				table.ajax.url(defUrl);
+				var param = {
+					monitorId: id || curMonitorId
+				};
+				table.settings()[0].ajax.data = param;
+				table.ajax.reload();
+			},
+			renderStatus: function(data, type, row) {
+				var statusColor = ['#F60E0E', '#03CC00'],
+						statusDesc = ['离线', '在线']
+				return '<span style="color: ' + statusColor[+data] + '">'+ statusDesc[+data] +'</span>'
+			},
+			renderAvailable: function(data) {
+				data = data ? 1 : 0
+				var statusColor = ['#F60E0E', '#03CC00'],
+						statusDesc = ['未开启', '已开启']
+				return '<span style="color: ' + statusColor[data] + '">'+ statusDesc[data] +'</span>'
+			}
+		}
+	}()
+
+	GPRSManagerTable.init({
+		url: '/dongjun/gprs/list', // /dongjun/gprs/list
+		data: {
+			platformId: $('.platforms').val()
+		}
+	})
+
+</script>

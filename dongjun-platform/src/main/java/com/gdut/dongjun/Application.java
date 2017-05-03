@@ -51,11 +51,11 @@ import net.sf.ehcache.CacheManager;
 @EnableScheduling
 @ImportResource("classpath:platform-service.xml")
 public class Application extends SpringBootServletInitializer {
-
+	
 	@Bean
 	public CommonSwitch projectConstant() {
 		return new CommonSwitch();
-	}	
+	}
 	
 	/*--------------------------------------------------------
 	 * 					数据库配置
@@ -219,7 +219,7 @@ public class Application extends SpringBootServletInitializer {
 	 * @return
 	 */
 	@Bean
-	public DefaultWebSessionManager DefaultWebSessionManager() {
+	public DefaultWebSessionManager defaultWebSessionManager() {
 		DefaultWebSessionManager manager = new DefaultWebSessionManager();
 		return manager;
 	}
@@ -244,6 +244,7 @@ public class Application extends SpringBootServletInitializer {
 
 		DefaultWebSecurityManager manager = new DefaultWebSecurityManager();
 		manager.setRealm(jdbcAuthenticationRealm());
+		manager.setSessionManager(defaultWebSessionManager());
 		return manager;
 	}
 

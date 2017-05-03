@@ -30,7 +30,7 @@ function login() {
 
 			switch (data) {
 			case "0":
-				location.href = "/templates/manager/index.html#substation_manager";
+				location.href = "/templates/manager/index.html";
 				break;
 			case "1":
 				$("#error_msg").text("用户名不存在！");

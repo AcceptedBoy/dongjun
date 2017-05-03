@@ -32,6 +32,10 @@ implements DataMonitorService {
 		return false;
 	}
 
+	/*
+	 * 优化sql
+	 * @see com.gdut.dongjun.service.device.DataMonitorService#selectByUserMapping(com.gdut.dongjun.domain.po.User)
+	 */
 	@Override
 	public List<DataMonitor> selectByUserMapping(User user) {
 		List<UserDeviceMapping> mappings = mappingService.selectByParameters(MyBatisMapUtil.warp("user_id", user.getId()));

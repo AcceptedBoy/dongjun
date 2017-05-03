@@ -172,7 +172,6 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			//去除开头的0
 			gprsAddress = sb.toString();
 			
-			
 			//判断GPRS是否已在网站上注册
 			String gprsId = gprsService.isGPRSAvailable(gprsAddress);
 			if (null != gprsId) {

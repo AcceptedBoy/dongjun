@@ -4,6 +4,8 @@ import java.util.List;
 
 import javax.servlet.http.HttpSession;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,13 +17,9 @@ import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.DataMonitorSubmodule;
 import com.gdut.dongjun.domain.po.TemperatureModule;
 import com.gdut.dongjun.domain.po.User;
-import com.gdut.dongjun.dto.TemperatureMeasureHitchEventDTO;
 import com.gdut.dongjun.service.UserService;
-import com.gdut.dongjun.service.device.DataMonitorService;
 import com.gdut.dongjun.service.device.DataMonitorSubmoduleService;
 import com.gdut.dongjun.service.device.TemperatureModuleService;
-import com.gdut.dongjun.service.device.event.ModuleHitchEventService;
-import com.gdut.dongjun.service.device.event.TemperatureMeasureHitchEventService;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.UUIDUtil;
 
@@ -32,15 +30,9 @@ public class TemperatureModuleController {
 	@Autowired
 	private TemperatureModuleService moduleService;
 	@Autowired
-	private TemperatureMeasureHitchEventService eventService;
-	@Autowired
-	private ModuleHitchEventService moduleHitchService;
+	private DataMonitorSubmoduleService submoduleService;
 	@Autowired
 	private UserService userService;
-	@Autowired
-	private DataMonitorService monitorService;
-	@Autowired
-	private DataMonitorSubmoduleService submoduleService;
 	
 	/**
 	 * TODO 要增加和DataMonitor的关联
@@ -50,8 +42,18 @@ public class TemperatureModuleController {
 	@ResponseBody
 	@RequestMapping("/edit")
 	@Transactional
-	public ResponseMessage edit(TemperatureModule module, String monitorId) {
+	public ResponseMessage edit(TemperatureModule module, String monitorId, HttpSession session) {
 		if (null == module.getId() || "".equals(module.getId())) {
+			Subject subject = SecurityUtils.getSubject();
+			if (!subject.hasRole("super_admin")) {
+				User user = userService.getCurrentUser(session);
+				module.setGroupId(user.getCompanyId());
+			}
+			List<TemperatureModule> modules = moduleService
+					.selectByParameters(MyBatisMapUtil.warp("device_number", module.getDeviceNumber()));
+			if (0 != modules.size()) {
+				return ResponseMessage.warning("该设备地址已经被占用");
+			}
 			module.setId(UUIDUtil.getUUID());
 			if (0 == moduleService.updateByPrimaryKey(module)) {
 				return ResponseMessage.warning("操作失败");
@@ -66,6 +68,11 @@ public class TemperatureModuleController {
 				return ResponseMessage.warning("操作失败");
 			}
 		} else {
+			List<TemperatureModule> modules = moduleService
+					.selectByParameters(MyBatisMapUtil.warp("device_number", module.getDeviceNumber()));
+			if (0 != modules.size() && !modules.get(0).getId().equals(module.getId())) {
+				return ResponseMessage.warning("该设备地址已经被占用");
+			}
 			if (0 == moduleService.updateByPrimaryKeySelective(module)) {
 				return ResponseMessage.warning("操作失败");
 			}
@@ -86,7 +93,11 @@ public class TemperatureModuleController {
 		if (!moduleService.deleteByPrimaryKey(id)) {
 			return ResponseMessage.warning("操作失败");
 		}
-		DataMonitorSubmodule submodule = submoduleService.selectByParameters(MyBatisMapUtil.warp("module_id", id)).get(0);
+		List<DataMonitorSubmodule> submodules = submoduleService.selectByParameters(MyBatisMapUtil.warp("module_id", id));
+		if (0 == submodules.size()) {
+			return ResponseMessage.warning("操作失败");
+		}
+		DataMonitorSubmodule submodule = submodules.get(0);
 		if (!submoduleService.deleteByPrimaryKey(submodule.getId())) {
 			return ResponseMessage.warning("操作失败"); 
 		}
@@ -97,7 +108,7 @@ public class TemperatureModuleController {
 	@RequestMapping("/list")
 	public ResponseMessage list(String monitorId) {
 		List<DataMonitorSubmodule> subList = submoduleService.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
-		String id = null;
+		//TODO
 		for (DataMonitorSubmodule sub : subList) {
 			if (sub.getModuleType() == 3) {
 				List<TemperatureModule> module = moduleService.selectByParameters(MyBatisMapUtil.warp("id", sub.getModuleId()));

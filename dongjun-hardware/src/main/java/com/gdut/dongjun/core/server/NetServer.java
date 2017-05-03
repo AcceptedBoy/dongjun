@@ -65,7 +65,9 @@ public abstract class NetServer {
 		SelfSignedCertificate ssc = null;
 
 		EventLoopGroup bossGroup = new NioEventLoopGroup(1);
+		System.out.println("bossGroup  " + bossGroup);
 		EventLoopGroup workerGroup = new NioEventLoopGroup();
+		System.out.println("workerGroup  " + workerGroup);
 		if (SSL) {
 			try {
 				ssc = new SelfSignedCertificate();
@@ -183,7 +185,7 @@ public abstract class NetServer {
 	 */
 	protected abstract void timedCVReadTask();
 
-	public int getPort() {
+	public Integer getPort() {
 		return port;
 	}
 

@@ -38,7 +38,7 @@
 				}
 			},
 			renderCompany: function() {
-				//ajax 
+				//ajax
 				$.ajax({
 					url: urls.getUrl,
 					type: 'POST',
@@ -67,10 +67,10 @@
 			setCompany: function(data) {
 				$('.companyName').children('.value').text(data.name)
 				$('.companyAdress').children('.value').text(data.adress)
-				$('.companyStaff').children('.value').text(data.staff)
+				$('.companyStaff').children('.value').text(data.mainStaff)
 				$('.phone').children('.value').text(data.phone)
 				$('.email').children('.value').text(data.email)
-				$('.companyInfor').children('.value').text(data.infor)
+				$('.companyInfor').children('.value').text(data.description)
 			}
 		}
 	}()

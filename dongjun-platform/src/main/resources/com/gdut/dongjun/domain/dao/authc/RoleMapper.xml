@@ -142,6 +142,6 @@
 	<select id="selectByUserId" resultMap="BaseResultMap">
 		select * from role where
 		id in
-		(select id from user_role where user_id = #{userId})
+		(select role_id from user_role where user_id = #{userId})
 	</select>
 </mapper>

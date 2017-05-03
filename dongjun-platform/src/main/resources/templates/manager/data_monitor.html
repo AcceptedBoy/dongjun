@@ -1,19 +1,7 @@
 <div id="data_monitor_panel">
-  <div class="form-inline">
-    <div class="form-group span3">
-      <label class="span3" style="line-height: 2em">组别:</label>
-      <select class="groups span9"></select>
-    </div>
-    <div class="form-group span3">
-      <label class="span3" style="line-height: 2em">公司:</label>
-      <select class='companys span9'></select>
-    </div>
-    <div></div>
+  <div class="form-inline" id="group_company_select">
     <div class="form-group span5">
         <a href="#edit_dataMonitor_modal" class="btn btn-primary" id="add_dataMonitor_btn" data-toggle="modal" data-backdrop="static">添加设备</a>
-<!--         <a href="/dongjun/downloadEmptytemExcel" class="btn btn-primary" id="export_model_btn" data-backdrop="static">导出模板</a>
-        <a href="#upload_modal" class="btn btn-primary" id="add_switch_btn" data-toggle="modal" data-backdrop="static">批量导入</a>
-        <a href="/dongjun/downloadtemExcel" class="btn btn-primary" id="export_switch_btn" data-backdrop="static">导出excel</a> -->
     </div>
   </div>
 
@@ -21,22 +9,44 @@
     <thead>
       <td>名称</td>
       <td>地址</td>
+      <td>子模块</td>
+   <!--    <td>GPRS</td>
       <td>温度模块</td>
-      <td>电能表模块</td>
+      <td>电能表模块</td> -->
       <td>修改</td>
       <td>删除</td>
     </thead>
   </table>
 </div>
 
-<div id="temperature_module_panel" class="hide">
-  数据加载中。。。
-</div>
+<div id="modules_panel" class="hide">
+  <div class="container-fluid well" style="height: 100%;overflow-y: hidden;position: relative;padding: 5px 10px">
+    <h3 class="text-center" style="margin-bottom: 0">
+      <span id="module_info_title" class="center">温度模块</span>
+      <div id="module_info_back" class="notice-container" style="float: left; cursor: pointer;">
+        <div class="cursor-notice"><a style="color: #505050; font-size: 0.8em">◁</a></div>
+        <div class="cursor-notice-borad-right" style="position: fixed">返回</div>
+      </div>
 
-<div id="power_module_panel" class="hide">
-  数据加载中。。。
+      <ul id="modules_panel_tab" class="nav nav-tabs" style="font-size: 0.6em; float: right; margin-bottom: 0">
+        <li><a href="#temperature_module" data-toggle="tab">温度</a></li>
+        <li><a href="#GPRS_module" data-toggle="tab">GPRS</a></li>
+        <li><a href="#power_module" data-toggle="tab">电能表</a></li>
+      </ul>
+    </h3>
+  </div>
+  <div id="modules_panel_tab_content" class="tab-content" style="position: relative;">
+    <div class="tab-pane fade" id="temperature_module" style="position: relative;">
+      数据加载中。。。
+    </div>
+    <div class="tab-pane fade" id="GPRS_module" style="width: 100%">
+      数据加载中。。。
+    </div>
+    <div class="tab-pane fade" id="power_module" style="width: 100%">
+      数据加载中。。。
+    </div>
+  </div>
 </div>
-
 
 <script>
   var Popup = function() {
@@ -160,6 +170,7 @@
           console.warn('没有事件 '+ type)
           return
         }
+        console.log('FIRE:  ' + type)
         __message[type].forEach(function(fnc) {
           fnc(agrs, type)
         })
@@ -167,7 +178,7 @@
     }
   }()
 
-  var managerTable = function() {
+  var monitorManagerTable = function() {
     var table = null;
     var defUrl = '/dongjun/data_monitor/list';
     return {
@@ -180,24 +191,34 @@
           'ajax': {
             'url': defUrl,
             'type': 'POST',
-            'dataSrc': 'text',
-            'data': o.data
+            'dataSrc': function(data) {
+              return data.text.filter(function(item) {
+                return item
+              })
+            },
+            'data': o && o.data || undefined
           },
           'columns': [
             { 'data': 'name' },
             { 'data': 'address' },
+            // {
+            //   'data': 'id',
+            //   'render': function(data, type, row) {
+            //     return '<a role="button" class="btn" data-fnc="goToGPRSModule" data-name="'+ row.name +'"  data-id="'+ data +'">查看</a>'
+            //   }
+            // },
             {
               'data': 'id',
               'render': function(data, type, row) {
                 return '<a role="button" class="btn" data-fnc="goToTemModule" data-name="'+ row.name +'"  data-id="'+ data +'">查看</a>'
               }
             },
-            {
-              'data': 'id',
-              'render': function(data, type, row) {
-                return '<a role="button" class="btn" data-fnc="goToPowerModule" data-name="'+ row.name +'"  data-id="'+ data +'">查看</a>'
-              }
-            },
+            // {
+            //   'data': 'id',
+            //   'render': function(data, type, row) {
+            //     return '<a role="button" class="btn" data-fnc="goToPowerModule" data-name="'+ row.name +'"  data-id="'+ data +'">查看</a>'
+            //   }
+            // },
             {
               data: 'id',
               width: '50px',
@@ -232,20 +253,17 @@
               switch(fnc) {
                 // 切换至温度子模块
                 case 'goToTemModule':
-                  panelCtrl.show('temModule', function() {
-                    // 触发显示温度子模块
-                    panelObserver.fire('showTemModule', {
-                      id: target.data('id'),
-                      name: target.data('name')
-                    })
-                  })
+                  ModulesTabPanel.show('temperature', target.data('name'), target.data('id'))
+                  return
+                case 'goToGPRSModule':
+                  ModulesTabPanel.show('GPRS', target.data('name'), target.data('id'))
                   return
                 case 'goToPowerModule':
                   alert('暂未开放, 请等待')
                   return
                 // 删除功能
                 case 'del':
-                  modal.delDataMonitor(target.data('id'))
+                  monitorManagerModal.delDataMonitor(target.data('id'))
                   return
                 // 编辑功能
                 case 'edit':
@@ -253,19 +271,19 @@
                   var data = Array.prototype.find.call(table.data(), function(item) {
                     return item.id == id
                   })
-                  modal.editDataMonitor(data)
+                  monitorManagerModal.editDataMonitor(data)
                   return
               }
             })
 
             // 添加数据监控
-            $('#add_dataMonitor_btn').on('click', modal.addDataMonitor)
+            $('#add_dataMonitor_btn').on('click', monitorManagerModal.addDataMonitor.bind(monitorManagerModal))
           }
         })
       },
       redraw: function(id) {
         if(id == -1){
-          console.log('clear')
+          // console.log('clear')
           table.clear().draw()
           return
         }
@@ -281,16 +299,86 @@
     }
   }()
 
+  var ModulesTabPanel = function() {
+    var hasLoad = []
+    var template = {
+      temperature: 'temperature_module.html',
+      GPRS: 'GPRS_module.html',
+      power: 'power_module.html'
+    }
+    var titleNode = $('#module_info_title')
+    var contentNode = {
+      temperature: $('#temperature_module'),
+      GPRS: $('#GPRS_module'),
+      power: $('#power_module')
+    }
+
+    var currentTab = ''
+    var curMonitorId = ''
+    var fireFnc = {
+      temperature: 'showTemModule',
+      GPRS: 'showGPRSModule'
+    }
+
+    // var afterLoad = function() {}
+
+    var __loadTpl = function(tplName, fnc) {
+      if(!template[tplName]) {
+        return
+      }
+      var me = this
+      dj.inserCmp(template[tplName], contentNode[tplName][0], function() {
+        hasLoad.push(tplName)
+        if(fnc) {
+          fnc()
+        }
+      })
+    };
+
+    // 事件监听
+    (function() {
+      $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        var name = e.target.href.split('#')[1].replace(/_module$/, '')
+        if(hasLoad.indexOf(name) == -1) {
+          __loadTpl(name, function() {
+            panelObserver.fire(fireFnc[name], {
+              id: curMonitorId
+            })
+          })
+        } else {
+          panelObserver.fire(fireFnc[name], {
+            id: curMonitorId
+          })
+        }
+      })
+    })()
+
+    return {
+      show: function(name, monitorName, monitorId) {
+        if(currentTab == name) {
+          panelObserver.fire(fireFnc[name.replace(/_module$/, '')], {
+            id: monitorId
+          })
+        } else {
+          currentTab = name
+        }
+        curMonitorId = monitorId
+        // afterLoad = fnc
+        titleNode.text(monitorName)
+        panelObserver.fire('toModulesPanel', {})
+        $('#modules_panel_tab a[href="#'+ name + '_module' +'"]').tab('show')
+      },
+      getMonitorId: function() {
+        return curMonitorId
+      }
+    }
+  }()
+
   // 切换表格
   var panelCtrl = function(){
-    var hasLoad = ['dataMonitor']
-    var template = {
-      temModule: ['temperature_module.html']
-    }
     var panel = {
       dataMonitor: $('#data_monitor_panel'),
-      temModule: $('#temperature_module_panel'),
-      powerModule: $('#power_module_panel')
+      modulesPanel: $('#modules_panel')
     }
     var currentPanel = {
       dom: panel.dataMonitor,
@@ -300,33 +388,14 @@
       now: function() {
         return currentPanel
       },
-      hasLoad: function() {
-        return hasLoad
-      },
       show: function(panelName, fnc) {
         if(panelName == currentPanel.name) {
           return
         }
         panel[panelName].show(300)
         currentPanel.dom.hide(300)
-
         this.__updateCurrent(panelName)
-        if(hasLoad.indexOf(panelName) == -1) {
-          this.__loadTpl(panelName, fnc)
-        } else {
-          if(fnc) {
-            fnc()
-          }
-        }
-      },
-      __loadTpl: function(tplName, fnc) {
-        var me = this
-        dj.inserCmp(template[tplName], panel[tplName][0], function() {
-          hasLoad.push(tplName)
-          if(fnc) {
-            fnc()
-          }
-        })
+        fnc && fnc()
       },
       __updateCurrent: function(panelName) {
         currentPanel.dom = panel[panelName]
@@ -339,35 +408,67 @@
   panelObserver.regist('backToDataMonitor', function() {
     panelCtrl.show('dataMonitor')
   })
+  panelObserver.regist('toModulesPanel', function() {
+    panelCtrl.show('modulesPanel')
+  })
 
-  modal.setOption({
+  $('#module_info_back').on('click', function() {
+    panelCtrl.show('dataMonitor')
+  })
+
+  monitorManagerModal.setOption({
     url: {
       add: '/dongjun/data_monitor/edit',
       edit: '/dongjun/data_monitor/edit',
       del: '/dongjun/data_monitor/del',
       upload: '/dongjun/uploadtemDeviceExcel'
     },
-    completeFnc: managerTable.redraw
-  })
+    completeFnc: monitorManagerTable.redraw
+  });
 
-  selectManager.setOption({
-    url: {
-      'group': '/dongjun/group/gruop_list',
-      'company': '/dongjun/platform_group/platform_group_list_by_group_id'
-    },
-    node: {
-      'group': '.groups',
-      'company': '.companys'
-    },
-    completeFnc: managerTable.redraw
-  })
+  (function() {
+    if(roles.currentRole.indexOf('super_admin') != -1) {
+      // 超管
+      // 插入公司选项
+      var select = $('#group_company_select')[0]
+      var selectStr = '<div class="form-group span6" id="group_company_select_group">' +
+                        '<div class="form-group span6">' +
+                          '<label class="span2" style="line-height: 2em">组别:</label>' +
+                          '<select class="groups span10"></select>' +
+                        '</div>' +
+                        '<div class="form-group span6">' +
+                          '<label class="span2" style="line-height: 2em">公司:</label>' +
+                          '<select class="companys span10"></select>' +
+                        '</div>' +
+                      '</div>'
+      select.innerHTML = selectStr + select.innerHTML
+      // 组别、公司选择
+      dj.jsLoad('/js/manager/selectManager.js', function() {
+        selectManager.setOption({
+          url: {
+            'group': '/dongjun/group/gruop_list',
+            'company': '/dongjun/platform_group/platform_group_list_by_group_id'
+          },
+          node: {
+            'group': '.groups',
+            'company': '.companys'
+          },
+          completeFnc: monitorManagerTable.redraw
+        })
+        selectManager.loadGroups()
+        selectManager.autoListen()
 
-  selectManager.loadGroups()
-  selectManager.autoListen()
-
-  managerTable.init({
-    data: {
-      platformGroupId: selectManager.getCompany()
+        monitorManagerTable.init({
+          data: {
+            platformGroupId: selectManager.getCompany()
+          }
+        })
+      })
+    } else {
+      // 非超管
+      monitorManagerTable.init()
     }
-  })
+  })()
+
+
 </script>

@@ -1,57 +1,60 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8" />
-    <title>电管家维护系统</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="utf-8" />
+  <title>电管家维护系统</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <link href="../../css/bootstrap.css" rel="stylesheet" />
-    <style type="text/css">
-        th, td {
-            white-space: nowrap;
-        }
-    </style>
-    <link href="../../css/bootstrap-responsive.css" rel="stylesheet" />
-    <link href="../../css/manager.css" rel="stylesheet" />
-    <link href="../../css/global.css" rel="stylesheet" />
+  <link href="../../css/bootstrap.css" rel="stylesheet" />
+  <style type="text/css">
+    th, td {
+        white-space: nowrap;
+    }
+  </style>
+  <link href="../../css/bootstrap-responsive.css" rel="stylesheet" />
+  <link href="../../css/manager.css" rel="stylesheet" />
+  <link href="../../css/global.css" rel="stylesheet" />
 
-    <!-- dataTables -->
-    <link href="../../css/dataTables/dataTables.tableTools.css"
-          rel="stylesheet" />
-    <link href="../../css/dataTables/jquery.dataTables.css" rel="stylesheet" />
-    <link href="../../css/dataTables/dataTables.bootstrap.css"
-          rel="stylesheet" />
-
-    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
-    <!--[if lt IE 9]>
-    <script src="../../resources/js/html5shiv.js"></script>
-    <![endif]-->
-
-    <!-- Fav and touch icons -->
-    <link rel="shortcut icon" href="../../img/logo.png" />
-    <link href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"
+  <!-- dataTables -->
+  <link href="../../css/dataTables/dataTables.tableTools.css"
         rel="stylesheet" />
+  <link href="../../css/dataTables/jquery.dataTables.css" rel="stylesheet" />
+  <link href="../../css/dataTables/dataTables.bootstrap.css"
+        rel="stylesheet" />
+
+  <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+  <!--[if lt IE 9]>
+  <script src="../../resources/js/html5shiv.js"></script>
+  <![endif]-->
+
+  <!-- Fav and touch icons -->
+  <link rel="shortcut icon" href="../../img/logo.png" />
+  <link href="//cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"
+      rel="stylesheet" />
 <!--
-    <script src="../../node_modules/mockjs/dist/mock-min.js"></script>
-    <script src="../../mock_interface.js"></script>
- -->
+  <script src="../../node_modules/mockjs/dist/mock-min.js"></script>
+  <script src="../../mock_interface.js"></script>
+-->
 
 
 </head>
 
 <body>
-    <div class="container-fluid">
-        <topBar></topBar>
-        <div class="row-fluid">
-            <sideNav></sideNav>
-            <container></container>
-        </div>
-        <modal></modal>
-        <footer>
-            <p>&copy; Company 2013</p>
-        </footer>
+  <div class="container-fluid">
+    <!-- <topBar></topBar> -->
+    <div id="topBar"></div>
+    <div class="row-fluid">
+      <!-- <sideNav></sideNav> -->
+      <div class="span2 container-fluid well sidebar-nav" id="manager_side_nav_container"></div>
+      <!-- <container></container> -->
+      <div class="span10 container"></div>
     </div>
-<!--/.fluid-container-->
+    <!-- <modal></modal> -->
+    <div class="managerModal" style="padding:0;margin:0;height:0;border:none"></div>
+    <footer>
+      <p>&copy; Company 2013</p>
+    </footer>
+  </div>
 
 <!-- Le javascript
   ================================================== -->
@@ -86,21 +89,17 @@
 </html>
 
 <script>
-    dj.createComponent('modal', {
-        template: '<div class="managerModal" style="padding:0;margin:0;height:0;border:none"></div>'
-    })
 
-    dj.createComponent('topBar', {
-        templateUrl: '../public/topBar.html'
-    })
+  dj.loadHtml('../public/topBar.html', function(data) {
+    var node = $('#topBar')[0]
+    var tempDiv = document.createElement('div')
+    tempDiv.innerHTML = data
+    node.outerHTML = data.replace(/<script.*?>(\s*.*\s*)*<\/script>()/ig,'')
+    var script = document.createElement('script')
+    var t = document.createTextNode(tempDiv.getElementsByTagName('script')[0].text)
+    script.appendChild(t)
+    document.body.appendChild(script)
+    dj.inserCmp('sideNav.html', $('#manager_side_nav_container')[0])
+  })
 
-    dj.createComponent('container', {
-        template: '<div class="span10 container"></div>'
-    })
-
-    dj.createComponent('sideNav', {
-        templateUrl: 'sideNav.html'
-    })
-
-    dj.componentIn();
 </script>
