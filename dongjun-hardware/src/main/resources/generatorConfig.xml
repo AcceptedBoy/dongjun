@@ -30,18 +30,18 @@
 <!-- 			domainObjectName="ModuleHitchEvent" enableCountByExample="false" -->
 <!-- 			enableUpdateByExample="false" enableDeleteByExample="false" -->
 <!-- 			enableSelectByExample="false" selectByExampleQueryId="false" /> -->
-		<table schema="root" tableName="module_hitch_event"
-			domainObjectName="ModuleHitchEvent" enableCountByExample="false"
-			enableUpdateByExample="false" enableDeleteByExample="false"
-			enableSelectByExample="false" selectByExampleQueryId="false" />
-		<table schema="root" tableName="temperature_measure_hitch_event1"
-			domainObjectName="TemperatureMeasureHitchEvent" enableCountByExample="false"
-			enableUpdateByExample="false" enableDeleteByExample="false"
-			enableSelectByExample="false" selectByExampleQueryId="false" />
-<!-- 		<table schema="root" tableName="electronic_module_voltage" -->
-<!-- 			domainObjectName="ElectronicModuleVoltage" enableCountByExample="false" -->
+<!-- 		<table schema="root" tableName="module_hitch_event" -->
+<!-- 			domainObjectName="ModuleHitchEvent" enableCountByExample="false" -->
 <!-- 			enableUpdateByExample="false" enableDeleteByExample="false" -->
 <!-- 			enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+<!-- 		<table schema="root" tableName="temperature_measure_hitch_event1" -->
+<!-- 			domainObjectName="TemperatureMeasureHitchEvent" enableCountByExample="false" -->
+<!-- 			enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 			enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+		<table schema="root" tableName="electronic_module_hitch_event"
+			domainObjectName="ElectronicModuleHitchEvent" enableCountByExample="false"
+			enableUpdateByExample="false" enableDeleteByExample="false"
+			enableSelectByExample="false" selectByExampleQueryId="false" />
 	</context>
 </generatorConfiguration>
 
