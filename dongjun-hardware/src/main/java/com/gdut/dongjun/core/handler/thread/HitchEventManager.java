@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.gdut.dongjun.domain.po.TemperatureMeasureHitchEvent;
+import com.gdut.dongjun.domain.vo.TemperatureMeasureHitchEventVO;
 
 /**
  * TODO

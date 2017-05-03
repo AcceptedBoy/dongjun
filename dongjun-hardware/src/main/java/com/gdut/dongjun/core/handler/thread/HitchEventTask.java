@@ -68,7 +68,6 @@ public abstract class HitchEventTask<T extends AbstractHitchEvent> implements Ru
 		vo.setMonitorId(event.getMonitorId());
 		vo.setGroupId(event.getGroupId());
 		vo.setType(event.getType());
-		vo.setGroupId(event.getGroupId());
 		return vo;
 	}
 
