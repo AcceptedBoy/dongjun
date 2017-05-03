@@ -194,13 +194,18 @@
       Chart.call(this, chart, tablename, isActive)
     }
 
-    function EleChart(chart, tablename, isActive) {
+    function EleChart(chart, tablename, isActive, url) {
       Chart.call(this, chart, tablename, isActive)
+			this.url = url
     }
 
     inheritPrototype(TemChart, Chart)
     inheritPrototype(EleChart, Chart)
 
+
+		/**
+		 * [TemChart 开始重写TemChart的Prototype]
+		 */
     TemChart.prototype.handleClick = function(event, treeId, treeNode) {
       var begin_time = $('#begin_search_date').val()
       var end_time = $('#end_search_date').val()
@@ -226,7 +231,7 @@
         endtime = $('#end_search_date').val()
       }
       if(name && id) {
-        chartView.showLoading(self.chart);
+        chartView.showLoading(self.chart)
         $.ajax({
           url: '/dongjun/select_chart_by_device_id',
           type: 'GET',
@@ -236,7 +241,7 @@
             endDate: endtime
           },
           success: function(res) {
-            chartView.hideLoading(self.chart);
+            // chartView.hideLoading(self.chart)
             if(res) {
 							// if(self.cache) {
 							// 	if(self.judgeRes(res)) {
@@ -254,10 +259,13 @@
               alert('没有数据')
               self.clearChart()
             }
-          }
+          },
+					complete: function() {
+						chartView.hideLoading(self.chart)
+					}
         })
       } else {
-        alert('请选择设备树的节点')
+        // alert('请选择设备树的节点')
         self.clearChart()
       }
     }
@@ -275,7 +283,7 @@
         //     });
         //   }
         // }
-		for(var j = 0; j<op.xAxis[0].data.length; j++) {
+				for(var j = 0; j<op.xAxis[0].data.length; j++) {
           for(var i = 0; i<op.series.length; i++) {
             arr.push({
               "name": op.legend[0].data[i],
@@ -308,6 +316,32 @@
         "data": data
       });
     }
+
+
+		/**
+		 * [EleChart 开始重写EleChart的Prototype]
+		 */
+		EleChart.prototype.handleClick = function(event, treeId, treeNode) {
+			var bgtime = $('#begin_search_date').val()
+      var endtime = $('#end_search_date').val()
+			chartNodes.setData({
+        id: treeNode.id,
+        name: treeNode.name
+      })
+			this.showChart(treeNode.id, treeNode.name, bgtime, endtime)
+		}
+
+		EleChart.prototype.showChart = function(id, name, bgtime, endtime) {
+			var self = this
+			if(!(bgtime && endtime)) {
+				bgtime = $('#begin_search_date').val()
+        endtime = $('#end_search_date').val()
+			}
+			if(id && name) {
+				chartView.showLoading(self.chart)
+				// ajax
+			}
+		}
 
     var chartView = function() {
       return {
@@ -495,9 +529,9 @@
     var chartManager = function() {
 
       var temperature = new TemChart('temperature', 't_data_list', true)
-      var voltageChart = new EleChart('VoltageChart', 'v_data_list', false)
-      var currentChart = new EleChart('current', 'c_data_list', false)
-      var powerChart = new EleChart('power', 'p_data_list', false)
+      var voltageChart = new EleChart('VoltageChart', 'v_data_list', false, '/dongjun/chart/electronic_voltage')
+      var currentChart = new EleChart('current', 'c_data_list', false, '/dongjun/chart/electronic_current')
+      var powerChart = new EleChart('power', 'p_data_list', false, '/dongjun/chart/electronic_power')
       var chartArr = [temperature, voltageChart, currentChart, powerChart]
 			var active = null
 
