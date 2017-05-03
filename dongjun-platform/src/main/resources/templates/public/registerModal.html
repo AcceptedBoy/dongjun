@@ -272,6 +272,9 @@ var registerObj = function() {
 								url: '/dongjun/elecon/user_registy',
 								data: params,
 								success: function(res) {
+									if(typeof empolyeeTb !== 'undefined') {
+										empolyeeTb.redraw()
+									}
 									alert('注册成功！');
 								},
 								error: function(err) {
