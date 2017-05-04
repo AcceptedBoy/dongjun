@@ -14,7 +14,7 @@ import com.gdut.dongjun.domain.po.ElectronicModuleVoltage;
 public class ElectronicModuleVoltageDAOImpl extends SinglePrimaryKeyBaseDAOImpl<ElectronicModuleVoltage> implements ElectronicModuleVoltageMapper {
 
 	@Override
-	public List<ElectronicModuleVoltage> implements> selectByTime(Map<String, Object> map) {
+	public List<ElectronicModuleVoltage> selectByTime(Map<String, Object> map) {
 		return template.selectList(getNamespace("selectByTime"), map);
 	}
 }

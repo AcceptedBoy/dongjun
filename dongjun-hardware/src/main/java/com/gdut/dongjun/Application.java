@@ -8,14 +8,12 @@ import javax.sql.DataSource;
 import org.apache.cxf.transport.servlet.CXFServlet;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.SqlSessionTemplate;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.boot.context.web.SpringBootServletInitializer;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.ImportResource;
@@ -34,9 +32,6 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 @EnableAspectJAutoProxy
 @ImportResource("classpath:hardware-service.xml")
 public class Application extends SpringBootServletInitializer {
-	
-	@Autowired 
-    private ApplicationContext applicationContext;
 	
 	@Override
 	protected SpringApplicationBuilder configure(
