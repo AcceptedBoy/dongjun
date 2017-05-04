@@ -5,8 +5,8 @@ import java.util.concurrent.ExecutorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.gdut.dongjun.domain.po.ElectronicModuleHitchEvent;
 import com.gdut.dongjun.domain.po.TemperatureMeasureHitchEvent;
-import com.gdut.dongjun.domain.vo.TemperatureMeasureHitchEventVO;
 
 /**
  * TODO
@@ -19,6 +19,8 @@ public class HitchEventManager {
 	
 	@Autowired
 	private TemperatureHitchEventTaskFactory temHitchEventThreadFactroy;
+	@Autowired
+	private ElectronicModuleHitchEventTaskFactory electronicThreadFactory;
 
 	protected static ExecutorService fixedPool = ThreadPoolHolder.fixedPool;
 	
@@ -28,5 +30,9 @@ public class HitchEventManager {
 	 */
 	public void addHitchEvent(TemperatureMeasureHitchEvent event) {
 		fixedPool.execute(temHitchEventThreadFactroy.buildHitchEventTask(event));
+	}
+	
+	public void addHitchEvent(ElectronicModuleHitchEvent event) {
+		fixedPool.execute(electronicThreadFactory.buildHitchEventTask(event));
 	}
 }
