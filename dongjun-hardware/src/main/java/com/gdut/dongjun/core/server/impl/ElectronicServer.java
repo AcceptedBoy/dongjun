@@ -5,15 +5,14 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import com.gdut.dongjun.core.ElectronicCtxStore;
 import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.core.initializer.ServerInitializer;
 import com.gdut.dongjun.core.message.impl.ElectronicModuleMessageCreator;
 import com.gdut.dongjun.core.server.NetServer;
-//AbstractNioChannel AbstractChannel AbstractChannelHandlerContext
-@Service("ElectronicServer")
+
+//@Service("ElectronicServer")
 public class ElectronicServer extends NetServer {
 
 	private ServerInitializer initializer;

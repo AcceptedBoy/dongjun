@@ -137,8 +137,13 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-		String rowMsg = (String) msg;
-		logger.info("接收到的报文： " + rowMsg);
+		List<Object> list = (List<Object>) msg;
+		int type = (int) list.get(0);
+		if (!(HitchConst.MODULE_TEMPERATURE == type || HitchConst.MODULE_GPRS == type)) {
+			ctx.fireChannelRead(msg);
+		}
+		String rowMsg = (String) list.get(1);
+		logger.info("温度接收到的报文： " + rowMsg);
 		char[] data = CharUtils.removeSpace(rowMsg.toCharArray());
 		// 验证报文合法性，以及做一些注册的工作
 		if (check(ctx, data)) {

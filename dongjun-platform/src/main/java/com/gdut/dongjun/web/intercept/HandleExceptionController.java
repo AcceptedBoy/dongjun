@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.gdut.dongjun.domain.model.ErrorInfo;
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.model.ResponseMessage.Type;
+import com.gdut.dongjun.exception.ValidatorException;
 import com.gdut.dongjun.service.common.CommonSwitch;
 import com.gdut.dongjun.util.DefaultValidUtil;
 

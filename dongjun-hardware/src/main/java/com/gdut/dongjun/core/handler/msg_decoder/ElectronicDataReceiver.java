@@ -124,9 +124,14 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-		String m = (String) msg;
+		List<Object> list = (List<Object>) msg;
+		int type = (int) list.get(0);
+		if (!(HitchConst.MODULE_ELECTRICITY == type || HitchConst.MODULE_GPRS == type)) {
+			ctx.fireChannelRead(msg);
+		}
+		String m = (String) list.get(1);
 		char[] data = CharUtils.removeSpace(m.toCharArray());
-		logger.info("ElectronicDataReceiver接收到的信息:" + m);
+		logger.info("电能表接收到的信息:" + m);
 		if (check(ctx, data)) {
 			handleIdenCode(ctx, data);
 		}
