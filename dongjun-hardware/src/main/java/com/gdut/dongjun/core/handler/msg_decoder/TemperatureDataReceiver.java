@@ -141,6 +141,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		int type = (int) list.get(0);
 		if (!(HitchConst.MODULE_TEMPERATURE == type || HitchConst.MODULE_GPRS == type)) {
 			ctx.fireChannelRead(msg);
+			return ;
 		}
 		String rowMsg = (String) list.get(1);
 		logger.info("温度接收到的报文： " + rowMsg);

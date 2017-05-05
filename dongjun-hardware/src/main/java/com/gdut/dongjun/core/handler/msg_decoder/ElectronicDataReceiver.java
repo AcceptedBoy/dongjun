@@ -128,6 +128,7 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 		int type = (int) list.get(0);
 		if (!(HitchConst.MODULE_ELECTRICITY == type || HitchConst.MODULE_GPRS == type)) {
 			ctx.fireChannelRead(msg);
+			return ;
 		}
 		String m = (String) list.get(1);
 		char[] data = CharUtils.removeSpace(m.toCharArray());

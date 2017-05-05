@@ -39,6 +39,7 @@ public class ModuleCheckDataReceiver extends ChannelInboundHandlerAdapter {
 		List<Object> array = new ArrayList<Object>();
 		array.add(module);
 		array.add(msg);
+		logger.info("接收到类别" + module + "的报文：" + data);
 		ctx.fireChannelRead(array);
 	}
 
@@ -47,10 +48,10 @@ public class ModuleCheckDataReceiver extends ChannelInboundHandlerAdapter {
 		if (CharUtils.startWith(data, CODE_00)) {
 			return HitchConst.MODULE_GPRS;
 		}
-		if (CharUtils.equals(data, BYTE + ADDRESS_LENGTH_TEMPERATURE, BYTE, CODE_68)) {
+		if (CharUtils.equals(data, BYTE + ADDRESS_LENGTH_TEMPERATURE, BYTE + ADDRESS_LENGTH_TEMPERATURE + BYTE, CODE_68)) {
 			return HitchConst.MODULE_TEMPERATURE;
 		}
-		else if (CharUtils.equals(data, BYTE + ADDRESS_LENGTH_ELECTRONIC, BYTE, CODE_68)) {
+		else if (CharUtils.equals(data, BYTE + ADDRESS_LENGTH_ELECTRONIC, BYTE + ADDRESS_LENGTH_ELECTRONIC + BYTE, CODE_68)) {
 			return HitchConst.MODULE_ELECTRICITY;
 		}
 		else {
