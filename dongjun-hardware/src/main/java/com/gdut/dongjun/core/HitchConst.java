@@ -9,10 +9,12 @@ package com.gdut.dongjun.core;
 public class HitchConst {
 	
 	/**************************** 子模块 ****************************/
-	//温度子模块
-	public static final int MODULE_TEMPERATURE = 3;
 	//电能表子模块
 	public static final int MODULE_ELECTRICITY = 2;
+	//温度子模块
+	public static final int MODULE_TEMPERATURE = 3;
+	//GPRS子模块
+	public static final int MODULE_GPRS = 4;
 	/**************************** end ****************************/
 	
 	/************************ 子模块报警 ************************/

@@ -39,6 +39,10 @@ public class BigGroupController {
 	private BigGroupService groupService;
 	@Autowired
 	private PlatformGroupService platformGroupService;
+	
+	public BigGroupController() {
+		
+	}
 
 	/**
      * 获取一个组的所有platformgroup

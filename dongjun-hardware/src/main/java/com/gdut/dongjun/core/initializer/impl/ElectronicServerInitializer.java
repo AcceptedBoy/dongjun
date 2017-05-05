@@ -11,7 +11,7 @@ import com.gdut.dongjun.core.initializer.ServerInitializer;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.socket.SocketChannel;
 
-@Component("ElectronicServerInitializer")
+//@Component("ElectronicServerInitializer")
 public class ElectronicServerInitializer extends ServerInitializer {
 
 	@Autowired
