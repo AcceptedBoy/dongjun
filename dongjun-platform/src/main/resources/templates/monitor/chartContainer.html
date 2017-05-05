@@ -187,7 +187,7 @@
         },*/
       };
     }();
-    
+
     var chartController = function() {
       return {
         /**
@@ -361,7 +361,7 @@
         noCheck: function(treeObj, nodes) {
         	nodes.forEach(function(node) {
         		if(node.type != 80) {
-        			treeObj.checkNode(node, false, false, false)	
+        			treeObj.checkNode(node, false, false, false)
         		}
         	})
         },
@@ -371,7 +371,7 @@
         noCheckTem: function(treeObj, nodes) {
         	nodes.forEach(function(node) {
         		if(node.type == 80 || node.type == 100) {
-        			treeObj.checkNode(node, false, false, false)	
+        			treeObj.checkNode(node, false, false, false)
         		}
         	})
         },
@@ -566,7 +566,7 @@
           var nodeType = [];
           var checkNodes = chartNodes.get();
           var data = chartNodes.getList(false);
-          
+
           if(begin_time && end_time) {
             if(data.idList.length != 0) {
               nodeId = data.idList
@@ -577,7 +577,7 @@
                 // url: 'http://127.0.0.1:8080/templates/manager/loadChart',
                 type: 'GET',
                 data: {
-                  switchId: nodeId,	
+                  switchId: nodeId,
                   type: nodeType,
                   beginDate: begin_time,
                   endDate: end_time,
@@ -618,7 +618,7 @@
           var data = chartNodes.getList(true);
           var taglist = data.tagList;
           var id = data.id;
-          
+
           if(begin_time && end_time) {
             if(taglist.length != 0) {
               chartView.showLoading(chart);
@@ -829,7 +829,7 @@
             $('#begin_search_date').val(year + '-' + lastMonth + '-' + yesterday + ' ' + lastHour + ':' + minute);
             $('#end_search_date').val(year + '-' + month + '-' + today + ' ' + hour + ':' + minute);
           }
-          
+
           timer = null;
         },
   //       handleAll: function(treeNode, isCheck) {
@@ -872,7 +872,7 @@
 		// 			chartManager.handleTemSearch(chartManager.get('tem'), 't_data_list');
 		// 		} else {
 		// 			chartNodes.delCheck(treeNode);
-		// 			chartManager.removeOption(treeNode, tab, tablename, 3);	
+		// 			chartManager.removeOption(treeNode, tab, tablename, 3);
 		// 		}
 		// 	}
 		// },
@@ -966,7 +966,7 @@
           success: function(res) {
             chartView.hideLoading(chart);
             if(res) {
-            	chartNodes.showTitle(res, name)	
+            	chartNodes.showTitle(res, name)
             	chartNodes.moveLegend(res)
             	chart.setOption(res, true)
             	chartManager.show_table(tablename, chartManager.createTable(chart, true), true);
@@ -978,28 +978,20 @@
       } else {
         alert('请选择设备树的节点')
       }
-      
+
     }
     // TODO
 
       };
     }();
-    
-    var timeModel = function() {
+
+		var timeModel = function() {
     	var elecFlag = 0;
     	var temFlag = 0;
-    	var tab = chartManager.get('showVchart');
-    	var tablename = 'v_data_list';
-    	var cov = 1;
     	var elecTimer = null;
     	var temTimer = null;
     	var interval = 60000;
-    	// 在这里保存一个树节点的id，做得不好
-    	var id = ''
-    	var bgtime = ''
-    	var endtime = ''
-    	var name = ''
-    	
+
     	function plusMin(time) {
     		var bgs = time.split(':')
 			var min = bgs[0].split(' ')
@@ -1016,26 +1008,10 @@
     		sub[1] = min
     		return sub.join(':')
     	}
-    	
+
     	return {
-    		setData: function(option) {
-    			bgtime = option.bgtime
-    			endtime = option.endtime
-    			id = option.id
-    			name = option.name
-    		},
-    		getId: function() {
-    			if(id) {
-    				return id	
-    			}
-    		},
-    		getName: function() {
-    			if(name) {
-    				return name
-    			}
-    		},
     		// 临时做的兼容...
-    		configureTime: function(begin, end) {
+    		configureTime: function(begin, end, bgtime, endtime) {
     			var bg = Number(bgtime.split(':')[1])
     			var end = Number(endtime.split(':')[1])
     			if(bg == 59) {
@@ -1075,11 +1051,6 @@
     		clearTemTimer: function() {
     			clearInterval(temTimer);
     		},
-    		setActive: function(Atab, Acov, Atablename) {
-    			tab = Atab;
-    			cov = Acov;
-    			tablename = Atablename;
-    		},
     		startElec: function() {
     			elecTimer = setInterval(function(){
     				chartManager.handleSearch(tab, cov, tablename);
@@ -1088,8 +1059,10 @@
     		},
     		startTem: function() {
     			temTimer = setInterval(function(){
-    				timeModel.configureTime($('#begin_search_date'), $('#end_search_date'))
-    				chartManager.handleClickSearch(chartManager.get('tem'), 't_data_list', name, id);
+    				var bg = $('#begin_search_date')
+    				var end = $('#end_search_date')
+    				timeModel.configureTime(bg, end, $(bg).val(), $(end).val())
+    				chartManager.showChart()
     			}, interval);
     		}
     	};
