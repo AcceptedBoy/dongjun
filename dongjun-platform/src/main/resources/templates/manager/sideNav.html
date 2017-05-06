@@ -95,6 +95,15 @@
       type: 'item',
       href: 'data_monitor',
       text: '数据监控'
+    }, {
+      type: 'header',
+      text: '用户管理',
+      superAdmin: true
+    }, {
+      type: 'item',
+      text: '用户管理',
+      href: 'user_manager',
+      superAdmin: true
     }];
 
     if(roles.currentRole.indexOf('super_admin') == -1) {
@@ -148,6 +157,7 @@
       'line_manager': lineLoad,
       'data_monitor': loadDataMonitor,
       'equipment_manager': loadEquip,
+      'user_manager': loadUserManager
       // 'GPRS_manager': loadGPRSManager
     })
 
@@ -235,6 +245,14 @@
           }
         })
       // })
+    }
+
+    function loadUserManager() {
+      dj.jsLoad('/js/manager/selectManager.js', function() {
+        dj.inserCmp('user_manager_modal.html', $('.managerModal')[0], function() {
+          dj.inserCmp('user_manager.html', $('.container')[0])
+        })
+      })
     }
   })()
 
