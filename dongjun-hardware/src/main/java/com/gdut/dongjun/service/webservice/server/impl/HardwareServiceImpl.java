@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.gdut.dongjun.core.DefaultCtxStore;
+import com.gdut.dongjun.core.GPRSCtxStore;
 import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.core.TemperatureCtxStore;
 import com.gdut.dongjun.service.webservice.server.HardwareService;
@@ -59,7 +60,7 @@ public class HardwareServiceImpl implements HardwareService {
 
 	@Override
 	public List<Integer> getGPRSModuleStatus(List<String> deviceNumbers) {
-		return TemperatureCtxStore.isGPRSAlive(deviceNumbers);
+		return GPRSCtxStore.isGPRSAlive(deviceNumbers);
 	}
 	
 }

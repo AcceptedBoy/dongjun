@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.gdut.dongjun.core.GPRSCtxStore;
+import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.HitchConst;
 import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.core.TemperatureCtxStore;
@@ -27,7 +27,6 @@ import com.gdut.dongjun.domain.po.TemperatureMeasureHistory;
 import com.gdut.dongjun.domain.po.TemperatureMeasureHitchEvent;
 import com.gdut.dongjun.domain.po.TemperatureModule;
 import com.gdut.dongjun.domain.po.TemperatureSensor;
-import com.gdut.dongjun.domain.vo.TemperatureMeasureHitchEventVO;
 import com.gdut.dongjun.service.DataMonitorSubmoduleService;
 import com.gdut.dongjun.service.GPRSModuleService;
 import com.gdut.dongjun.service.ModuleHitchEventService;
@@ -44,8 +43,6 @@ import com.gdut.dongjun.util.UUIDUtil;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.util.Attribute;
-import io.netty.util.AttributeKey;
 
 /**
  * GPRS模块一连接系统就会发登录包
@@ -107,32 +104,27 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	private DataMonitorSubmoduleService submoduleService;	
 	@Autowired
 	private ModuleHitchEventService moduleHitchEventService;
-
+	
+	private static final String ATTRIBUTE_TEMPERATURE_MODULE = "TEMPERATURE_MODULE";
+	private static final String ATTRIBUTE_TEMPERATURE_MODULE_IS_REGISTED = "TEMPERATURE_MODULE_IS_REGISTED";
+	private static final String ATTRIBUTE_FIRST_CALL = "TEMPERATURE_MODULE_FIRST_CALL";
+	
 	private static final Logger logger = LoggerFactory.getLogger(TemperatureDataReceiver.class);
 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		SwitchGPRS gprs = new SwitchGPRS();// 添加ctx到Store中
 		gprs.setCtx(ctx);
-		if (ctxStore.get(ctx) == null) {
-			ctxStore.add(gprs);
-			// 建立ChannelHandlerContext与GPRSModule的联系，建立通道时未获知GPRSModule的消息
-//			TemperatureCtxStore.addGPRS(ctx, null);
-		}
+		CtxStore.setCtxAttribute(ctx, ATTRIBUTE_TEMPERATURE_MODULE, gprs);
+		super.channelActive(ctx);
 	}
 
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-		AttributeKey<String> key = AttributeKey.valueOf("GPRSAddress");
-		Attribute<String> attr = ctx.attr(key);
-		String gprsAddress = attr.get();
-		logger.info("GPRS" + gprsAddress + "设备失去联络");
-		SwitchGPRS gprs = ctxStore.get(ctx);
-		if (gprs != null) {
-			// 从CtxStore中取出当前ChannelHandlerContext
-			ctxStore.remove(ctx);
-			GPRSCtxStore.removeGPRS(gprsAddress);
-		}
+		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_TEMPERATURE_MODULE);
+		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_TEMPERATURE_MODULE_IS_REGISTED);
+		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_FIRST_CALL);
+		super.channelInactive(ctx);
 	}
 
 	@Override
@@ -162,52 +154,6 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	 */
 	private boolean check(ChannelHandlerContext ctx, char[] data) {
 		
-		String gprsAddress = null;
-		// 登录和心跳包
-		if (CharUtils.startWith(data, CODE_00)
-				&& (CharUtils.equals(data, 6, 8, CODE_01) || CharUtils.equals(data, 6, 8, CODE_03))) {
-			char[] gprsNumber = CharUtils.subChars(data, 12, 8);
-			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i <= 6; i += 2) {
-				//示范 30 30 30 31，表示0001地址
-				if (sb.length() == 0 && gprsNumber[i + 1] == '0') {
-					continue;
-				}
-				sb.append(gprsNumber[i + 1]);
-			}
-			//去除开头的0
-			gprsAddress = sb.toString();
-			
-			//判断GPRS是否已在网站上注册
-			String gprsId = gprsService.isGPRSAvailable(gprsAddress);
-			if (null != gprsId) {
-				
-				AttributeKey<String> key = AttributeKey.valueOf("GPRSAddress");
-				Attribute<String> attr = ctx.attr(key);
-				attr.set(gprsAddress);
-				//更新TemperatureCtxStore的GPRSList
-				TemperatureCtxStore.addGPRS(gprsAddress);
-				if (CharUtils.equals(data, 6, 8, CODE_01)) {
-					//GPRS模块登录
-					logger.info(gprsAddress + " GPRS模块登录成功");
-				} else if (CharUtils.equals(data, 6, 8, CODE_03)) {
-					logger.info(gprsAddress + " GPRS模块在线");
-				}
-				return true;
-			} else {
-				//如果网站上没注册gprs，否决此报文
-				logger.info("未注册GPRS模块地址" + gprsAddress);
-				return false;
-			}
-		}
-		
-		//若GPRS模块注册不成功，报文不通过
-		AttributeKey<String> key = AttributeKey.valueOf("GPRSAddress");
-		Attribute<String> attr = ctx.attr(key);
-		if ((null == attr.get() || "".equals(attr.get()))
-				|| !GPRSCtxStore.isGPRSAlive(attr.get())) {
-			return false;
-		}
 		/*
 		 * TODO 做时间戳 + 设备地址 + 校验和的验证工作，如果不行就记录非法报文数量。 非法报文数量超过一定程度后封锁该设备地址。
 		 * 一旦一天积聚量超过一定程度over。 一旦某段时间内非法报文数量过多over。
@@ -231,14 +177,13 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		}
 
 		//68开头16结尾的报文
-		if (!(CharUtils.startWith(data, EB_UP) || CharUtils.startWith(data, EB_DOWN))
-				&& CharUtils.endsWith(data, CODE_16) && CharUtils.startWith(data, CODE_68)) {
-			AttributeKey<Integer> key = AttributeKey.valueOf("isRegisted");
-			Attribute<Integer> attr = ctx.attr(key);
-			if (null == attr.get()) {
-				getOnlineAddress(ctx, data);
-				if (null != ctxStore.get(ctx).getId()) {
-					attr.set(1);
+		if (CharUtils.endsWith(data, CODE_16) && CharUtils.startWith(data, CODE_68)) {
+			
+			Integer i = (Integer)CtxStore.getCtxAttribute(ctx, ATTRIBUTE_TEMPERATURE_MODULE_IS_REGISTED);
+			
+			if (null == i) {
+				if (null != getOnlineAddress(ctx, data)) {
+					CtxStore.setCtxAttribute(ctx, ATTRIBUTE_TEMPERATURE_MODULE_IS_REGISTED, new Integer(1));
 				}
 			}
 		}
@@ -315,15 +260,16 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	 * @param ctx
 	 * @param data
 	 */
-	private void getOnlineAddress(ChannelHandlerContext ctx, char[] data) {
+	private String getOnlineAddress(ChannelHandlerContext ctx, char[] data) {
 
-		SwitchGPRS gprs = ctxStore.get(ctx);
+		SwitchGPRS gprs = (SwitchGPRS)CtxStore.getCtxAttribute(ctx, ATTRIBUTE_TEMPERATURE_MODULE);
+		
 		/*
 		 * 当注册的温度开关的地址不为空，说明已经注册过了，不再进行相关操作
 		 */
-		if (gprs != null && gprs.getAddress() != null) {
+		if (gprs != null && gprs.getAddress() != null && null != gprs.getId()) {
 			ctx.channel().writeAndFlush(data);
-			return;
+			return gprs.getId();
 		}
 		String address = CharUtils.newString(data, 10, 18).intern();
 		gprs.setAddress(address);
@@ -342,14 +288,16 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 				String id = module.getId();
 				gprs.setId(id);
 
-				if (ctxStore.get(id) != null) {
-					ctxStore.remove(id);
-					ctxStore.add(gprs);
-				}
+//				if (ctxStore.get(id) != null) {
+//					ctxStore.remove(id);
+//					ctxStore.add(gprs);
+//				}
+				return id;
 			} else {
 				logger.warn("当前设备未进行注册");
 			}
 		}
+		return null;
 	}
 
 	/**
@@ -362,16 +310,15 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		String address = CharUtils.newString(data, 10, 18); // 地址域
 
 		// 第一次总召对时
-		AttributeKey<Integer> key = AttributeKey.valueOf("FirstTotalCall");
-		Attribute<Integer> attr = ctx.attr(key);
-		if (null == attr.get()) {
-			attr.set(1);
-			// 发送对时命令，第一次总召的时间其实是不对的
+		Integer call = (Integer)CtxStore.getCtxAttribute(ctx, ATTRIBUTE_FIRST_CALL);
+		if (null == call) {
+			CtxStore.setCtxAttribute(ctx, ATTRIBUTE_FIRST_CALL, new Integer(1));
 			String correctTime = doMatchTime(CharUtils.newString(data, 10, 18));
 			ctx.writeAndFlush(correctTime);
 		}
 
-		String deviceId = ctxStore.getIdbyAddress(address);
+		SwitchGPRS gprs = (SwitchGPRS)CtxStore.getCtxAttribute(ctx, ATTRIBUTE_TEMPERATURE_MODULE);
+		String deviceId = gprs.getId();
 		if (null == deviceId || "".equals(deviceId)) {
 			return;
 		}
@@ -411,7 +358,8 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			logger.info("非法全遥信报文，长度不足" + String.valueOf(data));
 			return ;
 		}
-		String deviceId = ctxStore.get(ctx).getId();
+		SwitchGPRS gprs = (SwitchGPRS)CtxStore.getCtxAttribute(ctx, ATTRIBUTE_TEMPERATURE_MODULE);
+		String deviceId = gprs.getId();
 		int index = 26 * BYTE;
 		for (int i = index; i < data.length - 2 * BYTE; i = i + BYTE) {
 			if (i >= index + 39 * BYTE) {

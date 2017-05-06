@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import com.gdut.dongjun.core.handler.Encoder;
 import com.gdut.dongjun.core.handler.SeparatedTextDecoder;
 import com.gdut.dongjun.core.handler.msg_decoder.ElectronicDataReceiver;
+import com.gdut.dongjun.core.handler.msg_decoder.GPRSDataReceiver;
 import com.gdut.dongjun.core.handler.msg_decoder.ModuleCheckDataReceiver;
 import com.gdut.dongjun.core.handler.msg_decoder.TemperatureDataReceiver;
 import com.gdut.dongjun.core.initializer.ServerInitializer;
@@ -24,6 +25,8 @@ public class TemperatureServerInitializer extends ServerInitializer {
 	private ElectronicDataReceiver electronicReceiver;
 	@Autowired
 	private ModuleCheckDataReceiver moduleCheck;
+	@Autowired
+	private GPRSDataReceiver gprsReveiver;
 
 	@Override
 	public void initChannel(SocketChannel ch) throws Exception {
@@ -33,6 +36,7 @@ public class TemperatureServerInitializer extends ServerInitializer {
 		//处理拆包，能转16进制byte数组到String
 		p.addLast(new SeparatedTextDecoder());
 		p.addLast(moduleCheck);
+		p.addLast(gprsReveiver);
 		p.addLast(receiver);
 		p.addLast(electronicReceiver);
 		p.addLast(new Encoder());

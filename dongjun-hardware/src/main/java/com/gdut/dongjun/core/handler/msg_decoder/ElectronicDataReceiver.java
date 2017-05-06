@@ -8,8 +8,8 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.ElectronicCtxStore;
-import com.gdut.dongjun.core.GPRSCtxStore;
 import com.gdut.dongjun.core.HitchConst;
 import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.core.handler.thread.HitchEventManager;
@@ -34,8 +34,6 @@ import com.gdut.dongjun.util.UUIDUtil;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.util.Attribute;
-import io.netty.util.AttributeKey;
 
 /**
  * <p>
@@ -97,10 +95,6 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 	@Autowired
 	private ElectronicModulePowerService powerService;
 	@Autowired
-	private ElectronicCtxStore ctxStore;
-	@Autowired
-	private GPRSModuleService gprsService;
-	@Autowired
 	private ModuleHitchEventService moduleHitchEventService;
 	@Autowired
 	private DataMonitorSubmoduleService submoduelService;
@@ -108,18 +102,23 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 	private HitchEventManager eventManager;
 	
 	private Logger logger = Logger.getLogger(ElectronicDataReceiver.class);
+	
+	private static final String ATTRIBUTE_ELECTRONIC_MODULE = "ELECTRONIC_MODULE";
+	private static final String ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED = "ELECTRONIC_MODULE_IS_REGISTED";
 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		SwitchGPRS gprs = new SwitchGPRS();// 添加ctx到Store中
 		gprs.setCtx(ctx);
-		if (ctxStore.get(ctx) == null) {
-			ctxStore.add(gprs);
-		}
+		CtxStore.setCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE, gprs);
+		super.channelActive(ctx);
 	}
 
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE);
+		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED);
+		super.channelInactive(ctx);
 	}
 
 	@Override
@@ -144,15 +143,15 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 	 * @param ctx
 	 * @param data
 	 */
-	private void getOnlineAddress(ChannelHandlerContext ctx, char[] data) {
+	private String getOnlineAddress(ChannelHandlerContext ctx, char[] data) {
 
-		SwitchGPRS gprs = ctxStore.get(ctx);
+		SwitchGPRS gprs = (SwitchGPRS)CtxStore.getCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE);
 		/*
 		 * 当注册的温度开关的地址不为空，说明已经注册过了，不再进行相关操作
 		 */
 		if (gprs != null && gprs.getAddress() != null) {
 			ctx.channel().writeAndFlush(data);
-			return;
+			return null;
 		}
 		// 由于每个字节是两个BCD码构成，所以不用调转地址，转进制啥的了，直接显示
 		String address = CharUtils.newString(data, BYTE * 1, BYTE * 7);
@@ -171,62 +170,20 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 				ElectronicModule module = list.get(0);
 				String id = module.getId();
 				gprs.setId(id);
-
-				if (ctxStore.get(id) != null) {
-					ctxStore.remove(id);
-					ctxStore.add(gprs);
-				}
+				return id;
+//				if (ctxStore.get(id) != null) {
+//					ctxStore.remove(id);
+//					ctxStore.add(gprs);
+//				}
 			} else {
-				logger.warn("当前设备未进行注册");
+				logger.warn("当前设备未进行注册或者有复数个相同地址的设备");
 			}
 		}
+		return null;
 	}
 
 	// TODO
 	public boolean check(ChannelHandlerContext ctx, char[] data) {
-		String gprsAddress = null;
-		// 登录和心跳包
-		if (CharUtils.startWith(data, CODE_00)
-				&& (CharUtils.equals(data, 6, 8, CODE_01) || CharUtils.equals(data, 6, 8, CODE_03))) {
-			char[] gprsNumber = CharUtils.subChars(data, 12, 8);
-			StringBuilder sb = new StringBuilder();
-			for (int i = 0; i <= 6; i += 2) {
-				// 示范 30 30 30 31，表示0001地址
-				sb.append(gprsNumber[i + 1]);
-			}
-			// 去除开头的0
-			gprsAddress = sb.toString();
-
-			// 判断GPRS是否已在网站上注册
-			String gprsId = gprsService.isGPRSAvailable(gprsAddress);
-			if (null != gprsId) {
-
-				AttributeKey<Integer> key = AttributeKey.valueOf("isGPRSRegisted");
-				Attribute<Integer> attr = ctx.attr(key);
-				if (null == attr.get()) {
-					attr.set(1);
-				}
-				// 更新TemperatureCtxStore的GPRSMap，gprsId为空的话啥都不干。
-				GPRSCtxStore.addGPRS(gprsAddress);
-				if (CharUtils.equals(data, 6, 8, CODE_01)) {
-					// GPRS模块登录
-					logger.info(gprsAddress + " GPRS模块登录成功");
-				} else if (CharUtils.equals(data, 6, 8, CODE_03)) {
-					logger.info(gprsAddress + " GPRS模块在线");
-				}
-			} else {
-				// 如果网站上没注册gprs，否决此报文
-				logger.info("未注册GPRS模块地址" + gprsAddress);
-				return false;
-			}
-		}
-
-		// 若GPRS模块注册不成功，报文不通过
-		AttributeKey<String> key = AttributeKey.valueOf("GPRSAddress");
-		Attribute<String> attr = ctx.attr(key);
-		if ((null == attr.get() || "".equals(attr.get())) || !GPRSCtxStore.isGPRSAlive(attr.get())) {
-			return false;
-		}
 
 		return true;
 	}
@@ -239,14 +196,11 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 		}
 
 		// 68开头16结尾的报文
-		if (!(CharUtils.startWith(data, EB_UP) || CharUtils.startWith(data, EB_DOWN))
-				&& CharUtils.endsWith(data, CODE_16) && CharUtils.startWith(data, CODE_68)) {
-			AttributeKey<Integer> key = AttributeKey.valueOf("isRegisted");
-			Attribute<Integer> attr = ctx.attr(key);
-			if (null == attr.get()) {
-				getOnlineAddress(ctx, data);
-				if (null != ctxStore.get(ctx).getId()) {
-					attr.set(1);
+		if (CharUtils.endsWith(data, CODE_16) && CharUtils.startWith(data, CODE_68)) {
+			Integer i = (Integer)CtxStore.getCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED);
+			if (null == i) {
+				if (null != getOnlineAddress(ctx, data)) {
+					CtxStore.setCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED, new Integer(1));
 				}
 			}
 		}
@@ -286,7 +240,8 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 		char[] value = CharUtils.subChars(data, BYTE * 14, BYTE * 2);
 		BigDecimal val = new BigDecimal(Double.valueOf(Integer.parseInt(String.valueOf(value), 16)) / 10);
 		ElectronicModuleVoltage voltage = new ElectronicModuleVoltage();
-		voltage.setSubmoduleId(ctxStore.getIdbyAddress(deviceNumber));
+		SwitchGPRS gprs = (SwitchGPRS)CtxStore.getCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE);
+		voltage.setSubmoduleId(gprs.getId());
 		voltage.setId(UUIDUtil.getUUID());
 		voltage.setGmtCreate(new Date());
 		voltage.setGmtModified(new Date());
@@ -318,7 +273,8 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 		current.setId(UUIDUtil.getUUID());
 		current.setGmtCreate(new Date());
 		current.setGmtModified(new Date());
-		current.setSubmoduleId(ctxStore.getIdbyAddress(deviceNumber));
+		SwitchGPRS gprs = (SwitchGPRS)CtxStore.getCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE);
+		current.setSubmoduleId(gprs.getId());
 		current.setTime(new Date());// TODO
 		current.setValue(val);
 		if (CharUtils.equals(data, BYTE * 12, BYTE * 13, A_PHASE)) {
@@ -346,7 +302,8 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 		power.setId(UUIDUtil.getUUID());
 		power.setGmtCreate(new Date());
 		power.setGmtModified(new Date());
-		power.setSubmoduleId(ctxStore.getIdbyAddress(deviceNumber));
+		SwitchGPRS gprs = (SwitchGPRS)CtxStore.getCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE);
+		power.setSubmoduleId(gprs.getId());
 		power.setTime(new Date());// TODO
 		power.setValue(val);
 		if (CharUtils.equals(data, BYTE * 12, BYTE * 13, A_PHASE)) {
@@ -370,7 +327,8 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 			logger.info(deviceNumber + "地址的电能表设备尚未在网站上注册");
 			return;
 		}
-		String submoduleId = ctxStore.getIdbyAddress(deviceNumber);
+		SwitchGPRS gprs = (SwitchGPRS)CtxStore.getCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE);
+		String submoduleId = gprs.getId();
 		List<DataMonitorSubmodule> submodules = 
 				submoduelService.selectByParameters(MyBatisMapUtil.warp("module_id", submoduleId));
 		if (submodules.size() == 0) {

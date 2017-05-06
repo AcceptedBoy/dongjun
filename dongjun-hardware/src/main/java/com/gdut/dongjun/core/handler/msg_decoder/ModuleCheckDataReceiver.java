@@ -27,7 +27,7 @@ public class ModuleCheckDataReceiver extends ChannelInboundHandlerAdapter {
 	private static final int ADDRESS_LENGTH_ELECTRONIC = BYTE * 3;
 	
 	private static final Logger logger = Logger.getLogger(ModuleCheckDataReceiver.class);
-	
+
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		String data = (String) msg;
