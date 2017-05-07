@@ -1,8 +1,11 @@
 package com.gdut.dongjun.service.device;
 
-import com.gdut.dongjun.service.base.EnhancedService;
+import java.util.List;
+
 import com.gdut.dongjun.domain.po.ElectronicModuleCurrent;
+import com.gdut.dongjun.service.base.EnhancedService;
 
 public interface ElectronicModuleCurrentService extends EnhancedService<ElectronicModuleCurrent> {
 
+	List<ElectronicModuleCurrent> selectByTime(String deviceId, String beginDate, String endDate, String phase);
 }

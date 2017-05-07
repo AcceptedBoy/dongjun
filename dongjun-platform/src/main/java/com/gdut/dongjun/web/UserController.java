@@ -50,6 +50,7 @@ import com.gdut.dongjun.service.CompanyService;
 import com.gdut.dongjun.service.HitchEventService;
 import com.gdut.dongjun.service.PersistentHitchMessageService;
 import com.gdut.dongjun.service.PlatformGroupService;
+import com.gdut.dongjun.service.UserDeviceMappingService;
 import com.gdut.dongjun.service.UserLogService;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.authc.RoleService;
@@ -93,6 +94,8 @@ public class UserController {
 	private ModuleHitchEventService moduleHitchService;
 	@Autowired
 	private SimpMessagingTemplate template;
+	@Autowired
+	private UserDeviceMappingService deviceMappingService;
 
 	private static final Logger logger = Logger.getLogger(UserController.class);
 
@@ -340,6 +343,12 @@ public class UserController {
 		return ResponseMessage.success(user);
 	}
 
+	/**
+	 * 只允许修改用户
+	 * @param user
+	 * @param session
+	 * @return
+	 */
 	@RequiresAuthentication
 	@RequestMapping("/dongjun/user/edit")
 	@ResponseBody
@@ -352,14 +361,26 @@ public class UserController {
 		}
 		return ResponseMessage.success(user);
 	}
-
-	@RequiresRoles("platform_group_admin")
-	@RequestMapping("/dongjun/user/del")
+	
+	@RequiresRoles("super_admin")
+	@RequestMapping("/dongjun/admin/user/list")
 	@ResponseBody
-	public ResponseMessage delUser() {
-		// TODO
-		return null;
+	public ResponseMessage listUser(String platformId) {
+		return ResponseMessage.success(userService.selectByParameters(MyBatisMapUtil.warp("company_id", platformId)));
 	}
+	
+	@RequiresRoles("super_admin")
+	@RequestMapping("/dongjun/admin/user/del")
+	@ResponseBody
+	public ResponseMessage delUser(String id) {
+		deviceMappingService.deleteByParameters(MyBatisMapUtil.warp("user_id", id));
+		if (!userService.deleteByPrimaryKey(id)) {
+			return ResponseMessage.warning("操作失败");
+		}
+		return ResponseMessage.success("操作成功");
+	}
+	
+	
 
 	@RequestMapping(value = "/dongjun/elecon/fuzzy_search", method = RequestMethod.POST)
 	@ResponseBody

@@ -19,7 +19,7 @@ public class SwitchGPRS implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private String id;//ID
+	private String id;//这个id只是子模块的id
 	private String address;//地址
 	private transient ChannelHandlerContext ctx;//上下文对象，可以用于发送报文
 	

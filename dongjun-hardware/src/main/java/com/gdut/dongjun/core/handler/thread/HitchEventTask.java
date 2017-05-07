@@ -1,7 +1,9 @@
 package com.gdut.dongjun.core.handler.thread;
 
+import com.gdut.dongjun.domain.po.ElectronicModuleHitchEvent;
 import com.gdut.dongjun.domain.po.abstractmodel.AbstractHitchEvent;
 import com.gdut.dongjun.domain.vo.HitchEventVO;
+import com.gdut.dongjun.service.ElectronicModuleHitchEventService;
 import com.gdut.dongjun.service.base.BaseService;
 import com.gdut.dongjun.service.base.EnhancedService;
 import com.gdut.dongjun.service.webservice.client.WebsiteServiceClient;
@@ -20,6 +22,12 @@ public abstract class HitchEventTask<T extends AbstractHitchEvent> implements Ru
 	
 	protected static WebsiteServiceClient websiteServiceClient;
 	
+	public HitchEventTask(EnhancedService<T> service, T hitchEvent) {
+		super();
+		this.hitchEvent = hitchEvent;
+		this.service = service;
+	}
+
 	protected HitchEventTask() {
 		if (null == websiteServiceClient) {
 			synchronized(HitchEventTask.class) {
@@ -68,7 +76,6 @@ public abstract class HitchEventTask<T extends AbstractHitchEvent> implements Ru
 		vo.setMonitorId(event.getMonitorId());
 		vo.setGroupId(event.getGroupId());
 		vo.setType(event.getType());
-		vo.setGroupId(event.getGroupId());
 		return vo;
 	}
 

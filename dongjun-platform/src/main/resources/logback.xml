@@ -11,9 +11,8 @@
 	<!-- 控制台输出 -->
 	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
 		<!-- 日志输出编码 -->
-<!-- 		<Encoding>UTF-8</Encoding> -->
 		<encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
-				<charset>UTF-8</charset>
+<!-- 				<charset>UTF-8</charset> -->
 				<layout class="ch.qos.logback.classic.PatternLayout">
 				<!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
 					<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} -
@@ -21,11 +20,6 @@
 					</pattern>
 				</layout>
 		</encoder>
-
-<!-- 		<encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder"> -->
-<!-- 			<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg %n</pattern> -->
-<!-- 			<charset>UTF-8</charset>  -->
-<!-- 		</encoder> -->
 	</appender>
 	
 	<!-- http://blog.csdn.net/zhoulenihao/article/details/24995397 -->
@@ -36,7 +30,6 @@
 	<!-- http://openmind.iteye.com/blog/1840000 -->
 	<appender name="FILE"
 		class="ch.qos.logback.core.rolling.RollingFileAppender">
-<!-- 		<Encoding>UTF-8</Encoding> -->
 		<!-- 决定文件翻转的行为 -->
 		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
 			<!--日志文件输出的文件名 -->
@@ -44,18 +37,13 @@
 			</FileNamePattern>
 			<MaxHistory>30</MaxHistory>
 		</rollingPolicy>
-<!-- 		<layout class="ch.qos.logback.classic.PatternLayout"> -->
-			<!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
-<!-- 			<pattern>%d{yyyy-MM-dd HH	:mm:ss.SSS} [%thread] %-5level %logger{50} - -->
-<!-- 				%msg%n -->
-<!-- 			</pattern> -->
-<!-- 		</layout> -->
 		
 		<encoder class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
 			<charset>UTF-8</charset> 
 			<layout class="ch.qos.logback.classic.PatternLayout">
 				<!--格式化输出：%d表示日期，%thread表示线程名，%-5level：级别从左显示5个字符宽度%msg：日志消息，%n是换行符 -->
-				<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
+				<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - 
+				%msg%n</pattern>
 			</layout>
 		</encoder>
 		

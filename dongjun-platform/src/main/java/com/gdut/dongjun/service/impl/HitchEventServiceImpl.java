@@ -40,7 +40,7 @@ public class HitchEventServiceImpl implements HitchEventService {
 	@Override
 	public HitchEventDTO wrapIntoDTO(HitchEventVO vo) {
 		HitchEventDTO d = null;
-		int type = vo.getType() / 100;
+		int type = vo.getType();
 		switch (type) {
 		case 0: {
 			break;
@@ -51,22 +51,15 @@ public class HitchEventServiceImpl implements HitchEventService {
 		case 2: {
 			break;
 		}
-		case 3: {
+		case 301: {
 			//TODO
 			String name = monitorService.selectByPrimaryKey(vo.getMonitorId()).getName();
 			ModuleHitchEvent hitchEvent = moduleHitchService.selectByPrimaryKey(vo.getId());
-//			TemperatureMeasureHitchEvent temEvent = temEventService.selectByPrimaryKey(vo.getId());
-			TemperatureMeasureHitchEventDTO dto = new TemperatureMeasureHitchEventDTO();
-			dto.setId(hitchEvent.getId());
-			dto.setHitchReason(hitchEvent.getHitchReason());
-			dto.setHitchTime(TimeUtil.timeFormat(hitchEvent.getHitchTime()));
-			TemperatureMeasureHitchEvent temEvent = temEventService.selectByParameters(MyBatisMapUtil.warp("hitch_id", hitchEvent.getId())).get(0);
-			
-			dto.setMaxHitchValue(temEvent.getMaxHitchValue().doubleValue() + "");
-			dto.setMinHitchValue(temEvent.getMinHitchValue().doubleValue() + "");
+			TemperatureMeasureHitchEvent temEvent = 
+						temEventService.selectByParameters(MyBatisMapUtil.warp("hitch_id", hitchEvent.getId())).get(0);
+			TemperatureMeasureHitchEventDTO dto = 
+					new TemperatureMeasureHitchEventDTO(hitchEvent, temEvent);
 			dto.setName(name);
-			dto.setTag(temEvent.getTag());
-			dto.setValue(temEvent.getValue().doubleValue() + "");
 			dto.setType(returnType(vo.getType()));
 			dto.setGroupId(vo.getGroupId());
 			d = (HitchEventDTO)dto;
@@ -82,8 +75,8 @@ public class HitchEventServiceImpl implements HitchEventService {
 	
 	private String returnType(Integer i) {
 		switch (i) {
-		case HitchConst.MODULE_ELECTRICITY : return "电能表设备";
-		case HitchConst.MODULE_TEMPERATURE : return "温度设备";
+		case 301 : return HitchConst.HITCH_OVER_TEMPERATURE;
+		case 310 : return HitchConst.HITCH_ELECTRICITY_LACK;
 		default : return "";
 		}
 	}

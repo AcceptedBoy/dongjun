@@ -1,5 +1,7 @@
 package com.gdut.dongjun.service.device.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,11 @@ public class TemperatureSensorServiceImpl extends EnhancedServiceImpl<Temperatur
 				&& (mapper.selectByPrimaryKey(record.getId()) != null))
 			return true;
 		return false;
+	}
+
+	@Override
+	public List<TemperatureSensor> selectAllType(String id) {
+		return mapper.selectAllType(id);
 	}
 
 }

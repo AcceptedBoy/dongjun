@@ -57,9 +57,7 @@
               <thead>
               <th>设备</th>
               <th>时间</th>
-              <th>A相</th>
-              <th>B相</th>
-              <th>C相</th>
+              <th>数据</th>
               </thead>
           </table>
       </div>
@@ -68,9 +66,7 @@
               <thead>
               <th>设备</th>
               <th>时间</th>
-              <th>A相</th>
-              <th>B相</th>
-              <th>C相</th>
+              <th>数据</th>
               </thead>
           </table>
       </div>
@@ -79,9 +75,7 @@
               <thead>
               <th>设备</th>
               <th>时间</th>
-              <th>A相</th>
-              <th>B相</th>
-              <th>C相</th>
+              <th>数据</th>
               </thead>
           </table>
       </div>
@@ -104,29 +98,48 @@
       F.prototype = o
       return new F()
     }
-
+		/*
+		这个模块只有图表建类，需要用原型继承
+		 */
     function inheritPrototype(subClass, superClass) {
       var p = inheritObject(superClass.prototype)
       p.constructor = subClass
       subClass.prototype = p
     }
 
-
-    function Chart(chart, tablename, isActive) {
+		/**
+		 * [Chart 图表的基类，一个图表包含：折线图，折线图的tab和数据表格，数据表格的tab这些信息]
+		 * @param {[type]}  chart     [图表实例]
+		 * @param {[type]}  tablename [数据表格的id]
+		 * @param {Boolean} isActive  [是否正在显示这个图表类]
+		 * @param {[type]}  idConfig  [一些tab的id]
+		 */
+    function Chart(chart, tablename, isActive, idConfig) {
       this.chart = echarts.init(document.getElementById(chart))
       this._tablename = tablename
       this._isActive = isActive
+      this._tableId = idConfig.tableId || ''
+      this._tabId = idConfig.tabId || ''
+      this._chartTabId = idConfig.chartTabId || ''
+			chartNodes.addChart(this)
     }
 
-		// 判断和上次渲染的图表是否一样
-		// Chart.prototype.judgeRes = function(res) {
-		// 	if(this.cache) {
-		//
-		// 	} else {
-		// 		return false
-		// 	}
-		// }
+	/**
+	 * [getChartTabId 返回id，下面那个方法一样]
+	 * @return {[type]} [description]
+	 */
+	Chart.prototype.getChartTabId = function() {
+		return this._chartTabId
+	}
 
+	Chart.prototype.getTabId = function() {
+		return this._tabId
+	}
+
+		/**
+		 * [clearChart 用于清空折线图，就是显示空折线图样式，但是里面没数据，如果不这样做，连基本的XY轴都显示不出来]
+		 * @return {[type]} [description]
+		 */
     Chart.prototype.clearChart = function() {
     	if(this.chart) {
     		this.chart.setOption({
@@ -166,13 +179,45 @@
     	}
     }
 
-    Chart.prototype.handleClick = function() {
-      console.log('handleClick')
+		/**
+		 * [handleClick 用于设备树的点击，把当前显示的设备id保存到chartNode，调用本实例的showChart]
+		 * @param  {[type]} event    [description]
+		 * @param  {[type]} treeId   [description]
+		 * @param  {[type]} treeNode [description]
+		 * @return {[type]}          [description]
+		 */
+    Chart.prototype.handleClick = function(event, treeId, treeNode) {
+			var bgtime = $('#begin_search_date').val()
+      var endtime = $('#end_search_date').val()
+			chartNodes.setData({
+        id: treeNode.id,
+        name: treeNode.name
+      })
+			this.showChart(treeNode.id, treeNode.name, bgtime, endtime)
     }
 
+		/**
+		 * [setActive 设置可见和不可见，这个主要是用于看折线图时，切换tab于切换数据表格的tab同步]
+		 * @param {Boolean} isActive [description]
+		 */
     Chart.prototype.setActive = function(isActive) {
+			if(isActive) {
+				$('#' + this._tabId).closest('li').addClass('active')
+				$('#' + this._tableId).addClass('active')
+			} else {
+				$('#' + this._tabId).closest('li').removeClass('active')
+				$('#' + this._tableId).removeClass('active')
+			}
       this._isActive = isActive
     }
+
+		/**
+		 * [bindClick 在看数据表格的时候，切换tab与切换折线图的tab同步起来。（这里用了直接出发折线图的tab的点击事件来做同步）]
+		 * @return {[type]} [description]
+		 */
+		Chart.prototype.bindClick = function() {
+			$('#' + this._chartTabId).click()
+		}
 
     Chart.prototype.getActive = function(isActive) {
       return this._isActive
@@ -189,46 +234,53 @@
     Chart.prototype.createTable = function() {
       console.log('createTable')
     }
-
-    function TemChart(chart, tablename, isActive) {
-      Chart.call(this, chart, tablename, isActive)
+		/**
+		 * [TemChart 温度表格的构造函数]
+		 * @param {[type]}  chart     [description]
+		 * @param {[type]}  tablename [description]
+		 * @param {Boolean} isActive  [description]
+		 * @param {[type]}  idConfig  [description]
+		 */
+    function TemChart(chart, tablename, isActive, idConfig) {
+      Chart.call(this, chart, tablename, isActive, idConfig)
     }
 
-    function EleChart(chart, tablename, isActive) {
-      Chart.call(this, chart, tablename, isActive)
+		/**
+		 * [EleChart 继承Chart的电能表表格的构造函数，因为电能表的表格比较多，每一个数据的url不一样，
+		 * 所以扩展了实例的属性，多加一个url]
+		 * @param {[type]}  chart     [description]
+		 * @param {[type]}  tablename [description]
+		 * @param {Boolean} isActive  [description]
+		 * @param {[type]}  idConfig  [description]
+		 * @param {[type]}  url       [description]
+		 */
+    function EleChart(chart, tablename, isActive, idConfig, url) {
+      Chart.call(this, chart, tablename, isActive, idConfig)
+			this.url = url
     }
 
+		/*
+		调用父类构造函数之后，继承Chart的原型。
+		 */
     inheritPrototype(TemChart, Chart)
     inheritPrototype(EleChart, Chart)
 
-    TemChart.prototype.handleClick = function(event, treeId, treeNode) {
-      var begin_time = $('#begin_search_date').val()
-      var end_time = $('#end_search_date').val()
-      // if(timeModel.getTem() != 1) {
-      //   timeModel.startTem();
-      //   timeModel.setTem(1);
-      // }
-      chartNodes.setData({
-        id: treeNode.id,
-        name: treeNode.name
-      })
-      this.showChart(treeNode.name, treeNode.id, begin_time, end_time)
-    }
 
-    TemChart.prototype.showChart = function(name, id, bgtime, endtime) {
-			// if(!this.shouldReload) {
-			// 	this.shouldReload = true
-			// 	return
-			// }
+		/**
+		 * [TemChart 开始重写TemChart的Prototype]
+		 * 这个方法用于向后台请求获取折线图的数据，渲染到折线图上，
+		 * 然后调用本实例的showTable渲染数据表格数据
+		 */
+    TemChart.prototype.showChart = function(id, name, bgtime, endtime) {
       var self = this
       if(!(bgtime && endtime)) {
         bgtime = $('#begin_search_date').val()
         endtime = $('#end_search_date').val()
       }
       if(name && id) {
-        chartView.showLoading(self.chart);
+        chartView.showLoading(self.chart)
         $.ajax({
-          url: '/dongjun/select_chart_by_device_id',
+          url: '/dongjun/chart/temperature',
           type: 'GET',
           data: {
             monitorId: id,
@@ -236,46 +288,36 @@
             endDate: endtime
           },
           success: function(res) {
-            chartView.hideLoading(self.chart);
             if(res) {
-							// if(self.cache) {
-							// 	if(self.judgeRes(res)) {
-							// 		return
-							// 	} else {
-							// 		self.cache = res
-							// 	}
-							// }
-              // chartView.showTitle(res, name)
-              // chartView.moveLegend(res)
               chartView.setChart(res, name)
               self.chart.setOption(res, true)
               self.showTable()
             } else {
               alert('没有数据')
               self.clearChart()
+							self.showTable()
             }
-          }
+          },
+					complete: function() {
+						chartView.hideLoading(self.chart)
+					}
         })
       } else {
-        alert('请选择设备树的节点')
         self.clearChart()
+				self.showTable()
       }
     }
 
+		/**
+		 * [createTable 从这个实例的表格里面获取数据，
+		 * 构造出数据表格需要的数据]
+		 * @return {[type]} [description]
+		 */
     TemChart.prototype.createTable = function() {
       var op = this.chart.getOption()
       if(op.series[0]) {
         var arr = [];
-        // for(var j = 0; j<op.series.length; j++) {
-        //   for(var i = 0; i<op.xAxis[0].data.length; i++) {
-        //     arr.push({
-        //       "name": op.legend[0].data[j],
-        //       "time": op.xAxis[0].data[i],
-        //       "temperatrue": op.series[0+j].data[i]
-        //     });
-        //   }
-        // }
-		for(var j = 0; j<op.xAxis[0].data.length; j++) {
+				for(var j = 0; j<op.xAxis[0].data.length; j++) {
           for(var i = 0; i<op.series.length; i++) {
             arr.push({
               "name": op.legend[0].data[i],
@@ -290,6 +332,10 @@
       }
     }
 
+		/**
+		 * [showTable 使用从createTable里面返回的数据，渲染到数据表格里面]
+		 * @return {[type]} [description]
+		 */
     TemChart.prototype.showTable = function() {
       var data = this.createTable()
       data = data ? data : []
@@ -308,6 +354,86 @@
         "data": data
       });
     }
+
+
+		/**
+		 * [EleChart 开始重写EleChart的Prototype]
+		 */
+		EleChart.prototype.showChart = function(id, name, bgtime, endtime) {
+			var self = this
+			if(!(bgtime && endtime)) {
+				bgtime = $('#begin_search_date').val()
+        endtime = $('#end_search_date').val()
+			}
+			if(id && name) {
+				chartView.showLoading(self.chart)
+				// ajax
+				$.ajax({
+					url: this.url,
+					type: 'GET',
+          data: {
+            monitorId: id,
+            beginDate: bgtime,
+            endDate: endtime
+          },
+					success: function(res) {
+						if(res) {
+							chartView.setChart(res, name)
+              self.chart.setOption(res, true)
+              self.showTable()
+						} else {
+							alert('没有数据')
+							self.clearChart()
+							self.showTable()
+						}
+					},
+					complete: function() {
+						chartView.hideLoading(self.chart)
+					}
+				})
+			} else {
+				self.clearChart()
+				self.showTable()
+			}
+		}
+
+		EleChart.prototype.createTable = function() {
+			var op = this.chart.getOption()
+			if(op.series[0]) {
+				var arr = []
+				for(var j = 0; j<op.xAxis[0].data.length; j++) {
+		          for(var i = 0; i<op.series.length; i++) {
+		            arr.push({
+		              "name": op.legend[0].data[i],
+		              "time": op.xAxis[0].data[j],
+		              "eleData": op.series[0+i].data[j]
+		            });
+		          }
+		        }
+				return arr
+			} else {
+				return false
+			}
+		}
+
+		EleChart.prototype.showTable = function(data) {
+			var data = this.createTable()
+			data = data ? data : []
+			var tablename = this._tablename
+			$('#' + tablename).DataTable({
+				"destroy": true,// destroy之后才能重新加载
+				"ordering": false,
+				"info":     false,
+				"columns" : [{
+					"data" : "name"
+				}, {
+					"data" : "time"
+				}, {
+					"data" : "eleData"
+				}],
+				"data": data
+			});
+		}
 
     var chartView = function() {
       return {
@@ -420,37 +546,15 @@
           chartManager.clearChart()
           $("#search_btn").click(function(event) {
             chartManager.showChart()
-          });
+          })
           $('#dataBar').click(function(event) {
-            var target = event.target;
-            if((target.id == 'showVExcal')||(target.id == 'showCExcal')||(target.id == 'showPExcal')||(target.id == 'showTExcal')) {
-              switch(target.id) {
-                case 'showVExcal':
-                  if(!$('#showVchart').closest('li').hasClass('active')) {
-                	$('#showVchart').click();
-                  }
-                  break;
-                case 'showCExcal':
-                  if(!$('#showCchart').closest('li').hasClass('active')) {
-                    $('#showCchart').click();
-                  }
-                  break;
-                case 'showPExcal':
-                if(!$('#showPchart').closest('li').hasClass('active')) {
-                  $('#showPchart').click();
-                }
-                break;
-                case 'showTExcal':
-                if(!$('#showTchart').closest('li').hasClass('active')) {
-                  $('#showTchart').click();
-                }
-                break;
-              }
-            }
-          });
-          $('#lineBar').click(function(event) {
             var targetId = event.target.id;
-            chartManager.setActive(targetId)
+						chartManager.bindClick(targetId)
+          });
+          // 使折线图的tab和表格的tab同步
+          $('#lineBar').click(function(event) {
+            var targetId = event.target.id
+						chartManager.setActive(targetId)
             chartManager.showChart()
           });
         }
@@ -463,8 +567,35 @@
     var chartNodes = function() {
     	var id = ''
 	    var name = ''
+			var chartArr = []
 
 	    return {
+    		addChart: function(obj) {
+    			chartArr.push(obj)
+    		},
+				setActive: function(targetId) {
+					for(var i = 0; i < chartArr.length; i++) {
+						if(targetId == chartArr[i].getChartTabId()) {
+							chartArr[i].setActive(true)
+						} else {
+							chartArr[i].setActive(false)
+						}
+					}
+				},
+				getChart: function() {
+					return chartArr
+				},
+				getActive: function() {
+					// console.log(chartArr)
+					var activeChart = null
+					for(var i = 0; i < chartArr.length; i++) {
+						if(chartArr[i].getActive()) {
+							activeChart = chartArr[i]
+							break
+						}
+					}
+					return activeChart
+				},
     		setData: function(option) {
     			id = option.id
     			name = option.name
@@ -494,43 +625,55 @@
    */
     var chartManager = function() {
 
-      var temperature = new TemChart('temperature', 't_data_list', true)
-      var voltageChart = new EleChart('VoltageChart', 'v_data_list', false)
-      var currentChart = new EleChart('current', 'c_data_list', false)
-      var powerChart = new EleChart('power', 'p_data_list', false)
-      var chartArr = [temperature, voltageChart, currentChart, powerChart]
-			var active = null
+      var temperature = new TemChart('temperature', 't_data_list', true, {
+				tabId: 'showTExcal',
+				tableId: 'excalChartT',
+				chartTabId: 'showTchart'
+			})
+
+      var voltageChart = new EleChart('VoltageChart', 'v_data_list', false, {
+				tabId: 'showVExcal',
+				tableId: 'excalChartV',
+				chartTabId: 'showVchart'
+			}, '/dongjun/chart/electronic_voltage')
+
+      var currentChart = new EleChart('current', 'c_data_list', false, {
+				tabId: 'showCExcal',
+				tableId: 'excalChartC',
+				chartTabId: 'showCchart'
+			}, '/dongjun/chart/electronic_current')
+
+      var powerChart = new EleChart('power', 'p_data_list', false, {
+				tabId: 'showPExcal',
+				tableId: 'excalChartP',
+				chartTabId: 'showPchart'
+			}, '/dongjun/chart/electronic_power')
 
       return {
 				refresh: function() {
 					chartManager.initail_datetimepicker()
 					chartManager.showChart()
 				},
-				// UnReload: function(chartId) {
-				// 	switch(chartId) {
-        //     case 'showTchart': temperature.setReload(false);break
-        //     case 'showVchart': voltageChart.setReload(false);break
-        //     case 'showCchart': currentChart.setReload(false);break
-        //     case 'showPchart': powerChart.setReload(false);break
-        //   }
-				// },
         setActive: function(chartId) {
-					if(active) {
-						active.setActive(false)
+					var data = chartNodes.getChart()
+					for(var i = 0; i < data.length; i++) {
+						if(chartId == data[i].getChartTabId()) {
+							data[i].setActive(true)
+						} else {
+							data[i].setActive(false)
+						}
 					}
-          switch(chartId) {
-            case 'showTchart': temperature.setActive(true);active = temperature;break
-            case 'showVchart': voltageChart.setActive(true);active = voltageChart;break
-            case 'showCchart': currentChart.setActive(true);active = currentChart;break
-            case 'showPchart': powerChart.setActive(true);active = powerChart;break
-          }
         },
+				bindClick: function(tabId) {
+					var data = chartNodes.getChart()
+					for(var i = 0; i < data.length; i++) {
+						if(tabId == data[i].getTabId()) {
+							data[i].bindClick()
+						}
+					}
+				},
         showChart: function() {
-          for(var i = 0; i < chartArr.length; i++) {
-            if(chartArr[i].getActive() === true) {
-              chartArr[i].showChart(chartNodes.getName(), chartNodes.getId())
-            }
-          }
+					chartNodes.getActive().showChart(chartNodes.getId(), chartNodes.getName())
         },
         /**
          * [clearChart 可以理解为清空表格]
@@ -538,12 +681,13 @@
          * @return {[type]}       [description]
          */
         clearChart: function(chart) {
-        	for(var i = 0; i < chartArr.length; i++) {
-              if(chartArr[i].getActive() === true) {
-                chartArr[i].clearChart()
-              }
-            }
+					chartNodes.getActive().clearChart()
         },
+				newHandleClick: function(event, treeId, treeNode) {
+					if(!treeNode.children) {
+						chartNodes.getActive().handleClick(event, treeId, treeNode)
+					}
+	      },
         /**
          * [initail_datetimepicker 初始化时间表单]
          * @return {[type]} []
@@ -572,7 +716,7 @@
           hour = hour>=10 ? hour : '0'+hour
           var minute = timer.getMinutes()
           minute = minute >= 10 ? minute : '0'+minute
-          if(Number(hour) > 12) {
+          if(Number(hour) >= 12) {
             var lastHour = Number(hour) - 12
             lastHour = lastHour>=10 ? lastHour : '0'+lastHour
             chartView.setTime({
@@ -619,101 +763,8 @@
 
           timer = null;
         },
-      newHandleClick: function(event, treeId, treeNode) {
-				if(!treeNode.children) {
-					for(var i = 0; i < chartArr.length; i++) {
-						if(chartArr[i].getActive() === true) {
-							chartArr[i].handleClick(event, treeId, treeNode)
-						}
-					}
-				}
-      }
-    // TODO
 
       };
-    }();
-
-    var timeModel = function() {
-    	var elecFlag = 0;
-    	var temFlag = 0;
-    	var elecTimer = null;
-    	var temTimer = null;
-    	var interval = 60000;
-
-    	function plusMin(time) {
-    		var bgs = time.split(':')
-			var min = bgs[0].split(' ')
-			var Submin = Number(min[1]) + 1
-			min[1] = Submin
-			bgs = min.join(' ')
-			var updateTime = time.split(':')
-			updateTime[0] = bgs
-			updateTime[1] = '00'
-			return updateTime.join(':')
-    	}
-    	function plus(time, min) {
-    		var sub = time.split(':')
-    		sub[1] = min
-    		return sub.join(':')
-    	}
-
-    	return {
-    		// 临时做的兼容...
-    		configureTime: function(begin, end, bgtime, endtime) {
-    			var bg = Number(bgtime.split(':')[1])
-    			var end = Number(endtime.split(':')[1])
-    			if(bg == 59) {
-    				// 将前面的时间进行一个59分到00分的过渡
-    				bgtime = plusMin(bgtime)
-    				// 后面的时间正常+1
-    				endtime = plus(endtime, ++end)
-    			} else if(end == 59) {
-    				// 将后面的时间进行一个59分到00分的过渡
-    				endtime = plusMin(endtime)
-    				// 前面的时间正常+1
-    				bgtime = plus(bgtime, ++bg)
-    			} else {
-    				bgtime = plus(bgtime, ++bg)
-    				endtime = plus(endtime, ++end)
-    			}
-    			if(begin && end) {
-    				$(begin).val(bgtime)
-    				$(end).val(endtime)
-    			}
-    		},
-    		getEle: function() {
-    			return elecFlag;
-    		},
-    		getTem: function() {
-    			return temFlag;
-    		},
-    		setEle: function(num) {
-    			elecFlag = num;
-    		},
-    		setTem: function(num) {
-    			temFlag = num;
-    		},
-    		clearElecTimer: function() {
-    			clearInterval(elecTimer);
-    		},
-    		clearTemTimer: function() {
-    			clearInterval(temTimer);
-    		},
-    		startElec: function() {
-    			elecTimer = setInterval(function(){
-    				chartManager.handleSearch(tab, cov, tablename);
-          chartManager.initail_datetimepicker()
-    			}, interval);
-    		},
-    		startTem: function() {
-    			temTimer = setInterval(function(){
-    				var bg = $('#begin_search_date')
-    				var end = $('#end_search_date')
-    				timeModel.configureTime(bg, end, $(bg).val(), $(end).val())
-    				chartManager.showChart()
-    			}, interval);
-    		}
-    	};
     }();
 
     chart.chartView = chartView;

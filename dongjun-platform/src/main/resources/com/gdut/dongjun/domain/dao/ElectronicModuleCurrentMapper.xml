@@ -170,4 +170,13 @@
 			</foreach>
 		</if>
 	</delete>
+	
+	<select id="selectByTime" resultMap="BaseResultMap">
+		select * from
+		electronic_module_current
+		where submodule_id = #{deviceId}
+		and phase = #{phase}
+		and time between #{beginDate} and #{endDate}
+		order By time Asc
+	</select>
 </mapper>

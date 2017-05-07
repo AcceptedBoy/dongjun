@@ -27,6 +27,7 @@ import com.gdut.dongjun.domain.po.TemperatureMeasureHistory;
 import com.gdut.dongjun.domain.po.TemperatureMeasureHitchEvent;
 import com.gdut.dongjun.domain.po.TemperatureModule;
 import com.gdut.dongjun.domain.po.TemperatureSensor;
+import com.gdut.dongjun.domain.vo.TemperatureMeasureHitchEventVO;
 import com.gdut.dongjun.service.DataMonitorSubmoduleService;
 import com.gdut.dongjun.service.GPRSModuleService;
 import com.gdut.dongjun.service.ModuleHitchEventService;
@@ -38,7 +39,6 @@ import com.gdut.dongjun.service.TemperatureSensorService;
 import com.gdut.dongjun.util.CharUtils;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.TemperatureDeviceCommandUtil;
-import com.gdut.dongjun.util.TimeUtil;
 import com.gdut.dongjun.util.UUIDUtil;
 
 import io.netty.channel.ChannelHandler.Sharable;
@@ -507,7 +507,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 				
 				// TODO 其实报警事事件应该是时间戳中的时间
 				TemperatureMeasureHitchEvent event = new TemperatureMeasureHitchEvent();
-				event.setId(UUIDUtil.getUUID());
+				event.setId(moduleHitch.getId());
 				event.setMonitorId(submodule.getDataMonitorId());
 				event.setValue(new BigDecimal(Double.valueOf("" + Integer.parseInt(value[i - 1], 16)) / 10));
 				event.setTag(i);

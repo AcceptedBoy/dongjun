@@ -1,5 +1,7 @@
 package com.gdut.dongjun.core.handler.thread;
 
+import org.apache.log4j.Logger;
+
 import com.gdut.dongjun.core.GPRSCtxStore;
 
 /**
@@ -9,6 +11,8 @@ import com.gdut.dongjun.core.GPRSCtxStore;
  * @date 2017年4月15日
  */
 public class GPRSExpiredTask extends ScheduledTask {
+	
+	private Logger logger = Logger.getLogger(GPRSExpiredTask.class);
 	
 	private static final int EXPIRED_TIME = 60 * 15;
 	private boolean isConnected = false;
@@ -30,8 +34,10 @@ public class GPRSExpiredTask extends ScheduledTask {
 			GPRSExpiredTask task = this;
 			task.setExecuteTime(EXPIRED_TIME);
 			ScheduledTaskExecutor.submit(task);
+			logger.info(address + "GPRS维持在线");
 		} else {
 			GPRSCtxStore.removeGPRS(address);
+			logger.info(address + "GPRS下线");
 		}
 	}
 	
