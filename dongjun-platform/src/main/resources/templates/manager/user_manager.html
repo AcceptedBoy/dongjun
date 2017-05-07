@@ -1,0 +1,161 @@
+<div id="data_monitor_panel">
+  <div class="form-group span3">
+    <label class="span3">组别:</label>
+    <select class="groups span9"></select>
+  </div>
+  <div class="form-group span3">
+    <label class="span3">公司:</label>
+    <select class='platforms span9'></select>
+  </div>
+  <div class="form-group span5">
+      <a href="#edit_user_modal" class="btn btn-primary" id="add_current_user_btn" data-toggle="modal" data-backdrop="static">添加用户</a>
+  </div>
+
+  <table id="user_manager_list" class="table table-bordered table-striped table-hover table-condensed success">
+    <thead>
+      <td>真实姓名</td>
+      <td>账户</td>
+      <td>密码</td>
+      <td>电话</td>
+      <td>邮箱</td>
+      <td>地址</td>
+      <td>修改</td>
+      <td>删除</td>
+    </thead>
+  </table>
+</div>
+
+<script>
+  var userManagerTable = function() {
+    var table = null;
+    var defUrl = '';
+    var store = {
+      platformId: ''
+    }
+    return {
+      getTable: function(){
+        return table;
+      },
+      init: function(o) {
+        var _self = this;
+        defUrl = o.url
+        store.platformId = o.data.platformId
+        $('#add_current_user_btn').on('click', function() {
+          userManagerModal.add()
+        })
+        table = $('#user_manager_list').DataTable({
+          'ajax': {
+            'url': defUrl,
+            'type': 'POST',
+            'dataSrc': function(data) {
+              return data.text.filter(function(item) {
+                return item
+              })
+            },
+            'data': o.data
+          },
+          'columns': [
+            { 'data': 'realname' },
+            { 'data': 'name' },
+            { 'data': 'password' },
+            { 'data': 'phone' },
+            { 'data': 'email' },
+            { 'data': 'address' },
+            {
+              data: 'id',
+              width: '50px',
+              orderable: false,
+              render: function(data, type, row) {
+                return '<a href="#edit_user_modal" role="button" class="btn" data-toggle="modal" data-fnc="edit"  data-id="'+data+'">修改</a>'
+              }
+            },
+            {
+              data: 'id',
+              orderable: false,
+              width: '50px',
+              render: function(data) {
+                return '<a role="button" class="btn btn-danger" data-toggle="modal" data-fnc="del" data-id="'+data+'">删除</a>'
+              }
+            },
+          ],
+          'language': {
+            'paginate': {
+              'next': '下一页',
+              'previous': '上一页'
+            },
+            'emptyTable': '找不到相关数据',
+            'zeroRecords': '找不到相关数据',
+            'loadingRecords': '正在加载数据...'
+          },
+          'initComplete': function() {
+
+            $(this[0]).click(function(event) {
+              var target = $(event.target)
+              var fnc = target.data('fnc')
+              switch(fnc) {
+                case 'edit':
+                  var id = target.data('id')
+                  var data = Array.prototype.find.call(table.data(), function(item) {
+                    return item.id == id
+                  })
+                  data.companyId = store.platformId
+                  userManagerModal.edit(data)
+                  break
+                case 'del':
+                  var id = target.data('id')
+                  userManagerModal.del(id)
+                  break
+              }
+            })
+          }
+        })
+      },
+      redraw: function(id) {
+        if(id){
+          store.platformId = id
+        }
+
+        // post
+        table.ajax.url(defUrl)
+        var param = {
+          platformId: store.platformId
+        };
+        table.settings()[0].ajax.data = param
+        table.ajax.reload()
+      }
+    }
+  }()
+
+
+  userManagerModal.setOption({
+    url: {
+      add: '/dongjun/elecon/user_registy',
+      edit: '/dongjun/data_monitor/edit',
+      del: '/dongjun/admin/user/del',
+    },
+    completeFnc: userManagerTable.redraw
+  });
+
+  selectManager.setOption({
+    url: {
+      'group': '/dongjun/group/gruop_list',
+      'company': '/dongjun/platform_group/platform_group_list_by_group_id'
+    },
+    node: {
+      'group': '.groups',
+      'company': '.platforms'
+    },
+    completeFnc: userManagerTable.redraw
+  })
+  selectManager.loadGroups()
+  selectManager.autoListen()
+
+  userManagerTable.init({
+    url: '/dongjun/admin/user/list',
+    data: {
+      platformId: selectManager.getCompany()
+    }
+  })
+
+
+</script>
