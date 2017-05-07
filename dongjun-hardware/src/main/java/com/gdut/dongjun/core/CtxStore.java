@@ -12,6 +12,8 @@ import org.springframework.context.ApplicationContextAware;
 import com.gdut.dongjun.service.webservice.client.WebsiteServiceClient;
 
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.Attribute;
+import io.netty.util.AttributeKey;
 
 /**
  * @Title: ClientList.java
@@ -33,12 +35,15 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 
 	private ApplicationContext applicationContext;
 	
+	/**
+	 * 暂时停用
+	 */
 	protected List<SwitchGPRS> ctxlist;
 	
 	protected CtxStore() {
 		ctxlist = new CopyOnWriteArrayList<>();
 	}
-
+	
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if (CtxStore.websiteServiceClient == null) {
@@ -416,5 +421,42 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 		} else {
 			return false;
 		}
+	}
+	
+	/**
+	 * 设置ctx的Attribute
+	 * @param ctx
+	 * @param name
+	 * @param obj
+	 */
+	public static void setCtxAttribute(ChannelHandlerContext ctx, String name, Object obj) {
+		AttributeKey<Object> key = AttributeKey.valueOf(name);
+		Attribute<Object> attr = ctx.attr(key);
+		attr.set(obj);
+	}
+	
+	/**
+	 * 得到Ctx的Attribute
+	 * @param ctx
+	 * @param name
+	 * @param obj
+	 */
+	public static Object getCtxAttribute(ChannelHandlerContext ctx, String name) {
+		AttributeKey<Object> key = AttributeKey.valueOf(name);
+		Attribute<Object> attr = ctx.attr(key);
+		return attr.get();
+	}
+	
+	/**
+	 * 去除ctx的Attribute
+	 * @param ctx
+	 * @param name
+	 */
+	public static Object removeCtxAttribute(ChannelHandlerContext ctx, String name) {
+		AttributeKey<Object> key = AttributeKey.valueOf(name);
+		Attribute<Object> attr = ctx.attr(key);
+		Object temp = attr.get();
+		attr.remove();
+		return temp;
 	}
 }

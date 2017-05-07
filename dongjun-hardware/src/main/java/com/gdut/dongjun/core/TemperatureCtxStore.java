@@ -18,7 +18,7 @@ import com.gdut.dongjun.service.TemperatureModuleService;
  * @date 2017年3月3日
  */
 @Component
-public class TemperatureCtxStore extends GPRSCtxStore {
+public class TemperatureCtxStore extends CtxStore {
 	
 	//TODO
 	//保存在线的温度设备的地址

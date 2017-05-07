@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import com.gdut.dongjun.service.webservice.client.WebsiteServiceClient;
 
 @Component
-public class ElectronicCtxStore extends GPRSCtxStore {
+public class ElectronicCtxStore extends CtxStore {
 
 	@Autowired
 	public void setWebsiteServiceClient(WebsiteServiceClient webServiceClient) {

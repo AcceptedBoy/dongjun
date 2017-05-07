@@ -8,7 +8,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import com.gdut.dongjun.core.handler.thread.GPRSExpiredTask;
 import com.gdut.dongjun.core.handler.thread.ScheduledTaskExecutor;
 
-public abstract class GPRSCtxStore extends CtxStore {
+public class GPRSCtxStore extends CtxStore {
 
 	//保存在线的GPRS的地址
 	private static final List<String> GPRSList = new CopyOnWriteArrayList<String>();
