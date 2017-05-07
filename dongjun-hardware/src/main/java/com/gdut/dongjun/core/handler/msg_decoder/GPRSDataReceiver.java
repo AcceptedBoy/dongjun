@@ -14,7 +14,9 @@ import com.gdut.dongjun.util.CharUtils;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.ChannelHandler.Sharable;
 
+@Sharable
 @Component
 public class GPRSDataReceiver extends ChannelInboundHandlerAdapter {
 
