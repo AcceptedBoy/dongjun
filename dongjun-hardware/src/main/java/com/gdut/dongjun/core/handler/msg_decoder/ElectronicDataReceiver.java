@@ -36,15 +36,11 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 
 /**
  * <p>
- * 按照协议分类 68/3100310068C90000000A1C026000000400551618041502010000 
- * 请求帧的一种情况 
- * 68 地址 68 控制码 数据域长度 数据标识 校验和 16 
- * 1   6     1   1       1              4          1         1 
- * 读数据的一种情况 
- * 68 地址 68 控制码 数据域长度 数据标识 N1...Nm 校验和 16 
- * 1   6     1  1        1              4           N          1        1 
- * 地址6个字节，每个字节两个BCD码，总共12个十进制数
+ * 按照协议分类 68/3100310068C90000000A1C026000000400551618041502010000 请求帧的一种情况 68 地址
+ * 68 控制码 数据域长度 数据标识 校验和 16 1 6 1 1 1 4 1 1 读数据的一种情况 68 地址 68 控制码 数据域长度 数据标识
+ * N1...Nm 校验和 16 1 6 1 1 1 4 N 1 1 地址6个字节，每个字节两个BCD码，总共12个十进制数
  * </p>
+ * 
  * @author Gordan_Deng
  * @date 2017年4月12日
  */
@@ -67,12 +63,12 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 	private static final char[] CODE_01 = { '0', '1' };
 	private static final char[] CODE_03 = { '0', '3' };
 	private static final char[] HITCH_VOLTAGE = {}; // TODO
-	private static final char[] EB_UP = new char[] { 'E', 'B', '9', '0' }; 
-	private static final char[] EB_DOWN = new char[] { 'e', 'b', '9', '0' }; 
-	private static final char[] CODE_68 = new char[] { '6', '8' }; 
-	private static final char[] CODE_16 = new char[] { '1', '6' }; 
-	
-	//报警字段
+	private static final char[] EB_UP = new char[] { 'E', 'B', '9', '0' };
+	private static final char[] EB_DOWN = new char[] { 'e', 'b', '9', '0' };
+	private static final char[] CODE_68 = new char[] { '6', '8' };
+	private static final char[] CODE_16 = new char[] { '1', '6' };
+
+	// 报警字段
 	private static final char[] SHI_YA = new char[] { '0', '3', '0', '1' };
 	private static final char[] QIAN_YA = new char[] { '0', '3', '0', '2' };
 	private static final char[] GUO_YA = new char[] { '0', '3', '0', '3' };
@@ -101,10 +97,11 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 	private HitchEventManager eventManager;
 	@Autowired
 	private ElectronicCtxStore ctxStore;
-	
+
 	private Logger logger = Logger.getLogger(ElectronicDataReceiver.class);
-	
-	private static final String ATTRIBUTE_ELECTRONIC_MODULE = "ELECTRONIC_MODULE";
+
+	// ChannelHandlerContext中的Attribute名称
+//	private static final String ATTRIBUTE_ELECTRONIC_MODULE = "ELECTRONIC_MODULE";
 	private static final String ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED = "ELECTRONIC_MODULE_IS_REGISTED";
 
 	@Override
@@ -112,7 +109,7 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 		SwitchGPRS gprs = new SwitchGPRS();// 添加ctx到Store中
 		gprs.setCtx(ctx);
 		ctxStore.add(gprs);
-//		CtxStore.setCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE, gprs);
+		// CtxStore.setCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE, gprs);
 		super.channelActive(ctx);
 	}
 
@@ -120,7 +117,7 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 		ctxStore.remove(ctx);
 //		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE);
-//		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED);
+		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED);
 		super.channelInactive(ctx);
 	}
 
@@ -130,7 +127,7 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 		int type = (int) list.get(0);
 		if (!(HitchConst.MODULE_ELECTRICITY == type || HitchConst.MODULE_GPRS == type)) {
 			ctx.fireChannelRead(msg);
-			return ;
+			return;
 		}
 		String m = (String) list.get(1);
 		char[] data = CharUtils.removeSpace(m.toCharArray());
@@ -148,7 +145,8 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 	 */
 	private String getOnlineAddress(ChannelHandlerContext ctx, char[] data) {
 
-//		SwitchGPRS gprs = (SwitchGPRS)CtxStore.getCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE);
+		// SwitchGPRS gprs = (SwitchGPRS)CtxStore.getCtxAttribute(ctx,
+		// ATTRIBUTE_ELECTRONIC_MODULE);
 		SwitchGPRS gprs = ctxStore.get(ctx);
 		/*
 		 * 当注册的温度开关的地址不为空，说明已经注册过了，不再进行相关操作
@@ -174,11 +172,13 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 				ElectronicModule module = list.get(0);
 				String id = module.getId();
 				gprs.setId(id);
+
+//				CtxStore.setCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE, module);
 				return id;
-//				if (ctxStore.get(id) != null) {
-//					ctxStore.remove(id);
-//					ctxStore.add(gprs);
-//				}
+				// if (ctxStore.get(id) != null) {
+				// ctxStore.remove(id);
+				// ctxStore.add(gprs);
+				// }
 			} else {
 				logger.warn("当前设备未进行注册或者有复数个相同地址的设备");
 			}
@@ -189,6 +189,13 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 	// TODO
 	public boolean check(ChannelHandlerContext ctx, char[] data) {
 
+		Integer isRegisted = (Integer) CtxStore.getCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED);
+		if (null == isRegisted) {
+			// 68开头16结尾的报文
+			if (null != getOnlineAddress(ctx, data)) {
+				CtxStore.setCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED, new Integer(1));
+			}
+		}
 		return true;
 	}
 
@@ -198,19 +205,9 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 			logger.info("忽略报文" + String.valueOf(data));
 			return;
 		}
-		
-		if (CharUtils.startWith(data, EB_UP) || CharUtils.startWith(data, EB_DOWN)) {
-			//TODO
-		}
 
-		// 68开头16结尾的报文
-		if (CharUtils.endsWith(data, CODE_16) && CharUtils.startWith(data, CODE_68)) {
-			Integer i = (Integer)CtxStore.getCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED);
-			if (null == i) {
-				if (null != getOnlineAddress(ctx, data)) {
-					CtxStore.setCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED, new Integer(1));
-				}
-			}
+		if (CharUtils.startWith(data, EB_UP) || CharUtils.startWith(data, EB_DOWN)) {
+			// TODO
 		}
 
 		// char[] controlCode = CharUtils.subChars(data, BYTE * 8, BYTE);
@@ -238,21 +235,18 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 
 	public void saveVoltage(ChannelHandlerContext ctx, char[] data) {
 		char[] address = CharUtils.subChars(data, BYTE, BYTE * 6);
-		String deviceNumber = String.valueOf(address);	
+		String deviceNumber = String.valueOf(address);
 		deviceNumber = Integer.parseInt(deviceNumber) + "";
-		ElectronicModule module = moduleService.selectByDeviceNumber(deviceNumber);
-		if (null == module) {
-			logger.info(deviceNumber + "地址的电能表设备尚未在网站上注册");
-			return;
-		}
+//		ElectronicModule module = (ElectronicModule)CtxStore.getCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE);
+//				moduleService.selectByDeviceNumber(deviceNumber);
 		char[] value = CharUtils.subChars(data, BYTE * 14, BYTE * 2);
 		BigDecimal val = new BigDecimal(Double.valueOf(Integer.parseInt(String.valueOf(value), 16)) / 10);
 		ElectronicModuleVoltage voltage = new ElectronicModuleVoltage();
-		voltage.setSubmoduleId(module.getId());
+		voltage.setSubmoduleId(ctxStore.getIdbyAddress(deviceNumber));
 		voltage.setId(UUIDUtil.getUUID());
 		voltage.setGmtCreate(new Date());
 		voltage.setGmtModified(new Date());
-		
+
 		voltage.setTime(new Date()); // TODO
 		voltage.setValue(val);
 		if (CharUtils.equals(data, BYTE * 12, BYTE * 13, A_PHASE)) {
@@ -267,20 +261,16 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 
 	public void saveCurrent(ChannelHandlerContext ctx, char[] data) {
 		char[] address = CharUtils.subChars(data, BYTE, BYTE * 6);
-		String deviceNumber = String.valueOf(address);	
+		String deviceNumber = String.valueOf(address);
 		deviceNumber = Integer.parseInt(deviceNumber) + "";
-		ElectronicModule module = moduleService.selectByDeviceNumber(deviceNumber);
-		if (null == module) {
-			logger.info(deviceNumber + "地址的电能表设备尚未在网站上注册");
-			return;
-		}
+//		ElectronicModule module = moduleService.selectByDeviceNumber(deviceNumber);
 		char[] value = CharUtils.subChars(data, BYTE * 14, BYTE * 3);
 		BigDecimal val = new BigDecimal(Double.valueOf(Integer.parseInt(String.valueOf(value), 16)) / 10);
 		ElectronicModuleCurrent current = new ElectronicModuleCurrent();
 		current.setId(UUIDUtil.getUUID());
 		current.setGmtCreate(new Date());
 		current.setGmtModified(new Date());
-		current.setSubmoduleId(module.getId());
+		current.setSubmoduleId(ctxStore.getIdbyAddress(deviceNumber));
 		current.setTime(new Date());// TODO
 		current.setValue(val);
 		if (CharUtils.equals(data, BYTE * 12, BYTE * 13, A_PHASE)) {
@@ -295,20 +285,16 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 
 	public void savePower(ChannelHandlerContext ctx, char[] data) {
 		char[] address = CharUtils.subChars(data, BYTE, BYTE * 6);
-		String deviceNumber = String.valueOf(address);	
+		String deviceNumber = String.valueOf(address);
 		deviceNumber = Integer.parseInt(deviceNumber) + "";
-		ElectronicModule module = moduleService.selectByDeviceNumber(deviceNumber);
-		if (null == module) {
-			logger.info(deviceNumber + "地址的电能表设备尚未在网站上注册");
-			return;
-		}
+//		ElectronicModule module = moduleService.selectByDeviceNumber(deviceNumber);
 		char[] value = CharUtils.subChars(data, BYTE * 14, BYTE * 3);
 		BigDecimal val = new BigDecimal(Double.valueOf(Integer.parseInt(String.valueOf(value), 16)) / 10);
 		ElectronicModulePower power = new ElectronicModulePower();
 		power.setId(UUIDUtil.getUUID());
 		power.setGmtCreate(new Date());
 		power.setGmtModified(new Date());
-		power.setSubmoduleId(module.getId());
+		power.setSubmoduleId(ctxStore.getIdbyAddress(deviceNumber));
 		power.setTime(new Date());// TODO
 		power.setValue(val);
 		if (CharUtils.equals(data, BYTE * 12, BYTE * 13, A_PHASE)) {
@@ -325,18 +311,14 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 
 	public void handleException(ChannelHandlerContext ctx, char[] data) {
 		char[] address = CharUtils.subChars(data, BYTE, BYTE * 6);
-		String deviceNumber = String.valueOf(address);	
+		String deviceNumber = String.valueOf(address);
 		deviceNumber = Integer.parseInt(deviceNumber) + "";
 		ElectronicModule module = moduleService.selectByDeviceNumber(deviceNumber);
-		if (null == module) {
-			logger.info(deviceNumber + "地址的电能表设备尚未在网站上注册");
-			return;
-		}
 		String submoduleId = module.getId();
-		List<DataMonitorSubmodule> submodules = 
-				submoduelService.selectByParameters(MyBatisMapUtil.warp("module_id", submoduleId));
+		List<DataMonitorSubmodule> submodules = submoduelService
+				.selectByParameters(MyBatisMapUtil.warp("module_id", submoduleId));
 		if (submodules.size() == 0) {
-			return ;
+			return;
 		}
 		String monitorId = submodules.get(0).getDataMonitorId();
 		ModuleHitchEvent moduleEvent = new ModuleHitchEvent();
@@ -346,47 +328,47 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 		moduleEvent.setModuleId(module.getId());
 		moduleEvent.setMonitorId(monitorId);
 		char[] hitchReason = CharUtils.subChars(data, BYTE * 14, BYTE * 2);
-		//失压 201
+		// 失压 201
 		if (CharUtils.equals(hitchReason, SHI_YA)) {
 			moduleEvent.setType(201);
 			moduleEvent.setHitchReason(HitchConst.getHitchReason(201));
 		}
-		//欠压 202
+		// 欠压 202
 		else if (CharUtils.equals(hitchReason, QIAN_YA)) {
 			moduleEvent.setType(202);
 			moduleEvent.setHitchReason(HitchConst.getHitchReason(202));
 		}
-		//过压 203
+		// 过压 203
 		else if (CharUtils.equals(hitchReason, GUO_YA)) {
 			moduleEvent.setType(203);
 			moduleEvent.setHitchReason(HitchConst.getHitchReason(203));
 		}
-		//断相 204
+		// 断相 204
 		else if (CharUtils.equals(hitchReason, DUAN_XIANG)) {
 			moduleEvent.setType(204);
 			moduleEvent.setHitchReason(HitchConst.getHitchReason(204));
 		}
-		//全失压 205
+		// 全失压 205
 		else if (CharUtils.equals(hitchReason, QUAN_SHI_YA)) {
 			moduleEvent.setType(205);
 			moduleEvent.setHitchReason(HitchConst.getHitchReason(205));
 		}
-		//失流 206
+		// 失流 206
 		else if (CharUtils.equals(hitchReason, SHI_LIU_UP) || CharUtils.equals(hitchReason, SHI_LIU_DOWN)) {
 			moduleEvent.setType(206);
 			moduleEvent.setHitchReason(HitchConst.getHitchReason(206));
 		}
-		//过流 207
+		// 过流 207
 		else if (CharUtils.equals(hitchReason, GUO_LIU_UP) || CharUtils.equals(hitchReason, GUO_LIU_DOWN)) {
 			moduleEvent.setType(207);
 			moduleEvent.setHitchReason(HitchConst.getHitchReason(207));
 		}
-		//断流 208
+		// 断流 208
 		else if (CharUtils.equals(hitchReason, DUAN_LIU_UP) || CharUtils.equals(hitchReason, DUAN_LIU_DOWN)) {
 			moduleEvent.setType(208);
 			moduleEvent.setHitchReason(HitchConst.getHitchReason(208));
 		}
-		//未知报警 200
+		// 未知报警 200
 		else {
 			moduleEvent.setType(200);
 			moduleEvent.setHitchReason(HitchConst.getHitchReason(200));

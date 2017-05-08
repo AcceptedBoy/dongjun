@@ -45,20 +45,17 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
 /**
- * GPRS模块一连接系统就会发登录包
- * 登录包解析后会在{@code TemperatureCtxStore}里维护GPRS登录情况
+ * GPRS模块一连接系统就会发登录包 登录包解析后会在{@code TemperatureCtxStore}里维护GPRS登录情况
  * 关于温度设备的地址，那边的温度设备是分高字节段和低字节段的，高、低字节段都有两个字节。
- * 低字节段在前，高字节段在后。而字节段里两个字节也是低字节在前，高字节在后。
- * 所以当报文以12 34 56 78发过来的时候，低字节段正确的顺序是34 12，高字节段正确的顺序是78 56。
- * 高在前低在后，拼成正确顺序之后转成10进制，得到真正的逻辑地址。
+ * 低字节段在前，高字节段在后。而字节段里两个字节也是低字节在前，高字节在后。 所以当报文以12 34 56 78发过来的时候，低字节段正确的顺序是34
+ * 12，高字节段正确的顺序是78 56。 高在前低在后，拼成正确顺序之后转成10进制，得到真正的逻辑地址。
  * 
- * 消息过大的时候会压爆netty，怎么处理?勉神和面试官说的时候是硬件和netty连接的时候，
- * 中间加一个消息中间件做缓冲。
+ * 消息过大的时候会压爆netty，怎么处理?勉神和面试官说的时候是硬件和netty连接的时候， 中间加一个消息中间件做缓冲。
  * 
- * 还有，报文解析的时候怎么做到当用到新的协议，后台改动最少的代码来使得协议上线。
- * 责任链或许会引起性能问题，但不失为一个好方法
+ * 还有，报文解析的时候怎么做到当用到新的协议，后台改动最少的代码来使得协议上线。 责任链或许会引起性能问题，但不失为一个好方法
  * 
  * TODO如果找不到温度模块就舍弃报文
+ * 
  * @author Gordan_Deng
  * @date 2017年3月23日
  */
@@ -66,8 +63,8 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 @Sharable
 public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 
-	private static final int BYTE =  2;
-	
+	private static final int BYTE = 2;
+
 	private static final char[] EB_UP = new char[] { 'E', 'B', '9', '0' }; // EB90
 	private static final char[] EB_DOWN = new char[] { 'e', 'b', '9', '0' }; // eb90
 	private static final char[] CODE_64 = new char[] { '6', '4' }; // 64
@@ -81,7 +78,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	private static final char[] CODE_01 = new char[] { '0', '1' }; // OO
 	// private static final char[] CODE_47 = new char[]{'4', '7'}; //47
 	private static final char[] CODE_16 = new char[] { '1', '6' }; // 16
-	 private static final char[] CODE_68 = new char[]{'6', '8'}; //68
+	private static final char[] CODE_68 = new char[] { '6', '8' }; // 68
 	private static final char[] CODE_7716 = new char[] { '7', '7', '1', '6' }; // 7716
 	private static final char[] CODE_7A16_UP = new char[] { '7', 'A', '1', '6' }; // 7A16
 	private static final char[] CODE_7A16_DOWN = new char[] { '7', 'a', '1', '6' }; // 7A16
@@ -101,27 +98,29 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	@Autowired
 	private TemperatureCtxStore ctxStore;
 	@Autowired
-	private DataMonitorSubmoduleService submoduleService;	
+	private DataMonitorSubmoduleService submoduleService;
 	@Autowired
 	private ModuleHitchEventService moduleHitchEventService;
-	
-	private static final String ATTRIBUTE_TEMPERATURE_MODULE = "TEMPERATURE_MODULE";
+
+	// private static final String ATTRIBUTE_TEMPERATURE_MODULE =
+	// "TEMPERATURE_MODULE";
 	private static final String ATTRIBUTE_TEMPERATURE_MODULE_IS_REGISTED = "TEMPERATURE_MODULE_IS_REGISTED";
 	private static final String ATTRIBUTE_FIRST_CALL = "TEMPERATURE_MODULE_FIRST_CALL";
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(TemperatureDataReceiver.class);
 
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		SwitchGPRS gprs = new SwitchGPRS();// 添加ctx到Store中
 		gprs.setCtx(ctx);
-		CtxStore.setCtxAttribute(ctx, ATTRIBUTE_TEMPERATURE_MODULE, gprs);
+		ctxStore.add(gprs);
 		super.channelActive(ctx);
 	}
 
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_TEMPERATURE_MODULE);
+		// CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_TEMPERATURE_MODULE);
+		ctxStore.remove(ctx);
 		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_TEMPERATURE_MODULE_IS_REGISTED);
 		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_FIRST_CALL);
 		super.channelInactive(ctx);
@@ -131,13 +130,14 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		List<Object> list = (List<Object>) msg;
 		int type = (int) list.get(0);
-		if (!(HitchConst.MODULE_TEMPERATURE == type || HitchConst.MODULE_GPRS == type)) {
+		if (!(HitchConst.MODULE_TEMPERATURE == type)) {
 			ctx.fireChannelRead(msg);
-			return ;
+			return;
 		}
 		String rowMsg = (String) list.get(1);
 		logger.info("温度接收到的报文： " + rowMsg);
 		char[] data = CharUtils.removeSpace(rowMsg.toCharArray());
+		
 		// 验证报文合法性，以及做一些注册的工作
 		if (check(ctx, data)) {
 			handleIdenCode(ctx, data);
@@ -148,18 +148,26 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 
 	/**
 	 * 报文合法性验证
+	 * 
 	 * @param ctx
 	 * @param data
 	 * @return
 	 */
 	private boolean check(ChannelHandlerContext ctx, char[] data) {
-		
+
 		/*
 		 * TODO 做时间戳 + 设备地址 + 校验和的验证工作，如果不行就记录非法报文数量。 非法报文数量超过一定程度后封锁该设备地址。
 		 * 一旦一天积聚量超过一定程度over。 一旦某段时间内非法报文数量过多over。
 		 */
 		if (!checkSum(data)) {
 			return false;
+		}
+
+		Integer isRegisted = (Integer) CtxStore.getCtxAttribute(ctx, ATTRIBUTE_TEMPERATURE_MODULE_IS_REGISTED);
+		if (null == isRegisted) {
+			if (null != getOnlineAddress(ctx, data)) {
+				CtxStore.setCtxAttribute(ctx, ATTRIBUTE_TEMPERATURE_MODULE_IS_REGISTED, new Integer(1));
+			}
 		}
 		return true;
 	}
@@ -171,24 +179,8 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	}
 
 	private void handleIdenCode(ChannelHandlerContext ctx, char[] data) {
-		//GPRS登录包、心跳包
-		if (data.length == 20 && CharUtils.startWith(data, CODE_00)) {
-			return ;
-		}
 
-		//68开头16结尾的报文
-		if (CharUtils.endsWith(data, CODE_16) && CharUtils.startWith(data, CODE_68)) {
-			
-			Integer i = (Integer)CtxStore.getCtxAttribute(ctx, ATTRIBUTE_TEMPERATURE_MODULE_IS_REGISTED);
-			
-			if (null == i) {
-				if (null != getOnlineAddress(ctx, data)) {
-					CtxStore.setCtxAttribute(ctx, ATTRIBUTE_TEMPERATURE_MODULE_IS_REGISTED, new Integer(1));
-				}
-			}
-		}
-
-		//报文少于登录包和心跳包，返回
+		// 报文少于登录包和心跳包，返回
 		if (data.length < 20) {
 			logger.info("接收到的非法数据--------------------" + String.valueOf(data));
 			return;
@@ -248,7 +240,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			 */
 			// logger.info("遥信变位事件");
 			// 主站需要发送确认报文
-			 handleRemoteSignalChange(ctx, data);
+			handleRemoteSignalChange(ctx, data);
 		} else {
 			logger.warn("接收到的非法数据--------------------" + String.valueOf(data));
 		}
@@ -262,13 +254,13 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	 */
 	private String getOnlineAddress(ChannelHandlerContext ctx, char[] data) {
 
-		SwitchGPRS gprs = (SwitchGPRS)CtxStore.getCtxAttribute(ctx, ATTRIBUTE_TEMPERATURE_MODULE);
-		
+		SwitchGPRS gprs = ctxStore.get(ctx);
+
 		/*
 		 * 当注册的温度开关的地址不为空，说明已经注册过了，不再进行相关操作
 		 */
 		if (gprs != null && gprs.getAddress() != null && null != gprs.getId()) {
-			ctx.channel().writeAndFlush(data);
+//			ctx.channel().writeAndFlush(data);
 			return gprs.getId();
 		}
 		String address = CharUtils.newString(data, 10, 18).intern();
@@ -288,10 +280,10 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 				String id = module.getId();
 				gprs.setId(id);
 
-//				if (ctxStore.get(id) != null) {
-//					ctxStore.remove(id);
-//					ctxStore.add(gprs);
-//				}
+				// if (ctxStore.get(id) != null) {
+				// ctxStore.remove(id);
+				// ctxStore.add(gprs);
+				// }
 				return id;
 			} else {
 				logger.warn("当前设备未进行注册");
@@ -310,18 +302,15 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		String address = CharUtils.newString(data, 10, 18); // 地址域
 
 		// 第一次总召对时
-		Integer call = (Integer)CtxStore.getCtxAttribute(ctx, ATTRIBUTE_FIRST_CALL);
+		Integer call = (Integer) CtxStore.getCtxAttribute(ctx, ATTRIBUTE_FIRST_CALL);
 		if (null == call) {
 			CtxStore.setCtxAttribute(ctx, ATTRIBUTE_FIRST_CALL, new Integer(1));
 			String correctTime = doMatchTime(CharUtils.newString(data, 10, 18));
 			ctx.writeAndFlush(correctTime);
 		}
 
-		SwitchGPRS gprs = (SwitchGPRS)CtxStore.getCtxAttribute(ctx, ATTRIBUTE_TEMPERATURE_MODULE);
+		SwitchGPRS gprs = ctxStore.get(ctx);
 		String deviceId = gprs.getId();
-		if (null == deviceId || "".equals(deviceId)) {
-			return;
-		}
 
 		if (CharUtils.equals(data, 20, 22, CODE_01)) {
 			// 处理遥测变化
@@ -356,9 +345,9 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	private void handleRemoteSignal(ChannelHandlerContext ctx, char[] data) {
 		if (data.length != (26 + 55 + 2) * BYTE) {
 			logger.info("非法全遥信报文，长度不足" + String.valueOf(data));
-			return ;
+			return;
 		}
-		SwitchGPRS gprs = (SwitchGPRS)CtxStore.getCtxAttribute(ctx, ATTRIBUTE_TEMPERATURE_MODULE);
+		SwitchGPRS gprs = ctxStore.get(ctx);
 		String deviceId = gprs.getId();
 		int index = 26 * BYTE;
 		for (int i = index; i < data.length - 2 * BYTE; i = i + BYTE) {
@@ -366,12 +355,13 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 				if (data[i + 1] == '1') {
 					int tag = (i - index - 39 * BYTE) / 2 + 1;
 					TemperatureModule device = temModuleService.selectByPrimaryKey(deviceId);
-					List<DataMonitorSubmodule> submoduleList = submoduleService.selectByParameters(MyBatisMapUtil.warp("module_id", device.getId()));
+					List<DataMonitorSubmodule> submoduleList = submoduleService
+							.selectByParameters(MyBatisMapUtil.warp("module_id", device.getId()));
 					if (null == submoduleList || 1 != submoduleList.size()) {
 						logger.info("该温度子模块没有注册");
-						return ;
+						return;
 					}
-					//以后要改一下这里 TODO
+					// 以后要改一下这里 TODO
 					DataMonitorSubmodule submodule = submoduleList.get(0);
 					ModuleHitchEvent moduleHitch = new ModuleHitchEvent();
 					moduleHitch.setId(UUIDUtil.getUUID());
@@ -435,21 +425,23 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			if (value[i - 1].equals("0000")) {
 				continue;
 			}
-			//这函数好难看，待更改 TODO
+			//判断传感器是否在数据库中存在，若没有则执行insert
 			isSensorExist(sensorList, i, deviceId);
 			measureHistoryService.insert(new TemperatureMeasureHistory(UUIDUtil.getUUID(), deviceId,
 					new Timestamp(System.currentTimeMillis()), i, Integer.parseInt(value[i - 1], 16) * 10 + ""));
 			doSaveMeasure0(value[i - 1], deviceId, i);
 			// 插入报警数据
-			if (TemperatureCtxStore.isAboveBound(deviceId, Double.valueOf("" + Integer.parseInt(value[i - 1], 16)) / 10)) {
+			if (TemperatureCtxStore.isAboveBound(deviceId,
+					Double.valueOf("" + Integer.parseInt(value[i - 1], 16)) / 10)) {
 				TemperatureModule device = temModuleService.selectByPrimaryKey(deviceId);
 				Map<String, Object> map = new HashMap<String, Object>();
 				map.put("module_id", device.getId());
 				map.put("module_type", 3);
-				List<DataMonitorSubmodule> submoduleList = submoduleService.selectByParameters(MyBatisMapUtil.warp(map));
+				List<DataMonitorSubmodule> submoduleList = submoduleService
+						.selectByParameters(MyBatisMapUtil.warp(map));
 				if (null == submoduleList || 1 != submoduleList.size()) {
 					logger.info("该温度子模块没有注册");
-					return ;
+					return;
 				}
 				DataMonitorSubmodule submodule = submoduleList.get(0);
 				ModuleHitchEvent moduleHitch = new ModuleHitchEvent();
@@ -461,7 +453,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 				moduleHitch.setMonitorId(submodule.getDataMonitorId());
 				moduleHitch.setType(301);
 				moduleHitchEventService.updateByPrimaryKey(moduleHitch);
-				
+
 				// TODO 其实报警事事件应该是时间戳中的时间
 				TemperatureMeasureHitchEvent event = new TemperatureMeasureHitchEvent();
 				event.setId(moduleHitch.getId());
@@ -520,9 +512,9 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	}
 
 	/**
-	 * 得到对时数据
-	 * 示范 00211e02180311
-	 * 68161668F4123456786701060112345678000000211e02180311f816  地址为12345678
+	 * 得到对时数据 示范 00211e02180311
+	 * 68161668F4123456786701060112345678000000211e02180311f816 地址为12345678
+	 * 
 	 * @param address
 	 * @return
 	 */
@@ -543,18 +535,19 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		TemperatureDeviceCommandUtil td = new TemperatureDeviceCommandUtil(address);
 		return td.getTimeCheck(time);
 	}
-	
+
 	private boolean checkLength(char[] length, char[] data) {
-		
+
 		Integer len = Integer.parseInt(String.valueOf(length), 16);
 		if (null != len && data.length == len) {
 			return true;
 		}
 		return false;
 	}
-	
+
 	/**
 	 * 校验和是从控制域到信息元素集所有字节的算术和，忽略进位
+	 * 
 	 * @param data
 	 * @return
 	 */
@@ -568,18 +561,18 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		for (; index < endIndex; index += 2) {
 			sum += (16 * CharUtils.charToInt(data[index]) + CharUtils.charToInt(data[index + 1]));
 		}
-		sum &= 0xff;	//忽略进位
-		int checkSum = 16 * CharUtils.charToInt(data[data.length - 2 * BYTE]) 
-				+ CharUtils.charToInt(data[data.length - 2 * BYTE + 1]);	//报文中的校验和
+		sum &= 0xff; // 忽略进位
+		int checkSum = 16 * CharUtils.charToInt(data[data.length - 2 * BYTE])
+				+ CharUtils.charToInt(data[data.length - 2 * BYTE + 1]); // 报文中的校验和
 		if (sum == checkSum) {
 			return true;
 		}
 		return false;
 	}
-	
-	//TODO
+
+	// TODO
 	private boolean checkTime(char[] time) {
 		return true;
 	}
-	
+
 }
