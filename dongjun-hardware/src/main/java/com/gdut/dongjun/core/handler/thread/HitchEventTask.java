@@ -9,6 +9,8 @@ import com.gdut.dongjun.service.base.EnhancedService;
 import com.gdut.dongjun.service.webservice.client.WebsiteServiceClient;
 import com.gdut.dongjun.util.SpringApplicationContextHolder;
 
+import ch.qos.logback.classic.Logger;
+
 /**
  * 实际上执行细节在这个类
  * @author Gordan_Deng
@@ -23,7 +25,7 @@ public abstract class HitchEventTask<T extends AbstractHitchEvent> implements Ru
 	protected static WebsiteServiceClient websiteServiceClient;
 	
 	public HitchEventTask(EnhancedService<T> service, T hitchEvent) {
-		super();
+		this();
 		this.hitchEvent = hitchEvent;
 		this.service = service;
 	}
@@ -33,6 +35,9 @@ public abstract class HitchEventTask<T extends AbstractHitchEvent> implements Ru
 			synchronized(HitchEventTask.class) {
 				if (null == websiteServiceClient) {
 					HitchEventTask.websiteServiceClient = (WebsiteServiceClient)SpringApplicationContextHolder.getSpringBean("websiteServiceClient");
+					if (null == websiteServiceClient) {
+						System.out.println("注入失败");
+					}
 				}
 			}
 		}
