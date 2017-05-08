@@ -17,16 +17,15 @@
 
 <script>
 	electronicManagerTable = function() {
-		var table = null;
-		var defUrl = ''; // /dongjun/gprs/company_gprs
+		var table = null
+		var defUrl = ''
 		var curMonitorId = ''
 		return {
 			getTable: function(){
-				return table;
+				return table
 			},
 			init: function(o) {
 				panelObserver.regist('showElectronicModule', function(agrs) {
-					// console.log(agrs)
 					this.setMonitorId(agrs.id).draw()
 				}.bind(this))
 				if(o.url) {
@@ -40,7 +39,6 @@
 			draw: function(id) {
 				var me = this
 				table = $('#electronic_list').DataTable({
-					'destroy': true,// destroy之后才能重新加载
 					'searching': false,
           'ordering':  false,
           'info': false,
@@ -135,22 +133,11 @@
 				table.settings()[0].ajax.data = param;
 				table.ajax.reload();
 			},
-			renderStatus: function(data, type, row) {
-				var statusColor = ['#F60E0E', '#03CC00'],
-						statusDesc = ['离线', '在线']
-				return '<span style="color: ' + statusColor[+data] + '">'+ statusDesc[+data] +'</span>'
-			},
-			renderAvailable: function(data) {
-				data = data ? 1 : 0
-				var statusColor = ['#F60E0E', '#03CC00'],
-						statusDesc = ['未开启', '已开启']
-				return '<span style="color: ' + statusColor[data] + '">'+ statusDesc[data] +'</span>'
-			}
 		}
 	}()
 
 	electronicManagerTable.init({
-		url: '/dongjun/gprs/list', // /dongjun/gprs/list
+		url: '/dongjun/data_monitor/submodule/electronic/list',
 		data: {
 			platformId: $('.platforms').val()
 		}
