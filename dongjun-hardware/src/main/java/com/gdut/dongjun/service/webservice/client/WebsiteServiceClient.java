@@ -1,8 +1,9 @@
 package com.gdut.dongjun.service.webservice.client;
 
-import com.gdut.dongjun.domain.vo.HitchEventVO;
-import com.gdut.dongjun.service.webservice.client.service.WebsiteService;
-import com.gdut.dongjun.service.webservice.server.HardwareService;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.cxf.jaxrs.client.JAXRSClientFactory;
 import org.apache.cxf.jaxrs.provider.BinaryDataProvider;
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
@@ -12,13 +13,12 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import java.net.ConnectException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import com.gdut.dongjun.domain.vo.DeviceOnlineVO;
+import com.gdut.dongjun.domain.vo.HitchEventVO;
+import com.gdut.dongjun.service.webservice.client.service.WebsiteService;
+import com.gdut.dongjun.service.webservice.server.HardwareService;
 
 @Component
 public class WebsiteServiceClient implements InitializingBean, ApplicationContextAware {
@@ -74,6 +74,12 @@ public class WebsiteServiceClient implements InitializingBean, ApplicationContex
         public void callbackHitchEvent(HitchEventVO event) {
             for(WebsiteService websiteService : websiteList) {
                 websiteService.callbackHitchEvent(event);
+            }
+        }
+        
+        public void callbackDeviceOnline(DeviceOnlineVO vo) {
+            for(WebsiteService websiteService : websiteList) {
+                websiteService.callbackDeviceOnline(vo);
             }
         }
     }

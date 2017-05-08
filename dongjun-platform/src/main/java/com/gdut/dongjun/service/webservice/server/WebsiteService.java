@@ -10,6 +10,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
+import com.gdut.dongjun.domain.vo.DeviceOnlineVO;
 import com.gdut.dongjun.domain.vo.HitchEventVO;
 
 /**
@@ -36,4 +37,9 @@ public interface WebsiteService {
     @Path("/callback_hitch_event")
     @Consumes({MediaType.APPLICATION_JSON})
     public void callbackHitchEvent(HitchEventVO event);
+    
+    @POST
+    @Path("/callback_hitch_event")
+    @Consumes({MediaType.APPLICATION_JSON})
+    public void callbackDeviceOnline(DeviceOnlineVO event);
 }

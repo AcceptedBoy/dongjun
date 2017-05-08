@@ -172,10 +172,50 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		return true;
 	}
 
-	@Override
-	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-		cause.printStackTrace();
-		ctx.close();
+	/**
+	 * 获取当前连接的设备地址
+	 * 
+	 * @param ctx
+	 * @param data
+	 */
+	private String getOnlineAddress(ChannelHandlerContext ctx, char[] data) {
+
+		SwitchGPRS gprs = ctxStore.get(ctx);
+
+		/*
+		 * 当注册的温度开关的地址不为空，说明已经注册过了，不再进行相关操作
+		 */
+		if (gprs != null && gprs.getAddress() != null && null != gprs.getId()) {
+//			ctx.channel().writeAndFlush(data);
+			return gprs.getId();
+		}
+		String address = CharUtils.newString(data, 10, 18).intern();
+		gprs.setAddress(address);
+
+		address = TemperatureDeviceCommandUtil.reverseString(address);
+
+		if (gprs != null) {
+			/*
+			 * 根据反转后的地址查询得到TemperatureDevice的集合
+			 */
+			List<TemperatureModule> list = temModuleService
+					.selectByParameters(MyBatisMapUtil.warp("device_number", Integer.parseInt(address, 16)));
+
+			if (list != null && list.size() != 0) {
+				TemperatureModule module = list.get(0);
+				String id = module.getId();
+				gprs.setId(id);
+				
+				// if (ctxStore.get(id) != null) {
+				// ctxStore.remove(id);
+				// ctxStore.add(gprs);
+				// }
+				return id;
+			} else {
+				logger.warn("当前设备未进行注册");
+			}
+		}
+		return null;
 	}
 
 	private void handleIdenCode(ChannelHandlerContext ctx, char[] data) {
@@ -244,52 +284,6 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		} else {
 			logger.warn("接收到的非法数据--------------------" + String.valueOf(data));
 		}
-	}
-
-	/**
-	 * 获取当前连接的设备地址
-	 * 
-	 * @param ctx
-	 * @param data
-	 */
-	private String getOnlineAddress(ChannelHandlerContext ctx, char[] data) {
-
-		SwitchGPRS gprs = ctxStore.get(ctx);
-
-		/*
-		 * 当注册的温度开关的地址不为空，说明已经注册过了，不再进行相关操作
-		 */
-		if (gprs != null && gprs.getAddress() != null && null != gprs.getId()) {
-//			ctx.channel().writeAndFlush(data);
-			return gprs.getId();
-		}
-		String address = CharUtils.newString(data, 10, 18).intern();
-		gprs.setAddress(address);
-
-		address = TemperatureDeviceCommandUtil.reverseString(address);
-
-		if (gprs != null) {
-			/*
-			 * 根据反转后的地址查询得到TemperatureDevice的集合
-			 */
-			List<TemperatureModule> list = temModuleService
-					.selectByParameters(MyBatisMapUtil.warp("device_number", Integer.parseInt(address, 16)));
-
-			if (list != null && list.size() != 0) {
-				TemperatureModule module = list.get(0);
-				String id = module.getId();
-				gprs.setId(id);
-
-				// if (ctxStore.get(id) != null) {
-				// ctxStore.remove(id);
-				// ctxStore.add(gprs);
-				// }
-				return id;
-			} else {
-				logger.warn("当前设备未进行注册");
-			}
-		}
-		return null;
 	}
 
 	/**
@@ -573,6 +567,12 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	// TODO
 	private boolean checkTime(char[] time) {
 		return true;
+	}
+
+	@Override
+	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+		logger.error(cause.getMessage());
+		ctx.close();
 	}
 
 }
