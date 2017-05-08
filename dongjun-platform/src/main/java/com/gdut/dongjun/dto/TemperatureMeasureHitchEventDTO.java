@@ -50,6 +50,8 @@ public class TemperatureMeasureHitchEventDTO extends HitchEventDTO {
     private String maxHitchValue;
     
     private String minHitchValue;
+    
+    private Integer sensorType;
 
     public TemperatureMeasureHitchEventDTO(ModuleHitchEvent e, TemperatureMeasureHitchEvent event) {
 		this.id = e.getId();
@@ -203,6 +205,14 @@ public class TemperatureMeasureHitchEventDTO extends HitchEventDTO {
 
 	public void setMinHitchValue(String minHitchValue) {
 		this.minHitchValue = minHitchValue;
+	}
+
+	public Integer getSensorType() {
+		return sensorType;
+	}
+
+	public void setSensorType(Integer sensorType) {
+		this.sensorType = sensorType;
 	}
 	
 }

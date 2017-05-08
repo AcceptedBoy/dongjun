@@ -35,9 +35,6 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 
 	private ApplicationContext applicationContext;
 	
-	/**
-	 * 暂时停用
-	 */
 	protected List<SwitchGPRS> ctxlist;
 	
 	protected CtxStore() {

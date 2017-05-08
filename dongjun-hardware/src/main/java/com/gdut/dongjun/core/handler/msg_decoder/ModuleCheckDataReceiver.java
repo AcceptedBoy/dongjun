@@ -24,6 +24,8 @@ public class ModuleCheckDataReceiver extends ChannelInboundHandlerAdapter {
 	
 	private static final char[] CODE_68 = new char[] { '6', '8' };
 	private static final char[] CODE_00 = new char[] { '0', '0' };
+	private static final char[] CODE_EB = new char[] { 'E', 'B' };
+	private static final char[] CODE_eb = new char[] { 'e', 'b' };
 	private static final int BYTE = 2;
 	private static final int LENGTH_LENGTH_TEMPERATURE = BYTE * 2;
 	private static final int ADDRESS_LENGTH_ELECTRONIC = BYTE * 3;
@@ -49,6 +51,10 @@ public class ModuleCheckDataReceiver extends ChannelInboundHandlerAdapter {
 		char[] data = CharUtils.removeSpace(msg.toCharArray());
 		if (CharUtils.startWith(data, CODE_00)) {
 			return HitchConst.MODULE_GPRS;
+		}
+		//EB开头的报文现在进入电能表解析模块
+		if (CharUtils.equals(data, 0, 2, CODE_EB) || CharUtils.equals(data, 0, 2, CODE_eb)) {
+			return HitchConst.MODULE_ELECTRICITY;
 		}
 		//温度模块两个68之间有两个字节的长度信息
 		if (CharUtils.equals(data, BYTE + LENGTH_LENGTH_TEMPERATURE, BYTE + LENGTH_LENGTH_TEMPERATURE + BYTE, CODE_68)) {

@@ -18,7 +18,7 @@ import com.gdut.dongjun.service.manager.SpringApplicationContextHolder;
  * @author Gordan_Deng
  * @date 2017年3月29日
  */
-@Component
+//@Component
 public class ShiroSessionListener implements SessionListener, InitializingBean {
 	
 	@Autowired

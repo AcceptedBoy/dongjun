@@ -6,10 +6,10 @@ import org.springframework.stereotype.Service;
 import com.gdut.dongjun.domain.dao.ModuleHitchEventMapper;
 import com.gdut.dongjun.domain.po.ModuleHitchEvent;
 import com.gdut.dongjun.service.ModuleHitchEventService;
-import com.gdut.dongjun.service.base.impl.BaseServiceImpl;
+import com.gdut.dongjun.service.base.impl.EnhancedServiceImpl;
 
 @Service
-public class ModuleHitchEventServiceImpl extends BaseServiceImpl<ModuleHitchEvent> implements ModuleHitchEventService {
+public class ModuleHitchEventServiceImpl extends EnhancedServiceImpl<ModuleHitchEvent> implements ModuleHitchEventService {
 
 	@Autowired
 	private ModuleHitchEventMapper mapper;
