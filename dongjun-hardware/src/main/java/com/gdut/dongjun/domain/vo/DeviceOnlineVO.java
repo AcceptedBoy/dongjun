@@ -1,8 +1,9 @@
 package com.gdut.dongjun.domain.vo;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class DeviceOnlineVO {
+public class DeviceOnlineVO implements Serializable {
 
 	private String id;
 	
