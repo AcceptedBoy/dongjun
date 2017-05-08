@@ -22,7 +22,6 @@ public class TemperatureCtxStore extends CtxStore {
 	
 	//TODO
 	//保存在线的温度设备的地址
-	private static final List<String> deviceList = new CopyOnWriteArrayList<String>();
 	private static final HashMap<String, DeviceOnlineTask> taskMap = 
 			new HashMap<String, DeviceOnlineTask>();
 	
@@ -110,5 +109,13 @@ public class TemperatureCtxStore extends CtxStore {
 				+ "，下限为" + device.getMinHitchValue().doubleValue());
 	}
 	
+	public static void setDeviceOnlineTask(String id) {
+//		taskMap.put(id, new DeviceOnlineTask());
+	}
+	
+	//设备维持在线
+	public static void active(String id) {
+		taskMap.get(id).active();
+	}
 }
 

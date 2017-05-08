@@ -1,5 +1,6 @@
 package com.gdut.dongjun.service.webservice.server.impl;
 
+import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -9,18 +10,27 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
+import com.gdut.dongjun.domain.model.SubcribeResponseMessage;
+import com.gdut.dongjun.domain.po.DataMonitor;
+import com.gdut.dongjun.domain.po.DataMonitorSubmodule;
 import com.gdut.dongjun.domain.po.PersistentHitchMessage;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
+import com.gdut.dongjun.domain.vo.DeviceOnlineVO;
 import com.gdut.dongjun.domain.vo.HitchEventVO;
+import com.gdut.dongjun.dto.DeviceOnlineDTO;
 import com.gdut.dongjun.dto.HitchEventDTO;
 import com.gdut.dongjun.service.HitchEventService;
 import com.gdut.dongjun.service.PersistentHitchMessageService;
 import com.gdut.dongjun.service.UserService;
+import com.gdut.dongjun.service.device.DataMonitorService;
+import com.gdut.dongjun.service.device.DataMonitorSubmoduleService;
+import com.gdut.dongjun.service.device.TemperatureModuleService;
 import com.gdut.dongjun.service.mq.UserMQService;
 import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 import com.gdut.dongjun.service.webservice.server.WebsiteService;
 import com.gdut.dongjun.util.MyBatisMapUtil;
+import com.gdut.dongjun.util.TimeUtil;
 import com.gdut.dongjun.util.UUIDUtil;
 
 /**
@@ -44,7 +54,13 @@ public class WebsiteServiceImpl implements WebsiteService {
 	private PersistentHitchMessageService persistentMessageService;
 	@Autowired
 	private UserMQService mqService;
-
+	@Autowired
+	private DataMonitorSubmoduleService submoduleService;
+	@Autowired
+	private DataMonitorService monitorService;
+	@Autowired
+	private TemperatureModuleService temModuleService;
+	
 	@Autowired
 	public WebsiteServiceImpl(SimpMessagingTemplate messagingTemplate) {
 		this.template = messagingTemplate;
@@ -110,6 +126,31 @@ public class WebsiteServiceImpl implements WebsiteService {
 //						persistentMessageService.updateByPrimaryKey(message);
 //					}
 				}
+			}
+		}
+	}
+
+	@Override
+	public void callbackDeviceOnline(DeviceOnlineVO event) {
+//		LOG.info(event.getId() + "设备状态变动为" + event.getStatus());
+		DeviceOnlineDTO dto = new DeviceOnlineDTO();
+		
+		SubcribeResponseMessage message = new SubcribeResponseMessage();
+		message.setDate(event.getDate());
+		message.setMessageType(event.getDeviceType());
+		
+		List<DataMonitorSubmodule> submodules = submoduleService.selectByParameters(MyBatisMapUtil.warp("module_id", event.getId()));
+		String monitorId = submodules.get(0).getId();
+		DataMonitor monitor = monitorService.selectByPrimaryKey(monitorId);
+		dto.setMonitorName(monitor.getName());
+		dto.setType(event.getDeviceType());
+		dto.setDate(TimeUtil.timeFormat(event.getDate()));
+		dto.setStatus(event.getStatus());
+		message.setText(dto);
+		List<User> userList = userService.selectByParameters(MyBatisMapUtil.warp("company_id", monitor.getGroupId()));
+		if (!CollectionUtils.isEmpty(userList)) {
+			for (User user : userList) {
+				template.convertAndSend("/queue/user-" + user.getId() + "/hitch", message);
 			}
 		}
 	}
