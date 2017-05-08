@@ -25,7 +25,6 @@ import com.gdut.dongjun.service.ElectronicModuleCurrentService;
 import com.gdut.dongjun.service.ElectronicModulePowerService;
 import com.gdut.dongjun.service.ElectronicModuleService;
 import com.gdut.dongjun.service.ElectronicModuleVoltageService;
-import com.gdut.dongjun.service.GPRSModuleService;
 import com.gdut.dongjun.service.ModuleHitchEventService;
 import com.gdut.dongjun.util.CharUtils;
 import com.gdut.dongjun.util.MyBatisMapUtil;
@@ -100,6 +99,8 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 	private DataMonitorSubmoduleService submoduelService;
 	@Autowired
 	private HitchEventManager eventManager;
+	@Autowired
+	private ElectronicCtxStore ctxStore;
 	
 	private Logger logger = Logger.getLogger(ElectronicDataReceiver.class);
 	
@@ -110,14 +111,16 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
 		SwitchGPRS gprs = new SwitchGPRS();// 添加ctx到Store中
 		gprs.setCtx(ctx);
-		CtxStore.setCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE, gprs);
+		ctxStore.add(gprs);
+//		CtxStore.setCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE, gprs);
 		super.channelActive(ctx);
 	}
 
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE);
-		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED);
+		ctxStore.remove(ctx);
+//		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE);
+//		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED);
 		super.channelInactive(ctx);
 	}
 
@@ -145,7 +148,8 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 	 */
 	private String getOnlineAddress(ChannelHandlerContext ctx, char[] data) {
 
-		SwitchGPRS gprs = (SwitchGPRS)CtxStore.getCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE);
+//		SwitchGPRS gprs = (SwitchGPRS)CtxStore.getCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE);
+		SwitchGPRS gprs = ctxStore.get(ctx);
 		/*
 		 * 当注册的温度开关的地址不为空，说明已经注册过了，不再进行相关操作
 		 */
@@ -190,9 +194,13 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 
 	private void handleIdenCode(ChannelHandlerContext ctx, char[] data) {
 		// 登录包、心跳包，或长度过少的报文，忽略
-		if (CharUtils.startWith(data, CODE_00) || data.length < 20) {
+		if (data.length < 10) {
 			logger.info("忽略报文" + String.valueOf(data));
 			return;
+		}
+		
+		if (CharUtils.startWith(data, EB_UP) || CharUtils.startWith(data, EB_DOWN)) {
+			//TODO
 		}
 
 		// 68开头16结尾的报文
@@ -240,8 +248,7 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 		char[] value = CharUtils.subChars(data, BYTE * 14, BYTE * 2);
 		BigDecimal val = new BigDecimal(Double.valueOf(Integer.parseInt(String.valueOf(value), 16)) / 10);
 		ElectronicModuleVoltage voltage = new ElectronicModuleVoltage();
-		SwitchGPRS gprs = (SwitchGPRS)CtxStore.getCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE);
-		voltage.setSubmoduleId(gprs.getId());
+		voltage.setSubmoduleId(module.getId());
 		voltage.setId(UUIDUtil.getUUID());
 		voltage.setGmtCreate(new Date());
 		voltage.setGmtModified(new Date());
@@ -273,8 +280,7 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 		current.setId(UUIDUtil.getUUID());
 		current.setGmtCreate(new Date());
 		current.setGmtModified(new Date());
-		SwitchGPRS gprs = (SwitchGPRS)CtxStore.getCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE);
-		current.setSubmoduleId(gprs.getId());
+		current.setSubmoduleId(module.getId());
 		current.setTime(new Date());// TODO
 		current.setValue(val);
 		if (CharUtils.equals(data, BYTE * 12, BYTE * 13, A_PHASE)) {
@@ -302,8 +308,7 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 		power.setId(UUIDUtil.getUUID());
 		power.setGmtCreate(new Date());
 		power.setGmtModified(new Date());
-		SwitchGPRS gprs = (SwitchGPRS)CtxStore.getCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE);
-		power.setSubmoduleId(gprs.getId());
+		power.setSubmoduleId(module.getId());
 		power.setTime(new Date());// TODO
 		power.setValue(val);
 		if (CharUtils.equals(data, BYTE * 12, BYTE * 13, A_PHASE)) {
@@ -327,8 +332,7 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 			logger.info(deviceNumber + "地址的电能表设备尚未在网站上注册");
 			return;
 		}
-		SwitchGPRS gprs = (SwitchGPRS)CtxStore.getCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE);
-		String submoduleId = gprs.getId();
+		String submoduleId = module.getId();
 		List<DataMonitorSubmodule> submodules = 
 				submoduelService.selectByParameters(MyBatisMapUtil.warp("module_id", submoduleId));
 		if (submodules.size() == 0) {

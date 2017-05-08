@@ -84,10 +84,16 @@ public class SeparatedTextDecoder extends ByteToMessageDecoder {
 			return ;
 		}
 		
+		//是否是电能表登录报文
 		if (isStartWith_EB(newText)) {
 			in.readerIndex(storeIndex);
 			readAllByte(in, out);
 			attr.set(0);
+			
+			if (logger.isDebugEnabled()) {
+				logger.debug("为处理后in的readerIndex" + in.readerIndex() + "    writerIndex" + in.writerIndex() + "    storeIndex" + storeIndex);
+			}
+			return ;
 		}
 		
 		//新来的报文是不是68开头
