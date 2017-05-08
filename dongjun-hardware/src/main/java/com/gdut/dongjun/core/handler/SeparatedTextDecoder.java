@@ -28,13 +28,13 @@ public class SeparatedTextDecoder extends ByteToMessageDecoder {
 
 	//字节68转为10进制之后的数字
 	private static final int CODE_68 = 16 * 6 + 8;
-	//字节16转为10进制之后的数字
 	private static final int CODE_16 = 1 * 16 + 6;
 	private static final int CODE_00 = 0;
 	private static final int CODE_25 = 16 * 2 + 5;
 	private static final int CODE_0A = 10;
 	private static final int CODE_01 = 1;
 	private static final int CODE_03 = 3;
+	private static final int CODE_EB = 16 * 14 + 11;
 	
 	//gprs模块登录包字节长度
 	private static final int GPRSLoginPackageLength = 37;
@@ -84,6 +84,12 @@ public class SeparatedTextDecoder extends ByteToMessageDecoder {
 			return ;
 		}
 		
+		if (isStartWith_EB(newText)) {
+			in.readerIndex(storeIndex);
+			readAllByte(in, out);
+			attr.set(0);
+		}
+		
 		//新来的报文是不是68开头
 		if (isStartWith_68(newText)) {
 			
@@ -117,6 +123,7 @@ public class SeparatedTextDecoder extends ByteToMessageDecoder {
 				}
 			} else {
 				//无用报文，丢弃
+				clear(in);
 				in.clear();
 				attr.set(0);
 			}
@@ -127,12 +134,28 @@ public class SeparatedTextDecoder extends ByteToMessageDecoder {
 		}
 	}
 	
+	private void clear(ByteBuf in) {
+		byte[] allText = new byte[in.readableBytes()];
+		in.readBytes(allText);
+		in.clear();
+		String str = HexString_BytesUtil.bytesToHexString(allText);
+		logger.info("解码器接收到无效报文：" + str);
+	}
+
 	private boolean isStartWith_68(byte[] text) {
 		int code = text[0] & 0xFF;
 		if (logger.isDebugEnabled()) {
 			logger.debug("新来报文开头" + Integer.toHexString(code));
 		}
 		if (code == CODE_68) {
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean isStartWith_EB(byte[] text) {
+		int code = text[0] & 0xFF;
+		if (CODE_EB == code) {
 			return true;
 		}
 		return false;
