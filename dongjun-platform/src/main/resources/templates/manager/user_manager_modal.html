@@ -10,7 +10,7 @@
       <div class="control-group">
         <label class="control-label" for="editUserRealName">真实姓名</label>
         <div class="controls">
-          <input type="text" id="editUserRealName" name="realname" />
+          <input type="text" id="editUserRealName" name="realName" />
         </div>
       </div>
       <div class="control-group">
@@ -126,9 +126,13 @@
           data : params,
           success : function(data) {
             if(data.success) {
-              completeFnc()
-              alert('操作成功')
-              curModal.modal('hide')
+              if(data.type != 'SUCCESS') {
+                alert(data.text)
+              } else {
+                completeFnc()
+                alert('操作成功')
+                curModal.modal('hide')
+              }
             } else {
               alert('失败 ')
             }

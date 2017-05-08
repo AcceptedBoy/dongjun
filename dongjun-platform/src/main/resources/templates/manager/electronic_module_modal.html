@@ -84,7 +84,7 @@
 
         var params = data
         params.groupId = typeof selectManager == 'undefined' ? undefined : selectManager.getCompany()
-
+        params.monitorId = ModulesTabPanel.getMonitorId()
         if(!status.isAdd) {
           params['id'] = nowId.id
         }
@@ -96,9 +96,13 @@
           data : params,
           success : function(data) {
             if(data.success) {
-              completeFnc()
-              alert('操作成功')
-              curModal.modal('hide')
+              if(data.type != 'SUCCESS') {
+                alert(data.text)
+              } else {
+                completeFnc()
+                alert('操作成功')
+                curModal.modal('hide')
+              }
             } else {
               alert('失败 ')
             }

@@ -55,18 +55,18 @@ public class DataMonitorController {
 		if (null == monitor.getId() || "".equals(monitor.getId())) {
 			monitor.setId(UUIDUtil.getUUID());
 			Subject currentUser = SecurityUtils.getSubject();
+			User user = userService.getCurrentUser(session);
 			if (!currentUser.hasRole("platform_group_admin")) {
 				//更新UserDeviceMapping
-				User user = userService.getCurrentUser(session);
 				UserDeviceMapping m = new UserDeviceMapping();
 				m.setId(UUIDUtil.getUUID());
 				m.setDeviceId(monitor.getId());
 				m.setUserId(user.getId());
 				userDeviceMappingService.updateByPrimaryKey(m);
-				monitor.setGroupId(user.getCompanyId());
-				if (0 == monitorService.updateByPrimaryKey(monitor)) {
-					return ResponseMessage.warning("操作失败"); 
-				}
+			}
+			monitor.setGroupId(user.getCompanyId());
+			if (0 == monitorService.updateByPrimaryKey(monitor)) {
+				return ResponseMessage.warning("操作失败"); 
 			}
 		} else {
 			if (0 == monitorService.updateByPrimaryKeySelective(monitor)) {
