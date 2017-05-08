@@ -70,7 +70,7 @@ public class HitchEventServiceImpl implements HitchEventService {
 			dto.setType(returnType(vo.getType()));
 			dto.setGroupId(vo.getGroupId());
 			Map<String, Object> map = new HashMap<String, Object>();
-			map.put("device_id", hitchEvent.getMonitorId());
+			map.put("device_id", hitchEvent.getModuleId());
 			map.put("tag", temEvent.getTag());
 			List<TemperatureSensor> sensor = sensorService.selectByParameters(MyBatisMapUtil.warp(map));
 			dto.setSensorType(sensor.get(0).getType());

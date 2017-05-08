@@ -443,7 +443,10 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			// 插入报警数据
 			if (TemperatureCtxStore.isAboveBound(deviceId, Double.valueOf("" + Integer.parseInt(value[i - 1], 16)) / 10)) {
 				TemperatureModule device = temModuleService.selectByPrimaryKey(deviceId);
-				List<DataMonitorSubmodule> submoduleList = submoduleService.selectByParameters(MyBatisMapUtil.warp("module_id", device.getId()));
+				Map<String, Object> map = new HashMap<String, Object>();
+				map.put("module_id", device.getId());
+				map.put("module_type", 3);
+				List<DataMonitorSubmodule> submoduleList = submoduleService.selectByParameters(MyBatisMapUtil.warp(map));
 				if (null == submoduleList || 1 != submoduleList.size()) {
 					logger.info("该温度子模块没有注册");
 					return ;
