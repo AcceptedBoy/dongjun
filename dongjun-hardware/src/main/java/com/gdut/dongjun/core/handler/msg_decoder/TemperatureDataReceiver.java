@@ -403,6 +403,10 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		measureHistoryService.insert(new TemperatureMeasureHistory(UUIDUtil.getUUID(), deviceId,
 				new Timestamp(System.currentTimeMillis()), tag, Integer.parseInt(value, 16) * 10 + ""));
 		doSaveMeasure0(value, deviceId, tag);
+		if (TemperatureCtxStore.isAboveBound(deviceId, 
+				Double.valueOf("" + Integer.parseInt(value, 16)) / 10)) {
+			createHitchEvent(deviceId, value, tag);
+		}
 	}
 
 	/**
@@ -427,42 +431,46 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			// 插入报警数据
 			if (TemperatureCtxStore.isAboveBound(deviceId,
 					Double.valueOf("" + Integer.parseInt(value[i - 1], 16)) / 10)) {
-				TemperatureModule device = temModuleService.selectByPrimaryKey(deviceId);
-				Map<String, Object> map = new HashMap<String, Object>();
-				map.put("module_id", device.getId());
-				map.put("module_type", 3);
-				List<DataMonitorSubmodule> submoduleList = submoduleService
-						.selectByParameters(MyBatisMapUtil.warp(map));
-				if (null == submoduleList || 1 != submoduleList.size()) {
-					logger.info("该温度子模块没有注册");
-					return;
-				}
-				DataMonitorSubmodule submodule = submoduleList.get(0);
-				ModuleHitchEvent moduleHitch = new ModuleHitchEvent();
-				moduleHitch.setId(UUIDUtil.getUUID());
-				moduleHitch.setGroupId(device.getGroupId());
-				moduleHitch.setHitchReason(HitchConst.HITCH_OVER_TEMPERATURE);
-				moduleHitch.setHitchTime(new Date());
-				moduleHitch.setModuleId(device.getId());
-				moduleHitch.setMonitorId(submodule.getDataMonitorId());
-				moduleHitch.setType(301);
-				moduleHitchEventService.updateByPrimaryKey(moduleHitch);
-
-				// TODO 其实报警事事件应该是时间戳中的时间
-				TemperatureMeasureHitchEvent event = new TemperatureMeasureHitchEvent();
-				event.setId(moduleHitch.getId());
-				event.setMonitorId(submodule.getDataMonitorId());
-				event.setValue(new BigDecimal(Double.valueOf("" + Integer.parseInt(value[i - 1], 16)) / 10));
-				event.setTag(i);
-				event.setGroupId(device.getGroupId());
-				event.setMaxHitchValue(device.getMaxHitchValue());
-				event.setMinHitchValue(device.getMinHitchValue());
-				event.setType(301);
-				event.setHitchId(moduleHitch.getId());
-				// 把报警事件塞进线程池
-				hitchEventManager.addHitchEvent(event);
+				createHitchEvent(deviceId, value[i - 1], i);
 			}
 		}
+	}
+	
+	private void createHitchEvent(String deviceId, String value, int tag) {
+		TemperatureModule device = temModuleService.selectByPrimaryKey(deviceId);
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("module_id", device.getId());
+		map.put("module_type", 3);
+		List<DataMonitorSubmodule> submoduleList = submoduleService
+				.selectByParameters(MyBatisMapUtil.warp(map));
+		if (null == submoduleList || 1 != submoduleList.size()) {
+			logger.info("该温度子模块没有注册");
+			return;
+		}
+		DataMonitorSubmodule submodule = submoduleList.get(0);
+		ModuleHitchEvent moduleHitch = new ModuleHitchEvent();
+		moduleHitch.setId(UUIDUtil.getUUID());
+		moduleHitch.setGroupId(device.getGroupId());
+		moduleHitch.setHitchReason(HitchConst.HITCH_OVER_TEMPERATURE);
+		moduleHitch.setHitchTime(new Date());
+		moduleHitch.setModuleId(device.getId());
+		moduleHitch.setMonitorId(submodule.getDataMonitorId());
+		moduleHitch.setType(301);
+		moduleHitchEventService.updateByPrimaryKey(moduleHitch);
+
+		// TODO 其实报警事事件应该是时间戳中的时间
+		TemperatureMeasureHitchEvent event = new TemperatureMeasureHitchEvent();
+		event.setId(moduleHitch.getId());
+		event.setMonitorId(submodule.getDataMonitorId());
+		event.setValue(new BigDecimal(Double.valueOf("" + Integer.parseInt(value, 16)) / 10));
+		event.setTag(tag);
+		event.setGroupId(device.getGroupId());
+		event.setMaxHitchValue(device.getMaxHitchValue());
+		event.setMinHitchValue(device.getMinHitchValue());
+		event.setType(301);
+		event.setHitchId(moduleHitch.getId());
+		// 把报警事件塞进线程池
+		hitchEventManager.addHitchEvent(event);
 	}
 
 	/**
@@ -545,7 +553,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	 * @param data
 	 * @return
 	 */
-	private static boolean checkSum(char[] data) {
+	private boolean checkSum(char[] data) {
 		if (data.length < 6 * BYTE) {
 			return false;
 		}
