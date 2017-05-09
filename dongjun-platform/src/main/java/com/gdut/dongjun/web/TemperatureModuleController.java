@@ -20,6 +20,7 @@ import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.device.DataMonitorSubmoduleService;
 import com.gdut.dongjun.service.device.TemperatureModuleService;
+import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.UUIDUtil;
 
@@ -33,6 +34,8 @@ public class TemperatureModuleController {
 	private DataMonitorSubmoduleService submoduleService;
 	@Autowired
 	private UserService userService;
+	@Autowired
+	private HardwareServiceClient hardwareClient;
 	
 	/**
 	 * TODO 要增加和DataMonitor的关联
@@ -76,9 +79,9 @@ public class TemperatureModuleController {
 			if (0 == moduleService.updateByPrimaryKeySelective(module)) {
 				return ResponseMessage.warning("操作失败");
 			}
+			//更新硬件系统的上下限缓存
+			hardwareClient.getService().changeTemperatureDevice(module.getId());
 		}
-
-		
 		return ResponseMessage.success("操作成功");
 	}
 	

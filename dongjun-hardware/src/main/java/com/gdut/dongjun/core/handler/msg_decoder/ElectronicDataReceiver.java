@@ -125,7 +125,7 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 		List<Object> list = (List<Object>) msg;
 		int type = (int) list.get(0);
-		if (!(HitchConst.MODULE_ELECTRICITY == type || HitchConst.MODULE_GPRS == type)) {
+		if (!(HitchConst.MODULE_ELECTRICITY == type)) {
 			ctx.fireChannelRead(msg);
 			return;
 		}

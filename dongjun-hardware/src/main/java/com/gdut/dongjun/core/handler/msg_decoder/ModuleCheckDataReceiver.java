@@ -52,10 +52,10 @@ public class ModuleCheckDataReceiver extends ChannelInboundHandlerAdapter {
 		if (CharUtils.startWith(data, CODE_00)) {
 			return HitchConst.MODULE_GPRS;
 		}
-		//EB开头的报文现在进入电能表解析模块
-		if (CharUtils.equals(data, 0, 2, CODE_EB) || CharUtils.equals(data, 0, 2, CODE_eb)) {
-			return HitchConst.MODULE_ELECTRICITY;
-		}
+//		//EB开头的报文现在进入电能表解析模块
+//		if (CharUtils.equals(data, 0, 2, CODE_EB) || CharUtils.equals(data, 0, 2, CODE_eb)) {
+//			return HitchConst.MODULE_ELECTRICITY;
+//		}
 		//温度模块两个68之间有两个字节的长度信息
 		if (CharUtils.equals(data, BYTE + LENGTH_LENGTH_TEMPERATURE, BYTE + LENGTH_LENGTH_TEMPERATURE + BYTE, CODE_68)) {
 			return HitchConst.MODULE_TEMPERATURE;

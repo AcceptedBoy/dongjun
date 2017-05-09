@@ -45,6 +45,7 @@ public class GPRSDataReceiver extends ChannelInboundHandlerAdapter {
 		List<Object> list = (List<Object>) msg;
 		Integer num = (Integer)list.get(0);
 		if (!(HitchConst.MODULE_GPRS == num)) {
+			//如果GPRS没有注册，不进行解析
 			if (check(ctx)) {
 				ctx.fireChannelRead(msg);
 				return ;

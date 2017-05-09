@@ -35,7 +35,8 @@ public interface WebsiteService {
     public void callbackHitchEvent(HitchEventVO event);
     
     @POST
-    @Path("/callback_hitch_event")
+    @Path("/callback_device_online")
     @Consumes({MediaType.APPLICATION_JSON})
     public void callbackDeviceOnline(DeviceOnlineVO event);
+    
 }

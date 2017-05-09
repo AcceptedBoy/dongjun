@@ -67,4 +67,9 @@ public interface HardwareService {
 	@Path("/gprs_module_status")
 	@Consumes({MediaType.APPLICATION_JSON})
 	public List<Integer> getGPRSModuleStatus(List<String> ids);
+
+	@POST
+	@Path("/test_elec")
+	@Consumes({MediaType.APPLICATION_JSON})
+	public void testElec(String id);
 }

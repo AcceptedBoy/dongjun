@@ -228,6 +228,8 @@ public class TestController implements InitializingBean {
 	private static final String HAREWARE_LOG_PRE = "dongjun-hardware.log.";
 	private static final String PLAT_LOG_PRE = "dongjun-platform.log.";
 	private static final String LOG_POST = ".log";
+	private static final String MODULE_TEMPERATURE = "module\\temperature\\";
+	private static final String MODULE_ELECTRONIC = "module\\electronic\\";
 	
 	@RequestMapping("/hardware_log/{time}")
 	public ResponseEntity<byte[]> downloadHardwareLog(HttpServletRequest request,
@@ -235,6 +237,36 @@ public class TestController implements InitializingBean {
 			@PathVariable("time") String time) throws Exception {
 		String fileURL = HARDWARE_URL + HAREWARE_LOG_PRE + time + LOG_POST;
 		String fileName = HAREWARE_LOG_PRE + time + LOG_POST;
+		File file = new File(fileURL);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentDispositionFormData("attachment", new String((fileName).getBytes("UTF-8"),
+				"iso-8859-1"));
+		headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+		return new ResponseEntity<byte[]>(FileUtils.readFileToByteArray(file),
+				headers, HttpStatus.CREATED);
+	}
+	
+	@RequestMapping("/hardware_log/tem/{time}")
+	public ResponseEntity<byte[]> downloadTemHardwareLog(HttpServletRequest request,
+			HttpServletResponse respone, String clazzId,
+			@PathVariable("time") String time) throws Exception {
+		String fileURL = HARDWARE_URL + MODULE_TEMPERATURE + time + LOG_POST;
+		String fileName = "temperature-" + time + LOG_POST;
+		File file = new File(fileURL);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentDispositionFormData("attachment", new String((fileName).getBytes("UTF-8"),
+				"iso-8859-1"));
+		headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+		return new ResponseEntity<byte[]>(FileUtils.readFileToByteArray(file),
+				headers, HttpStatus.CREATED);
+	}
+	
+	@RequestMapping("/hardware_log/ele/{time}")
+	public ResponseEntity<byte[]> downloadEleHardwareLog(HttpServletRequest request,
+			HttpServletResponse respone, String clazzId,
+			@PathVariable("time") String time) throws Exception {
+		String fileURL = HARDWARE_URL + MODULE_ELECTRONIC + time + LOG_POST;
+		String fileName = "electronic-" + time + LOG_POST;
 		File file = new File(fileURL);
 		HttpHeaders headers = new HttpHeaders();
 		headers.setContentDispositionFormData("attachment", new String((fileName).getBytes("UTF-8"),
@@ -258,5 +290,13 @@ public class TestController implements InitializingBean {
 		return new ResponseEntity<byte[]>(FileUtils.readFileToByteArray(file),
 				headers, HttpStatus.CREATED);
 	}
+	
+	@RequestMapping("/testElec")
+	@ResponseBody
+	public ResponseMessage testElec(String id) {
+		hardService.getService().testElec(id);
+		return ResponseMessage.success("success!");
+	}
+	
 
 }
