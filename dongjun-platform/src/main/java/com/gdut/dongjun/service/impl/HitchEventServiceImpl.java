@@ -86,10 +86,12 @@ public class HitchEventServiceImpl implements HitchEventService {
 	}
 	
 	private String returnType(Integer i) {
-		switch (i) {
-		case 301 : return HitchConst.HITCH_OVER_TEMPERATURE;
-		case 310 : return HitchConst.HITCH_ELECTRICITY_LACK;
-		default : return "";
+		int num = i / 100;
+		switch (num) {
+		case HitchConst.MODULE_ELECTRICITY : return "电能表监控";
+		case HitchConst.MODULE_TEMPERATURE : return "温度监控";
+		case HitchConst.MODULE_GPRS : return "GPRS模块";
+		default : return "未知报警";
 		}
 	}
 
