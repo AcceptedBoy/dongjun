@@ -21,4 +21,9 @@ public class DataMonitorSubmoduleServiceImpl extends EnhancedServiceImpl<DataMon
 			return true;
 		return false;
 	}
+
+	@Override
+	public String selectMonitorIdByModuleId(String moduleId) {
+		return mapper.selectMonitorIdByModuleId(moduleId);
+	}
  }

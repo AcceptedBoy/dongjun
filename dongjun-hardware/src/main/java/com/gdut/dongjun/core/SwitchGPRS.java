@@ -1,6 +1,8 @@
 package com.gdut.dongjun.core;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import io.netty.channel.ChannelHandlerContext;
 
@@ -13,6 +15,7 @@ import io.netty.channel.ChannelHandlerContext;
  * @date 2015年8月11日 下午7:10:20
  * @version V1.0
  */
+@Deprecated
 public class SwitchGPRS implements Serializable {
 
 	/**
@@ -22,6 +25,7 @@ public class SwitchGPRS implements Serializable {
 	private String id;//这个id只是子模块的id
 	private String address;//地址
 	private transient ChannelHandlerContext ctx;//上下文对象，可以用于发送报文
+	private String monitorId;
 	
 	/**
 	 * 1为预备合闸， 2为预备分闸，3为未预备
@@ -69,4 +73,12 @@ public class SwitchGPRS implements Serializable {
 		this.isOpen = isOpen;
 	}
 
+	public String getMonitorId() {
+		return monitorId;
+	}
+
+	public void setMonitorId(String monitorId) {
+		this.monitorId = monitorId;
+	}
+	
 }

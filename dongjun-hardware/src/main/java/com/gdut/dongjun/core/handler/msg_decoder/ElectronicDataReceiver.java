@@ -12,6 +12,8 @@ import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.ElectronicCtxStore;
 import com.gdut.dongjun.core.HitchConst;
 import com.gdut.dongjun.core.SwitchGPRS;
+import com.gdut.dongjun.core.handler.ChannelHandlerManager;
+import com.gdut.dongjun.core.handler.ChannelInfo;
 import com.gdut.dongjun.core.handler.thread.HitchEventManager;
 import com.gdut.dongjun.domain.po.DataMonitorSubmodule;
 import com.gdut.dongjun.domain.po.ElectronicModule;
@@ -28,11 +30,11 @@ import com.gdut.dongjun.service.ElectronicModuleVoltageService;
 import com.gdut.dongjun.service.ModuleHitchEventService;
 import com.gdut.dongjun.util.CharUtils;
 import com.gdut.dongjun.util.MyBatisMapUtil;
+import com.gdut.dongjun.util.TemperatureDeviceCommandUtil;
 import com.gdut.dongjun.util.UUIDUtil;
 
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 
 /**
  * <p>
@@ -46,7 +48,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
  */
 @Service
 @Sharable
-public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
+public class ElectronicDataReceiver extends AbstractDataReceiver {
 
 	// TODO 考虑下要不要将ElectronicModule直接塞到Attribute里面
 	private static final int BYTE = 2;
@@ -92,49 +94,38 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 	@Autowired
 	private ModuleHitchEventService moduleHitchEventService;
 	@Autowired
-	private DataMonitorSubmoduleService submoduelService;
+	private DataMonitorSubmoduleService submoduleService;
 	@Autowired
 	private HitchEventManager eventManager;
 	@Autowired
 	private ElectronicCtxStore ctxStore;
-
-	private Logger logger = Logger.getLogger(ElectronicDataReceiver.class);
-
+	
 	// ChannelHandlerContext中的Attribute名称
-//	private static final String ATTRIBUTE_ELECTRONIC_MODULE = "ELECTRONIC_MODULE";
-	private static final String ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED = "ELECTRONIC_MODULE_IS_REGISTED";
+	public static final String ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED = "ELECTRONIC_MODULE_IS_REGISTED";
 
+	public ElectronicDataReceiver() {
+		super(HitchConst.MODULE_ELECTRICITY, Logger.getLogger(ElectronicDataReceiver.class));
+	}
+	
 	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		SwitchGPRS gprs = new SwitchGPRS();// 添加ctx到Store中
-		gprs.setCtx(ctx);
-		ctxStore.add(gprs);
-		// CtxStore.setCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE, gprs);
+//		SwitchGPRS gprs = new SwitchGPRS();// 添加ctx到Store中
+//		gprs.setCtx(ctx);
+//		ctxStore.add(gprs);
+		
+//		ChannelInfo info = ctxStore.get(ctx.channel());
+//		if (null != info) {
+//			info.setCtx(ctx);
+//		}
 		super.channelActive(ctx);
 	}
 
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-		ctxStore.remove(ctx);
-//		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE);
+//		ctxStore.remove(ctx);
+		ctxStore.remove0(ctx);
 		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED);
 		super.channelInactive(ctx);
-	}
-
-	@Override
-	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-		List<Object> list = (List<Object>) msg;
-		int type = (int) list.get(0);
-		if (!(HitchConst.MODULE_ELECTRICITY == type)) {
-			ctx.fireChannelRead(msg);
-			return;
-		}
-		String m = (String) list.get(1);
-		char[] data = CharUtils.removeSpace(m.toCharArray());
-		logger.info("电能表接收到的信息:" + m);
-		if (check(ctx, data)) {
-			handleIdenCode(ctx, data);
-		}
 	}
 
 	/**
@@ -143,50 +134,74 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 	 * @param ctx
 	 * @param data
 	 */
-	private String getOnlineAddress(ChannelHandlerContext ctx, char[] data) {
-
-		// SwitchGPRS gprs = (SwitchGPRS)CtxStore.getCtxAttribute(ctx,
-		// ATTRIBUTE_ELECTRONIC_MODULE);
-		SwitchGPRS gprs = ctxStore.get(ctx);
-		/*
-		 * 当注册的温度开关的地址不为空，说明已经注册过了，不再进行相关操作
-		 */
-		if (gprs != null && gprs.getAddress() != null) {
-			ctx.channel().writeAndFlush(data);
-			return null;
-		}
-		// 由于每个字节是两个BCD码构成，所以不用调转地址，转进制啥的了，直接显示
-		String address = CharUtils.newString(data, BYTE * 1, BYTE * 7);
-		Integer addressTemp = Integer.parseInt(address);
-		address = String.valueOf(addressTemp);
-		gprs.setAddress(address);
-
-		if (gprs != null) {
-			/*
-			 * 根据反转后的地址查询得到TemperatureDevice的集合
-			 */
-			List<ElectronicModule> list = moduleService
-					.selectByParameters(MyBatisMapUtil.warp("device_number", address));
-
-			if (list != null && list.size() != 0) {
-				ElectronicModule module = list.get(0);
-				String id = module.getId();
-				gprs.setId(id);
-
-//				CtxStore.setCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE, module);
-				return id;
-				// if (ctxStore.get(id) != null) {
-				// ctxStore.remove(id);
-				// ctxStore.add(gprs);
-				// }
-			} else {
-				logger.warn("当前设备未进行注册或者有复数个相同地址的设备");
-			}
-		}
-		return null;
-	}
+//	@Override
+//	protected String getOnlineAddress(ChannelHandlerContext ctx, char[] data) {
+//		
+//		ChannelInfo info = ctxStore.get0(ctx);
+//		
+//		if (null != info && null != info.getAddress()) {
+//			return info.getModuleId();
+//		}
+//		//如果十进制地址和数据库中的十进制地址一样，认为是同一个设备
+//		// 由于每个字节是两个BCD码构成，所以不用调转地址，转进制啥的了，直接显示
+//		String address = CharUtils.newString(data, BYTE * 1, BYTE * 7);
+//		Integer addressTemp = Integer.parseInt(address);
+//		String decimalAddress = String.valueOf(addressTemp);
+//		ChannelInfo channelInfo = ctxStore.getChannelInfobyAddress(decimalAddress);
+//		if (null != channelInfo) {
+//			channelInfo.setCtx(ctx);
+//			channelInfo.setAddress(address);
+//		} else {
+//			logger.info("网站的子模块地址配置与实际接收到的地址不符，网站的子模块地址为" + info.getDecimalAddress());
+//			return null;
+//		}
+//		//TODO
+//		ChannelHandlerManager.addCtx(info.getMonitorId(), ctx);
+//		return info.getModuleId();
+//
+//		// SwitchGPRS gprs = (SwitchGPRS)CtxStore.getCtxAttribute(ctx,
+//		// ATTRIBUTE_ELECTRONIC_MODULE);
+////		SwitchGPRS gprs = ctxStore.get(ctx);
+////		/*
+////		 * 当注册的温度开关的地址不为空，说明已经注册过了，不再进行相关操作
+////		 */
+////		if (gprs != null && gprs.getAddress() != null) {
+////			ctx.channel().writeAndFlush(data);
+////			return null;
+////		}
+////		// 由于每个字节是两个BCD码构成，所以不用调转地址，转进制啥的了，直接显示
+////		String address = CharUtils.newString(data, BYTE * 1, BYTE * 7);
+////		Integer addressTemp = Integer.parseInt(address);
+////		address = String.valueOf(addressTemp);
+////		gprs.setAddress(address);
+////
+////		if (gprs != null) {
+////			/*
+////			 * 根据反转后的地址查询得到TemperatureDevice的集合
+////			 */
+////			List<ElectronicModule> list = moduleService
+////					.selectByParameters(MyBatisMapUtil.warp("device_number", address));
+////
+////			if (list != null && list.size() != 0) {
+////				ElectronicModule module = list.get(0);
+////				String id = module.getId();
+////				gprs.setId(id);
+////				List<DataMonitorSubmodule> submodules = submoduleService.selectByParameters(MyBatisMapUtil.warp("module_id", module.getId()));
+////				ChannelHandlerManager.addCtx(submodules.get(0).getDataMonitorId(), ctx);
+////				return id;
+////				// if (ctxStore.get(id) != null) {
+////				// ctxStore.remove(id);
+////				// ctxStore.add(gprs);
+////				// }
+////			} else {
+////				logger.warn("当前设备未进行注册或者有复数个相同地址的设备");
+////			}
+////		}
+////		return null;
+//	}
 
 	// TODO
+	@Override
 	public boolean check(ChannelHandlerContext ctx, char[] data) {
 
 		Integer isRegisted = (Integer) CtxStore.getCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED);
@@ -199,7 +214,8 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 		return true;
 	}
 
-	private void handleIdenCode(ChannelHandlerContext ctx, char[] data) {
+	@Override
+	protected void channelReadInternal(ChannelHandlerContext ctx, char[] data) {
 		// 登录包、心跳包，或长度过少的报文，忽略
 		if (data.length < 10) {
 			logger.info("忽略报文" + String.valueOf(data));
@@ -233,7 +249,7 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 		}
 	}
 
-	public void saveVoltage(ChannelHandlerContext ctx, char[] data) {
+	private void saveVoltage(ChannelHandlerContext ctx, char[] data) {
 		char[] address = CharUtils.subChars(data, BYTE, BYTE * 6);
 		String deviceNumber = String.valueOf(address);
 		deviceNumber = Integer.parseInt(deviceNumber) + "";
@@ -242,7 +258,7 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 		char[] value = CharUtils.subChars(data, BYTE * 14, BYTE * 2);
 		BigDecimal val = new BigDecimal(Double.valueOf(Integer.parseInt(String.valueOf(value), 16)) / 10);
 		ElectronicModuleVoltage voltage = new ElectronicModuleVoltage();
-		voltage.setSubmoduleId(ctxStore.getIdbyAddress(deviceNumber));
+		voltage.setSubmoduleId(ctxStore.getModuleIdbyAddress(deviceNumber));
 		voltage.setId(UUIDUtil.getUUID());
 		voltage.setGmtCreate(new Date());
 		voltage.setGmtModified(new Date());
@@ -259,7 +275,7 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 		voltageService.updateByPrimaryKey(voltage);
 	}
 
-	public void saveCurrent(ChannelHandlerContext ctx, char[] data) {
+	private void saveCurrent(ChannelHandlerContext ctx, char[] data) {
 		char[] address = CharUtils.subChars(data, BYTE, BYTE * 6);
 		String deviceNumber = String.valueOf(address);
 		deviceNumber = Integer.parseInt(deviceNumber) + "";
@@ -270,7 +286,7 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 		current.setId(UUIDUtil.getUUID());
 		current.setGmtCreate(new Date());
 		current.setGmtModified(new Date());
-		current.setSubmoduleId(ctxStore.getIdbyAddress(deviceNumber));
+		current.setSubmoduleId(ctxStore.getModuleIdbyAddress(deviceNumber));
 		current.setTime(new Date());// TODO
 		current.setValue(val);
 		if (CharUtils.equals(data, BYTE * 12, BYTE * 13, A_PHASE)) {
@@ -283,7 +299,7 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 		currentService.updateByPrimaryKey(current);
 	}
 
-	public void savePower(ChannelHandlerContext ctx, char[] data) {
+	private void savePower(ChannelHandlerContext ctx, char[] data) {
 		char[] address = CharUtils.subChars(data, BYTE, BYTE * 6);
 		String deviceNumber = String.valueOf(address);
 		deviceNumber = Integer.parseInt(deviceNumber) + "";
@@ -294,7 +310,7 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 		power.setId(UUIDUtil.getUUID());
 		power.setGmtCreate(new Date());
 		power.setGmtModified(new Date());
-		power.setSubmoduleId(ctxStore.getIdbyAddress(deviceNumber));
+		power.setSubmoduleId(ctxStore.getModuleIdbyAddress(deviceNumber));
 		power.setTime(new Date());// TODO
 		power.setValue(val);
 		if (CharUtils.equals(data, BYTE * 12, BYTE * 13, A_PHASE)) {
@@ -309,13 +325,13 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 		powerService.updateByPrimaryKey(power);
 	}
 
-	public void handleException(ChannelHandlerContext ctx, char[] data) {
+	private void handleException(ChannelHandlerContext ctx, char[] data) {
 		char[] address = CharUtils.subChars(data, BYTE, BYTE * 6);
 		String deviceNumber = String.valueOf(address);
 		deviceNumber = Integer.parseInt(deviceNumber) + "";
 		ElectronicModule module = moduleService.selectByDeviceNumber(deviceNumber);
 		String submoduleId = module.getId();
-		List<DataMonitorSubmodule> submodules = submoduelService
+		List<DataMonitorSubmodule> submodules = submoduleService
 				.selectByParameters(MyBatisMapUtil.warp("module_id", submoduleId));
 		if (submodules.size() == 0) {
 			return;
@@ -380,8 +396,29 @@ public class ElectronicDataReceiver extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-		// TODO Auto-generated method stub
+		logger.error(cause.getMessage());
 		super.exceptionCaught(ctx, cause);
 	}
+
+	@Override
+	public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
+//		ctxStore.remove(ctx);
+		ctxStore.remove0(ctx);
+		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED);
+		super.handlerRemoved(ctx);
+	}
+
+	@Override
+	protected String getAddress(char[] data) {
+		return CharUtils.newString(data, BYTE * 1, BYTE * 7);
+	}
+
+	@Override
+	protected String getDecimalAddress(char[] data) {
+		Integer address = Integer.parseInt(getAddress(data));
+		return String.valueOf(address);
+	}
+	
+	
 
 }

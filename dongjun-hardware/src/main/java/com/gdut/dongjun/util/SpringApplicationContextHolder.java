@@ -26,6 +26,13 @@ public class SpringApplicationContextHolder implements ApplicationContextAware {
 		}
 		return context == null ? null : context.getBean(beanName);
 	}
+	
+	public static Object getSpringBean(Class<?> clazz) {
+		if (null == clazz) {
+			return null;
+		}
+		return context == null ? null : context.getBean(clazz);
+	}
 
 	public static String[] getBeanDefinitionNames() {
 		return context.getBeanDefinitionNames();

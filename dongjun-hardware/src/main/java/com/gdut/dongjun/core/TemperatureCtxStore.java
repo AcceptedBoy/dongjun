@@ -1,8 +1,6 @@
 package com.gdut.dongjun.core;
 
 import java.util.HashMap;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +9,8 @@ import org.springframework.stereotype.Component;
 import com.gdut.dongjun.core.handler.thread.DeviceOnlineTask;
 import com.gdut.dongjun.domain.po.TemperatureModule;
 import com.gdut.dongjun.service.TemperatureModuleService;
+
+import io.netty.channel.ChannelHandlerContext;
 
 /**
  * 存储ctx，存储温度传感器报警阈值
@@ -117,5 +117,6 @@ public class TemperatureCtxStore extends CtxStore {
 	public static void active(String id) {
 		taskMap.get(id).active();
 	}
+	
 }
 

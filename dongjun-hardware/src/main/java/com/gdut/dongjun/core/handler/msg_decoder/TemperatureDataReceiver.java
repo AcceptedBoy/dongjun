@@ -9,28 +9,26 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.HitchConst;
-import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.core.TemperatureCtxStore;
+import com.gdut.dongjun.core.handler.ChannelHandlerManager;
+import com.gdut.dongjun.core.handler.ChannelInfo;
 import com.gdut.dongjun.core.handler.thread.HitchEventManager;
 import com.gdut.dongjun.domain.po.DataMonitorSubmodule;
 import com.gdut.dongjun.domain.po.ModuleHitchEvent;
-//import com.gdut.dongjun.domain.po.TemperatureDevice;
 import com.gdut.dongjun.domain.po.TemperatureMeasure;
 import com.gdut.dongjun.domain.po.TemperatureMeasureHistory;
 import com.gdut.dongjun.domain.po.TemperatureMeasureHitchEvent;
 import com.gdut.dongjun.domain.po.TemperatureModule;
 import com.gdut.dongjun.domain.po.TemperatureSensor;
 import com.gdut.dongjun.service.DataMonitorSubmoduleService;
-import com.gdut.dongjun.service.GPRSModuleService;
 import com.gdut.dongjun.service.ModuleHitchEventService;
-//import com.gdut.dongjun.service.TemperatureDeviceService;
 import com.gdut.dongjun.service.TemperatureMeasureHistoryService;
 import com.gdut.dongjun.service.TemperatureMeasureService;
 import com.gdut.dongjun.service.TemperatureModuleService;
@@ -42,7 +40,6 @@ import com.gdut.dongjun.util.UUIDUtil;
 
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 
 /**
  * GPRS模块一连接系统就会发登录包 登录包解析后会在{@code TemperatureCtxStore}里维护GPRS登录情况
@@ -61,7 +58,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
  */
 @Service
 @Sharable
-public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
+public class TemperatureDataReceiver extends AbstractDataReceiver implements InitializingBean {
 
 	private static final int BYTE = 2;
 
@@ -74,11 +71,11 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	private static final char[] CODE_1F_DOWN = new char[] { '1', 'f' }; // 1f
 	private static final char[] CODE_09 = new char[] { '0', '9' }; // 09
 	// private static final char[] CODE_81 = new char[]{'8', '1'}; //81
-	private static final char[] CODE_00 = new char[] { '0', '0' }; // OO
+//	private static final char[] CODE_00 = new char[] { '0', '0' }; // OO
 	private static final char[] CODE_01 = new char[] { '0', '1' }; // OO
 	// private static final char[] CODE_47 = new char[]{'4', '7'}; //47
-	private static final char[] CODE_16 = new char[] { '1', '6' }; // 16
-	private static final char[] CODE_68 = new char[] { '6', '8' }; // 68
+//	private static final char[] CODE_16 = new char[] { '1', '6' }; // 16
+//	private static final char[] CODE_68 = new char[] { '6', '8' }; // 68
 	private static final char[] CODE_7716 = new char[] { '7', '7', '1', '6' }; // 7716
 	private static final char[] CODE_7A16_UP = new char[] { '7', 'A', '1', '6' }; // 7A16
 	private static final char[] CODE_7A16_DOWN = new char[] { '7', 'a', '1', '6' }; // 7A16
@@ -92,8 +89,6 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	@Autowired
 	private HitchEventManager hitchEventManager;
 	@Autowired
-	private GPRSModuleService gprsService;
-	@Autowired
 	private TemperatureModuleService temModuleService;
 	@Autowired
 	private TemperatureCtxStore ctxStore;
@@ -102,48 +97,41 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	@Autowired
 	private ModuleHitchEventService moduleHitchEventService;
 
-	// private static final String ATTRIBUTE_TEMPERATURE_MODULE =
-	// "TEMPERATURE_MODULE";
-	private static final String ATTRIBUTE_TEMPERATURE_MODULE_IS_REGISTED = "TEMPERATURE_MODULE_IS_REGISTED";
-	private static final String ATTRIBUTE_FIRST_CALL = "TEMPERATURE_MODULE_FIRST_CALL";
+	public static final String ATTRIBUTE_TEMPERATURE_MODULE_IS_REGISTED = "TEMPERATURE_MODULE_IS_REGISTED";
+	public static final String ATTRIBUTE_FIRST_CALL = "TEMPERATURE_MODULE_FIRST_CALL";
+//	private static final Logger logger = LoggerFactory.getLogger(TemperatureDataReceiver.class);
 
-	private static final Logger logger = LoggerFactory.getLogger(TemperatureDataReceiver.class);
+	public TemperatureDataReceiver() {
+		super(HitchConst.MODULE_TEMPERATURE, Logger.getLogger(TemperatureDataReceiver.class));
+	}
 
 	@Override
+	public void afterPropertiesSet() throws Exception {
+		super.ctxStore = this.ctxStore;
+	}
+	
+	@Override
 	public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		SwitchGPRS gprs = new SwitchGPRS();// 添加ctx到Store中
-		gprs.setCtx(ctx);
-		ctxStore.add(gprs);
+//		SwitchGPRS gprs = new SwitchGPRS();// 添加ctx到Store中
+//		gprs.setCtx(ctx);
+//		ctxStore.add(gprs);
+//		ChannelInfo info = ctxStore.get(ctx.pipeline().channel());
+//		if (null != info) {
+//			info.setCtx(ctx);
+//		}
 		super.channelActive(ctx);
 	}
 
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 		// CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_TEMPERATURE_MODULE);
-		ctxStore.remove(ctx);
+//		ctxStore.remove0(ctx);
 		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_TEMPERATURE_MODULE_IS_REGISTED);
 		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_FIRST_CALL);
-		super.channelInactive(ctx);
-	}
-
-	@Override
-	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-		List<Object> list = (List<Object>) msg;
-		int type = (int) list.get(0);
-		if (!(HitchConst.MODULE_TEMPERATURE == type)) {
-			ctx.fireChannelRead(msg);
-			return;
-		}
-		String rowMsg = (String) list.get(1);
-		logger.info("温度接收到的报文： " + rowMsg);
-		char[] data = CharUtils.removeSpace(rowMsg.toCharArray());
 		
-		// 验证报文合法性，以及做一些注册的工作
-		if (check(ctx, data)) {
-			handleIdenCode(ctx, data);
-		} else {
-			logger.info("验证失败：" + rowMsg);
-		}
+		ctxStore.remove0(ctx);
+		
+		super.channelInactive(ctx);
 	}
 
 	/**
@@ -153,8 +141,9 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	 * @param data
 	 * @return
 	 */
-	private boolean check(ChannelHandlerContext ctx, char[] data) {
-
+	@Override
+	protected boolean check(ChannelHandlerContext ctx, char[] data) {
+		
 		/*
 		 * TODO 做时间戳 + 设备地址 + 校验和的验证工作，如果不行就记录非法报文数量。 非法报文数量超过一定程度后封锁该设备地址。
 		 * 一旦一天积聚量超过一定程度over。 一旦某段时间内非法报文数量过多over。
@@ -162,13 +151,16 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		if (!checkSum(data)) {
 			return false;
 		}
-
+		//一般是原来的Channel接上来了，但是原来的地址错误，然后在网站改了地址。这个时候不会设置Attribute，一切合理。
+		//还有一种是原来是可以正常工作的，然后人工改动了地址，然后调用hardwareService清空了ChannelInfo，
+		//但是原来的ChannelHandlerContext的Attribute还残留着，在这里还会导致报文通过。于是ChannelInfo没有ctx和address，
+		//导致解析过程出错。现在的方法是在HardwareService手动删除Attribute。但是这样只能public AtributeName，不划算。
 		Integer isRegisted = (Integer) CtxStore.getCtxAttribute(ctx, ATTRIBUTE_TEMPERATURE_MODULE_IS_REGISTED);
 		if (null == isRegisted) {
 			if (null != getOnlineAddress(ctx, data)) {
 				CtxStore.setCtxAttribute(ctx, ATTRIBUTE_TEMPERATURE_MODULE_IS_REGISTED, new Integer(1));
 			}
-		}
+		}	
 		return true;
 	}
 
@@ -178,47 +170,64 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	 * @param ctx
 	 * @param data
 	 */
-	private String getOnlineAddress(ChannelHandlerContext ctx, char[] data) {
+//	@Override
+//	protected String getOnlineAddress(ChannelHandlerContext ctx, char[] data) {
+//
+//		ChannelInfo info = ctxStore.get0(ctx);
+//		
+//		if (null != info && null != info.getAddress()) {
+//			return info.getModuleId();
+//		}
+//		//如果十进制地址和数据库中的十进制地址一样，认为是同一个设备
+//		String address = CharUtils.newString(data, 10, 18).intern();
+//		String decimalAddress = TemperatureDeviceCommandUtil.reverseString(address);
+//		ChannelInfo channelInfo = ctxStore.getChannelInfobyAddress(decimalAddress);
+//		if (null != channelInfo) {
+//			channelInfo.setCtx(ctx);
+//			channelInfo.setAddress(address);
+//		} else {
+//			logger.info("网站的子模块地址配置与实际接收到的地址不符，子模块地址为" + decimalAddress);
+//			return null;
+//		}
+//		//TODO
+//		ChannelHandlerManager.addCtx(info.getMonitorId(), ctx);
+//		return info.getModuleId();
+//
+////		/*
+////		 * 当注册的温度开关的地址不为空，说明已经注册过了，不再进行相关操作
+////		 */
+////		if (gprs != null && gprs.getAddress() != null && null != gprs.getId()) {
+//////			ctx.channel().writeAndFlush(data);
+////			return gprs.getId();
+////		}
+////		String address = CharUtils.newString(data, 10, 18).intern();
+////		gprs.setAddress(address);
+////
+////		address = TemperatureDeviceCommandUtil.reverseString(address);
+////
+////		if (gprs != null) {
+////			/*
+////			 * 根据反转后的地址查询得到TemperatureDevice的集合
+////			 */
+////			List<TemperatureModule> list = temModuleService
+////					.selectByParameters(MyBatisMapUtil.warp("device_number", Integer.parseInt(address, 16)));
+////
+////			if (list != null && list.size() != 0) {
+////				TemperatureModule module = list.get(0);
+////				String id = module.getId();
+////				gprs.setId(id);
+////				List<DataMonitorSubmodule> submodules = submoduleService.selectByParameters(MyBatisMapUtil.warp("module_id", module.getId()));
+////				ChannelHandlerManager.addCtx(submodules.get(0).getDataMonitorId(), ctx);
+////				return id;
+////			} else {
+////				logger.warn("当前设备未进行注册");
+////			}
+////		}
+////		return null;
+//	}
 
-		SwitchGPRS gprs = ctxStore.get(ctx);
-
-		/*
-		 * 当注册的温度开关的地址不为空，说明已经注册过了，不再进行相关操作
-		 */
-		if (gprs != null && gprs.getAddress() != null && null != gprs.getId()) {
-//			ctx.channel().writeAndFlush(data);
-			return gprs.getId();
-		}
-		String address = CharUtils.newString(data, 10, 18).intern();
-		gprs.setAddress(address);
-
-		address = TemperatureDeviceCommandUtil.reverseString(address);
-
-		if (gprs != null) {
-			/*
-			 * 根据反转后的地址查询得到TemperatureDevice的集合
-			 */
-			List<TemperatureModule> list = temModuleService
-					.selectByParameters(MyBatisMapUtil.warp("device_number", Integer.parseInt(address, 16)));
-
-			if (list != null && list.size() != 0) {
-				TemperatureModule module = list.get(0);
-				String id = module.getId();
-				gprs.setId(id);
-				
-				// if (ctxStore.get(id) != null) {
-				// ctxStore.remove(id);
-				// ctxStore.add(gprs);
-				// }
-				return id;
-			} else {
-				logger.warn("当前设备未进行注册");
-			}
-		}
-		return null;
-	}
-
-	private void handleIdenCode(ChannelHandlerContext ctx, char[] data) {
+	@Override
+	protected void channelReadInternal(ChannelHandlerContext ctx, char[] data) {
 
 		// 报文少于登录包和心跳包，返回
 		if (data.length < 20) {
@@ -292,8 +301,8 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	 * @param ctx
 	 * @param data
 	 */
-	public void handleRemoteMeasure(ChannelHandlerContext ctx, char[] data) {
-		String address = CharUtils.newString(data, 10, 18); // 地址域
+	private void handleRemoteMeasure(ChannelHandlerContext ctx, char[] data) {
+//		String address = CharUtils.newString(data, 10, 18); // 地址域
 
 		// 第一次总召对时
 		Integer call = (Integer) CtxStore.getCtxAttribute(ctx, ATTRIBUTE_FIRST_CALL);
@@ -303,8 +312,10 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			ctx.writeAndFlush(correctTime);
 		}
 
-		SwitchGPRS gprs = ctxStore.get(ctx);
-		String deviceId = gprs.getId();
+//		SwitchGPRS gprs = ctxStore.get(ctx);
+		ChannelInfo info = ctxStore.get0(ctx);
+		String moduleId = info.getModuleId();
+//		String deviceId = gprs.getId();
 
 		if (CharUtils.equals(data, 20, 22, CODE_01)) {
 			// 处理遥测变化
@@ -312,7 +323,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			String signalAddress = CharUtils.newString(data, 34, 38);
 			String value = CharUtils.newString(data, 38, 38 + 4);
 			int tag = changeSignalAddress(signalAddress);
-			doSaveMeasure(value, deviceId, tag);
+			doSaveMeasure(value, moduleId, tag);
 			StringBuilder sb = new StringBuilder();
 			sb.append("eb90eb90eb90" + CharUtils.newString(data, 10, 18) + "16");
 			ctx.channel().writeAndFlush(sb.toString()); // 全遥测确认报文，提示控制器发送全遥信
@@ -323,7 +334,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 			for (int i = 0; i < 16; i++) {
 				buffer[i] = CharUtils.newString(data, 52 + 6 * i, 52 + 6 * i + 4);
 			}
-			doSaveMeasure(buffer, deviceId);
+			doSaveMeasure(buffer, moduleId);
 			StringBuilder sb = new StringBuilder();
 			sb.append("eb90eb90eb90" + CharUtils.newString(data, 10, 18) + "16");
 			ctx.channel().writeAndFlush(sb.toString()); // 全遥测确认报文，提示控制器发送全遥信
@@ -337,18 +348,21 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	 * @param data
 	 */
 	private void handleRemoteSignal(ChannelHandlerContext ctx, char[] data) {
+		
 		if (data.length != (26 + 55 + 2) * BYTE) {
 			logger.info("非法全遥信报文，长度不足" + String.valueOf(data));
 			return;
 		}
-		SwitchGPRS gprs = ctxStore.get(ctx);
-		String deviceId = gprs.getId();
+		ChannelInfo info = ctxStore.get0(ctx);
+		String moduleId = info.getModuleId();
+//		SwitchGPRS gprs = ctxStore.get(ctx);
+//		String deviceId = gprs.getId();
 		int index = 26 * BYTE;
 		for (int i = index; i < data.length - 2 * BYTE; i = i + BYTE) {
 			if (i >= index + 39 * BYTE) {
 				if (data[i + 1] == '1') {
 					int tag = (i - index - 39 * BYTE) / 2 + 1;
-					TemperatureModule device = temModuleService.selectByPrimaryKey(deviceId);
+					TemperatureModule device = temModuleService.selectByPrimaryKey(moduleId);
 					List<DataMonitorSubmodule> submoduleList = submoduleService
 							.selectByParameters(MyBatisMapUtil.warp("module_id", device.getId()));
 					if (null == submoduleList || 1 != submoduleList.size()) {
@@ -480,7 +494,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	 * @param tag
 	 * @param deviceId
 	 */
-	public void isSensorExist(List<TemperatureSensor> sensorList, int tag, String deviceId) {
+	private void isSensorExist(List<TemperatureSensor> sensorList, int tag, String deviceId) {
 		for (TemperatureSensor sensor : sensorList) {
 			if (sensor.getTag() == tag) {
 				return;
@@ -496,7 +510,7 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 	 * @param deviceId
 	 * @param tag
 	 */
-	public void doSaveMeasure0(String value, String deviceId, int tag) {
+	private void doSaveMeasure0(String value, String deviceId, int tag) {
 
 		Map<String, Object> queryMap = new HashMap<String, Object>();
 		queryMap.put("device_id", deviceId);
@@ -582,5 +596,25 @@ public class TemperatureDataReceiver extends ChannelInboundHandlerAdapter {
 		logger.error(cause.getMessage());
 		ctx.close();
 	}
+
+	@Override
+	public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
+//		ctxStore.remove(ctx);
+		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_TEMPERATURE_MODULE_IS_REGISTED);
+		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_FIRST_CALL);
+		ctxStore.remove0(ctx);
+	}
+
+	@Override
+	protected String getDecimalAddress(char[] data) {
+		return CharUtils.newString(data, 10, 18).intern();
+	}
+
+	@Override
+	protected String getAddress(char[] data) {
+		return TemperatureDeviceCommandUtil.reverseString(getDecimalAddress(data));
+	}
+
+	
 
 }

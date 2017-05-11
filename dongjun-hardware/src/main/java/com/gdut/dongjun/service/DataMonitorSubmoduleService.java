@@ -5,4 +5,5 @@ import com.gdut.dongjun.service.base.EnhancedService;
 
 public interface DataMonitorSubmoduleService extends EnhancedService<DataMonitorSubmodule> {
 
+	String selectMonitorIdByModuleId(String moduleId);
 }
