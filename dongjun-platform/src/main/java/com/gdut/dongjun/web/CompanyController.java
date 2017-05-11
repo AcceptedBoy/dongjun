@@ -19,7 +19,6 @@ import com.gdut.dongjun.domain.po.DataMonitor;
 import com.gdut.dongjun.domain.po.PlatformGroup;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.po.authc.UserRole;
-import com.gdut.dongjun.dto.DeviceForAuthDTO;
 import com.gdut.dongjun.service.CompanyService;
 import com.gdut.dongjun.service.PlatformGroupService;
 import com.gdut.dongjun.service.UserService;
@@ -27,6 +26,7 @@ import com.gdut.dongjun.service.authc.UserRoleService;
 import com.gdut.dongjun.service.device.DataMonitorService;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.UUIDUtil;
+import com.gdut.dongjun.web.vo.DeviceForAuthVO;
 
 @Controller
 @RequestMapping("/dongjun/company")
@@ -147,10 +147,10 @@ public class CompanyController {
 		return ResponseMessage.success(wrapIntoDTO(monitors));
 	}
 	
-	private List<DeviceForAuthDTO> wrapIntoDTO(List<DataMonitor> devices) {
-		List<DeviceForAuthDTO> dtos = new ArrayList<DeviceForAuthDTO>();
+	private List<DeviceForAuthVO> wrapIntoDTO(List<DataMonitor> devices) {
+		List<DeviceForAuthVO> dtos = new ArrayList<DeviceForAuthVO>();
 		for (DataMonitor device : devices) {
-			DeviceForAuthDTO dto = new DeviceForAuthDTO();
+			DeviceForAuthVO dto = new DeviceForAuthVO();
 			dto.setId(device.getId());
 			dto.setName(device.getName());
 			dtos.add(dto);

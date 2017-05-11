@@ -36,6 +36,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.gdut.dongjun.domain.dto.HitchEventDTO;
 import com.gdut.dongjun.domain.model.ErrorInfo;
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.Company;
@@ -44,12 +45,10 @@ import com.gdut.dongjun.domain.po.PlatformGroup;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.po.authc.Role;
 import com.gdut.dongjun.domain.po.authc.UserRole;
-import com.gdut.dongjun.domain.vo.HitchEventVO;
-import com.gdut.dongjun.dto.HitchEventDTO;
 import com.gdut.dongjun.service.CompanyService;
-import com.gdut.dongjun.service.HitchEventService;
 import com.gdut.dongjun.service.PersistentHitchMessageService;
 import com.gdut.dongjun.service.PlatformGroupService;
+import com.gdut.dongjun.service.RemoteEventService;
 import com.gdut.dongjun.service.UserDeviceMappingService;
 import com.gdut.dongjun.service.UserLogService;
 import com.gdut.dongjun.service.UserService;
@@ -61,6 +60,7 @@ import com.gdut.dongjun.service.impl.enums.LoginResult;
 import com.gdut.dongjun.service.thread.manager.DefaultThreadManager;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.UUIDUtil;
+import com.gdut.dongjun.web.vo.HitchEventVO;
 
 @Controller
 @SessionAttributes("currentUser")
@@ -87,7 +87,7 @@ public class UserController {
 	@Autowired
 	private PersistentHitchMessageService messageService;
 	@Autowired
-	private HitchEventService hitchEventService;
+	private RemoteEventService hitchEventService;
 	@Autowired
 	private TemperatureMeasureHitchEventService temEventService;
 	@Autowired
@@ -150,32 +150,32 @@ public class UserController {
 				@Override
 				public void run() {
 					List<PersistentHitchMessage> list = messageService.getAllUnreadHitchMessage(user.getId());
-					List<HitchEventDTO> dtos = new ArrayList<HitchEventDTO>();
+					List<HitchEventVO> vos = new ArrayList<HitchEventVO>();
 					for (PersistentHitchMessage message : list) {
 						int type = message.getType() / 100;
 						switch (type) {
 						case 3: {
-							HitchEventDTO dto = warpIntoDTO(message);
-							dtos.add(dto);
+							HitchEventVO vo = warpIntoVO(message);
+							vos.add(vo);
 							break;
 						}
 						default:
 							break;
 						}
 					}
-					for (HitchEventDTO dto : dtos) {
-						template.convertAndSend("/queue/user-" + user.getId() + "/hitch", dto);
+					for (HitchEventVO vo : vos) {
+						template.convertAndSend("/queue/user-" + user.getId() + "/hitch", vo);
 					}
 				}
 
-				private HitchEventDTO warpIntoDTO(PersistentHitchMessage message) {
-					HitchEventVO vo = new HitchEventVO();
-					vo.setId(message.getHitchId());
-					vo.setGroupId(user.getCompanyId());
-					vo.setMonitorId(message.getMonitorId());
-					vo.setGroupId(message.getGroupId());
-					vo.setType(message.getType());
-					return hitchEventService.wrapIntoDTO(vo);
+				private HitchEventVO warpIntoVO(PersistentHitchMessage message) {
+					HitchEventDTO dto = new HitchEventDTO();
+					dto.setId(message.getHitchId());
+					dto.setGroupId(user.getCompanyId());
+					dto.setMonitorId(message.getMonitorId());
+					dto.setGroupId(message.getGroupId());
+					dto.setType(message.getType());
+					return hitchEventService.wrapIntoVO(dto);
 				}
 
 			}, 5);

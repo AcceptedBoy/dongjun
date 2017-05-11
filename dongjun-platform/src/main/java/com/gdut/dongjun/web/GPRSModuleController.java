@@ -17,7 +17,6 @@ import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.DataMonitorSubmodule;
 import com.gdut.dongjun.domain.po.GPRSModule;
 import com.gdut.dongjun.domain.po.User;
-import com.gdut.dongjun.dto.GPRSModuleDTO;
 import com.gdut.dongjun.service.GPRSModuleService;
 import com.gdut.dongjun.service.PlatformGroupService;
 import com.gdut.dongjun.service.UserService;
@@ -26,6 +25,7 @@ import com.gdut.dongjun.service.device.DataMonitorSubmoduleService;
 import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.UUIDUtil;
+import com.gdut.dongjun.web.vo.GPRSModuleVO;
 
 @Controller
 @RequestMapping("/dongjun/gprs")
@@ -137,17 +137,17 @@ public class GPRSModuleController {
 //		return ResponseMessage.success(wrapIntoDTO(list));
 //	}
 
-	private GPRSModuleDTO wrapIntoDTO(GPRSModule gprs) {
+	private GPRSModuleVO wrapIntoDTO(GPRSModule gprs) {
 		List<String> deviceNumbers = new ArrayList<String>();
 		List<Integer> status = null;
 		deviceNumbers.add(gprs.getDeviceNumber());
 		status = hardwareServiceClient.getService().getGPRSModuleStatus(deviceNumbers);
-		GPRSModuleDTO dto = new GPRSModuleDTO(gprs, status.get(0));
+		GPRSModuleVO dto = new GPRSModuleVO(gprs, status.get(0));
 		return dto;
 	}
 
-	private List<GPRSModuleDTO> wrapIntoDTO(List<GPRSModule> list) {
-		List<GPRSModuleDTO> dtos = new ArrayList<GPRSModuleDTO>();
+	private List<GPRSModuleVO> wrapIntoDTO(List<GPRSModule> list) {
+		List<GPRSModuleVO> dtos = new ArrayList<GPRSModuleVO>();
 		List<String> deviceNumbers = new ArrayList<String>();
 		List<Integer> status = null;
 		for (GPRSModule gprs : list) {
@@ -158,7 +158,7 @@ public class GPRSModuleController {
 
 		int i = 0;
 		for (GPRSModule gprs : list) {
-			GPRSModuleDTO dto = new GPRSModuleDTO(gprs, status.get(i));
+			GPRSModuleVO dto = new GPRSModuleVO(gprs, status.get(i));
 			dtos.add(dto);
 			i++;
 		}

@@ -152,4 +152,7 @@
 			</foreach>
 		</if>
 	</select>
+	<select id="selectMonitorIdByModuleId" resultType="java.lang.String" parameterType="java.lang.String">
+		select data_monitor_id from data_monitor_submodule where module_id = #{moduleId}
+	</select>
 </mapper>

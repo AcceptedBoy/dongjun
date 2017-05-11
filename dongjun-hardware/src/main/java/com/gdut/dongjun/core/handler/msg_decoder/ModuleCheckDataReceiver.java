@@ -1,20 +1,26 @@
 package com.gdut.dongjun.core.handler.msg_decoder;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.gdut.dongjun.core.HitchConst;
+import com.gdut.dongjun.core.handler.ChannelHandlerManager;
 import com.gdut.dongjun.util.CharUtils;
 
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.ChannelHandler.Sharable;
 
 /**
  * 识别报文种类
+ * pipeline里面的Handler的名字都是TemperatureDataReceiver#0这样子的
+ * #0表明这个是TemperatureDataReveiver第一个出现在pipeline里面
  * @author Gordan_Deng
  * @date 2017年5月5日
  */
@@ -29,11 +35,37 @@ public class ModuleCheckDataReceiver extends ChannelInboundHandlerAdapter {
 	private static final int BYTE = 2;
 	private static final int LENGTH_LENGTH_TEMPERATURE = BYTE * 2;
 	private static final int ADDRESS_LENGTH_ELECTRONIC = BYTE * 3;
+	private static int counter = 0;
+	
+	@Autowired
+	private TestDataReceiver testDataReceiver;
+	@Autowired
+	private TemperatureDataReceiver temReceiver;
 	
 	private static final Logger logger = Logger.getLogger(ModuleCheckDataReceiver.class);
+	
+	private static Map<Class<?>, String> HANDLER_MAP = new HashMap<Class<?>, String>();
+	
+	static {
+		HANDLER_MAP.put(TemperatureDataReceiver.class, "TemperatureDataReceiver#0");
+		HANDLER_MAP.put(ModuleCheckDataReceiver.class, "ModuleCheckDataReceiver#0");
+		HANDLER_MAP.put(ElectronicDataReceiver.class, "ElectronicDataReceiver#0");
+		HANDLER_MAP.put(TestDataReceiver.class, "TestDataReceiver#0");
+		HANDLER_MAP.put(GPRSDataReceiver.class, "GPRSDataReceiver#0");
+	}
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+		if (counter++ == 2) {
+			logger.info("开始改变Handler");
+			ctx.channel().pipeline().remove(HANDLER_MAP.get(TemperatureDataReceiver.class));
+			ctx.channel().pipeline().remove(HANDLER_MAP.get(ElectronicDataReceiver.class));
+			ctx.channel().pipeline().addLast(testDataReceiver);
+		}
+		if (counter == 4) {
+			ctx.channel().pipeline().remove(HANDLER_MAP.get(TestDataReceiver.class));
+			ctx.channel().pipeline().addLast(temReceiver);
+		}
 		String data = (String) msg;
 		Integer module = checkModule(data);
 		if (0 == module) {
@@ -67,6 +99,12 @@ public class ModuleCheckDataReceiver extends ChannelInboundHandlerAdapter {
 		else {
 			return 0;
 		}
+	}
+
+	@Override
+	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+		ChannelHandlerManager.removeCtx(ctx);
+		ctx.fireChannelInactive();
 	}
 
 }

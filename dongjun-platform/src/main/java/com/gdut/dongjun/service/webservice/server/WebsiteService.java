@@ -9,9 +9,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
-import com.gdut.dongjun.domain.vo.DeviceOnlineVO;
-import com.gdut.dongjun.domain.vo.HitchEventVO;
+import com.gdut.dongjun.domain.dto.ActiveHighSwitch;
+import com.gdut.dongjun.domain.dto.HitchEventDTO;
+import com.gdut.dongjun.service.webservice.client.po.InfoEventDTO;
 
 /**
  *
@@ -36,10 +36,10 @@ public interface WebsiteService {
     @POST
     @Path("/callback_hitch_event")
     @Consumes({MediaType.APPLICATION_JSON})
-    public void callbackHitchEvent(HitchEventVO event);
+    public void callbackHitchEvent(HitchEventDTO event);
     
     @POST
-    @Path("/callback_device_online")
+    @Path("/callback_info_event")
     @Consumes({MediaType.APPLICATION_JSON})
-    public void callbackDeviceOnline(DeviceOnlineVO event);
+    public void callbackInfoEvent(InfoEventDTO event);
 }

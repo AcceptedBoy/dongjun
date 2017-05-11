@@ -5,4 +5,6 @@ import com.gdut.dongjun.domain.po.DataMonitorSubmodule;
 
 public interface DataMonitorSubmoduleMapper extends SinglePrimaryKeyBaseMapper <DataMonitorSubmodule> {
 
+	String selectMonitorIdByModuleId(String moduleId);
+
 }

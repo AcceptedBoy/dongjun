@@ -9,13 +9,13 @@ import org.springframework.stereotype.Service;
 import com.gdut.dongjun.domain.dao.TemperatureMeasureHitchEventMapper;
 import com.gdut.dongjun.domain.po.ModuleHitchEvent;
 import com.gdut.dongjun.domain.po.TemperatureMeasureHitchEvent;
-import com.gdut.dongjun.dto.TemperatureMeasureHitchEventDTO;
 import com.gdut.dongjun.service.base.impl.EnhancedServiceImpl;
 import com.gdut.dongjun.service.device.DataMonitorService;
 import com.gdut.dongjun.service.device.TemperatureModuleService;
 import com.gdut.dongjun.service.device.event.ModuleHitchEventService;
 import com.gdut.dongjun.service.device.event.TemperatureMeasureHitchEventService;
 import com.gdut.dongjun.util.MyBatisMapUtil;
+import com.gdut.dongjun.web.vo.TemperatureMeasureHitchEventVO;
 
 @Service
 public class TemperatureMeasureHitchEventServiceImpl extends EnhancedServiceImpl<TemperatureMeasureHitchEvent>
@@ -41,13 +41,13 @@ public class TemperatureMeasureHitchEventServiceImpl extends EnhancedServiceImpl
 	}
 
 	@Override
-	public List<TemperatureMeasureHitchEventDTO> selectMeasureHitch(String companyId) {
+	public List<TemperatureMeasureHitchEventVO> selectMeasureHitch(String companyId) {
 		//搜索type为301的报警事件
 		List<ModuleHitchEvent> list = moduleHitchService.selectByType(301, 302, companyId);
-		List<TemperatureMeasureHitchEventDTO> dtoList = new ArrayList<TemperatureMeasureHitchEventDTO>();
+		List<TemperatureMeasureHitchEventVO> dtoList = new ArrayList<TemperatureMeasureHitchEventVO>();
 		for (ModuleHitchEvent e : list) {
 			TemperatureMeasureHitchEvent event = mapper.selectByParameters(MyBatisMapUtil.warp("hitch_id", e.getId())).get(0);
-			TemperatureMeasureHitchEventDTO dto = new TemperatureMeasureHitchEventDTO(e, event);
+			TemperatureMeasureHitchEventVO dto = new TemperatureMeasureHitchEventVO(e, event);
 			dto.setName(moduleService.selectByPrimaryKey(e.getModuleId()).getName());
 			dtoList.add(dto);
 		}
