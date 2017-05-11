@@ -1,6 +1,6 @@
-package com.gdut.dongjun.dto;
+package com.gdut.dongjun.domain.dto;
 
-public class DeviceForAuthDTO {
+public class UserDeviceMappingDTO {
 
 	private String id;
 	
@@ -21,4 +21,5 @@ public class DeviceForAuthDTO {
 	public void setName(String name) {
 		this.name = name;
 	}
+	
 }

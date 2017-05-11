@@ -1,4 +1,4 @@
-package com.gdut.dongjun.dto;
+package com.gdut.dongjun.web.vo;
 
 
 public class HitchEvent {

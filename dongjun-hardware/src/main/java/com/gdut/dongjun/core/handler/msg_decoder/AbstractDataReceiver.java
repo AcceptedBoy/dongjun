@@ -52,7 +52,7 @@ public abstract class AbstractDataReceiver extends ChannelInboundHandlerAdapter 
 	 * @return
 	 */
 	protected String getOnlineAddress(ChannelHandlerContext ctx, char[] data) {
-		ChannelInfo info = ctxStore.get0(ctx);
+		ChannelInfo info = ctxStore.get(ctx);
 
 		if (null != info && null != info.getAddress()) {
 			return info.getModuleId();

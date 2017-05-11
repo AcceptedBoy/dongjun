@@ -157,7 +157,7 @@ public class GPRSDataReceiver extends AbstractDataReceiver {
 			switch (submodule.getModuleType()) {
 			case HitchConst.MODULE_ELECTRICITY : {
 				//ChannelInfo创建后，有可能通过HarewareService的changeSubmoduleAddress方法销毁，进而在这里再次初始化
-				ChannelInfo preInfo = elecStore.get0(submodule.getModuleId());
+				ChannelInfo preInfo = elecStore.get(submodule.getModuleId());
 				//创建ChannelInfo
 				if (null == preInfo) {
 					ElectronicModule module = elecModuleService.selectByPrimaryKey(submodule.getModuleId());
@@ -168,7 +168,7 @@ public class GPRSDataReceiver extends AbstractDataReceiver {
 				break;
 			}
 			case HitchConst.MODULE_TEMPERATURE : {
-				ChannelInfo preInfo = temStore.get0(submodule.getModuleId());
+				ChannelInfo preInfo = temStore.get(submodule.getModuleId());
 				//创建ChannelInfo
 				if (null == preInfo) {
 					TemperatureModule module = temModuleService.selectByPrimaryKey(submodule.getModuleId());

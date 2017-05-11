@@ -1,8 +1,8 @@
-package com.gdut.dongjun.dto;
+package com.gdut.dongjun.web.vo;
 
 import java.io.Serializable;
 
-public class DeviceOnlineDTO implements Serializable {
+public class DeviceOnlineVO implements Serializable {
 
 	private String id;
 	

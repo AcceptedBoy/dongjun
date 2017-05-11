@@ -1,8 +1,8 @@
-package com.gdut.dongjun.dto;
+package com.gdut.dongjun.web.vo;
 
 import com.gdut.dongjun.domain.po.TemperatureSensor;
 
-public class TemperatureSensorDTO {
+public class TemperatureSensorVO {
 	
 	private static final String NO_TYPE = "无类型";
 	private static final String IN_A = "进线A相";
@@ -24,8 +24,8 @@ public class TemperatureSensorDTO {
 	
 	private String deviceId;
 	
-	public static TemperatureSensorDTO wrap(TemperatureSensor sensor) {
-		TemperatureSensorDTO dto = new TemperatureSensorDTO();
+	public static TemperatureSensorVO wrap(TemperatureSensor sensor) {
+		TemperatureSensorVO dto = new TemperatureSensorVO();
 		dto.setId(sensor.getId());
 		dto.setName(sensor.getName());
 		dto.setType(sensor.getType());

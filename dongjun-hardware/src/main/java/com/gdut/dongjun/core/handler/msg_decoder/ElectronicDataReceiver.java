@@ -11,10 +11,8 @@ import org.springframework.stereotype.Service;
 import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.ElectronicCtxStore;
 import com.gdut.dongjun.core.HitchConst;
-import com.gdut.dongjun.core.SwitchGPRS;
-import com.gdut.dongjun.core.handler.ChannelHandlerManager;
 import com.gdut.dongjun.core.handler.ChannelInfo;
-import com.gdut.dongjun.core.handler.thread.HitchEventManager;
+import com.gdut.dongjun.domain.dto.HitchEventDTO;
 import com.gdut.dongjun.domain.po.DataMonitorSubmodule;
 import com.gdut.dongjun.domain.po.ElectronicModule;
 import com.gdut.dongjun.domain.po.ElectronicModuleCurrent;
@@ -24,13 +22,14 @@ import com.gdut.dongjun.domain.po.ElectronicModuleVoltage;
 import com.gdut.dongjun.domain.po.ModuleHitchEvent;
 import com.gdut.dongjun.service.DataMonitorSubmoduleService;
 import com.gdut.dongjun.service.ElectronicModuleCurrentService;
+import com.gdut.dongjun.service.ElectronicModuleHitchEventService;
 import com.gdut.dongjun.service.ElectronicModulePowerService;
 import com.gdut.dongjun.service.ElectronicModuleService;
 import com.gdut.dongjun.service.ElectronicModuleVoltageService;
 import com.gdut.dongjun.service.ModuleHitchEventService;
+import com.gdut.dongjun.service.webservice.client.WebsiteServiceClient;
 import com.gdut.dongjun.util.CharUtils;
 import com.gdut.dongjun.util.MyBatisMapUtil;
-import com.gdut.dongjun.util.TemperatureDeviceCommandUtil;
 import com.gdut.dongjun.util.UUIDUtil;
 
 import io.netty.channel.ChannelHandler.Sharable;
@@ -96,9 +95,11 @@ public class ElectronicDataReceiver extends AbstractDataReceiver {
 	@Autowired
 	private DataMonitorSubmoduleService submoduleService;
 	@Autowired
-	private HitchEventManager eventManager;
-	@Autowired
 	private ElectronicCtxStore ctxStore;
+	@Autowired
+	private ElectronicModuleHitchEventService hitchEventService;
+	@Autowired
+	private WebsiteServiceClient websiteService;
 	
 	// ChannelHandlerContext中的Attribute名称
 	public static final String ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED = "ELECTRONIC_MODULE_IS_REGISTED";
@@ -123,7 +124,7 @@ public class ElectronicDataReceiver extends AbstractDataReceiver {
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 //		ctxStore.remove(ctx);
-		ctxStore.remove0(ctx);
+		ctxStore.remove(ctx);
 		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED);
 		super.channelInactive(ctx);
 	}
@@ -137,7 +138,7 @@ public class ElectronicDataReceiver extends AbstractDataReceiver {
 //	@Override
 //	protected String getOnlineAddress(ChannelHandlerContext ctx, char[] data) {
 //		
-//		ChannelInfo info = ctxStore.get0(ctx);
+//		ChannelInfo info = ctxStore.get(ctx);
 //		
 //		if (null != info && null != info.getAddress()) {
 //			return info.getModuleId();
@@ -390,8 +391,19 @@ public class ElectronicDataReceiver extends AbstractDataReceiver {
 			moduleEvent.setHitchReason(HitchConst.getHitchReason(200));
 		}
 		moduleHitchEventService.updateByPrimaryKey(moduleEvent);
-		ElectronicModuleHitchEvent event = new ElectronicModuleHitchEvent(moduleEvent);
-		eventManager.addHitchEvent(event);
+		ElectronicModuleHitchEvent event = new ElectronicModuleHitchEvent();
+		event.setId(UUIDUtil.getUUID());
+		event.setHitchId(moduleEvent.getId());
+		//TODO
+		hitchEventService.updateByPrimaryKey(event);
+		HitchEventDTO dto = new HitchEventDTO();
+		dto.setId(moduleEvent.getId());
+		ChannelInfo info = ctxStore.get(ctx);
+		dto.setGroupId(info.getGroupId());
+		dto.setModuleId(info.getModuleId());
+		dto.setMonitorId(info.getMonitorId());
+		dto.setType(moduleEvent.getType());
+		websiteService.getService().callbackHitchEvent(dto);
 	}
 
 	@Override
@@ -403,7 +415,7 @@ public class ElectronicDataReceiver extends AbstractDataReceiver {
 	@Override
 	public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
 //		ctxStore.remove(ctx);
-		ctxStore.remove0(ctx);
+		ctxStore.remove(ctx);
 		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED);
 		super.handlerRemoved(ctx);
 	}

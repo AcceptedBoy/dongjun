@@ -1,8 +1,8 @@
-package com.gdut.dongjun.dto;
+package com.gdut.dongjun.web.vo;
 
 import java.io.Serializable;
 
-public class HitchEventDTO implements Serializable {
+public class HitchEventVO implements Serializable {
 	
 	private static final long serialVersionUID = -7396867530194618589L;
 

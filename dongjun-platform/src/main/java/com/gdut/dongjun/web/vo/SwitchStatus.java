@@ -1,4 +1,4 @@
-package com.gdut.dongjun.dto;
+package com.gdut.dongjun.web.vo;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;

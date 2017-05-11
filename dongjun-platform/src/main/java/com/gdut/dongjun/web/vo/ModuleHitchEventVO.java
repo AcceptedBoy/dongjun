@@ -1,10 +1,10 @@
-package com.gdut.dongjun.dto;
+package com.gdut.dongjun.web.vo;
 
 import java.util.Date;
 
 import com.gdut.dongjun.domain.po.AbstractBean;
 
-public class ModuleHitchEventDTO extends AbstractBean {
+public class ModuleHitchEventVO extends AbstractBean {
 	
 	private String name;
 	/**

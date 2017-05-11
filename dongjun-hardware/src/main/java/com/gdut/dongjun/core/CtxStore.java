@@ -462,11 +462,11 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 		return temp;
 	}
 	
-	public List<ChannelInfo> getInstance0() {
+	public List<ChannelInfo> getInstance() {
 		return ctxList;
 	}
 	
-	public ChannelHandlerContext getCtxByAddress0(String address) {
+	public ChannelHandlerContext getCtxByAddress(String address) {
 		
 		for(ChannelInfo gprs : ctxList) {
 			if(gprs.getAddress() != null && gprs.getAddress().equals(address)) {
@@ -476,7 +476,7 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 		return null;
 	}
 	
-	public ChannelInfo get0(ChannelHandlerContext ctx) {
+	public ChannelInfo get(ChannelHandlerContext ctx) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("remove(SwitchGPRS) - start");
 		}
@@ -507,7 +507,7 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 	 * @return SwitchGPRS
 	 * @throws
 	 */
-	public ChannelInfo get0(String moduleId) {
+	public ChannelInfo get(String moduleId) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("remove(SwitchGPRS) - start");
 		}
@@ -529,7 +529,7 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 		return null;
 	}
 	
-	public ChannelInfo getByAddress0(String address) {
+	public ChannelInfo getByAddress(String address) {
 		
 		if(ctxList != null) {
 			for(ChannelInfo gprs : ctxList) {
@@ -606,7 +606,7 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 	 * @return void
 	 * @throws
 	 */
-	public void remove0(ChannelHandlerContext ctx) {
+	public void remove(ChannelHandlerContext ctx) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("remove(SwitchGPRS) - start");
 		}
@@ -637,7 +637,7 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 	 * @return void
 	 * @throws
 	 */
-	public void clear0() {
+	public void clear() {
 		if (logger.isDebugEnabled()) {
 			logger.debug("clear() - start");
 		}
@@ -649,13 +649,13 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 		}
 	}
 	
-	public void remove0(String moduleId) {
+	public void remove(String moduleId) {
 		
 		if(null == moduleId) {
 			return;
 		}
 		
-		List<ChannelInfo> list = getInstance0();
+		List<ChannelInfo> list = getInstance();
 		for(int length = list.size() - 1, i = length; i >= 0; --i) {
 			if(list.get(i).getModuleId() != null && list.get(i).getModuleId().equals(moduleId)) {
 				list.remove(i);
@@ -667,7 +667,7 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 		if (null == channel) {
 			return null;
 		}
-		List<ChannelInfo> list = getInstance0();
+		List<ChannelInfo> list = getInstance();
 		for (ChannelInfo info : list) {
 			if (info.getCtx().pipeline().channel() == channel) {
 				return info;
@@ -680,7 +680,7 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 		if (null == moduleId) {
 			return null;
 		}
-		List<ChannelInfo> list = getInstance0();
+		List<ChannelInfo> list = getInstance();
 		for (ChannelInfo info : list) {
 			if (info.getModuleId().equals(moduleId)) {
 				return info;

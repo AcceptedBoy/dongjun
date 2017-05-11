@@ -7,18 +7,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.gdut.dongjun.core.CtxStore;
-import com.gdut.dongjun.core.DefaultCtxStore;
 import com.gdut.dongjun.core.ElectronicCtxStore;
 import com.gdut.dongjun.core.GPRSCtxStore;
 import com.gdut.dongjun.core.HitchConst;
-import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.core.TemperatureCtxStore;
 import com.gdut.dongjun.core.handler.ChannelHandlerManager;
 import com.gdut.dongjun.core.handler.ChannelInfo;
 import com.gdut.dongjun.core.handler.msg_decoder.ElectronicDataReceiver;
 import com.gdut.dongjun.core.handler.msg_decoder.GPRSDataReceiver;
 import com.gdut.dongjun.core.handler.msg_decoder.TemperatureDataReceiver;
-import com.gdut.dongjun.core.message.impl.ElectronicModuleMessageCreator;
 import com.gdut.dongjun.service.webservice.server.HardwareService;
 import com.gdut.dongjun.util.SpringApplicationContextHolder;
 
@@ -66,8 +63,8 @@ public class HardwareServiceImpl implements HardwareService {
 	@Override
 	public List<ChannelInfo> getCtxInstance(Integer type) {
 		switch (type) {
-		case HitchConst.MODULE_ELECTRICITY : elecCtxStore.getInstance0();
-		case HitchConst.MODULE_TEMPERATURE : temCtxStore.getInstance0();
+		case HitchConst.MODULE_ELECTRICITY : elecCtxStore.getInstance();
+		case HitchConst.MODULE_TEMPERATURE : temCtxStore.getInstance();
 		default : return null;
 		}
 	}
@@ -180,7 +177,7 @@ public class HardwareServiceImpl implements HardwareService {
 			ctxStore = (CtxStore) SpringApplicationContextHolder.getSpringBean(ElectronicDataReceiver.class);
 			ChannelInfo info = ctxStore.getByModuleId(moduleId);
 			ChannelHandlerContext ctx = info.getCtx();
-			ctxStore.remove0(moduleId);
+			ctxStore.remove(moduleId);
 			CtxStore.removeCtxAttribute(ctx, ElectronicDataReceiver.ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED);
 			break;
 		}
@@ -188,7 +185,7 @@ public class HardwareServiceImpl implements HardwareService {
 			ctxStore = (CtxStore) SpringApplicationContextHolder.getSpringBean(TemperatureDataReceiver.class);
 			ChannelInfo info = ctxStore.getByModuleId(moduleId);
 			ChannelHandlerContext ctx = info.getCtx();
-			ctxStore.remove0(moduleId);
+			ctxStore.remove(moduleId);
 			CtxStore.removeCtxAttribute(ctx, TemperatureDataReceiver.ATTRIBUTE_FIRST_CALL);
 			CtxStore.removeCtxAttribute(ctx, TemperatureDataReceiver.ATTRIBUTE_TEMPERATURE_MODULE_IS_REGISTED);
 			break;

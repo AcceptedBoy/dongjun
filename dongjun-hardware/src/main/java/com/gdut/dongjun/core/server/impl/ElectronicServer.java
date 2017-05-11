@@ -7,7 +7,6 @@ import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.gdut.dongjun.core.ElectronicCtxStore;
-import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.core.handler.ChannelInfo;
 import com.gdut.dongjun.core.initializer.ServerInitializer;
 import com.gdut.dongjun.core.message.impl.ElectronicModuleMessageCreator;
@@ -35,7 +34,7 @@ public class ElectronicServer extends NetServer {
 	 */
 	@Override
 	protected void hitchEventSpy() {
-		List<ChannelInfo> infoList = ctxStore.getInstance0();
+		List<ChannelInfo> infoList = ctxStore.getInstance();
 		for (ChannelInfo info : infoList) {
 			List<String> msgList = messageCreator.generateTotalCall(info.getAddress());
 			for (String order : msgList) {

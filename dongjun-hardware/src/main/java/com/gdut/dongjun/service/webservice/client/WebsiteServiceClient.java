@@ -15,8 +15,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
-import com.gdut.dongjun.domain.vo.DeviceOnlineVO;
-import com.gdut.dongjun.domain.vo.HitchEventVO;
+import com.gdut.dongjun.domain.dto.HitchEventDTO;
+import com.gdut.dongjun.domain.dto.InfoEventDTO;
 import com.gdut.dongjun.service.webservice.client.service.WebsiteService;
 import com.gdut.dongjun.service.webservice.server.HardwareService;
 
@@ -71,15 +71,15 @@ public class WebsiteServiceClient implements InitializingBean, ApplicationContex
             }
         }
 
-        public void callbackHitchEvent(HitchEventVO event) {
+        public void callbackHitchEvent(HitchEventDTO event) {
             for(WebsiteService websiteService : websiteList) {
                 websiteService.callbackHitchEvent(event);
             }
         }
         
-        public void callbackDeviceOnline(DeviceOnlineVO vo) {
+        public void callbackInfoEvent(InfoEventDTO event) {
             for(WebsiteService websiteService : websiteList) {
-                websiteService.callbackDeviceOnline(vo);
+                websiteService.callbackInfoEvent(event);
             }
         }
     }

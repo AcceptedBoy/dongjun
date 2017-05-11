@@ -1,4 +1,4 @@
-package com.gdut.dongjun.dto;
+package com.gdut.dongjun.web.vo;
 
 import com.gdut.dongjun.util.GenericUtil;
 
@@ -7,7 +7,7 @@ import com.gdut.dongjun.util.GenericUtil;
  * @author Gordan_Deng
  * @date 2017年4月10日
  */
-public class SwitchDTO {
+public class SwitchVO {
 	
 	public String id;
 	
@@ -49,8 +49,8 @@ public class SwitchDTO {
 		this.type = type;
 	}
 	
-	public static SwitchDTO wrap(Object obj, Integer type) {
-		SwitchDTO decorator = new SwitchDTO();
+	public static SwitchVO wrap(Object obj, Integer type) {
+		SwitchVO decorator = new SwitchVO();
 		decorator.setId((String)GenericUtil.getPrivateObjectValue(obj, "id"));
 		decorator.setName((String)GenericUtil.getPrivateObjectValue(obj, "name"));
 		decorator.setDeviceNumber((String)GenericUtil.getPrivateObjectValue(obj, "deviceNumber"));

@@ -1,8 +1,8 @@
-package com.gdut.dongjun.dto;
+package com.gdut.dongjun.web.vo;
 
 import java.util.Date;
 
-public class UserLogDTO {
+public class UserLogVO {
 
 	private String id;
 	

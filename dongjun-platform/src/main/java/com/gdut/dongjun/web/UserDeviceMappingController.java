@@ -8,10 +8,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.gdut.dongjun.domain.dto.UserDeviceMappingDTO;
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.DataMonitor;
 import com.gdut.dongjun.domain.po.UserDeviceMapping;
-import com.gdut.dongjun.domain.vo.UserDeviceMappingDTO;
 import com.gdut.dongjun.service.UserDeviceMappingService;
 import com.gdut.dongjun.service.device.DataMonitorService;
 import com.gdut.dongjun.util.MyBatisMapUtil;

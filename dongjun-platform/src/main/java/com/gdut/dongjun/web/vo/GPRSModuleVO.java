@@ -1,14 +1,14 @@
-package com.gdut.dongjun.dto;
+package com.gdut.dongjun.web.vo;
 
 import com.gdut.dongjun.domain.po.GPRSModule;
 
-public class GPRSModuleDTO {
+public class GPRSModuleVO {
 
-	public GPRSModuleDTO() {
+	public GPRSModuleVO() {
 		super();
 	}
 
-	public GPRSModuleDTO(GPRSModule module, Integer status) {
+	public GPRSModuleVO(GPRSModule module, Integer status) {
 		super();
 		this.setId(module.getId());
 		this.setName(module.getName());

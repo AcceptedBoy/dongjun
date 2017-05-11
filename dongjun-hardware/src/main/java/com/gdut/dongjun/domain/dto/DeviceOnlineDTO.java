@@ -1,9 +1,11 @@
-package com.gdut.dongjun.domain.vo;
+package com.gdut.dongjun.domain.dto;
 
 import java.io.Serializable;
 import java.util.Date;
 
-public class DeviceOnlineVO implements Serializable {
+public class DeviceOnlineDTO implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private String id;
 	

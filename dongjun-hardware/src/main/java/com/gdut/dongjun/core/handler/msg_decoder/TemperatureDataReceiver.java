@@ -17,9 +17,8 @@ import org.springframework.stereotype.Service;
 import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.HitchConst;
 import com.gdut.dongjun.core.TemperatureCtxStore;
-import com.gdut.dongjun.core.handler.ChannelHandlerManager;
 import com.gdut.dongjun.core.handler.ChannelInfo;
-import com.gdut.dongjun.core.handler.thread.HitchEventManager;
+import com.gdut.dongjun.domain.dto.HitchEventDTO;
 import com.gdut.dongjun.domain.po.DataMonitorSubmodule;
 import com.gdut.dongjun.domain.po.ModuleHitchEvent;
 import com.gdut.dongjun.domain.po.TemperatureMeasure;
@@ -30,9 +29,11 @@ import com.gdut.dongjun.domain.po.TemperatureSensor;
 import com.gdut.dongjun.service.DataMonitorSubmoduleService;
 import com.gdut.dongjun.service.ModuleHitchEventService;
 import com.gdut.dongjun.service.TemperatureMeasureHistoryService;
+import com.gdut.dongjun.service.TemperatureMeasureHitchEventService;
 import com.gdut.dongjun.service.TemperatureMeasureService;
 import com.gdut.dongjun.service.TemperatureModuleService;
 import com.gdut.dongjun.service.TemperatureSensorService;
+import com.gdut.dongjun.service.webservice.client.WebsiteServiceClient;
 import com.gdut.dongjun.util.CharUtils;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.TemperatureDeviceCommandUtil;
@@ -87,8 +88,6 @@ public class TemperatureDataReceiver extends AbstractDataReceiver implements Ini
 	@Autowired
 	private TemperatureSensorService sensorService;
 	@Autowired
-	private HitchEventManager hitchEventManager;
-	@Autowired
 	private TemperatureModuleService temModuleService;
 	@Autowired
 	private TemperatureCtxStore ctxStore;
@@ -96,6 +95,10 @@ public class TemperatureDataReceiver extends AbstractDataReceiver implements Ini
 	private DataMonitorSubmoduleService submoduleService;
 	@Autowired
 	private ModuleHitchEventService moduleHitchEventService;
+	@Autowired
+	private WebsiteServiceClient websiteService;
+	@Autowired
+	private TemperatureMeasureHitchEventService hitchEventService;
 
 	public static final String ATTRIBUTE_TEMPERATURE_MODULE_IS_REGISTED = "TEMPERATURE_MODULE_IS_REGISTED";
 	public static final String ATTRIBUTE_FIRST_CALL = "TEMPERATURE_MODULE_FIRST_CALL";
@@ -125,11 +128,11 @@ public class TemperatureDataReceiver extends AbstractDataReceiver implements Ini
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 		// CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_TEMPERATURE_MODULE);
-//		ctxStore.remove0(ctx);
+//		ctxStore.remove(ctx);
 		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_TEMPERATURE_MODULE_IS_REGISTED);
 		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_FIRST_CALL);
 		
-		ctxStore.remove0(ctx);
+		ctxStore.remove(ctx);
 		
 		super.channelInactive(ctx);
 	}
@@ -173,7 +176,7 @@ public class TemperatureDataReceiver extends AbstractDataReceiver implements Ini
 //	@Override
 //	protected String getOnlineAddress(ChannelHandlerContext ctx, char[] data) {
 //
-//		ChannelInfo info = ctxStore.get0(ctx);
+//		ChannelInfo info = ctxStore.get(ctx);
 //		
 //		if (null != info && null != info.getAddress()) {
 //			return info.getModuleId();
@@ -313,7 +316,7 @@ public class TemperatureDataReceiver extends AbstractDataReceiver implements Ini
 		}
 
 //		SwitchGPRS gprs = ctxStore.get(ctx);
-		ChannelInfo info = ctxStore.get0(ctx);
+		ChannelInfo info = ctxStore.get(ctx);
 		String moduleId = info.getModuleId();
 //		String deviceId = gprs.getId();
 
@@ -323,7 +326,7 @@ public class TemperatureDataReceiver extends AbstractDataReceiver implements Ini
 			String signalAddress = CharUtils.newString(data, 34, 38);
 			String value = CharUtils.newString(data, 38, 38 + 4);
 			int tag = changeSignalAddress(signalAddress);
-			doSaveMeasure(value, moduleId, tag);
+			doSaveMeasure(value, moduleId, tag, ctx);
 			StringBuilder sb = new StringBuilder();
 			sb.append("eb90eb90eb90" + CharUtils.newString(data, 10, 18) + "16");
 			ctx.channel().writeAndFlush(sb.toString()); // 全遥测确认报文，提示控制器发送全遥信
@@ -334,7 +337,7 @@ public class TemperatureDataReceiver extends AbstractDataReceiver implements Ini
 			for (int i = 0; i < 16; i++) {
 				buffer[i] = CharUtils.newString(data, 52 + 6 * i, 52 + 6 * i + 4);
 			}
-			doSaveMeasure(buffer, moduleId);
+			doSaveMeasure(buffer, moduleId, ctx);
 			StringBuilder sb = new StringBuilder();
 			sb.append("eb90eb90eb90" + CharUtils.newString(data, 10, 18) + "16");
 			ctx.channel().writeAndFlush(sb.toString()); // 全遥测确认报文，提示控制器发送全遥信
@@ -353,7 +356,7 @@ public class TemperatureDataReceiver extends AbstractDataReceiver implements Ini
 			logger.info("非法全遥信报文，长度不足" + String.valueOf(data));
 			return;
 		}
-		ChannelInfo info = ctxStore.get0(ctx);
+		ChannelInfo info = ctxStore.get(ctx);
 		String moduleId = info.getModuleId();
 //		SwitchGPRS gprs = ctxStore.get(ctx);
 //		String deviceId = gprs.getId();
@@ -410,7 +413,7 @@ public class TemperatureDataReceiver extends AbstractDataReceiver implements Ini
 	 * @param deviceId
 	 * @param value
 	 */
-	private void doSaveMeasure(String value, String deviceId, int tag) {
+	private void doSaveMeasure(String value, String deviceId, int tag, ChannelHandlerContext ctx) {
 		List<TemperatureSensor> sensorList = sensorService
 				.selectByParameters(MyBatisMapUtil.warp("device_id", deviceId));
 		isSensorExist(sensorList, tag, deviceId);
@@ -419,7 +422,7 @@ public class TemperatureDataReceiver extends AbstractDataReceiver implements Ini
 		doSaveMeasure0(value, deviceId, tag);
 		if (TemperatureCtxStore.isAboveBound(deviceId, 
 				Double.valueOf("" + Integer.parseInt(value, 16)) / 10)) {
-			createHitchEvent(deviceId, value, tag);
+			createHitchEvent(deviceId, value, tag, ctx);
 		}
 	}
 
@@ -429,7 +432,7 @@ public class TemperatureDataReceiver extends AbstractDataReceiver implements Ini
 	 * @param value
 	 * @param deviceId
 	 */
-	private void doSaveMeasure(String[] value, String deviceId) {
+	private void doSaveMeasure(String[] value, String deviceId, ChannelHandlerContext ctx) {
 		List<TemperatureSensor> sensorList = sensorService
 				.selectByParameters(MyBatisMapUtil.warp("device_id", deviceId));
 
@@ -445,12 +448,12 @@ public class TemperatureDataReceiver extends AbstractDataReceiver implements Ini
 			// 插入报警数据
 			if (TemperatureCtxStore.isAboveBound(deviceId,
 					Double.valueOf("" + Integer.parseInt(value[i - 1], 16)) / 10)) {
-				createHitchEvent(deviceId, value[i - 1], i);
+				createHitchEvent(deviceId, value[i - 1], i, ctx);
 			}
 		}
 	}
 	
-	private void createHitchEvent(String deviceId, String value, int tag) {
+	private void createHitchEvent(String deviceId, String value, int tag, ChannelHandlerContext ctx) {
 		TemperatureModule device = temModuleService.selectByPrimaryKey(deviceId);
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("module_id", device.getId());
@@ -474,17 +477,23 @@ public class TemperatureDataReceiver extends AbstractDataReceiver implements Ini
 
 		// TODO 其实报警事事件应该是时间戳中的时间
 		TemperatureMeasureHitchEvent event = new TemperatureMeasureHitchEvent();
-		event.setId(moduleHitch.getId());
-		event.setMonitorId(submodule.getDataMonitorId());
+		event.setId(UUIDUtil.getUUID());
 		event.setValue(new BigDecimal(Double.valueOf("" + Integer.parseInt(value, 16)) / 10));
 		event.setTag(tag);
-		event.setGroupId(device.getGroupId());
 		event.setMaxHitchValue(device.getMaxHitchValue());
 		event.setMinHitchValue(device.getMinHitchValue());
-		event.setType(301);
 		event.setHitchId(moduleHitch.getId());
-		// 把报警事件塞进线程池
-		hitchEventManager.addHitchEvent(event);
+		hitchEventService.updateByPrimaryKey(event);
+		// 把报警信息传到推送到前端
+		HitchEventDTO vo = new HitchEventDTO();
+		ChannelInfo info = ctxStore.get(ctx);
+		vo.setGroupId(info.getGroupId());
+		vo.setModuleId(info.getModuleId());
+		vo.setMonitorId(info.getMonitorId());
+		vo.setType(301);
+		vo.setId(moduleHitch.getId());
+		websiteService.getService().callbackHitchEvent(vo);
+//		hitchEventManager.addHitchEvent(event);
 	}
 
 	/**
@@ -602,7 +611,7 @@ public class TemperatureDataReceiver extends AbstractDataReceiver implements Ini
 //		ctxStore.remove(ctx);
 		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_TEMPERATURE_MODULE_IS_REGISTED);
 		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_FIRST_CALL);
-		ctxStore.remove0(ctx);
+		ctxStore.remove(ctx);
 	}
 
 	@Override

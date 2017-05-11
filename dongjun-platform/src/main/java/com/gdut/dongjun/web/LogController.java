@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.po.UserLog;
-import com.gdut.dongjun.dto.UserLogDTO;
 import com.gdut.dongjun.service.UserLogService;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.util.MapUtil;
 import com.gdut.dongjun.util.MyBatisMapUtil;
+import com.gdut.dongjun.web.vo.UserLogVO;
 
 /**
  * @author Gordan_Deng
@@ -47,10 +47,10 @@ public class LogController {
 		return ResponseMessage.success(map);
 	}
 	
-	private List<UserLogDTO> wrapUL(List<UserLog> logs) {
-		List<UserLogDTO> dtos = new ArrayList<UserLogDTO>();
+	private List<UserLogVO> wrapUL(List<UserLog> logs) {
+		List<UserLogVO> dtos = new ArrayList<UserLogVO>();
 		for (UserLog log : logs) {
-			UserLogDTO dto = new UserLogDTO();
+			UserLogVO dto = new UserLogVO();
 			dto.setId(log.getId());
 			dto.setDate(log.getDate());
 			dto.setType(log.getType());

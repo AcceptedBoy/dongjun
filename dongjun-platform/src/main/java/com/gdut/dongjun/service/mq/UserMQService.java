@@ -20,7 +20,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 
 import com.gdut.dongjun.domain.po.User;
-import com.gdut.dongjun.dto.HitchEventDTO;
+import com.gdut.dongjun.web.vo.HitchEventVO;
 
 /**
  * 处理ActiveMQ的类，暂时未用
@@ -83,9 +83,9 @@ public class UserMQService extends AbstractMQService {
 			public void onMessage(Message message) {
 				logger.info(user.getName() + "接收到报警消息");
 				String id = user.getId();
-				HitchEventDTO dto = null;
+				HitchEventVO dto = null;
 				try {
-					dto = (HitchEventDTO) ((ObjectMessage) message).getObject();
+					dto = (HitchEventVO) ((ObjectMessage) message).getObject();
 					template.convertAndSend("/queue/user-" + id + "/hitch", dto);
 				} catch (JMSException e) {
 					logger.warn("MQ转化错误，发生错误MQ为" + "/queue/user-" + user.getId() + "/hitch");
@@ -105,7 +105,7 @@ public class UserMQService extends AbstractMQService {
 	 * @param dto
 	 * @throws JMSException
 	 */
-	public void sendHitchMessage(User user, HitchEventDTO dto) throws JMSException {
+	public void sendHitchMessage(User user, HitchEventVO dto) throws JMSException {
 		Session session = getUserMQSession(user);
 		MessageProducer producer = getUserMessageProducer(user);
 		ObjectMessage message = session.createObjectMessage();
