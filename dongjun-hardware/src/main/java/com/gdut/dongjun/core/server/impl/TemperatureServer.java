@@ -49,6 +49,7 @@ public class TemperatureServer extends NetServer {
 		for (ChannelInfo info : infoList) {
 			List<String> msgList = elecMessageCreator.generateTotalCall(info.getAddress());
 			for (String order : msgList) {
+				logger.info("电能表总召命令：" + order);
 				info.getCtx().writeAndFlush(order);
 			}
 		}

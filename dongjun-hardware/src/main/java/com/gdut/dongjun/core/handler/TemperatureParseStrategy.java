@@ -8,7 +8,7 @@ import java.util.List;
  * 1       String  设备地址
  * 2       String  设备十进制地址
  * 
- * 以后的架构改动就是AbstractDataReceiver调用
+ * 以后的架构改动就是AbstractDataReceiver调用ParseStrategyAdaptor，然后调用ParseStrategy
  * @author Gordan_Deng
  * @date 2017年5月11日
  */

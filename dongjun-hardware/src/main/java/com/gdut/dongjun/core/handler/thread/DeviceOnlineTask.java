@@ -53,8 +53,7 @@ public class DeviceOnlineTask extends ScheduledTask {
 			dto.setGroupId(groupId);
 			dto.setMonitorId(monitorId);
 			dto.setModuleId(moduleId);
-			//??
-			dto.setType(0);
+			dto.setType(type);
 			dto.setId(null);
 			WebsiteServiceClient client = (WebsiteServiceClient)SpringApplicationContextHolder.getSpringBean("websiteServiceClient");
 			client.getService().callbackInfoEvent(dto);

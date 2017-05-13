@@ -66,8 +66,6 @@ import com.gdut.dongjun.web.vo.HitchEventVO;
 @SessionAttributes("currentUser")
 public class UserController {
 
-	private static final String GUEST = "guest";
-
 	private static final String PLATFORM_ADMIN = "platform_group_admin";
 
 	@Autowired
@@ -88,10 +86,6 @@ public class UserController {
 	private PersistentHitchMessageService messageService;
 	@Autowired
 	private RemoteEventService hitchEventService;
-	@Autowired
-	private TemperatureMeasureHitchEventService temEventService;
-	@Autowired
-	private ModuleHitchEventService moduleHitchService;
 	@Autowired
 	private SimpMessagingTemplate template;
 	@Autowired
