@@ -698,7 +698,7 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 	 * @return SwitchGPRS
 	 * @throws
 	 */
-	public ChannelInfo getChannelInfobyAddress(String decimalAddress) {
+	public ChannelInfo getChannelInfoByDecimalAddress(String decimalAddress) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("remove(SwitchGPRS) - start");
 		}

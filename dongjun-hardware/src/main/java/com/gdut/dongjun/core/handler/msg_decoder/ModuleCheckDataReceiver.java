@@ -56,16 +56,6 @@ public class ModuleCheckDataReceiver extends ChannelInboundHandlerAdapter {
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-		if (counter++ == 2) {
-			logger.info("开始改变Handler");
-			ctx.channel().pipeline().remove(HANDLER_MAP.get(TemperatureDataReceiver.class));
-			ctx.channel().pipeline().remove(HANDLER_MAP.get(ElectronicDataReceiver.class));
-			ctx.channel().pipeline().addLast(testDataReceiver);
-		}
-		if (counter == 4) {
-			ctx.channel().pipeline().remove(HANDLER_MAP.get(TestDataReceiver.class));
-			ctx.channel().pipeline().addLast(temReceiver);
-		}
 		String data = (String) msg;
 		Integer module = checkModule(data);
 		if (0 == module) {

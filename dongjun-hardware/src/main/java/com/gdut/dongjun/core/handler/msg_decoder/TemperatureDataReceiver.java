@@ -162,6 +162,8 @@ public class TemperatureDataReceiver extends AbstractDataReceiver implements Ini
 		if (null == isRegisted) {
 			if (null != getOnlineAddress(ctx, data)) {
 				CtxStore.setCtxAttribute(ctx, ATTRIBUTE_TEMPERATURE_MODULE_IS_REGISTED, new Integer(1));
+			} else {
+				return false;
 			}
 		}	
 		return true;
@@ -602,7 +604,7 @@ public class TemperatureDataReceiver extends AbstractDataReceiver implements Ini
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-		logger.error(cause.getMessage());
+		logger.error("异常" + cause.getMessage());
 		ctx.close();
 	}
 
