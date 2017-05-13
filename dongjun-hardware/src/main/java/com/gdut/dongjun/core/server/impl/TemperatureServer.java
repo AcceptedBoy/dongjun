@@ -13,9 +13,12 @@ import com.gdut.dongjun.core.handler.ChannelInfo;
 import com.gdut.dongjun.core.initializer.ServerInitializer;
 import com.gdut.dongjun.core.message.impl.ElectronicModuleMessageCreator;
 import com.gdut.dongjun.core.server.NetServer;
+import com.gdut.dongjun.util.TemperatureDeviceCommandUtil;
 
 @Service("TemperatureServer")
 public class TemperatureServer extends NetServer {
+	
+	private static final int BYTE = 2;
 
 	@Autowired
 	private ElectronicCtxStore elecStore;
@@ -37,17 +40,22 @@ public class TemperatureServer extends NetServer {
 	 */
 	@Override
 	protected void hitchEventSpy() {
-//		List<TemperatureDevice> devices = temperatureDeviceService.selectByParameters(null);
-//		if (devices != null) {
-//			for (TemperatureDevice device : devices) {
-//				if (device.getId() != null && CtxStore.isReady(device.getId())) {
-//					totalCall(device);
-//				}
-//			}
-//		}
+		
 		List<ChannelInfo> infoList = elecStore.getInstance();
+		String address;
 		for (ChannelInfo info : infoList) {
-			List<String> msgList = elecMessageCreator.generateTotalCall(info.getAddress());
+			if (info.getDecimalAddress().length() != BYTE * 6) {
+				int numOf0 = BYTE * 6 - info.getDecimalAddress().length();
+				StringBuilder sb = new StringBuilder();
+				for (int i = 0; i < numOf0; i++) {
+					sb.append("a");
+				}
+				sb.append(TemperatureDeviceCommandUtil.reverseString(info.getDecimalAddress()));
+				address = sb.toString();
+			} else {
+				address = TemperatureDeviceCommandUtil.reverseString(info.getDecimalAddress());
+			}
+			List<String> msgList = elecMessageCreator.generateTotalCall(address);
 			for (String order : msgList) {
 				logger.info("电能表总召命令：" + order);
 				info.getCtx().writeAndFlush(order);
