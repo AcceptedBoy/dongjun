@@ -44,16 +44,26 @@ public class TemperatureServer extends NetServer {
 		List<ChannelInfo> infoList = elecStore.getInstance();
 		String address;
 		for (ChannelInfo info : infoList) {
-			if (info.getDecimalAddress().length() != BYTE * 6) {
-				int numOf0 = BYTE * 6 - info.getDecimalAddress().length();
-				StringBuilder sb = new StringBuilder();
-				for (int i = 0; i < numOf0; i++) {
-					sb.append("a");
-				}
-				sb.append(TemperatureDeviceCommandUtil.reverseString(info.getDecimalAddress()));
-				address = sb.toString();
+			//有address说明设备已经和后台连接了，直接取address。否则通过十进制的地址转换得到address
+			if (null != info.getAddress()) {
+				address = info.getAddress();
 			} else {
-				address = TemperatureDeviceCommandUtil.reverseString(info.getDecimalAddress());
+				if (info.getDecimalAddress().length() != BYTE * 6) {
+					StringBuilder sb = new StringBuilder();
+					int numOf0 = BYTE * 6 - info.getDecimalAddress().length();
+					for (int i = 0; i < numOf0; i++) {
+						sb.append("A");
+					}
+					//如果地址不足偶数位，首位补0
+					String a = info.getDecimalAddress();
+					if (!(info.getDecimalAddress().length() % 2 == 0)) {
+						a = "0" + info.getDecimalAddress();
+					}
+					sb.append(TemperatureDeviceCommandUtil.reverseString(a));
+					address = sb.toString();
+				} else {
+					address = TemperatureDeviceCommandUtil.reverseString(info.getDecimalAddress());
+				}
 			}
 			List<String> msgList = elecMessageCreator.generateTotalCall(address);
 			for (String order : msgList) {

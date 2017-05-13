@@ -618,14 +618,13 @@ public class TemperatureDataReceiver extends AbstractDataReceiver implements Ini
 
 	@Override
 	protected String getDecimalAddress(char[] data) {
-		return TemperatureDeviceCommandUtil.reverseString(getAddress(data));
+		String address = TemperatureDeviceCommandUtil.reverseString(getAddress(data));
+		return Integer.parseInt(address) + "";
 	}
 
 	@Override
 	protected String getAddress(char[] data) {
 		return CharUtils.newString(data, 10, 18).intern();
 	}
-
-	
 
 }

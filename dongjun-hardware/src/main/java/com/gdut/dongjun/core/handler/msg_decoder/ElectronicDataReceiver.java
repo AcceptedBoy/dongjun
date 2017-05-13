@@ -436,7 +436,8 @@ public class ElectronicDataReceiver extends AbstractDataReceiver {
 				break;
 			}
 		}
-		return TemperatureDeviceCommandUtil.reverseString(address.substring(i, address.length() - 1));
+		address = TemperatureDeviceCommandUtil.reverseString(address.substring(i, address.length() - 1));
+		return Integer.parseInt(address) + "";
 	}
 	
 
