@@ -49,8 +49,6 @@ public class GPRSDataReceiver extends AbstractDataReceiver {
 	@Autowired
 	private DataMonitorSubmoduleService submoduleService;
 	@Autowired
-	private DataMonitorService monitorService;
-	@Autowired
 	private ElectronicModuleService elecModuleService;
 	@Autowired
 	private TemperatureModuleService temModuleService;
@@ -146,7 +144,8 @@ public class GPRSDataReceiver extends AbstractDataReceiver {
 	
 	/**
 	 * 初始化各子模块的ChannelInfo，并塞进CtxStore。
-	 * 但是ChannelInfo的address和ctx还是要到各个子模块解析类里面自己设置
+	 * 初始化的ChannelInfo拥有的ctx是属于GPRSDataReceiver的，但没有address
+	 * ChannelInfo的address和ctx还是要到各个子模块解析类里面自己设置
 	 * @param gprsId
 	 * @param ctx
 	 */

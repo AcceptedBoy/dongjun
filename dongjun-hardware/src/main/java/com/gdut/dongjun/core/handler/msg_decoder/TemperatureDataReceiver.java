@@ -147,10 +147,6 @@ public class TemperatureDataReceiver extends AbstractDataReceiver implements Ini
 	@Override
 	protected boolean check(ChannelHandlerContext ctx, char[] data) {
 		
-		for (ChannelInfo info : ctxStore.getInstance()) {
-			System.out.println(info.toString());
-		}
-		
 		/*
 		 * TODO 做时间戳 + 设备地址 + 校验和的验证工作，如果不行就记录非法报文数量。 非法报文数量超过一定程度后封锁该设备地址。
 		 * 一旦一天积聚量超过一定程度over。 一旦某段时间内非法报文数量过多over。

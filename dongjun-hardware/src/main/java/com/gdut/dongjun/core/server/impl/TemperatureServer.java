@@ -49,15 +49,15 @@ public class TemperatureServer extends NetServer {
 				address = info.getAddress();
 			} else {
 				if (info.getDecimalAddress().length() != BYTE * 6) {
-					StringBuilder sb = new StringBuilder();
-					int numOf0 = BYTE * 6 - info.getDecimalAddress().length();
-					for (int i = 0; i < numOf0; i++) {
-						sb.append("A");
-					}
 					//如果地址不足偶数位，首位补0
 					String a = info.getDecimalAddress();
 					if (!(info.getDecimalAddress().length() % 2 == 0)) {
 						a = "0" + info.getDecimalAddress();
+					}
+					StringBuilder sb = new StringBuilder();
+					int numOf0 = BYTE * 6 - a.length();
+					for (int i = 0; i < numOf0; i++) {
+						sb.append("a");
 					}
 					sb.append(TemperatureDeviceCommandUtil.reverseString(a));
 					address = sb.toString();
@@ -67,7 +67,7 @@ public class TemperatureServer extends NetServer {
 			}
 			List<String> msgList = elecMessageCreator.generateTotalCall(address);
 			for (String order : msgList) {
-				logger.info("电能表总召命令：" + order);
+				logger.info("发送电能表总召命令：" + order);
 				info.getCtx().writeAndFlush(order);
 			}
 		}

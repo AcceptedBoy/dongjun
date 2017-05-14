@@ -43,6 +43,7 @@ public class ChannelInfo implements Serializable {
 		super();
 		this.handlerClassList = new ArrayList<Class<?>>();
 		checkHandler(ctx.pipeline());
+		this.ctx = ctx;
 	}
 
 	public ChannelInfo() {
