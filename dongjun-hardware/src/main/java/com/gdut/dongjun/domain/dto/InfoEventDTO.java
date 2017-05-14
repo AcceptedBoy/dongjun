@@ -2,6 +2,11 @@ package com.gdut.dongjun.domain.dto;
 
 import java.io.Serializable;
 
+/**
+ * 普通事件推送
+ * @author Gordan_Deng
+ * @date 2017年5月13日
+ */
 public class InfoEventDTO implements Serializable {
 	
 	private static final long serialVersionUID = -7505881917977316995L;

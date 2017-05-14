@@ -122,7 +122,7 @@ public class ElectronicModuleMessageCreator implements MessageCreator {
 		if (num >= 48 && num <= 57) {
 			return num - 48;
 		}
-		else if (num >= 97 && num <= 122) {
+		else if (num >= 97 && num <= 102) {
 			return num - 87;
 		}
 		else if (num >= 65 && num <= 70) {

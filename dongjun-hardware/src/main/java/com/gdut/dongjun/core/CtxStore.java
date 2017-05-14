@@ -698,7 +698,7 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 	 * @return SwitchGPRS
 	 * @throws
 	 */
-	public ChannelInfo getChannelInfobyAddress(String decimalAddress) {
+	public ChannelInfo getChannelInfoByDecimalAddress(String decimalAddress) {
 		if (logger.isDebugEnabled()) {
 			logger.debug("remove(SwitchGPRS) - start");
 		}
@@ -720,22 +720,4 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 		return null;
 	}
 	
-	public static void main(String[] args) {
-		List<ChannelInfo> list = new ArrayList<ChannelInfo>();
-		int i = 0;
-		while (i < 20000) {
-			ChannelInfo info = new ChannelInfo();
-			info.setGroupId(i + "");
-			list.add(info);
-			i++;
-		}
-		long nano = System.nanoTime();
-		for (ChannelInfo info : list) {
-			if (info.getGroupId().equals("10000")) {
-				break;
-			}
-		}
-		long end = System.nanoTime();
-		System.out.println(end - nano);
-	}
 }

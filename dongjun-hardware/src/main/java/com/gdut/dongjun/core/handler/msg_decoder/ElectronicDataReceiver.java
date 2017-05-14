@@ -30,6 +30,7 @@ import com.gdut.dongjun.service.ModuleHitchEventService;
 import com.gdut.dongjun.service.webservice.client.WebsiteServiceClient;
 import com.gdut.dongjun.util.CharUtils;
 import com.gdut.dongjun.util.MyBatisMapUtil;
+import com.gdut.dongjun.util.TemperatureDeviceCommandUtil;
 import com.gdut.dongjun.util.UUIDUtil;
 
 import io.netty.channel.ChannelHandler.Sharable;
@@ -427,10 +428,17 @@ public class ElectronicDataReceiver extends AbstractDataReceiver {
 
 	@Override
 	protected String getDecimalAddress(char[] data) {
-		Integer address = Integer.parseInt(getAddress(data));
-		return String.valueOf(address);
+		String address = getAddress(data);
+		int i = 0;
+		for (; ; i++) {
+			char ch = address.charAt(i);
+			if (!('a' == ch || 'A' == ch)) {
+				break;
+			}
+		}
+		address = TemperatureDeviceCommandUtil.reverseString(address.substring(i, address.length() - 1));
+		return Integer.parseInt(address) + "";
 	}
-	
 	
 
 }

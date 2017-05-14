@@ -13,9 +13,12 @@ import com.gdut.dongjun.core.handler.ChannelInfo;
 import com.gdut.dongjun.core.initializer.ServerInitializer;
 import com.gdut.dongjun.core.message.impl.ElectronicModuleMessageCreator;
 import com.gdut.dongjun.core.server.NetServer;
+import com.gdut.dongjun.util.TemperatureDeviceCommandUtil;
 
 @Service("TemperatureServer")
 public class TemperatureServer extends NetServer {
+	
+	private static final int BYTE = 2;
 
 	@Autowired
 	private ElectronicCtxStore elecStore;
@@ -37,18 +40,34 @@ public class TemperatureServer extends NetServer {
 	 */
 	@Override
 	protected void hitchEventSpy() {
-//		List<TemperatureDevice> devices = temperatureDeviceService.selectByParameters(null);
-//		if (devices != null) {
-//			for (TemperatureDevice device : devices) {
-//				if (device.getId() != null && CtxStore.isReady(device.getId())) {
-//					totalCall(device);
-//				}
-//			}
-//		}
+		
 		List<ChannelInfo> infoList = elecStore.getInstance();
+		String address;
 		for (ChannelInfo info : infoList) {
-			List<String> msgList = elecMessageCreator.generateTotalCall(info.getAddress());
+			//有address说明设备已经和后台连接了，直接取address。否则通过十进制的地址转换得到address
+			if (null != info.getAddress()) {
+				address = info.getAddress();
+			} else {
+				if (info.getDecimalAddress().length() != BYTE * 6) {
+					//如果地址不足偶数位，首位补0
+					String a = info.getDecimalAddress();
+					if (!(info.getDecimalAddress().length() % 2 == 0)) {
+						a = "0" + info.getDecimalAddress();
+					}
+					StringBuilder sb = new StringBuilder();
+					int numOf0 = BYTE * 6 - a.length();
+					for (int i = 0; i < numOf0; i++) {
+						sb.append("a");
+					}
+					sb.append(TemperatureDeviceCommandUtil.reverseString(a));
+					address = sb.toString();
+				} else {
+					address = TemperatureDeviceCommandUtil.reverseString(info.getDecimalAddress());
+				}
+			}
+			List<String> msgList = elecMessageCreator.generateTotalCall(address);
 			for (String order : msgList) {
+				logger.info("发送电能表总召命令：" + order);
 				info.getCtx().writeAndFlush(order);
 			}
 		}

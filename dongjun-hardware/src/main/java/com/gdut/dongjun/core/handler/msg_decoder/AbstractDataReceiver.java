@@ -60,7 +60,7 @@ public abstract class AbstractDataReceiver extends ChannelInboundHandlerAdapter 
 		// 如果十进制地址和数据库中的十进制地址一样，认为是同一个设备
 		String address = getAddress(data);
 		String decimalAddress = getDecimalAddress(data);
-		ChannelInfo channelInfo = ctxStore.getChannelInfobyAddress(decimalAddress);
+		ChannelInfo channelInfo = ctxStore.getChannelInfoByDecimalAddress(decimalAddress);
 		if (null != channelInfo) {
 			channelInfo.setCtx(ctx);
 			channelInfo.setAddress(address);

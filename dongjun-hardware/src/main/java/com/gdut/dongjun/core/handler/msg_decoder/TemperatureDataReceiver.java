@@ -162,6 +162,8 @@ public class TemperatureDataReceiver extends AbstractDataReceiver implements Ini
 		if (null == isRegisted) {
 			if (null != getOnlineAddress(ctx, data)) {
 				CtxStore.setCtxAttribute(ctx, ATTRIBUTE_TEMPERATURE_MODULE_IS_REGISTED, new Integer(1));
+			} else {
+				return false;
 			}
 		}	
 		return true;
@@ -602,7 +604,7 @@ public class TemperatureDataReceiver extends AbstractDataReceiver implements Ini
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-		logger.error(cause.getMessage());
+		logger.error("异常" + cause.getMessage());
 		ctx.close();
 	}
 
@@ -616,14 +618,13 @@ public class TemperatureDataReceiver extends AbstractDataReceiver implements Ini
 
 	@Override
 	protected String getDecimalAddress(char[] data) {
-		return CharUtils.newString(data, 10, 18).intern();
+		String address = TemperatureDeviceCommandUtil.reverseString(getAddress(data));
+		return Integer.parseInt(address) + "";
 	}
 
 	@Override
 	protected String getAddress(char[] data) {
-		return TemperatureDeviceCommandUtil.reverseString(getDecimalAddress(data));
+		return CharUtils.newString(data, 10, 18).intern();
 	}
-
-	
 
 }

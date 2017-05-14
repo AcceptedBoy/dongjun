@@ -7,6 +7,8 @@ import com.gdut.dongjun.enums.TemperatureControlCode;
 @Component
 public class TemperatureDeviceCommandUtil extends StringCommonUtil {
 
+	private static final int BYTE = 2;
+
 	private String address;// 地址
 	@SuppressWarnings("unused")
 	private String control;// 控制域
@@ -14,15 +16,14 @@ public class TemperatureDeviceCommandUtil extends StringCommonUtil {
 	@SuppressWarnings("unused")
 	private String data;// 应用服务数据单元ASDU
 	private String check;// 帧校验和CS
-	
+
 	public TemperatureDeviceCommandUtil() {
 		super();
 	}
-	
+
 	public TemperatureDeviceCommandUtil(String address) {
 		this.address = address;
 	}
-	
 
 	public void setData(String data) {
 		int sum = 0, length = 0;
@@ -57,9 +58,10 @@ public class TemperatureDeviceCommandUtil extends StringCommonUtil {
 	public String getConnection() {
 		return "" + TemperatureControlCode.CONNECTION;
 	}
-	
+
 	/**
 	 * 返回确认链接
+	 * 
 	 * @return
 	 */
 	public String getConnection0() {
@@ -76,7 +78,7 @@ public class TemperatureDeviceCommandUtil extends StringCommonUtil {
 		this.setData(msg);
 		return "68" + this.dataLength + this.dataLength + "68" + msg + this.check + "16";
 	}
-	
+
 	/**
 	 * 对时
 	 * 
@@ -84,7 +86,8 @@ public class TemperatureDeviceCommandUtil extends StringCommonUtil {
 	 * @return
 	 */
 	public String getTimeCheck(String time) {
-		String msg = TemperatureControlCode.FIXED_VALUE_CONTROL2.toString() + address + TemperatureControlCode.TIME.toString() + address + "0000" + time;
+		String msg = TemperatureControlCode.FIXED_VALUE_CONTROL2.toString() + address
+				+ TemperatureControlCode.TIME.toString() + address + "0000" + time;
 		this.setData(msg);
 
 		return "68161668" + msg + this.check + "16";
@@ -169,6 +172,7 @@ public class TemperatureDeviceCommandUtil extends StringCommonUtil {
 
 	/**
 	 * 反转字节
+	 * 
 	 * @param data
 	 * @return
 	 */
@@ -176,19 +180,24 @@ public class TemperatureDeviceCommandUtil extends StringCommonUtil {
 		char[] data_reverse = data.toCharArray();
 		data = "";
 		char temp;
-		for (int i = 0; i < data_reverse.length / 4; i++) {
+		// int limit = (data_reverse.length % 4 == 0) ? data_reverse.length / 4
+		// : data_reverse.length / 4 + 1;
+		int length = data_reverse.length / BYTE / 2;
+		int flag = (data_reverse.length / BYTE) % 2; // 0是偶数个字节，1为奇数个字节
+		int mid = data_reverse.length / 2 - flag;
+		for (int i = 0; i < length; i++) {
+			temp = data_reverse[mid - BYTE * (i + 1)];
+			data_reverse[mid - BYTE * (i + 1)] = data_reverse[mid + BYTE * (i + flag)];
+			data_reverse[mid + BYTE * (i + flag)] = temp;
 
-			temp = data_reverse[data_reverse.length / 2 - 2 * (i + 1)];
-			data_reverse[data_reverse.length / 2 - 2 * (i + 1)] = data_reverse[data_reverse.length / 2 + 2 * i];
-			data_reverse[data_reverse.length / 2 + 2 * i] = temp;
-			
-			temp = data_reverse[data_reverse.length / 2 - 2 * (i + 1) + 1];
-			data_reverse[data_reverse.length / 2 - 2 * (i + 1) + 1] = data_reverse[data_reverse.length / 2 + 2 * i + 1];
-			data_reverse[data_reverse.length / 2 + 2 * i + 1] = temp;	
+			temp = data_reverse[mid - BYTE * (i + 1) + 1];
+			data_reverse[mid - BYTE * (i + 1) + 1] = data_reverse[mid + BYTE * (i + flag) + 1];
+			data_reverse[mid + BYTE * (i + flag) + 1] = temp;
 		}
 		for (int i = 0; i < data_reverse.length; i++) {
 			data += data_reverse[i];
 		}
 		return data;
 	}
+	
 }
