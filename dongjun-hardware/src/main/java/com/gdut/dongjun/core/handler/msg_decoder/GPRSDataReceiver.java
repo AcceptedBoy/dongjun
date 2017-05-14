@@ -162,7 +162,7 @@ public class GPRSDataReceiver extends AbstractDataReceiver {
 				if (null == preInfo) {
 					ElectronicModule module = elecModuleService.selectByPrimaryKey(submodule.getModuleId());
 					preInfo = new ChannelInfo(submodule.getModuleId(), submodule.getDataMonitorId(), module.getGroupId(),
-							module.getAddress(), ctx);
+							module.getDeviceNumber(), ctx);
 					elecStore.add(preInfo);
 				}
 				break;
@@ -173,7 +173,7 @@ public class GPRSDataReceiver extends AbstractDataReceiver {
 				if (null == preInfo) {
 					TemperatureModule module = temModuleService.selectByPrimaryKey(submodule.getModuleId());
 					preInfo = new ChannelInfo(submodule.getModuleId(), submodule.getDataMonitorId(), module.getGroupId(),
-							module.getAddress(), ctx);
+							module.getDeviceNumber(), ctx);
 					temStore.add(preInfo);
 				}
 				break;

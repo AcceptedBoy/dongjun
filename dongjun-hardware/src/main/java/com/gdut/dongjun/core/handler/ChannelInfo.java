@@ -118,4 +118,10 @@ public class ChannelInfo implements Serializable {
 		this.decimalAddress = decimalAddress;
 	}
 
+	@Override
+	public String toString() {
+		return "ChannelInfo [monitorId=" + monitorId + ", groupId=" + groupId + ", moduleId=" + moduleId + ", address="
+				+ address + ", decimalAddress=" + decimalAddress + "]";
+	}
+
 }
