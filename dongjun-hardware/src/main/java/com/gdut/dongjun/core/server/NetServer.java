@@ -212,8 +212,7 @@ public abstract class NetServer {
 			 * 等所有开关建立链路后开启第一次总召
 			*/
 			try {
-//				sleep(1000 * 200);
-				sleep(1000 * 2);
+				sleep(1000 * 200);
 				logger.info("开始发起总召。。。");
 				hitchEventSpy();
 			} catch (InterruptedException e1) {
@@ -224,7 +223,7 @@ public abstract class NetServer {
 
 				try {
 					//TODO
-					Thread.sleep(1000 * 5);
+					Thread.sleep(hitchEventBreak);
 					logger.info("开始发起总召。。。");
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
