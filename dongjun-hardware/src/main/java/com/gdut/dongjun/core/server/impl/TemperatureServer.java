@@ -53,13 +53,13 @@ public class TemperatureServer extends NetServer {
 					String a = info.getDecimalAddress();
 					if (!(info.getDecimalAddress().length() % 2 == 0)) {
 						a = "0" + info.getDecimalAddress();
-					}
+					}					
 					StringBuilder sb = new StringBuilder();
+					sb.append(TemperatureDeviceCommandUtil.reverseString(a));
 					int numOf0 = BYTE * 6 - a.length();
 					for (int i = 0; i < numOf0; i++) {
 						sb.append("a");
 					}
-					sb.append(TemperatureDeviceCommandUtil.reverseString(a));
 					address = sb.toString();
 				} else {
 					address = TemperatureDeviceCommandUtil.reverseString(info.getDecimalAddress());

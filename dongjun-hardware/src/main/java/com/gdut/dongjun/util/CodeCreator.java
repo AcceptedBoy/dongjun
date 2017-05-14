@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import com.gdut.dongjun.domain.po.ElectronicModuleHitchEvent;
+import com.gdut.dongjun.domain.po.ModuleInfoEvent;
 
 /**
  * 根据po类自动生成对应的dao接口和实现类，service接口和实现类 
@@ -215,16 +215,16 @@ public class CodeCreator {
 		return simpleDateFormat.format(new Date());
 	}
 	
-//	public static void main(String[] args) throws Exception {
-//		CodeCreator creator = new CodeCreator();
-//		List<Class> list = new ArrayList<Class>();
-//		list.add(ElectronicModuleHitchEvent.class);
-//		
-//		for (Class c : list) {
-//			creator.createBeanDao(c);	
-//			creator.createBeanDaoImpl(c);
-//			creator.createBeanService(c);
-//			creator.createBeanServiceImpl(c);
-//		}
-//	}
+	public static void main(String[] args) throws Exception {
+		CodeCreator creator = new CodeCreator();
+		List<Class> list = new ArrayList<Class>();
+		list.add(ModuleInfoEvent.class);
+		
+		for (Class c : list) {
+			creator.createBeanDao(c);	
+			creator.createBeanDaoImpl(c);
+			creator.createBeanService(c);
+			creator.createBeanServiceImpl(c);
+		}
+	}
 }

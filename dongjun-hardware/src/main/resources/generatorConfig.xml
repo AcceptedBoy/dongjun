@@ -38,8 +38,8 @@
 <!-- 			domainObjectName="TemperatureMeasureHitchEvent" enableCountByExample="false" -->
 <!-- 			enableUpdateByExample="false" enableDeleteByExample="false" -->
 <!-- 			enableSelectByExample="false" selectByExampleQueryId="false" /> -->
-		<table schema="root" tableName="electronic_module_hitch_event"
-			domainObjectName="ElectronicModuleHitchEvent" enableCountByExample="false"
+		<table schema="root" tableName="module_info_event"
+			domainObjectName="ModuleInfoEvent" enableCountByExample="false"
 			enableUpdateByExample="false" enableDeleteByExample="false"
 			enableSelectByExample="false" selectByExampleQueryId="false" />
 	</context>

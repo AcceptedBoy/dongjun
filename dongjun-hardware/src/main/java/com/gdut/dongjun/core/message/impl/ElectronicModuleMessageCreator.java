@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.gdut.dongjun.core.message.MessageCreator;
+import com.gdut.dongjun.util.TemperatureDeviceCommandUtil;
 
 /**
  * 拼凑电能表报文
@@ -48,7 +49,7 @@ public class ElectronicModuleMessageCreator implements MessageCreator {
 	public List<String> generateTotalCall(String address) {
 		List<String> msgList = new ArrayList<String>();
 		for (String dataField : ADDRESS_LIST) {
-			msgList.add(getReadMessage(address, dataField));
+			msgList.add(getReadMessage(address, TemperatureDeviceCommandUtil.reverse(dataField)));
 		}
 		return msgList;
 	}

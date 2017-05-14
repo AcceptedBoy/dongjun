@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import com.gdut.dongjun.domain.dao.TemperatureMeasureHitchEventMapper;
 import com.gdut.dongjun.domain.po.ModuleHitchEvent;
 import com.gdut.dongjun.domain.po.TemperatureMeasureHitchEvent;
+import com.gdut.dongjun.domain.po.TemperatureModule;
 import com.gdut.dongjun.service.base.impl.EnhancedServiceImpl;
 import com.gdut.dongjun.service.device.DataMonitorService;
 import com.gdut.dongjun.service.device.TemperatureModuleService;
@@ -48,7 +49,12 @@ public class TemperatureMeasureHitchEventServiceImpl extends EnhancedServiceImpl
 		for (ModuleHitchEvent e : list) {
 			TemperatureMeasureHitchEvent event = mapper.selectByParameters(MyBatisMapUtil.warp("hitch_id", e.getId())).get(0);
 			TemperatureMeasureHitchEventVO dto = new TemperatureMeasureHitchEventVO(e, event);
-			dto.setName(moduleService.selectByPrimaryKey(e.getModuleId()).getName());
+			TemperatureModule temModule = moduleService.selectByPrimaryKey(e.getModuleId());
+			if (null == temModule) {
+				dto.setName("该设备已被删除");
+			} else {
+				dto.setName(temModule.getName());
+			}
 			dtoList.add(dto);
 		}
 		return dtoList;

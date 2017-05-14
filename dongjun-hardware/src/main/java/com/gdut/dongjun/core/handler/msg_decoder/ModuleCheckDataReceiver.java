@@ -34,13 +34,8 @@ public class ModuleCheckDataReceiver extends ChannelInboundHandlerAdapter {
 	private static final char[] CODE_eb = new char[] { 'e', 'b' };
 	private static final int BYTE = 2;
 	private static final int LENGTH_LENGTH_TEMPERATURE = BYTE * 2;
-	private static final int ADDRESS_LENGTH_ELECTRONIC = BYTE * 3;
+	private static final int ADDRESS_LENGTH_ELECTRONIC = BYTE * 6;
 	private static int counter = 0;
-	
-	@Autowired
-	private TestDataReceiver testDataReceiver;
-	@Autowired
-	private TemperatureDataReceiver temReceiver;
 	
 	private static final Logger logger = Logger.getLogger(ModuleCheckDataReceiver.class);
 	
