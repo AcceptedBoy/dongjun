@@ -96,4 +96,13 @@ public interface HardwareService {
 	public void changeSubmoduleAddress(
 			@FormParam("moduleId") String moduleId, 
 			@FormParam("type") Integer type);
+	
+	/**
+	 * 测试发送电能表报文
+	 * @param m
+	 */
+	@POST
+	@Path("/send_message")
+	@Consumes({MediaType.APPLICATION_JSON})
+	public void sendMessage(String m);
 }

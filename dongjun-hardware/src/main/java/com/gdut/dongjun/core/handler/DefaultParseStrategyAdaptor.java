@@ -1,6 +1,6 @@
 package com.gdut.dongjun.core.handler;
 
-import java.util.List;
+import io.netty.channel.ChannelHandlerContext;
 
 public class DefaultParseStrategyAdaptor extends ParseStrategyAdaptor {
 
@@ -13,8 +13,8 @@ public class DefaultParseStrategyAdaptor extends ParseStrategyAdaptor {
 	}
 
 	@Override
-	public List<Object> doParse(char[] data) {
-		return parseStrategy.parse(data);
+	public Object doParse(char[] data, ChannelHandlerContext ctx) {
+		return parseStrategy.parse(data, ctx);
 	}
 
 }

@@ -9,12 +9,12 @@ import com.gdut.dongjun.core.message.MessageCreator;
 import com.gdut.dongjun.util.TemperatureDeviceCommandUtil;
 
 /**
- * 拼凑电能表报文
+ * 电能表DLT645_2007规约
  * @author Gordan_Deng
  * @date 2017年4月15日
  */
 @Component
-public class ElectronicModuleMessageCreator implements MessageCreator {
+public class DLT645_07MessageCreator implements MessageCreator {
 
 	private static final String CODE_00 = "00";
 	private static final String CODE_68 = "68";
@@ -49,7 +49,7 @@ public class ElectronicModuleMessageCreator implements MessageCreator {
 	public List<String> generateTotalCall(String address) {
 		List<String> msgList = new ArrayList<String>();
 		for (String dataField : ADDRESS_LIST) {
-			msgList.add(getReadMessage(address, TemperatureDeviceCommandUtil.reverse(dataField)));
+			msgList.add(getReadMessage(address, TemperatureDeviceCommandUtil.reverseString(dataField)));
 		}
 		return msgList;
 	}

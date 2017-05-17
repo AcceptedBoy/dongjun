@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.gdut.dongjun.core.ElectronicCtxStore;
 import com.gdut.dongjun.core.handler.ChannelInfo;
 import com.gdut.dongjun.core.initializer.ServerInitializer;
-import com.gdut.dongjun.core.message.impl.ElectronicModuleMessageCreator;
+import com.gdut.dongjun.core.message.impl.DLT645_07MessageCreator;
 import com.gdut.dongjun.core.server.NetServer;
 
 //@Service("ElectronicServer")
@@ -19,7 +19,7 @@ public class ElectronicServer extends NetServer {
 	@Autowired
 	private ElectronicCtxStore ctxStore;
 	@Autowired
-	private ElectronicModuleMessageCreator messageCreator;
+	private DLT645_07MessageCreator messageCreator;
 
 	@Resource(name = "ElectronicServerInitializer")
 	public void setInitializer(ServerInitializer initializer) {

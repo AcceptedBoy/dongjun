@@ -7,8 +7,8 @@ import org.apache.log4j.Logger;
 import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.handler.ChannelHandlerManager;
 import com.gdut.dongjun.core.handler.ChannelInfo;
+import com.gdut.dongjun.core.handler.ParseStrategyAdaptor;
 import com.gdut.dongjun.util.CharUtils;
-import com.gdut.dongjun.util.TemperatureDeviceCommandUtil;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -18,10 +18,15 @@ public abstract class AbstractDataReceiver extends ChannelInboundHandlerAdapter 
 	private Integer moduleTpye;
 	protected Logger logger;
 	protected CtxStore ctxStore;
+	protected ParseStrategyAdaptor dataParser;
 
 	public AbstractDataReceiver(Integer moduleTpye, Logger logger) {
 		this.moduleTpye = moduleTpye;
 		this.logger = logger;
+	}
+	
+	public void setCtxStore(CtxStore ctxStore) {
+		this.ctxStore = ctxStore;
 	}
 
 	/**
@@ -44,6 +49,19 @@ public abstract class AbstractDataReceiver extends ChannelInboundHandlerAdapter 
 			logger.info("验证失败：" + m);
 		}
 	}
+	
+//	@Override
+//	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+//		List<Object> list = (List<Object>) msg;
+//		int type = (int) list.get(0);
+//		if (!(this.moduleTpye == type)) {
+//			ctx.fireChannelRead(msg);
+//			return;
+//		}
+//		String m = (String) list.get(1);
+//		char[] data = CharUtils.removeSpace(m.toCharArray());
+//		dataParser.doParse(data, ctx);
+//	}
 
 	/**
 	 * 抽取设备地址，转换成十进制地址，与数据库中的地址进行匹配，如果相同就给ChannelInfo设置Ctx和地址
@@ -70,8 +88,8 @@ public abstract class AbstractDataReceiver extends ChannelInboundHandlerAdapter 
 			return null;
 		}
 		// TODO
-		ChannelHandlerManager.addCtx(info.getMonitorId(), ctx);
-		return info.getModuleId();
+//		ChannelHandlerManager.addCtx(info.getMonitorId(), ctx);
+		return channelInfo.getModuleId();
 	}
 
 	/**

@@ -1,5 +1,7 @@
 package com.gdut.dongjun.service.webservice.server.impl;
 
+import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -16,8 +18,16 @@ import com.gdut.dongjun.core.handler.ChannelInfo;
 import com.gdut.dongjun.core.handler.msg_decoder.ElectronicDataReceiver;
 import com.gdut.dongjun.core.handler.msg_decoder.GPRSDataReceiver;
 import com.gdut.dongjun.core.handler.msg_decoder.TemperatureDataReceiver;
+import com.gdut.dongjun.core.server.impl.TemperatureServer;
+import com.gdut.dongjun.domain.dto.HitchEventDTO;
+import com.gdut.dongjun.domain.po.ModuleHitchEvent;
+import com.gdut.dongjun.domain.po.TemperatureMeasureHitchEvent;
+import com.gdut.dongjun.service.ModuleHitchEventService;
+import com.gdut.dongjun.service.TemperatureMeasureHitchEventService;
+import com.gdut.dongjun.service.webservice.client.WebsiteServiceClient;
 import com.gdut.dongjun.service.webservice.server.HardwareService;
 import com.gdut.dongjun.util.SpringApplicationContextHolder;
+import com.gdut.dongjun.util.UUIDUtil;
 
 import io.netty.channel.ChannelHandlerContext;
 
@@ -196,5 +206,50 @@ public class HardwareServiceImpl implements HardwareService {
 			break;
 		}
 	}
+
+	@Autowired
+	private TemperatureServer server;
+	@Override
+	public void sendMessage(String m) {
+		server.sendMessage(m);
+	}
+
+	@Autowired
+	private WebsiteServiceClient serviecClient;
+//	@Autowired
+//	private ModuleHitchEventService moduleHitchEventService;
+//	@Autowired
+//	private TemperatureMeasureHitchEventService hitchEventService;
+//	@Override
+//	public void ttt() {
+//		ModuleHitchEvent moduleHitch = new ModuleHitchEvent();
+//		moduleHitch.setId(UUIDUtil.getUUID());
+//		moduleHitch.setGroupId("1");
+//		moduleHitch.setHitchReason(HitchConst.HITCH_OVER_TEMPERATURE);
+//		moduleHitch.setHitchTime(new Date());
+//		moduleHitch.setModuleId("1c4a4d2a4ae64a2e9181eab971b483d8");
+//		moduleHitch.setMonitorId("7");
+//		moduleHitch.setType(301);
+//		moduleHitchEventService.updateByPrimaryKey(moduleHitch);
+//
+//		// TODO 其实报警事事件应该是时间戳中的时间
+//		TemperatureMeasureHitchEvent event = new TemperatureMeasureHitchEvent();
+//		event.setId(UUIDUtil.getUUID());
+//		event.setValue(new BigDecimal(Double.valueOf("666.66") / 10));
+//		event.setTag(6);
+//		event.setMaxHitchValue(new BigDecimal("62.66"));
+//		event.setMinHitchValue(new BigDecimal("60.66"));
+//		event.setHitchId(moduleHitch.getId());
+//		hitchEventService.updateByPrimaryKey(event);
+//		// 把报警信息传到推送到前端
+//		HitchEventDTO vo = new HitchEventDTO();
+////		ChannelInfo info = ctxStore.get(ctx);
+//		vo.setGroupId("1");
+//		vo.setModuleId("1c4a4d2a4ae64a2e9181eab971b483d8");
+//		vo.setMonitorId("7");
+//		vo.setType(301);
+//		vo.setId(moduleHitch.getId());
+//		serviecClient.getService().callbackHitchEvent(vo);
+//	}
 
 }

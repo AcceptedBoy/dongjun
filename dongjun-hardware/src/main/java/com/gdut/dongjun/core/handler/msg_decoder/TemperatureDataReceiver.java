@@ -1,3 +1,4 @@
+
 package com.gdut.dongjun.core.handler.msg_decoder;
 
 import java.math.BigDecimal;
@@ -604,7 +605,8 @@ public class TemperatureDataReceiver extends AbstractDataReceiver implements Ini
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-		logger.error("异常" + cause.getMessage());
+//		logger.error("异常" + cause.getMessage());
+		cause.printStackTrace();
 		ctx.close();
 	}
 

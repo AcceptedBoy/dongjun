@@ -291,12 +291,11 @@ public class TestController implements InitializingBean {
 				headers, HttpStatus.CREATED);
 	}
 	
-	@RequestMapping("/testElec")
+	@RequestMapping("/send_message")
 	@ResponseBody
-	public ResponseMessage testElec(String id) {
-		hardService.getService().testElec(id);
+	public ResponseMessage sendMessage(String msg) {
+		hardService.getService().sendMessage(msg);
 		return ResponseMessage.success("success!");
 	}
 	
-
 }

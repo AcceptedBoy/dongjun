@@ -1,4 +1,4 @@
-package com.gdut.dongjun.core.handler.msg_decoder;
+package com.gdut.dongjun.core.handler;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -7,12 +7,10 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.ElectronicCtxStore;
 import com.gdut.dongjun.core.HitchConst;
-import com.gdut.dongjun.core.handler.ChannelInfo;
 import com.gdut.dongjun.domain.dto.HitchEventDTO;
 import com.gdut.dongjun.domain.po.DataMonitorSubmodule;
 import com.gdut.dongjun.domain.po.ElectronicModule;
@@ -34,60 +32,34 @@ import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.TemperatureDeviceCommandUtil;
 import com.gdut.dongjun.util.UUIDUtil;
 
-import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
- * <p>
- * 按照协议分类 68/3100310068C90000000A1C026000000400551618041502010000 请求帧的一种情况 68 地址
- * 68 控制码 数据域长度 数据标识 校验和 16 1 6 1 1 1 4 1 1 读数据的一种情况 68 地址 68 控制码 数据域长度 数据标识
- * N1...Nm 校验和 16 1 6 1 1 1 4 N 1 1 地址6个字节，每个字节两个BCD码，总共12个十进制数
- * </p>
- * 
+ * 电能表DLT645_07规约
  * @author Gordan_Deng
- * @date 2017年4月12日
+ * @date 2017年5月16日
  */
-@Service
-@Sharable
-public class ElectronicDataReceiver extends AbstractDataReceiver implements InitializingBean {
+public class DLT645_07ParseStrategy extends ParseStrategy implements InitializingBean {
 
 	// TODO 考虑下要不要将ElectronicModule直接塞到Attribute里面
 	private static final int BYTE = 2;
-	// private static final char[] VOLTAGE = { 'b', '6', '1' };
-	// private static final char[] CURRENT = { 'b', '6', '2' };
-	// private static final char[] POWER = { 'b', '6', '3' };
-	private static final char[] IDEN_CODE = { 'e', '9' };
-	private static final char VOLTAGE = '4';
-	private static final char CURRENT = '5';
-	private static final char POWER = '6';
-	private static final char A_PHASE = '4';
-	private static final char B_PHASE = '5';
-	private static final char C_PHASE = '6';
-	// private static final char[] A_VOLTAGE = { 'b', '6', '1', '1' };
-	// private static final char[] B_VOLTAGE = { 'b', '6', '1', '2' };
-	// private static final char[] C_VOLTAGE = { 'b', '6', '1', '3' };
-	// private static final char[] A_CURRENT = { 'b', '6', '2', '1' };
-	// private static final char[] B_CURRENT = { 'b', '6', '2', '2' };
-	// private static final char[] C_CURRENT = { 'b', '6', '2', '3' };
-	// private static final char[] A_POWER = { 'b', '6', '3', '1' };
-	// private static final char[] B_POWER = { 'b', '6', '3', '2' };
-	// private static final char[] C_POWER = { 'b', '6', '3', '3' };
+	private static final char[] VOLTAGE = { '0', '2', '0', '1' };
+	private static final char[] CURRENT = { '0', '2', '0', '2' };
+	private static final char[] POWER = { '0', '2', '0', '6' };
 	private static final char[] EXCEPTION = { '0', '3' };
-	// private static final char[] A_PHASE = { '0', '1' };
-	// private static final char[] B_PHASE = { '0', '2' };
-	// private static final char[] C_PHASE = { '0', '3' };
+	private static final char[] A_PHASE = { '0', '1' };
+	private static final char[] B_PHASE = { '0', '2' };
+	private static final char[] C_PHASE = { '0', '3' };
 	private static final char[] CODE_00 = { '0', '0' };
-	private static final char[] CODE_0 = { '0' };
-	// private static final char[] DATA_BLOCK_UP = { 'F', 'F' };
-	// private static final char[] DATA_BLOCK_DOWN = { 'f', 'f' };
-	// private static final char[] CODE_01 = { '0', '1' };
-	// private static final char[] CODE_03 = { '0', '3' };
-	// private static final char[] HITCH_VOLTAGE = {}; // TODO
-	// private static final char[] EB_UP = new char[] { 'E', 'B', '9', '0' };
-	// private static final char[] EB_DOWN = new char[] { 'e', 'b', '9', '0' };
-	// private static final char[] CODE_68 = new char[] { '6', '8' };
-	// private static final char[] CODE_16 = new char[] { '1', '6' };
-	private static final char[] CODE_81 = new char[] { '8', '1' };
+	private static final char[] DATA_BLOCK_UP = { 'F', 'F' };
+	private static final char[] DATA_BLOCK_DOWN = { 'f', 'f' };
+	private static final char[] CODE_01 = { '0', '1' };
+	private static final char[] CODE_03 = { '0', '3' };
+	private static final char[] HITCH_VOLTAGE = {}; // TODO
+	private static final char[] EB_UP = new char[] { 'E', 'B', '9', '0' };
+	private static final char[] EB_DOWN = new char[] { 'e', 'b', '9', '0' };
+	private static final char[] CODE_68 = new char[] { '6', '8' };
+	private static final char[] CODE_16 = new char[] { '1', '6' };
 
 	// 报警字段
 	private static final char[] SHI_YA = new char[] { '0', '3', '0', '1' };
@@ -122,39 +94,19 @@ public class ElectronicDataReceiver extends AbstractDataReceiver implements Init
 	@Autowired
 	private WebsiteServiceClient websiteService;
 
-	public ElectronicDataReceiver() {
-		super(HitchConst.MODULE_ELECTRICITY, Logger.getLogger(ElectronicDataReceiver.class));
+	private static Logger logger = Logger.getLogger(DLT645_07ParseStrategy.class);
+
+	public DLT645_07ParseStrategy() {
+		super("201", logger);
 	}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		super.setCtxStore(ctxStore);
+		super.ctxStore = ctxStore;
 	}
 
 	@Override
-	public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		// SwitchGPRS gprs = new SwitchGPRS();// 添加ctx到Store中
-		// gprs.setCtx(ctx);
-		// ctxStore.add(gprs);
-
-		// ChannelInfo info = ctxStore.get(ctx.channel());
-		// if (null != info) {
-		// info.setCtx(ctx);
-		// }
-		super.channelActive(ctx);
-	}
-
-	@Override
-	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-		// ctxStore.remove(ctx);
-		ctxStore.remove(ctx);
-		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED);
-		super.channelInactive(ctx);
-	}
-
-	// TODO
-	@Override
-	public boolean check(ChannelHandlerContext ctx, char[] data) {
+	protected boolean check(ChannelHandlerContext ctx, char[] data) {
 
 		Integer isRegisted = (Integer) CtxStore.getCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED);
 		if (null == isRegisted) {
@@ -166,57 +118,65 @@ public class ElectronicDataReceiver extends AbstractDataReceiver implements Init
 		return true;
 	}
 
+	protected String getAddress(char[] data) {
+		return CharUtils.newString(data, BYTE * 1, BYTE * 7);
+	}
+
+	protected String getDecimalAddress(char[] data) {
+		String address = getAddress(data);
+		int i = 0;
+		for (;; i++) {
+			char ch = address.charAt(i);
+			if (!('a' == ch || 'A' == ch)) {
+				break;
+			}
+		}
+		address = TemperatureDeviceCommandUtil.reverseString(address.substring(i, address.length() - 1));
+		return Integer.parseInt(address) + "";
+	}
+
 	@Override
-	protected void channelReadInternal(ChannelHandlerContext ctx, char[] data) {
+	protected Object parseInternal(ChannelHandlerContext ctx, char[] data) {
 		// 登录包、心跳包，或长度过少的报文，忽略
 		if (data.length < 10) {
 			logger.info("忽略报文" + String.valueOf(data));
-			return;
+			return null;
 		}
 
-		char[] control = CharUtils.subChars(data, BYTE * 8, BYTE);
-		if (!CharUtils.equals(CODE_81, control)) {
-			logger.info("非读数据报文：" + String.valueOf(data));
-			return;
+		if (CharUtils.startWith(data, EB_UP) || CharUtils.startWith(data, EB_DOWN)) {
+			// TODO
 		}
-		char[] code = CharUtils.subChars(data, BYTE * 11, BYTE);
-		if (!CharUtils.equals(code, IDEN_CODE)) {
-			logger.info("未知读数据报文：" + String.valueOf(data));
-			return;
-		}
-		char identification = data[BYTE * 10];
+
+		// char[] controlCode = CharUtils.subChars(data, BYTE * 8, BYTE);
+		char[] identification = CharUtils.subChars(data, BYTE * 10, BYTE * 4);
 
 		// 电压
-		if (VOLTAGE == identification) {
+		if (CharUtils.startWith(identification, VOLTAGE)) {
 			saveVoltage(ctx, data);
 		}
 		// 电流
-		else if (CURRENT == identification) {
+		else if (CharUtils.startWith(identification, CURRENT)) {
 			saveCurrent(ctx, data);
 		}
 		// 功率
-		else if (POWER == identification) {
+		else if (CharUtils.startWith(identification, POWER)) {
 			savePower(ctx, data);
 		}
 		// 异常
-		// else if (EXCEPTIO == identification) {
-		// handleException(ctx, data);
-		// }
-		else {
+		else if (CharUtils.startWith(identification, EXCEPTION)) {
+			handleException(ctx, data);
+		} else {
 			logger.info("非法报文：" + String.valueOf(data));
 		}
+		return null;
 	}
 
 	private void saveVoltage(ChannelHandlerContext ctx, char[] data) {
 		char[] address = CharUtils.subChars(data, BYTE, BYTE * 6);
 		String deviceNumber = String.valueOf(address);
 		deviceNumber = Integer.parseInt(deviceNumber) + "";
-		// ElectronicModule module =
-		// (ElectronicModule)CtxStore.getCtxAttribute(ctx,
-		// ATTRIBUTE_ELECTRONIC_MODULE);
-		// moduleService.selectByDeviceNumber(deviceNumber);
-		char[] value = CharUtils.subChars(data, BYTE * 12, BYTE * 2);
-		BigDecimal val = new BigDecimal(Double.valueOf(Integer.parseInt(String.valueOf(value), 16)) / 100);
+		char[] value = CharUtils.subChars(data, BYTE * 14, BYTE * 2);
+		BigDecimal val = new BigDecimal(Double.valueOf(Integer.parseInt(String.valueOf(value), 16)) / 10);
 		ElectronicModuleVoltage voltage = new ElectronicModuleVoltage();
 		voltage.setSubmoduleId(ctxStore.getModuleIdbyAddress(deviceNumber));
 		voltage.setId(UUIDUtil.getUUID());
@@ -225,22 +185,13 @@ public class ElectronicDataReceiver extends AbstractDataReceiver implements Init
 
 		voltage.setTime(new Date()); // TODO
 		voltage.setValue(val);
-		if (A_PHASE == data[BYTE * 10 + 1]) {
+		if (CharUtils.equals(data, BYTE * 12, BYTE * 13, A_PHASE)) {
 			voltage.setPhase("A");
-		}
-		else if (B_PHASE == data[BYTE * 10 + 1]) {
+		} else if (CharUtils.equals(data, BYTE * 12, BYTE * 13, B_PHASE)) {
 			voltage.setPhase("B");
-		}
-		else if (C_PHASE == data[BYTE * 10 + 1]) {
+		} else if (CharUtils.equals(data, BYTE * 12, BYTE * 13, C_PHASE)) {
 			voltage.setPhase("C");
 		}
-//		if (CharUtils.equals(data, BYTE * 11, BYTE - 1, A_PHASE)) {
-//			voltage.setPhase("A");
-//		} else if (CharUtils.equals(data, BYTE * 11, BYTE - 1, B_PHASE)) {
-//			voltage.setPhase("B");
-//		} else if (CharUtils.equals(data, BYTE * 11, BYTE * -1, C_PHASE)) {
-//			voltage.setPhase("C");
-//		}
 		voltageService.updateByPrimaryKey(voltage);
 	}
 
@@ -250,7 +201,7 @@ public class ElectronicDataReceiver extends AbstractDataReceiver implements Init
 		deviceNumber = Integer.parseInt(deviceNumber) + "";
 		// ElectronicModule module =
 		// moduleService.selectByDeviceNumber(deviceNumber);
-		char[] value = CharUtils.subChars(data, BYTE * 12, BYTE * 2);
+		char[] value = CharUtils.subChars(data, BYTE * 14, BYTE * 3);
 		BigDecimal val = new BigDecimal(Double.valueOf(Integer.parseInt(String.valueOf(value), 16)) / 10);
 		ElectronicModuleCurrent current = new ElectronicModuleCurrent();
 		current.setId(UUIDUtil.getUUID());
@@ -259,22 +210,13 @@ public class ElectronicDataReceiver extends AbstractDataReceiver implements Init
 		current.setSubmoduleId(ctxStore.getModuleIdbyAddress(deviceNumber));
 		current.setTime(new Date());// TODO
 		current.setValue(val);
-		if (A_PHASE == data[BYTE * 10 + 1]) {
+		if (CharUtils.equals(data, BYTE * 12, BYTE * 13, A_PHASE)) {
 			current.setPhase("A");
-		}
-		else if (B_PHASE == data[BYTE * 10 + 1]) {
+		} else if (CharUtils.equals(data, BYTE * 12, BYTE * 13, B_PHASE)) {
 			current.setPhase("B");
-		}
-		else if (C_PHASE == data[BYTE * 10 + 1]) {
+		} else if (CharUtils.equals(data, BYTE * 12, BYTE * 13, C_PHASE)) {
 			current.setPhase("C");
 		}
-//		if (CharUtils.equals(data, BYTE * 11, BYTE - 1, A_PHASE)) {
-//			current.setPhase("A");
-//		} else if (CharUtils.equals(data, BYTE * 11, BYTE - 1, B_PHASE)) {
-//			current.setPhase("B");
-//		} else if (CharUtils.equals(data, BYTE * 11, BYTE - 1, C_PHASE)) {
-//			current.setPhase("C");
-//		}
 		currentService.updateByPrimaryKey(current);
 	}
 
@@ -284,7 +226,7 @@ public class ElectronicDataReceiver extends AbstractDataReceiver implements Init
 		deviceNumber = Integer.parseInt(deviceNumber) + "";
 		// ElectronicModule module =
 		// moduleService.selectByDeviceNumber(deviceNumber);
-		char[] value = CharUtils.subChars(data, BYTE * 12, BYTE * 3);
+		char[] value = CharUtils.subChars(data, BYTE * 14, BYTE * 3);
 		BigDecimal val = new BigDecimal(Double.valueOf(Integer.parseInt(String.valueOf(value), 16)) / 10);
 		ElectronicModulePower power = new ElectronicModulePower();
 		power.setId(UUIDUtil.getUUID());
@@ -293,16 +235,13 @@ public class ElectronicDataReceiver extends AbstractDataReceiver implements Init
 		power.setSubmoduleId(ctxStore.getModuleIdbyAddress(deviceNumber));
 		power.setTime(new Date());// TODO
 		power.setValue(val);
-		if (A_PHASE == data[BYTE * 10 + 1]) {
+		if (CharUtils.equals(data, BYTE * 12, BYTE * 13, A_PHASE)) {
 			power.setPhase("A");
-		}
-		else if (B_PHASE == data[BYTE * 10 + 1]) {
+		} else if (CharUtils.equals(data, BYTE * 12, BYTE * 13, B_PHASE)) {
 			power.setPhase("B");
-		}
-		else if (C_PHASE == data[BYTE * 10 + 1]) {
+		} else if (CharUtils.equals(data, BYTE * 12, BYTE * 13, C_PHASE)) {
 			power.setPhase("C");
-		}
-		else if ('0' == data[BYTE * 10 + 1]) {
+		} else if (CharUtils.equals(data, BYTE * 12, BYTE * 13, CODE_00)) {
 			power.setPhase("D");
 		}
 		powerService.updateByPrimaryKey(power);
@@ -387,60 +326,5 @@ public class ElectronicDataReceiver extends AbstractDataReceiver implements Init
 		dto.setType(moduleEvent.getType());
 		websiteService.getService().callbackHitchEvent(dto);
 	}
-
-	@Override
-	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-		logger.error(cause.getMessage());
-		super.exceptionCaught(ctx, cause);
-	}
-
-	@Override
-	public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-		// ctxStore.remove(ctx);
-		ctxStore.remove(ctx);
-		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED);
-		super.handlerRemoved(ctx);
-	}
-
-	@Override
-	protected String getAddress(char[] data) {
-		return CharUtils.newString(data, BYTE * 1, BYTE * 7);
-	}
-
-	@Override
-	protected String getDecimalAddress(char[] data) {
-		String address = getAddress(data);
-		int i = 0;
-		for (;; i++) {
-			char ch = address.charAt(i);
-			if (!('a' == ch || 'A' == ch)) {
-				break;
-			}
-		}
-		address = TemperatureDeviceCommandUtil.reverseString(address.substring(i, address.length() - 1));
-		i = 0;
-		for (;; i++) {
-			char ch = address.charAt(i);
-			if (!('0' == ch)) {
-				break;
-			}
-		}
-		return address.substring(i, address.length() - 1);
-	}
-
-//	public static void main(String[] args) {
-//		// String a = "5735";
-//		// String[] b = new String[a.length() / 2];
-//		// for (int i = 0; i < a.length(); i = i + 2) {
-//		// b[i / 2] = a.substring(i, i + 2);
-//		// }
-//		// for (String t : b) {
-//		// System.out.print(Integer.parseInt(t, 16) + " ");
-//		// }
-//		// System.out.println(Integer.parseInt(a, 16));
-//
-////		String a = "6840010001080068810444e9";
-////		System.out.println(a.length() / 2);
-//	}
 
 }
