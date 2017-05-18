@@ -6,7 +6,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.gdut.dongjun.core.handler.thread.DeviceOnlineTask;
+import com.gdut.dongjun.core.handler.thread.DeviceOfflineTask;
 import com.gdut.dongjun.domain.po.TemperatureModule;
 import com.gdut.dongjun.service.TemperatureModuleService;
 
@@ -22,8 +22,8 @@ public class TemperatureCtxStore extends CtxStore {
 	
 	//TODO
 	//保存在线的温度设备的地址
-	private static final HashMap<String, DeviceOnlineTask> taskMap = 
-			new HashMap<String, DeviceOnlineTask>();
+	private static final HashMap<String, DeviceOfflineTask> taskMap = 
+			new HashMap<String, DeviceOfflineTask>();
 	
 	/**
 	 * spring是根据set方法来注入的，对于static类变量，只能通过set方法来实现注入
@@ -109,13 +109,14 @@ public class TemperatureCtxStore extends CtxStore {
 				+ "，下限为" + device.getMinHitchValue().doubleValue());
 	}
 	
-	public static void setDeviceOnlineTask(String id) {
+	public static void setDeviceOfflineTask(String id) {
 //		taskMap.put(id, new DeviceOnlineTask());
 	}
 	
 	//设备维持在线
 	public static void active(String id) {
 		taskMap.get(id).active();
+		
 	}
 	
 }

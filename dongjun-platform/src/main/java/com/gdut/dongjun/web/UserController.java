@@ -54,8 +54,6 @@ import com.gdut.dongjun.service.UserLogService;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.authc.RoleService;
 import com.gdut.dongjun.service.authc.UserRoleService;
-import com.gdut.dongjun.service.device.event.ModuleHitchEventService;
-import com.gdut.dongjun.service.device.event.TemperatureMeasureHitchEventService;
 import com.gdut.dongjun.service.impl.enums.LoginResult;
 import com.gdut.dongjun.service.thread.manager.DefaultThreadManager;
 import com.gdut.dongjun.util.MyBatisMapUtil;
@@ -371,6 +369,7 @@ public class UserController {
 		if (!userService.deleteByPrimaryKey(id)) {
 			return ResponseMessage.warning("操作失败");
 		}
+		userLogService.deleteByParameters(MyBatisMapUtil.warp("user_id", id));
 		return ResponseMessage.success("操作成功");
 	}
 	

@@ -1,4 +1,4 @@
-package com.gdut.dongjun.core.handler.msg_decoder;
+package com.gdut.dongjun.core.handler;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -7,15 +7,12 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.ElectronicCtxStore;
 import com.gdut.dongjun.core.HitchConst;
-import com.gdut.dongjun.core.InfoConst;
-import com.gdut.dongjun.core.handler.ChannelInfo;
+import com.gdut.dongjun.core.handler.msg_decoder.ElectronicDataReceiver;
 import com.gdut.dongjun.domain.dto.HitchEventDTO;
-import com.gdut.dongjun.domain.dto.InfoEventDTO;
 import com.gdut.dongjun.domain.po.DataMonitorSubmodule;
 import com.gdut.dongjun.domain.po.ElectronicModule;
 import com.gdut.dongjun.domain.po.ElectronicModuleCurrent;
@@ -36,22 +33,15 @@ import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.TemperatureDeviceCommandUtil;
 import com.gdut.dongjun.util.UUIDUtil;
 
-import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
- * <p>
- * 按照协议分类 68/3100310068C90000000A1C026000000400551618041502010000 请求帧的一种情况 68 地址
- * 68 控制码 数据域长度 数据标识 校验和 16 1 6 1 1 1 4 1 1 读数据的一种情况 68 地址 68 控制码 数据域长度 数据标识
- * N1...Nm 校验和 16 1 6 1 1 1 4 N 1 1 地址6个字节，每个字节两个BCD码，总共12个十进制数
- * </p>
+ * 电能表DLT645_97规约
  * 
  * @author Gordan_Deng
- * @date 2017年4月12日
+ * @date 2017年5月16日
  */
-@Service
-@Sharable
-public class ElectronicDataReceiver extends AbstractDataReceiver implements InitializingBean {
+public class DLT645_97ParseStrategy extends ParseStrategy implements InitializingBean {
 
 	// TODO 考虑下要不要将ElectronicModule直接塞到Attribute里面
 	private static final int BYTE = 2;
@@ -124,38 +114,17 @@ public class ElectronicDataReceiver extends AbstractDataReceiver implements Init
 	@Autowired
 	private WebsiteServiceClient websiteService;
 
-	public ElectronicDataReceiver() {
-		super(HitchConst.MODULE_ELECTRICITY, Logger.getLogger(ElectronicDataReceiver.class));
+	private Logger logger = Logger.getLogger(DLT645_97ParseStrategy.class);
+
+	public DLT645_97ParseStrategy(String parserId, Logger logger) {
+		super("202", logger);
 	}
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		super.setCtxStore(ctxStore);
+		super.ctxStore = ctxStore;
 	}
 
-	@Override
-	public void channelActive(ChannelHandlerContext ctx) throws Exception {
-		// SwitchGPRS gprs = new SwitchGPRS();// 添加ctx到Store中
-		// gprs.setCtx(ctx);
-		// ctxStore.add(gprs);
-
-		// ChannelInfo info = ctxStore.get(ctx.channel());
-		// if (null != info) {
-		// info.setCtx(ctx);
-		// }
-		super.channelActive(ctx);
-	}
-
-	@Override
-	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-		// ctxStore.remove(ctx);
-		ctxStore.remove(ctx);
-		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED);
-		super.channelInactive(ctx);
-	}
-
-	// TODO
-	@Override
 	public boolean check(ChannelHandlerContext ctx, char[] data) {
 
 		Integer isRegisted = (Integer) CtxStore.getCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED);
@@ -163,33 +132,58 @@ public class ElectronicDataReceiver extends AbstractDataReceiver implements Init
 			// 68开头16结尾的报文
 			if (null != getOnlineAddress(ctx, data)) {
 				CtxStore.setCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED, new Integer(1));
-				ChannelInfo info = ctxStore.get(ctx);
-				InfoEventDTO dto = new InfoEventDTO(info);
-				dto.setType(InfoConst.MODULE_ONLINE);
-				dto.setText(HitchConst.MODULE_TEMPERATURE);
-				websiteService.getService().callbackInfoEvent(dto);
 			}
 		}
 		return true;
 	}
 
 	@Override
-	protected void channelReadInternal(ChannelHandlerContext ctx, char[] data) {
+	protected String getAddress(char[] data) {
+		return CharUtils.newString(data, BYTE * 1, BYTE * 7);
+	}
+
+	@Override
+	protected String getDecimalAddress(char[] data) {
+		String address = getAddress(data);
+		//好像是后面用0来补齐的，不是开头用a补齐
+//		for (;; i++) {
+//			char ch = address.charAt(i);
+//			if (!('a' == ch || 'A' == ch)) {
+//				break;
+//			}
+//		}
+		address = TemperatureDeviceCommandUtil.reverseString(address); 
+//		address = TemperatureDeviceCommandUtil.reverseString(address.substring(i, address.length() - 1));
+		int i = 0;
+		for (;; i++) {
+			char ch = address.charAt(i);
+			if (!('0' == ch)) {
+				break;
+			}
+		}
+		if (i != 0) {
+			return address.substring(i, address.length());
+		}
+		return address;
+	}
+
+	@Override
+	protected Object parseInternal(ChannelHandlerContext ctx, char[] data) {
 		// 登录包、心跳包，或长度过少的报文，忽略
 		if (data.length < 10) {
 			logger.info("忽略报文" + String.valueOf(data));
-			return;
+			return null;
 		}
 
 		char[] control = CharUtils.subChars(data, BYTE * 8, BYTE);
 		if (!CharUtils.equals(CODE_81, control)) {
 			logger.info("非读数据报文：" + String.valueOf(data));
-			return;
+			return null;
 		}
 		char[] code = CharUtils.subChars(data, BYTE * 11, BYTE);
 		if (!CharUtils.equals(code, IDEN_CODE)) {
 			logger.info("未知读数据报文：" + String.valueOf(data));
-			return;
+			return null;
 		}
 		char identification = data[BYTE * 10];
 
@@ -212,11 +206,13 @@ public class ElectronicDataReceiver extends AbstractDataReceiver implements Init
 		else {
 			logger.info("非法报文：" + String.valueOf(data));
 		}
+		return null;
 	}
 
 	private void saveVoltage(ChannelHandlerContext ctx, char[] data) {
-		logger.info("电压解析：" + String.valueOf(data));
-		String deviceNumber = getAddress(data);
+		char[] address = CharUtils.subChars(data, BYTE, BYTE * 6);
+		String deviceNumber = String.valueOf(address);
+		deviceNumber = Integer.parseInt(deviceNumber) + "";
 		char[] value = CharUtils.subChars(data, BYTE * 12, BYTE * 2);
 		BigDecimal val = parseVoltage(value);
 		ElectronicModuleVoltage voltage = new ElectronicModuleVoltage();
@@ -224,31 +220,32 @@ public class ElectronicDataReceiver extends AbstractDataReceiver implements Init
 		voltage.setId(UUIDUtil.getUUID());
 		voltage.setGmtCreate(new Date());
 		voltage.setGmtModified(new Date());
-		voltage.setSubmoduleId(ctxStore.getModuleIdbyAddress(deviceNumber));
+
 		voltage.setTime(new Date()); // TODO
 		voltage.setValue(val);
 		if (A_PHASE == data[BYTE * 10 + 1]) {
 			voltage.setPhase("A");
-		}
-		else if (B_PHASE == data[BYTE * 10 + 1]) {
+		} else if (B_PHASE == data[BYTE * 10 + 1]) {
 			voltage.setPhase("B");
-		}
-		else if (C_PHASE == data[BYTE * 10 + 1]) {
+		} else if (C_PHASE == data[BYTE * 10 + 1]) {
 			voltage.setPhase("C");
 		}
-//		if (CharUtils.equals(data, BYTE * 11, BYTE - 1, A_PHASE)) {
-//			voltage.setPhase("A");
-//		} else if (CharUtils.equals(data, BYTE * 11, BYTE - 1, B_PHASE)) {
-//			voltage.setPhase("B");
-//		} else if (CharUtils.equals(data, BYTE * 11, BYTE * -1, C_PHASE)) {
-//			voltage.setPhase("C");
-//		}
+		// if (CharUtils.equals(data, BYTE * 11, BYTE - 1, A_PHASE)) {
+		// voltage.setPhase("A");
+		// } else if (CharUtils.equals(data, BYTE * 11, BYTE - 1, B_PHASE)) {
+		// voltage.setPhase("B");
+		// } else if (CharUtils.equals(data, BYTE * 11, BYTE * -1, C_PHASE)) {
+		// voltage.setPhase("C");
+		// }
 		voltageService.updateByPrimaryKey(voltage);
 	}
 
 	private void saveCurrent(ChannelHandlerContext ctx, char[] data) {
-		logger.info("电流解析：" + String.valueOf(data));
-		String deviceNumber = getAddress(data);
+		char[] address = CharUtils.subChars(data, BYTE, BYTE * 6);
+		String deviceNumber = String.valueOf(address);
+		deviceNumber = Integer.parseInt(deviceNumber) + "";
+		// ElectronicModule module =
+		// moduleService.selectByDeviceNumber(deviceNumber);
 		char[] value = CharUtils.subChars(data, BYTE * 12, BYTE * 2);
 		BigDecimal val = parseCurrent(value);
 		ElectronicModuleCurrent current = new ElectronicModuleCurrent();
@@ -260,28 +257,32 @@ public class ElectronicDataReceiver extends AbstractDataReceiver implements Init
 		current.setValue(val);
 		if (A_PHASE == data[BYTE * 10 + 1]) {
 			current.setPhase("A");
-		}
-		else if (B_PHASE == data[BYTE * 10 + 1]) {
+		} else if (B_PHASE == data[BYTE * 10 + 1]) {
 			current.setPhase("B");
-		}
-		else if (C_PHASE == data[BYTE * 10 + 1]) {
+		} else if (C_PHASE == data[BYTE * 10 + 1]) {
 			current.setPhase("C");
 		}
-//		if (CharUtils.equals(data, BYTE * 11, BYTE - 1, A_PHASE)) {
-//			current.setPhase("A");
-//		} else if (CharUtils.equals(data, BYTE * 11, BYTE - 1, B_PHASE)) {
-//			current.setPhase("B");
-//		} else if (CharUtils.equals(data, BYTE * 11, BYTE - 1, C_PHASE)) {
-//			current.setPhase("C");
-//		}
+		// if (CharUtils.equals(data, BYTE * 11, BYTE - 1, A_PHASE)) {
+		// current.setPhase("A");
+		// } else if (CharUtils.equals(data, BYTE * 11, BYTE - 1, B_PHASE)) {
+		// current.setPhase("B");
+		// } else if (CharUtils.equals(data, BYTE * 11, BYTE - 1, C_PHASE)) {
+		// current.setPhase("C");
+		// }
 		currentService.updateByPrimaryKey(current);
 	}
 
 	private void savePower(ChannelHandlerContext ctx, char[] data) {
-		logger.info("功率解析：" + String.valueOf(data));
-		String deviceNumber = getAddress(data);
+		char[] address = CharUtils.subChars(data, BYTE, BYTE * 6);
+		String deviceNumber = String.valueOf(address);
+		deviceNumber = Integer.parseInt(deviceNumber) + "";
+		// ElectronicModule module =
+		// moduleService.selectByDeviceNumber(deviceNumber);
 		char[] value = CharUtils.subChars(data, BYTE * 12, BYTE * 3);
 		BigDecimal val = parsePower(value);
+		// = new
+		// BigDecimal(Double.valueOf(Integer.parseInt(String.valueOf(value),
+		// 16)) / 100000);
 		ElectronicModulePower power = new ElectronicModulePower();
 		power.setId(UUIDUtil.getUUID());
 		power.setGmtCreate(new Date());
@@ -291,32 +292,26 @@ public class ElectronicDataReceiver extends AbstractDataReceiver implements Init
 		power.setValue(val);
 		if (A_PHASE == data[BYTE * 10 + 1]) {
 			power.setPhase("A");
-		}
-		else if (B_PHASE == data[BYTE * 10 + 1]) {
+		} else if (B_PHASE == data[BYTE * 10 + 1]) {
 			power.setPhase("B");
-		}
-		else if (C_PHASE == data[BYTE * 10 + 1]) {
+		} else if (C_PHASE == data[BYTE * 10 + 1]) {
 			power.setPhase("C");
-		}
-		else if ('0' == data[BYTE * 10 + 1]) {
+		} else if ('0' == data[BYTE * 10 + 1]) {
 			power.setPhase("D");
 		}
 		powerService.updateByPrimaryKey(power);
 	}
 
 	/**
-	 * 7c3b33 
-	 * 333b7c
-	 * 490800
-	 * 000849
-	 * 8.49
+	 * 7c3b33 333b7c 490800 000849 8.49
+	 * 
 	 * @param value
 	 * @return
 	 */
 	private BigDecimal parsePower(char[] value) {
-		//反转
+		// 反转
 		char[] val = CharUtils.reverse(value);
-		//降位
+		// 降位
 		val = CharUtils.lowerText(val, 3);
 		int n1 = CharUtils.charToDecimal(val[0], val[1]);
 		int n2 = CharUtils.charToDecimal(val[2], val[3]);
@@ -325,11 +320,11 @@ public class ElectronicDataReceiver extends AbstractDataReceiver implements Init
 		sb.append(n1).append(n2).append(".").append((n3 > 9) ? n3 : "0" + n3);
 		return new BigDecimal(sb.toString());
 	}
-	
+
 	private BigDecimal parseCurrent(char[] value) {
-		//反转
+		// 反转
 		char[] val = CharUtils.reverse(value);
-		//降位
+		// 降位
 		val = CharUtils.lowerText(val, 3);
 		int n1 = CharUtils.charToDecimal(val[0], val[1]);
 		int n2 = CharUtils.charToDecimal(val[2], val[3]);
@@ -337,11 +332,11 @@ public class ElectronicDataReceiver extends AbstractDataReceiver implements Init
 		sb.append(n1).append(n2);
 		return new BigDecimal(sb.toString());
 	}
-	
+
 	private BigDecimal parseVoltage(char[] value) {
-		//反转
+		// 反转
 		char[] val = CharUtils.reverse(value);
-		//降位
+		// 降位
 		val = CharUtils.lowerText(val, 3);
 		int n1 = CharUtils.charToDecimal(val[0], val[1]);
 		int n2 = CharUtils.charToDecimal(val[2], val[3]);
@@ -429,80 +424,5 @@ public class ElectronicDataReceiver extends AbstractDataReceiver implements Init
 		dto.setType(moduleEvent.getType());
 		websiteService.getService().callbackHitchEvent(dto);
 	}
-
-	@Override
-	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-		logger.error(cause.getMessage());
-		super.exceptionCaught(ctx, cause);
-	}
-
-	@Override
-	public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-		// ctxStore.remove(ctx);
-		ctxStore.remove(ctx);
-		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED);
-		super.handlerRemoved(ctx);
-	}
-
-	@Override
-	protected String getAddress(char[] data) {
-		return CharUtils.newString(data, BYTE * 1, BYTE * 7);
-	}
-
-	@Override
-	protected String getDecimalAddress(char[] data) {
-		String address = getAddress(data);
-		//好像是后面用0来补齐的，不是开头用a补齐
-//		for (;; i++) {
-//			char ch = address.charAt(i);
-//			if (!('a' == ch || 'A' == ch)) {
-//				break;
-//			}
-//		}
-		address = TemperatureDeviceCommandUtil.reverseString(address); 
-//		address = TemperatureDeviceCommandUtil.reverseString(address.substring(i, address.length() - 1));
-		int i = 0;
-		for (;; i++) {
-			char ch = address.charAt(i);
-			if (!('0' == ch)) {
-				break;
-			}
-		}
-		if (i != 0) {
-			return address.substring(i, address.length());
-		}
-		return address;
-	}
-	
-//	public static void main(String[] args) {
-////		String a = "7c3b33";
-////		String[] b = new String[3];
-////		StringBuilder sb = new StringBuilder();
-////		for (int i = 0; i < a.length(); i += 2) {
-////			sb.append(Integer.parseInt(a.substring(i, i + 2), 16) + "");
-////			System.out.print(			Integer.parseInt(a.substring(i, i + 2), 16) + " ");
-////			Integer.parseInt(a.substring(i, i + 2), 16);
-////			b[i / 2] = a.substring(i, i + 2);
-////		}
-////		System.out.println(Double.parseDouble(sb.toString()) / 100000);
-//		
-//		int n1 = 0;
-//		int n2 = 0;
-//		int n3 = 9;
-//		StringBuilder sb = new StringBuilder();
-//		sb.append(n1).append(n2).append(".").append((n3 > 9) ? n3 : "0" + n3);
-//		System.out.println(new BigDecimal(sb.toString()));
-		
-//		char[] value = "4b33".toCharArray();
-//		//反转
-//		char[] val = CharUtils.reverse(value);
-//		//降位
-//		val = CharUtils.lowerText(val, 3);
-//		int n1 = CharUtils.charToDecimal(val[0], val[1]);
-//		int n2 = CharUtils.charToDecimal(val[2], val[3]);
-//		StringBuilder sb = new StringBuilder();
-//		sb.append(n1).append(n2);
-//		System.out.println(sb.toString());
-//	}
 
 }

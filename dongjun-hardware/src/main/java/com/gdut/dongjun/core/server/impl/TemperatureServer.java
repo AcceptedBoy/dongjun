@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import com.gdut.dongjun.core.ElectronicCtxStore;
 import com.gdut.dongjun.core.handler.ChannelInfo;
 import com.gdut.dongjun.core.initializer.ServerInitializer;
-import com.gdut.dongjun.core.message.impl.ElectronicModuleMessageCreator;
+import com.gdut.dongjun.core.message.impl.DLT645_97MessageCreator;
 import com.gdut.dongjun.core.server.NetServer;
 import com.gdut.dongjun.util.TemperatureDeviceCommandUtil;
 
@@ -23,7 +23,7 @@ public class TemperatureServer extends NetServer {
 	@Autowired
 	private ElectronicCtxStore elecStore;
 	@Autowired
-	private ElectronicModuleMessageCreator elecMessageCreator;
+	private DLT645_97MessageCreator elecMessageCreator;
 	@Resource(name = "TemperatureServerInitializer")
 	private ServerInitializer initializer;
 	@Resource(name = "TemperatureServerInitializer")
@@ -37,6 +37,7 @@ public class TemperatureServer extends NetServer {
 	
 	/**
 	 * 设置报警事件监听，每30分钟发送一次总召，因为新的协约不要求主动发总召报文，故删去
+	 * @throws  
 	 */
 	@Override
 	protected void hitchEventSpy() {
@@ -53,13 +54,13 @@ public class TemperatureServer extends NetServer {
 					String a = info.getDecimalAddress();
 					if (!(info.getDecimalAddress().length() % 2 == 0)) {
 						a = "0" + info.getDecimalAddress();
-					}
+					}					
 					StringBuilder sb = new StringBuilder();
+					sb.append(TemperatureDeviceCommandUtil.reverseString(a));
 					int numOf0 = BYTE * 6 - a.length();
 					for (int i = 0; i < numOf0; i++) {
-						sb.append("a");
+						sb.append("0");
 					}
-					sb.append(TemperatureDeviceCommandUtil.reverseString(a));
 					address = sb.toString();
 				} else {
 					address = TemperatureDeviceCommandUtil.reverseString(info.getDecimalAddress());
@@ -68,7 +69,13 @@ public class TemperatureServer extends NetServer {
 			List<String> msgList = elecMessageCreator.generateTotalCall(address);
 			for (String order : msgList) {
 				logger.info("发送电能表总召命令：" + order);
-				info.getCtx().writeAndFlush(order);
+				info.getCtx().channel().writeAndFlush(order);
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					logger.info("发报文线程出错！");
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -89,5 +96,12 @@ public class TemperatureServer extends NetServer {
 	protected void timedCVReadTask() {
 
 	}
-
+	
+	public void sendMessage(String m) {
+		List<ChannelInfo> infoList = elecStore.getInstance();
+		for (ChannelInfo info : infoList) {
+			logger.info("发送测试报文：" + m);
+			info.getCtx().channel().writeAndFlush(m);
+		}
+	}
 }

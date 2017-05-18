@@ -1,3 +1,4 @@
+
 package com.gdut.dongjun.core.handler.msg_decoder;
 
 import java.math.BigDecimal;
@@ -379,11 +380,11 @@ public class TemperatureDataReceiver extends AbstractDataReceiver implements Ini
 					ModuleHitchEvent moduleHitch = new ModuleHitchEvent();
 					moduleHitch.setId(UUIDUtil.getUUID());
 					moduleHitch.setGroupId(device.getGroupId());
-					moduleHitch.setHitchReason(HitchConst.HITCH_ELECTRICITY_LACK);
+					moduleHitch.setHitchReason(HitchConst.getHitchReason(HitchConst.HITCH_ELECTRICITY_LACK));
 					moduleHitch.setHitchTime(new Date());
 					moduleHitch.setModuleId(device.getId());
 					moduleHitch.setMonitorId(submodule.getDataMonitorId());
-					moduleHitch.setType(310);
+					moduleHitch.setType(HitchConst.HITCH_ELECTRICITY_LACK);
 					moduleHitchEventService.updateByPrimaryKey(moduleHitch);
 				}
 			}
@@ -470,11 +471,11 @@ public class TemperatureDataReceiver extends AbstractDataReceiver implements Ini
 		ModuleHitchEvent moduleHitch = new ModuleHitchEvent();
 		moduleHitch.setId(UUIDUtil.getUUID());
 		moduleHitch.setGroupId(device.getGroupId());
-		moduleHitch.setHitchReason(HitchConst.HITCH_OVER_TEMPERATURE);
+		moduleHitch.setHitchReason(HitchConst.getHitchReason(HitchConst.HITCH_OVER_TEMPERATURE));
 		moduleHitch.setHitchTime(new Date());
 		moduleHitch.setModuleId(device.getId());
 		moduleHitch.setMonitorId(submodule.getDataMonitorId());
-		moduleHitch.setType(301);
+		moduleHitch.setType(HitchConst.HITCH_OVER_TEMPERATURE);
 		moduleHitchEventService.updateByPrimaryKey(moduleHitch);
 
 		// TODO 其实报警事事件应该是时间戳中的时间
@@ -492,7 +493,7 @@ public class TemperatureDataReceiver extends AbstractDataReceiver implements Ini
 		vo.setGroupId(info.getGroupId());
 		vo.setModuleId(info.getModuleId());
 		vo.setMonitorId(info.getMonitorId());
-		vo.setType(301);
+		vo.setType(HitchConst.HITCH_OVER_TEMPERATURE);
 		vo.setId(moduleHitch.getId());
 		websiteService.getService().callbackHitchEvent(vo);
 //		hitchEventManager.addHitchEvent(event);
@@ -604,7 +605,8 @@ public class TemperatureDataReceiver extends AbstractDataReceiver implements Ini
 
 	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-		logger.error("异常" + cause.getMessage());
+//		logger.error("异常" + cause.getMessage());
+		cause.printStackTrace();
 		ctx.close();
 	}
 

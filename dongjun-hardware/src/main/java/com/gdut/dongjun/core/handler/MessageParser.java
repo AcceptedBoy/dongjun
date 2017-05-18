@@ -1,8 +1,13 @@
 package com.gdut.dongjun.core.handler;
 
-import java.util.List;
+import io.netty.channel.ChannelHandlerContext;
 
+/**
+ * 报文解析类
+ * @author Gordan_Deng
+ * @date 2017年5月14日
+ */
 public interface MessageParser {
 
-	public List<Object> parse(char[] data);
+	public Object parse(char[] data, ChannelHandlerContext ctx);
 }

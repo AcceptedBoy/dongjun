@@ -20,8 +20,8 @@ import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.service.GPRSModuleService;
 import com.gdut.dongjun.service.PlatformGroupService;
 import com.gdut.dongjun.service.UserService;
-import com.gdut.dongjun.service.authc.RoleService;
 import com.gdut.dongjun.service.device.DataMonitorSubmoduleService;
+import com.gdut.dongjun.service.device.event.ModuleHitchEventService;
 import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.UUIDUtil;
@@ -40,9 +40,9 @@ public class GPRSModuleController {
 	@Autowired
 	private HardwareServiceClient hardwareServiceClient;
 	@Autowired
-	private RoleService roleService;
-	@Autowired
 	private DataMonitorSubmoduleService submoduleService;
+	@Autowired
+	private ModuleHitchEventService moduleHitchEventService;
 
 	// 6f1b9f044e1346f299af9cc0fe7e005d
 	// 6f1b9f044e1346f299af9cc0fe7e005d
@@ -114,9 +114,11 @@ public class GPRSModuleController {
 	@ResponseBody
 	@RequestMapping("/del")
 	public ResponseMessage del(String id) {
+		//删除GPRSModule
 		if (!gprsService.deleteByPrimaryKey(id)) {
 			return ResponseMessage.warning("操作失败");
 		}
+		//删除DataMonitorSubmodule
 		List<DataMonitorSubmodule> submodules = submoduleService.selectByParameters(MyBatisMapUtil.warp("module_id", id));
 		if (0 == submodules.size()) {
 			return ResponseMessage.warning("操作失败");
@@ -125,6 +127,8 @@ public class GPRSModuleController {
 		if (!submoduleService.deleteByPrimaryKey(submodule.getId())) {
 			return ResponseMessage.warning("操作失败"); 
 		}
+		//删除报警信息
+		moduleHitchEventService.deleteByParameters(MyBatisMapUtil.warp("module_id", id));
 		return ResponseMessage.success("操作成功");
 	}
 
