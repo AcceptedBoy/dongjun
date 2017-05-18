@@ -131,7 +131,7 @@ public class DLT645_07ParseStrategy extends ParseStrategy implements Initializin
 				break;
 			}
 		}
-		address = TemperatureDeviceCommandUtil.reverseString(address.substring(i, address.length() - 1));
+		address = TemperatureDeviceCommandUtil.reverseString(address.substring(i, address.length()));
 		return Integer.parseInt(address) + "";
 	}
 

@@ -46,7 +46,9 @@ public abstract class ParseStrategy implements MessageParser {
 			channelInfo.setAddress(address);
 		} else {
 			//TODO 未测试
-			InfoEventDTO dto = InfoEventDTO.notDefinedModule(channelInfo, decimalAddress);
+			InfoEventDTO dto = new InfoEventDTO(channelInfo);
+			dto.setType(InfoConst.MODULE_NOT_DEFINED);
+			dto.setText(decimalAddress);
 			webClient.getService().callbackInfoEvent(dto);
 			logger.info(InfoConst.getInfo(InfoConst.MODULE_NOT_DEFINED) + decimalAddress);
 			return null;

@@ -12,8 +12,10 @@ import org.springframework.stereotype.Service;
 import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.ElectronicCtxStore;
 import com.gdut.dongjun.core.HitchConst;
+import com.gdut.dongjun.core.InfoConst;
 import com.gdut.dongjun.core.handler.ChannelInfo;
 import com.gdut.dongjun.domain.dto.HitchEventDTO;
+import com.gdut.dongjun.domain.dto.InfoEventDTO;
 import com.gdut.dongjun.domain.po.DataMonitorSubmodule;
 import com.gdut.dongjun.domain.po.ElectronicModule;
 import com.gdut.dongjun.domain.po.ElectronicModuleCurrent;
@@ -161,6 +163,11 @@ public class ElectronicDataReceiver extends AbstractDataReceiver implements Init
 			// 68开头16结尾的报文
 			if (null != getOnlineAddress(ctx, data)) {
 				CtxStore.setCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED, new Integer(1));
+				ChannelInfo info = ctxStore.get(ctx);
+				InfoEventDTO dto = new InfoEventDTO(info);
+				dto.setType(InfoConst.MODULE_ONLINE);
+				dto.setText(HitchConst.MODULE_TEMPERATURE);
+				websiteService.getService().callbackInfoEvent(dto);
 			}
 		}
 		return true;
@@ -208,9 +215,8 @@ public class ElectronicDataReceiver extends AbstractDataReceiver implements Init
 	}
 
 	private void saveVoltage(ChannelHandlerContext ctx, char[] data) {
-		char[] address = CharUtils.subChars(data, BYTE, BYTE * 6);
-		String deviceNumber = String.valueOf(address);
-		deviceNumber = Integer.parseInt(deviceNumber) + "";
+		logger.info("电压解析：" + String.valueOf(data));
+		String deviceNumber = getAddress(data);
 		char[] value = CharUtils.subChars(data, BYTE * 12, BYTE * 2);
 		BigDecimal val = parseVoltage(value);
 		ElectronicModuleVoltage voltage = new ElectronicModuleVoltage();
@@ -218,7 +224,7 @@ public class ElectronicDataReceiver extends AbstractDataReceiver implements Init
 		voltage.setId(UUIDUtil.getUUID());
 		voltage.setGmtCreate(new Date());
 		voltage.setGmtModified(new Date());
-
+		voltage.setSubmoduleId(ctxStore.getModuleIdbyAddress(deviceNumber));
 		voltage.setTime(new Date()); // TODO
 		voltage.setValue(val);
 		if (A_PHASE == data[BYTE * 10 + 1]) {
@@ -241,11 +247,8 @@ public class ElectronicDataReceiver extends AbstractDataReceiver implements Init
 	}
 
 	private void saveCurrent(ChannelHandlerContext ctx, char[] data) {
-		char[] address = CharUtils.subChars(data, BYTE, BYTE * 6);
-		String deviceNumber = String.valueOf(address);
-		deviceNumber = Integer.parseInt(deviceNumber) + "";
-		// ElectronicModule module =
-		// moduleService.selectByDeviceNumber(deviceNumber);
+		logger.info("电流解析：" + String.valueOf(data));
+		String deviceNumber = getAddress(data);
 		char[] value = CharUtils.subChars(data, BYTE * 12, BYTE * 2);
 		BigDecimal val = parseCurrent(value);
 		ElectronicModuleCurrent current = new ElectronicModuleCurrent();
@@ -275,14 +278,10 @@ public class ElectronicDataReceiver extends AbstractDataReceiver implements Init
 	}
 
 	private void savePower(ChannelHandlerContext ctx, char[] data) {
-		char[] address = CharUtils.subChars(data, BYTE, BYTE * 6);
-		String deviceNumber = String.valueOf(address);
-		deviceNumber = Integer.parseInt(deviceNumber) + "";
-		// ElectronicModule module =
-		// moduleService.selectByDeviceNumber(deviceNumber);
+		logger.info("功率解析：" + String.valueOf(data));
+		String deviceNumber = getAddress(data);
 		char[] value = CharUtils.subChars(data, BYTE * 12, BYTE * 3);
 		BigDecimal val = parsePower(value);
-//		= new BigDecimal(Double.valueOf(Integer.parseInt(String.valueOf(value), 16)) / 100000);
 		ElectronicModulePower power = new ElectronicModulePower();
 		power.setId(UUIDUtil.getUUID());
 		power.setGmtCreate(new Date());
@@ -470,7 +469,7 @@ public class ElectronicDataReceiver extends AbstractDataReceiver implements Init
 			}
 		}
 		if (i != 0) {
-			return address.substring(i, address.length() - 1);
+			return address.substring(i, address.length());
 		}
 		return address;
 	}

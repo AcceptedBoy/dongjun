@@ -2,6 +2,11 @@ package com.gdut.dongjun.domain.dto;
 
 import java.io.Serializable;
 
+/**
+ * 报警事件推送
+ * @author Gordan_Deng
+ * @date 2017年5月18日
+ */
 public class HitchEventDTO implements Serializable {
 	
 	private static final long serialVersionUID = 7492353823737332433L;

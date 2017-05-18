@@ -2,6 +2,7 @@ package com.gdut.dongjun.domain.dto;
 
 import java.io.Serializable;
 
+import com.gdut.dongjun.core.InfoConst;
 import com.gdut.dongjun.core.handler.ChannelInfo;
 
 /**
@@ -20,23 +21,25 @@ public class InfoEventDTO implements Serializable {
 	private Integer type;			//通知信息类别
 	private Object text;				//附加信息
 	
+	public InfoEventDTO() {
+		super();
+	}
+
+	public InfoEventDTO(String id, String 
+			monitorId, String moduleId, String groupId, Integer type, Object text) {
+		super();
+		this.id = id;
+		this.monitorId = monitorId;
+		this.moduleId = moduleId;
+		this.groupId = groupId;
+		this.type = type;
+		this.text = text;
+	}
+
 	public InfoEventDTO(ChannelInfo info) {
 		this.monitorId = info.getMonitorId();
 		this.moduleId = info.getModuleId();
 		this.groupId = info.getGroupId();
-	}
-	
-	/**
-	 * 当系统接收到某设备的报文，而该设备没有在网站上注册的时候，就报警
-	 * @param info
-	 * @param notDefinedAddress
-	 * @return
-	 */
-	public static InfoEventDTO notDefinedModule(ChannelInfo info, String notDefinedAddress) {
-		InfoEventDTO dto = new InfoEventDTO(info);
-		dto.setType(3);
-		dto.setText(notDefinedAddress);
-		return dto;
 	}
 	
 	public String getMonitorId() {

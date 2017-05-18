@@ -142,7 +142,7 @@ public class DLT645_97MessageCreator implements MessageCreator {
 //	public static void main(String[] args) {
 //		
 //		DLT645_97MessageCreator c = new DLT645_97MessageCreator();
-//		for (String s : c.generateTotalCall("999999999999")) {
+//		for (String s : c.generateTotalCall("400100010800")) {
 //			System.out.println(s);
 //		}
 //	}

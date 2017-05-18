@@ -162,7 +162,7 @@ public class DLT645_97ParseStrategy extends ParseStrategy implements Initializin
 			}
 		}
 		if (i != 0) {
-			return address.substring(i, address.length() - 1);
+			return address.substring(i, address.length());
 		}
 		return address;
 	}
