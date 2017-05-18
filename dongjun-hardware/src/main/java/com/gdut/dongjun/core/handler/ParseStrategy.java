@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.gdut.dongjun.core.CtxStore;
+import com.gdut.dongjun.core.InfoConst;
 import com.gdut.dongjun.domain.dto.InfoEventDTO;
 import com.gdut.dongjun.service.webservice.client.WebsiteServiceClient;
 
@@ -47,7 +48,7 @@ public abstract class ParseStrategy implements MessageParser {
 			//TODO 未测试
 			InfoEventDTO dto = InfoEventDTO.notDefinedModule(channelInfo, decimalAddress);
 			webClient.getService().callbackInfoEvent(dto);
-			logger.info("暂未初始化ChannelInfo，接收到的子模块报文地址为" + decimalAddress);
+			logger.info(InfoConst.getInfo(InfoConst.MODULE_NOT_DEFINED) + decimalAddress);
 			return null;
 		}
 		// TODO 未测试，也应该不会上线

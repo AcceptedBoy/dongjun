@@ -268,48 +268,48 @@ public class DLT645_07ParseStrategy extends ParseStrategy implements Initializin
 		char[] hitchReason = CharUtils.subChars(data, BYTE * 14, BYTE * 2);
 		// 失压 201
 		if (CharUtils.equals(hitchReason, SHI_YA)) {
-			moduleEvent.setType(201);
-			moduleEvent.setHitchReason(HitchConst.getHitchReason(201));
+			moduleEvent.setType(HitchConst.HITCH_QUAN_SHI_YA);
+			moduleEvent.setHitchReason(HitchConst.getHitchReason(HitchConst.HITCH_SHI_YA));
 		}
 		// 欠压 202
 		else if (CharUtils.equals(hitchReason, QIAN_YA)) {
-			moduleEvent.setType(202);
-			moduleEvent.setHitchReason(HitchConst.getHitchReason(202));
+			moduleEvent.setType(HitchConst.HITCH_QIAN_YA);
+			moduleEvent.setHitchReason(HitchConst.getHitchReason(HitchConst.HITCH_QIAN_YA));
 		}
 		// 过压 203
 		else if (CharUtils.equals(hitchReason, GUO_YA)) {
-			moduleEvent.setType(203);
-			moduleEvent.setHitchReason(HitchConst.getHitchReason(203));
+			moduleEvent.setType(HitchConst.HITCH_GUO_YA);
+			moduleEvent.setHitchReason(HitchConst.getHitchReason(HitchConst.HITCH_GUO_YA));
 		}
 		// 断相 204
 		else if (CharUtils.equals(hitchReason, DUAN_XIANG)) {
-			moduleEvent.setType(204);
-			moduleEvent.setHitchReason(HitchConst.getHitchReason(204));
+			moduleEvent.setType(HitchConst.HITCH_DUAN_XIANG);
+			moduleEvent.setHitchReason(HitchConst.getHitchReason(HitchConst.HITCH_DUAN_XIANG));
 		}
 		// 全失压 205
 		else if (CharUtils.equals(hitchReason, QUAN_SHI_YA)) {
-			moduleEvent.setType(205);
-			moduleEvent.setHitchReason(HitchConst.getHitchReason(205));
+			moduleEvent.setType(HitchConst.HITCH_QUAN_SHI_YA);
+			moduleEvent.setHitchReason(HitchConst.getHitchReason(HitchConst.HITCH_QUAN_SHI_YA));
 		}
 		// 失流 206
 		else if (CharUtils.equals(hitchReason, SHI_LIU_UP) || CharUtils.equals(hitchReason, SHI_LIU_DOWN)) {
-			moduleEvent.setType(206);
-			moduleEvent.setHitchReason(HitchConst.getHitchReason(206));
+			moduleEvent.setType(HitchConst.HITCH_SHI_LIU);
+			moduleEvent.setHitchReason(HitchConst.getHitchReason(HitchConst.HITCH_SHI_LIU));
 		}
 		// 过流 207
 		else if (CharUtils.equals(hitchReason, GUO_LIU_UP) || CharUtils.equals(hitchReason, GUO_LIU_DOWN)) {
-			moduleEvent.setType(207);
-			moduleEvent.setHitchReason(HitchConst.getHitchReason(207));
+			moduleEvent.setType(HitchConst.HITCH_GUO_LIU);
+			moduleEvent.setHitchReason(HitchConst.getHitchReason(HitchConst.HITCH_GUO_LIU));
 		}
 		// 断流 208
 		else if (CharUtils.equals(hitchReason, DUAN_LIU_UP) || CharUtils.equals(hitchReason, DUAN_LIU_DOWN)) {
-			moduleEvent.setType(208);
-			moduleEvent.setHitchReason(HitchConst.getHitchReason(208));
+			moduleEvent.setType(HitchConst.HITCH_DUAN_LIU);
+			moduleEvent.setHitchReason(HitchConst.getHitchReason(HitchConst.HITCH_DUAN_LIU));
 		}
 		// 未知报警 200
 		else {
 			moduleEvent.setType(200);
-			moduleEvent.setHitchReason(HitchConst.getHitchReason(200));
+			moduleEvent.setHitchReason(HitchConst.getHitchReason(HitchConst.HITCH_UNKNOWN));
 		}
 		moduleHitchEventService.updateByPrimaryKey(moduleEvent);
 		ElectronicModuleHitchEvent event = new ElectronicModuleHitchEvent();
