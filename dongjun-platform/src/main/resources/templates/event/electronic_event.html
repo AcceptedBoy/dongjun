@@ -1,0 +1,95 @@
+<div class="form-inline">
+</div>
+<table id="electronic_event_list" class="table table-bordered table-striped table-hover table-condensed success" width="100%">
+  <thead>
+    <td>设备名称</td>
+    <td>报警时间</td>
+    <td>报警原因</td>
+    <td>A相/次数</td>
+    <td>B相/次数</td>
+    <td>C相/次数</td>
+  </thead>
+</table>
+
+<script>
+  var electronicEventTable = function() {
+    var table = null
+    var url = ''
+    return {
+      getTable: function(){
+        return table;
+      },
+      init: function(o) {
+        var _self = this;
+        url = o.url;
+        table = $('#electronic_event_list').DataTable({
+          'ajax': {
+            'url': o.url,
+            'type': 'GET',
+            'dataSrc': 'text'
+          },
+          'columns': [
+            {
+              'data': 'name'
+            },
+            {
+              'data': 'hitchTime',
+              'render': this.renderTime
+            },
+            {
+              'data': 'hitchReason'
+            },
+            {
+              'data': 'phaseA',
+              'render': function(data, type, row) {
+                return data + ' / ' + row.timeA
+              }
+            },
+            {
+              'data': 'phaseB',
+              'render': function(data, type, row) {
+                return data + ' / ' + row.timeB
+              }
+            },
+            {
+              'data': 'phaseC',
+              'render': function(data, type, row) {
+                return data + ' / ' + row.timeC
+              }
+            }
+          ],
+          'language': {
+            'paginate': {
+              'next': '下一页',
+              'previous': '上一页'
+            },
+            'emptyTable': '找不到相关数据',
+            'zeroRecords': '找不到相关数据',
+            'loadingRecords': '正在加载数据...'
+          },
+        })
+      },
+      redraw: function(id) {
+        table.ajax.reload();
+      },
+      renderTime(time) {
+        var date = new Date(time)
+        var y = date.getFullYear()
+        var mt = date.getMonth() + 1
+        mt = mt < 10 ? ('0' + mt) : mt
+        var d = date.getDate()
+        d = d < 10 ? ('0' + d) : d
+        var h = date.getHours()
+        h = h < 10 ? ('0' + h) : h
+        var m = date.getMinutes()
+        m = m < 10 ? ('0' + m) : m
+        var s = date.getSeconds()
+        s = s < 10 ? ('0' + s) : s
+        return y + '-' + mt + '-' + d + ' ' + h + ':' + m + ':' + s
+      }
+    }
+  }()
+  electronicEventTable.init({
+    url: 'eletronic.json'
+  })           // 初始化表格
+</script>

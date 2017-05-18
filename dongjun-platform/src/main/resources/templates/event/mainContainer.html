@@ -3,9 +3,16 @@
 	<div class="span2 container-fluid well sidebar-nav">
 		<ul class="nav nav-list bs-docs-sidenav" id="sideNav">
       <li class="nav-header">测量值报警</li>
-			<li><a href="#temperature">温度报警事件</a></li>
+			<li>
+				<a href="#temperature">温度报警</a>
+			</li>
+			<li>
+				<a href="#electronic_event">电力设备报警</a>
+			</li>
 			<li class="nav-header">设备报警</li>
-			<li><a href="#equipment">设备报警事件</a></li>
+			<li>
+				<a href="#equipment">设备报警</a>
+			</li>
 		</ul>
 	</div>
 
@@ -31,9 +38,10 @@
 
 	router.start({
 		'': load('temperature.html'),
-		'low_voltage': load('low_voltage.html'),
-		'high_voltage': load('high_voltage.html'),
-		'all_event': load('all_switch_event.html'),
+		// 'low_voltage': load('low_voltage.html'),
+		// 'high_voltage': load('high_voltage.html'),
+		// 'all_event': load('all_switch_event.html'),
+		'electronic_event': load('electronic_event.html'),
 		'control_measure': load('control_measure.html'),
 		'temperature': load('temperature.html'),
 		'equipment': load('equipment.html')

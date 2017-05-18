@@ -1,0 +1,17 @@
+{ 
+	"success": true, 
+	"type": "SUCCESS", 
+	"text": [{ 
+		"hitchTime": "2017-04-21 19:28", 
+		"hitchReason": "测试测量值报警", 
+		"name": "test", 
+		"phaseA": 123,
+		"phaseB": 234,
+		"phaseC": 345,
+		"timeA": 2,
+		"timeB": 3,
+		"timeC": 4
+	}], 
+	"code": null, 
+	"errors": [] 
+}
