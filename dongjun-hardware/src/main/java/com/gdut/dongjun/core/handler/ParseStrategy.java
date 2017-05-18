@@ -1,8 +1,11 @@
 package com.gdut.dongjun.core.handler;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.gdut.dongjun.core.CtxStore;
+import com.gdut.dongjun.domain.dto.InfoEventDTO;
+import com.gdut.dongjun.service.webservice.client.WebsiteServiceClient;
 
 import io.netty.channel.ChannelHandlerContext;
 
@@ -20,6 +23,8 @@ public abstract class ParseStrategy implements MessageParser {
 	protected String parserId;
 	protected Logger logger;
 	protected CtxStore ctxStore;
+	@Autowired
+	protected WebsiteServiceClient webClient;
 	
 	public ParseStrategy(String parserId, Logger logger) {
 		this.logger = logger;
@@ -39,11 +44,13 @@ public abstract class ParseStrategy implements MessageParser {
 			channelInfo.setCtx(ctx);
 			channelInfo.setAddress(address);
 		} else {
-			//TODO 此处应有报警
+			//TODO 未测试
+			InfoEventDTO dto = InfoEventDTO.notDefinedModule(channelInfo, decimalAddress);
+			webClient.getService().callbackInfoEvent(dto);
 			logger.info("暂未初始化ChannelInfo，接收到的子模块报文地址为" + decimalAddress);
 			return null;
 		}
-		// TODO
+		// TODO 未测试，也应该不会上线
 //		ChannelHandlerManager.addCtx(info.getMonitorId(), ctx);
 		return info.getModuleId();
 	}

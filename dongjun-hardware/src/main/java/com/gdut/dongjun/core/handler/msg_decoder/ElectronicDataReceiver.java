@@ -453,15 +453,16 @@ public class ElectronicDataReceiver extends AbstractDataReceiver implements Init
 	@Override
 	protected String getDecimalAddress(char[] data) {
 		String address = getAddress(data);
+		//好像是后面用0来补齐的，不是开头用a补齐
+//		for (;; i++) {
+//			char ch = address.charAt(i);
+//			if (!('a' == ch || 'A' == ch)) {
+//				break;
+//			}
+//		}
+		address = TemperatureDeviceCommandUtil.reverseString(address); 
+//		address = TemperatureDeviceCommandUtil.reverseString(address.substring(i, address.length() - 1));
 		int i = 0;
-		for (;; i++) {
-			char ch = address.charAt(i);
-			if (!('a' == ch || 'A' == ch)) {
-				break;
-			}
-		}
-		address = TemperatureDeviceCommandUtil.reverseString(address.substring(i, address.length() - 1));
-		i = 0;
 		for (;; i++) {
 			char ch = address.charAt(i);
 			if (!('0' == ch)) {

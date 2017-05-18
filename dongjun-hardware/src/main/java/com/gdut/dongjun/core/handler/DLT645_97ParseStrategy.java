@@ -37,6 +37,7 @@ import io.netty.channel.ChannelHandlerContext;
 
 /**
  * 电能表DLT645_97规约
+ * 
  * @author Gordan_Deng
  * @date 2017年5月16日
  */
@@ -44,12 +45,16 @@ public class DLT645_97ParseStrategy extends ParseStrategy implements Initializin
 
 	// TODO 考虑下要不要将ElectronicModule直接塞到Attribute里面
 	private static final int BYTE = 2;
-	private static final char[] VOLTAGE = { 'b', '6', '1' };
-	private static final char[] CURRENT = { 'b', '6', '2' };
-	private static final char[] POWER = { 'b', '6', '3' };
-	private static final char[] A_PHASE = { '1' };
-	private static final char[] B_PHASE = { '2' };
-	private static final char[] C_PHASE = { '3' };
+	// private static final char[] VOLTAGE = { 'b', '6', '1' };
+	// private static final char[] CURRENT = { 'b', '6', '2' };
+	// private static final char[] POWER = { 'b', '6', '3' };
+	private static final char[] IDEN_CODE = { 'e', '9' };
+	private static final char VOLTAGE = '4';
+	private static final char CURRENT = '5';
+	private static final char POWER = '6';
+	private static final char A_PHASE = '4';
+	private static final char B_PHASE = '5';
+	private static final char C_PHASE = '6';
 	// private static final char[] A_VOLTAGE = { 'b', '6', '1', '1' };
 	// private static final char[] B_VOLTAGE = { 'b', '6', '1', '2' };
 	// private static final char[] C_VOLTAGE = { 'b', '6', '1', '3' };
@@ -132,21 +137,34 @@ public class DLT645_97ParseStrategy extends ParseStrategy implements Initializin
 		return true;
 	}
 
+	@Override
 	protected String getAddress(char[] data) {
 		return CharUtils.newString(data, BYTE * 1, BYTE * 7);
 	}
 
+	@Override
 	protected String getDecimalAddress(char[] data) {
 		String address = getAddress(data);
+		//好像是后面用0来补齐的，不是开头用a补齐
+//		for (;; i++) {
+//			char ch = address.charAt(i);
+//			if (!('a' == ch || 'A' == ch)) {
+//				break;
+//			}
+//		}
+		address = TemperatureDeviceCommandUtil.reverseString(address); 
+//		address = TemperatureDeviceCommandUtil.reverseString(address.substring(i, address.length() - 1));
 		int i = 0;
 		for (;; i++) {
 			char ch = address.charAt(i);
-			if (!('a' == ch || 'A' == ch)) {
+			if (!('0' == ch)) {
 				break;
 			}
 		}
-		address = TemperatureDeviceCommandUtil.reverseString(address.substring(i, address.length() - 1));
-		return Integer.parseInt(address) + "";
+		if (i != 0) {
+			return address.substring(i, address.length() - 1);
+		}
+		return address;
 	}
 
 	@Override
@@ -160,25 +178,32 @@ public class DLT645_97ParseStrategy extends ParseStrategy implements Initializin
 		char[] control = CharUtils.subChars(data, BYTE * 8, BYTE);
 		if (!CharUtils.equals(CODE_81, control)) {
 			logger.info("非读数据报文：" + String.valueOf(data));
+			return null;
 		}
-		char[] identification = CharUtils.subChars(data, BYTE * 10, BYTE * 2 - 1);
+		char[] code = CharUtils.subChars(data, BYTE * 11, BYTE);
+		if (!CharUtils.equals(code, IDEN_CODE)) {
+			logger.info("未知读数据报文：" + String.valueOf(data));
+			return null;
+		}
+		char identification = data[BYTE * 10];
 
 		// 电压
-		if (CharUtils.startWith(identification, VOLTAGE)) {
+		if (VOLTAGE == identification) {
 			saveVoltage(ctx, data);
 		}
 		// 电流
-		else if (CharUtils.startWith(identification, CURRENT)) {
+		else if (CURRENT == identification) {
 			saveCurrent(ctx, data);
 		}
 		// 功率
-		else if (CharUtils.startWith(identification, POWER)) {
+		else if (POWER == identification) {
 			savePower(ctx, data);
 		}
 		// 异常
-		else if (CharUtils.startWith(identification, EXCEPTION)) {
-			handleException(ctx, data);
-		} else {
+		// else if (EXCEPTIO == identification) {
+		// handleException(ctx, data);
+		// }
+		else {
 			logger.info("非法报文：" + String.valueOf(data));
 		}
 		return null;
@@ -188,12 +213,8 @@ public class DLT645_97ParseStrategy extends ParseStrategy implements Initializin
 		char[] address = CharUtils.subChars(data, BYTE, BYTE * 6);
 		String deviceNumber = String.valueOf(address);
 		deviceNumber = Integer.parseInt(deviceNumber) + "";
-		// ElectronicModule module =
-		// (ElectronicModule)CtxStore.getCtxAttribute(ctx,
-		// ATTRIBUTE_ELECTRONIC_MODULE);
-		// moduleService.selectByDeviceNumber(deviceNumber);
 		char[] value = CharUtils.subChars(data, BYTE * 12, BYTE * 2);
-		BigDecimal val = new BigDecimal(Double.valueOf(Integer.parseInt(String.valueOf(value), 16)) / 10);
+		BigDecimal val = parseVoltage(value);
 		ElectronicModuleVoltage voltage = new ElectronicModuleVoltage();
 		voltage.setSubmoduleId(ctxStore.getModuleIdbyAddress(deviceNumber));
 		voltage.setId(UUIDUtil.getUUID());
@@ -202,13 +223,20 @@ public class DLT645_97ParseStrategy extends ParseStrategy implements Initializin
 
 		voltage.setTime(new Date()); // TODO
 		voltage.setValue(val);
-		if (CharUtils.equals(data, BYTE * 11, BYTE - 1, A_PHASE)) {
+		if (A_PHASE == data[BYTE * 10 + 1]) {
 			voltage.setPhase("A");
-		} else if (CharUtils.equals(data, BYTE * 11, BYTE - 1, B_PHASE)) {
+		} else if (B_PHASE == data[BYTE * 10 + 1]) {
 			voltage.setPhase("B");
-		} else if (CharUtils.equals(data, BYTE * 11, BYTE * -1, C_PHASE)) {
+		} else if (C_PHASE == data[BYTE * 10 + 1]) {
 			voltage.setPhase("C");
 		}
+		// if (CharUtils.equals(data, BYTE * 11, BYTE - 1, A_PHASE)) {
+		// voltage.setPhase("A");
+		// } else if (CharUtils.equals(data, BYTE * 11, BYTE - 1, B_PHASE)) {
+		// voltage.setPhase("B");
+		// } else if (CharUtils.equals(data, BYTE * 11, BYTE * -1, C_PHASE)) {
+		// voltage.setPhase("C");
+		// }
 		voltageService.updateByPrimaryKey(voltage);
 	}
 
@@ -219,7 +247,7 @@ public class DLT645_97ParseStrategy extends ParseStrategy implements Initializin
 		// ElectronicModule module =
 		// moduleService.selectByDeviceNumber(deviceNumber);
 		char[] value = CharUtils.subChars(data, BYTE * 12, BYTE * 2);
-		BigDecimal val = new BigDecimal(Double.valueOf(Integer.parseInt(String.valueOf(value), 16)) / 10);
+		BigDecimal val = parseCurrent(value);
 		ElectronicModuleCurrent current = new ElectronicModuleCurrent();
 		current.setId(UUIDUtil.getUUID());
 		current.setGmtCreate(new Date());
@@ -227,13 +255,20 @@ public class DLT645_97ParseStrategy extends ParseStrategy implements Initializin
 		current.setSubmoduleId(ctxStore.getModuleIdbyAddress(deviceNumber));
 		current.setTime(new Date());// TODO
 		current.setValue(val);
-		if (CharUtils.equals(data, BYTE * 11, BYTE - 1, A_PHASE)) {
+		if (A_PHASE == data[BYTE * 10 + 1]) {
 			current.setPhase("A");
-		} else if (CharUtils.equals(data, BYTE * 11, BYTE - 1, B_PHASE)) {
+		} else if (B_PHASE == data[BYTE * 10 + 1]) {
 			current.setPhase("B");
-		} else if (CharUtils.equals(data, BYTE * 11, BYTE - 1, C_PHASE)) {
+		} else if (C_PHASE == data[BYTE * 10 + 1]) {
 			current.setPhase("C");
 		}
+		// if (CharUtils.equals(data, BYTE * 11, BYTE - 1, A_PHASE)) {
+		// current.setPhase("A");
+		// } else if (CharUtils.equals(data, BYTE * 11, BYTE - 1, B_PHASE)) {
+		// current.setPhase("B");
+		// } else if (CharUtils.equals(data, BYTE * 11, BYTE - 1, C_PHASE)) {
+		// current.setPhase("C");
+		// }
 		currentService.updateByPrimaryKey(current);
 	}
 
@@ -244,7 +279,10 @@ public class DLT645_97ParseStrategy extends ParseStrategy implements Initializin
 		// ElectronicModule module =
 		// moduleService.selectByDeviceNumber(deviceNumber);
 		char[] value = CharUtils.subChars(data, BYTE * 12, BYTE * 3);
-		BigDecimal val = new BigDecimal(Double.valueOf(Integer.parseInt(String.valueOf(value), 16)) / 10);
+		BigDecimal val = parsePower(value);
+		// = new
+		// BigDecimal(Double.valueOf(Integer.parseInt(String.valueOf(value),
+		// 16)) / 100000);
 		ElectronicModulePower power = new ElectronicModulePower();
 		power.setId(UUIDUtil.getUUID());
 		power.setGmtCreate(new Date());
@@ -252,16 +290,59 @@ public class DLT645_97ParseStrategy extends ParseStrategy implements Initializin
 		power.setSubmoduleId(ctxStore.getModuleIdbyAddress(deviceNumber));
 		power.setTime(new Date());// TODO
 		power.setValue(val);
-		if (CharUtils.equals(data, BYTE * 11, BYTE - 1, A_PHASE)) {
+		if (A_PHASE == data[BYTE * 10 + 1]) {
 			power.setPhase("A");
-		} else if (CharUtils.equals(data, BYTE * 11, BYTE - 1, B_PHASE)) {
+		} else if (B_PHASE == data[BYTE * 10 + 1]) {
 			power.setPhase("B");
-		} else if (CharUtils.equals(data, BYTE * 11, BYTE - 1, C_PHASE)) {
+		} else if (C_PHASE == data[BYTE * 10 + 1]) {
 			power.setPhase("C");
-		} else if (CharUtils.equals(data, BYTE * 11, BYTE - 1, CODE_0)) {
+		} else if ('0' == data[BYTE * 10 + 1]) {
 			power.setPhase("D");
 		}
 		powerService.updateByPrimaryKey(power);
+	}
+
+	/**
+	 * 7c3b33 333b7c 490800 000849 8.49
+	 * 
+	 * @param value
+	 * @return
+	 */
+	private BigDecimal parsePower(char[] value) {
+		// 反转
+		char[] val = CharUtils.reverse(value);
+		// 降位
+		val = CharUtils.lowerText(val, 3);
+		int n1 = CharUtils.charToDecimal(val[0], val[1]);
+		int n2 = CharUtils.charToDecimal(val[2], val[3]);
+		int n3 = CharUtils.charToDecimal(val[4], val[5]);
+		StringBuilder sb = new StringBuilder();
+		sb.append(n1).append(n2).append(".").append((n3 > 9) ? n3 : "0" + n3);
+		return new BigDecimal(sb.toString());
+	}
+
+	private BigDecimal parseCurrent(char[] value) {
+		// 反转
+		char[] val = CharUtils.reverse(value);
+		// 降位
+		val = CharUtils.lowerText(val, 3);
+		int n1 = CharUtils.charToDecimal(val[0], val[1]);
+		int n2 = CharUtils.charToDecimal(val[2], val[3]);
+		StringBuilder sb = new StringBuilder();
+		sb.append(n1).append(n2);
+		return new BigDecimal(sb.toString());
+	}
+
+	private BigDecimal parseVoltage(char[] value) {
+		// 反转
+		char[] val = CharUtils.reverse(value);
+		// 降位
+		val = CharUtils.lowerText(val, 3);
+		int n1 = CharUtils.charToDecimal(val[0], val[1]);
+		int n2 = CharUtils.charToDecimal(val[2], val[3]);
+		StringBuilder sb = new StringBuilder();
+		sb.append(n1).append(n2);
+		return new BigDecimal(sb.toString());
 	}
 
 	private void handleException(ChannelHandlerContext ctx, char[] data) {
