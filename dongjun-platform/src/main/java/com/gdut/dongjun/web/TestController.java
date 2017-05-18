@@ -1,6 +1,7 @@
 package com.gdut.dongjun.web;
 
 import java.io.File;
+import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -23,9 +24,15 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.BigGroup;
+import com.gdut.dongjun.domain.po.ElectronicModuleCurrent;
+import com.gdut.dongjun.domain.po.ElectronicModulePower;
+import com.gdut.dongjun.domain.po.ElectronicModuleVoltage;
 import com.gdut.dongjun.service.BigGroupService;
 import com.gdut.dongjun.service.PersistentHitchMessageService;
 import com.gdut.dongjun.service.UserService;
+import com.gdut.dongjun.service.device.ElectronicModuleCurrentService;
+import com.gdut.dongjun.service.device.ElectronicModulePowerService;
+import com.gdut.dongjun.service.device.ElectronicModuleVoltageService;
 import com.gdut.dongjun.service.device.temperature.TemperatureMeasureService;
 import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 import com.gdut.dongjun.service.webservice.server.WebsiteService;
@@ -297,5 +304,75 @@ public class TestController implements InitializingBean {
 		hardService.getService().sendMessage(msg);
 		return ResponseMessage.success("success!");
 	}
+	
+//	@Autowired
+//	private ElectronicModuleCurrentService cService;
+//	@Autowired
+//	private ElectronicModuleVoltageService vService;
+//	@Autowired
+//	private ElectronicModulePowerService pService;
+	
+//	@RequestMapping("/randomadd")
+//	@ResponseBody
+//	public void randomAdd() {
+//		for (int i = 0; i < 10; i++) {
+//			ElectronicModuleCurrent c = new ElectronicModuleCurrent();
+//			c.setId(UUIDUtil.getUUID());
+//			c.setPhase("A");
+//			c.setSubmoduleId("f71ff6ca992a4e8291b66f8df84e0202");
+//			c.setTime(new Date());
+//			c.setValue(new BigDecimal(Math.random() * 100));
+//			cService.updateByPrimaryKey(c);
+//			c.setId(UUIDUtil.getUUID());
+//			c.setPhase("B");
+//			c.setValue(new BigDecimal(Math.random() * 100));
+//			cService.updateByPrimaryKey(c);
+//			c.setId(UUIDUtil.getUUID());
+//			c.setPhase("C");
+//			c.setValue(new BigDecimal(Math.random() * 100));
+//			cService.updateByPrimaryKey(c);
+//			
+//			ElectronicModuleVoltage v = new ElectronicModuleVoltage();
+//			v.setId(UUIDUtil.getUUID());
+//			v.setPhase("A");
+//			v.setSubmoduleId("f71ff6ca992a4e8291b66f8df84e0202");
+//			v.setTime(new Date());
+//			v.setValue(new BigDecimal(Math.random() * 100));
+//			vService.updateByPrimaryKey(v);
+//			v.setId(UUIDUtil.getUUID());
+//			v.setPhase("B");
+//			v.setSubmoduleId("f71ff6ca992a4e8291b66f8df84e0202");
+//			v.setTime(new Date());
+//			v.setValue(new BigDecimal(Math.random() * 100));
+//			vService.updateByPrimaryKey(v);
+//			v.setId(UUIDUtil.getUUID());
+//			v.setPhase("C");
+//			v.setSubmoduleId("f71ff6ca992a4e8291b66f8df84e0202");
+//			v.setTime(new Date());
+//			v.setValue(new BigDecimal(Math.random() * 100));
+//			vService.updateByPrimaryKey(v);
+//			
+//			ElectronicModulePower p = new  ElectronicModulePower();
+//			p.setId(UUIDUtil.getUUID());
+//			p.setPhase("A");
+//			p.setSubmoduleId("f71ff6ca992a4e8291b66f8df84e0202");
+//			p.setTime(new Date());
+//			p.setValue(new BigDecimal(Math.random() * 100));
+//			pService.updateByPrimaryKey(p);
+//			p.setId(UUIDUtil.getUUID());
+//			p.setPhase("B");
+//			p.setSubmoduleId("f71ff6ca992a4e8291b66f8df84e0202");
+//			p.setTime(new Date());
+//			p.setValue(new BigDecimal(Math.random() * 100));
+//			pService.updateByPrimaryKey(p);
+//			p.setId(UUIDUtil.getUUID());
+//			p.setPhase("C");
+//			p.setSubmoduleId("f71ff6ca992a4e8291b66f8df84e0202");
+//			p.setTime(new Date());
+//			p.setValue(new BigDecimal(Math.random() * 100));
+//			pService.updateByPrimaryKey(p);
+//			
+//		}
+//	}
 	
 }
