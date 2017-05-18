@@ -11,32 +11,26 @@ import java.util.Map.Entry;
 
 import org.apache.commons.collections.CollectionUtils;
 
-import com.gdut.dongjun.domain.po.ElectronicModuleCurrent;
-import com.gdut.dongjun.domain.po.TemperatureMeasure;
-import com.gdut.dongjun.util.NumberUtil;
+import com.gdut.dongjun.domain.po.ElectronicModuleVoltage;
 import com.gdut.dongjun.util.TimeUtil;
 
-public class ElectronicChartData extends ChartData {
-
-	public ElectronicChartData() {
-		super();
-	}
+public class ElectronicVoltageChartData extends ChartData {
 
 	@Override
 	public ChartData doGetJsonChart(Object obj) {
 		Map<String, Object> data = (Map<String, Object>) obj;
 		List<String> legendData = new ArrayList<String>();
-		ElectronicChartData chartData = new ElectronicChartData();
+		ElectronicVoltageChartData chartData = new ElectronicVoltageChartData();
 		HashSet<Date> set = new HashSet<Date>();
 		List<Date> timeList = new ArrayList<Date>();
 		List<String> xData = new ArrayList<String>();
 		// 时间去重，排序
 		for (Entry<String, Object> entry : data.entrySet()) {
-			List<ElectronicModuleCurrent> measureList = null;
+			List<ElectronicModuleVoltage> measureList = null;
 			if (entry.getValue() instanceof List) {
-				measureList = (List<ElectronicModuleCurrent>) (entry.getValue());
+				measureList = (List<ElectronicModuleVoltage>) (entry.getValue());
 			}
-			for (ElectronicModuleCurrent measure : measureList) {
+			for (ElectronicModuleVoltage measure : measureList) {
 				set.add(measure.getTime());
 			}
 		}
@@ -59,7 +53,7 @@ public class ElectronicChartData extends ChartData {
 			chaseData = new ChaseData(entry.getKey());
 			legendData.add(entry.getKey());
 
-			List<ElectronicModuleCurrent> measureList = (List<ElectronicModuleCurrent>) (entry.getValue());
+			List<ElectronicModuleVoltage> measureList = (List<ElectronicModuleVoltage>) (entry.getValue());
 			List<Float> chartValue = new ArrayList<Float>();
 			i = timeList.iterator();
 			j = measureList.iterator();
@@ -67,7 +61,7 @@ public class ElectronicChartData extends ChartData {
 			if (!j.hasNext()) {
 				flag = 0;
 			} else {
-				j_time = ((ElectronicModuleCurrent) j.next()).getTime();
+				j_time = ((ElectronicModuleVoltage) j.next()).getTime();
 			}
 			int count = 0;
 			for (;;) {
@@ -80,7 +74,7 @@ public class ElectronicChartData extends ChartData {
 				if (flag == 1 && i_time.getTime() == j_time.getTime()) {
 					chartValue.add(measureList.get(count).getValue().floatValue());
 					if (j.hasNext()) {
-						j_time = ((ElectronicModuleCurrent) j.next()).getTime();
+						j_time = ((ElectronicModuleVoltage) j.next()).getTime();
 					} else {
 						// 时间集合遍历完毕，设置标志位为0
 						flag = 0;

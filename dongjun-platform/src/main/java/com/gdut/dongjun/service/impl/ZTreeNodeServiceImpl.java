@@ -1,6 +1,5 @@
 package com.gdut.dongjun.service.impl;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -8,6 +7,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,9 +17,7 @@ import com.gdut.dongjun.domain.po.DataMonitor;
 import com.gdut.dongjun.domain.po.DeviceGroup;
 import com.gdut.dongjun.domain.po.DeviceGroupMapping;
 import com.gdut.dongjun.domain.po.PlatformGroup;
-import com.gdut.dongjun.domain.po.TemperatureSensor;
 import com.gdut.dongjun.domain.po.User;
-import com.gdut.dongjun.domain.po.UserDeviceMapping;
 import com.gdut.dongjun.service.DeviceGroupMappingService;
 import com.gdut.dongjun.service.DeviceGroupService;
 import com.gdut.dongjun.service.PlatformGroupService;
@@ -164,8 +163,13 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 
 				List<DataMonitor> monitors = monitorService
 						.selectByParameters(MyBatisMapUtil.warp("group_id", pgList.get(j).getId()));
+				Subject sub = SecurityUtils.getSubject();
+				boolean isAdm = false;
+				if (sub.hasRole("platform_group_admin")) {
+					isAdm = true;
+				}
 				for (int k = 0; k < monitors.size(); k++) {
-					if (ids.contains(monitors.get(k).getId())) {
+					if (isAdm || ids.contains(monitors.get(k).getId())) {
 						ZTreeNode n3 = new ZTreeNode();
 						if (monitors.get(k) != null) {
 
@@ -219,8 +223,13 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 
 		List<DeviceGroupMapping> mappingList = mappingService
 				.selectByParameters(MyBatisMapUtil.warp("device_group_id", dg.getId()));
+		Subject subject = SecurityUtils.getSubject();
+		boolean isAdm = false;
+		if (subject.hasRole("platform_group_admin")) {
+			isAdm = true;
+		}
 		for (DeviceGroupMapping mapping : mappingList) {
-			if (ids.contains(mapping.getDeviceId())) {
+			if (isAdm || ids.contains(mapping.getDeviceId())) {
 				ZTreeNode node4 = new ZTreeNode();
 				DataMonitor monitor = monitorService.selectByPrimaryKey(mapping.getDeviceId());
 				node4.setId(monitor.getId());
