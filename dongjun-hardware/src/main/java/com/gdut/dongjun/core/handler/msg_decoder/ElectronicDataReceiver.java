@@ -211,12 +211,8 @@ public class ElectronicDataReceiver extends AbstractDataReceiver implements Init
 		char[] address = CharUtils.subChars(data, BYTE, BYTE * 6);
 		String deviceNumber = String.valueOf(address);
 		deviceNumber = Integer.parseInt(deviceNumber) + "";
-		// ElectronicModule module =
-		// (ElectronicModule)CtxStore.getCtxAttribute(ctx,
-		// ATTRIBUTE_ELECTRONIC_MODULE);
-		// moduleService.selectByDeviceNumber(deviceNumber);
 		char[] value = CharUtils.subChars(data, BYTE * 12, BYTE * 2);
-		BigDecimal val = new BigDecimal(Double.valueOf(Integer.parseInt(String.valueOf(value), 16)) / 100);
+		BigDecimal val = parseVoltage(value);
 		ElectronicModuleVoltage voltage = new ElectronicModuleVoltage();
 		voltage.setSubmoduleId(ctxStore.getModuleIdbyAddress(deviceNumber));
 		voltage.setId(UUIDUtil.getUUID());
@@ -251,7 +247,7 @@ public class ElectronicDataReceiver extends AbstractDataReceiver implements Init
 		// ElectronicModule module =
 		// moduleService.selectByDeviceNumber(deviceNumber);
 		char[] value = CharUtils.subChars(data, BYTE * 12, BYTE * 2);
-		BigDecimal val = new BigDecimal(Double.valueOf(Integer.parseInt(String.valueOf(value), 16)) / 10);
+		BigDecimal val = parseCurrent(value);
 		ElectronicModuleCurrent current = new ElectronicModuleCurrent();
 		current.setId(UUIDUtil.getUUID());
 		current.setGmtCreate(new Date());
@@ -285,7 +281,8 @@ public class ElectronicDataReceiver extends AbstractDataReceiver implements Init
 		// ElectronicModule module =
 		// moduleService.selectByDeviceNumber(deviceNumber);
 		char[] value = CharUtils.subChars(data, BYTE * 12, BYTE * 3);
-		BigDecimal val = new BigDecimal(Double.valueOf(Integer.parseInt(String.valueOf(value), 16)) / 10);
+		BigDecimal val = parsePower(value);
+//		= new BigDecimal(Double.valueOf(Integer.parseInt(String.valueOf(value), 16)) / 100000);
 		ElectronicModulePower power = new ElectronicModulePower();
 		power.setId(UUIDUtil.getUUID());
 		power.setGmtCreate(new Date());
@@ -306,6 +303,52 @@ public class ElectronicDataReceiver extends AbstractDataReceiver implements Init
 			power.setPhase("D");
 		}
 		powerService.updateByPrimaryKey(power);
+	}
+
+	/**
+	 * 7c3b33 
+	 * 333b7c
+	 * 490800
+	 * 000849
+	 * 8.49
+	 * @param value
+	 * @return
+	 */
+	private BigDecimal parsePower(char[] value) {
+		//反转
+		char[] val = CharUtils.reverse(value);
+		//降位
+		val = CharUtils.lowerText(val, 3);
+		int n1 = CharUtils.charToDecimal(val[0], val[1]);
+		int n2 = CharUtils.charToDecimal(val[2], val[3]);
+		int n3 = CharUtils.charToDecimal(val[4], val[5]);
+		StringBuilder sb = new StringBuilder();
+		sb.append(n1).append(n2).append(".").append((n3 > 9) ? n3 : "0" + n3);
+		return new BigDecimal(sb.toString());
+	}
+	
+	private BigDecimal parseCurrent(char[] value) {
+		//反转
+		char[] val = CharUtils.reverse(value);
+		//降位
+		val = CharUtils.lowerText(val, 3);
+		int n1 = CharUtils.charToDecimal(val[0], val[1]);
+		int n2 = CharUtils.charToDecimal(val[2], val[3]);
+		StringBuilder sb = new StringBuilder();
+		sb.append(n1).append(n2);
+		return new BigDecimal(sb.toString());
+	}
+	
+	private BigDecimal parseVoltage(char[] value) {
+		//反转
+		char[] val = CharUtils.reverse(value);
+		//降位
+		val = CharUtils.lowerText(val, 3);
+		int n1 = CharUtils.charToDecimal(val[0], val[1]);
+		int n2 = CharUtils.charToDecimal(val[2], val[3]);
+		StringBuilder sb = new StringBuilder();
+		sb.append(n1).append(n2);
+		return new BigDecimal(sb.toString());
 	}
 
 	private void handleException(ChannelHandlerContext ctx, char[] data) {
@@ -425,22 +468,41 @@ public class ElectronicDataReceiver extends AbstractDataReceiver implements Init
 				break;
 			}
 		}
-		return address.substring(i, address.length() - 1);
+		if (i != 0) {
+			return address.substring(i, address.length() - 1);
+		}
+		return address;
 	}
-
+	
 //	public static void main(String[] args) {
-//		// String a = "5735";
-//		// String[] b = new String[a.length() / 2];
-//		// for (int i = 0; i < a.length(); i = i + 2) {
-//		// b[i / 2] = a.substring(i, i + 2);
-//		// }
-//		// for (String t : b) {
-//		// System.out.print(Integer.parseInt(t, 16) + " ");
-//		// }
-//		// System.out.println(Integer.parseInt(a, 16));
-//
-////		String a = "6840010001080068810444e9";
-////		System.out.println(a.length() / 2);
+////		String a = "7c3b33";
+////		String[] b = new String[3];
+////		StringBuilder sb = new StringBuilder();
+////		for (int i = 0; i < a.length(); i += 2) {
+////			sb.append(Integer.parseInt(a.substring(i, i + 2), 16) + "");
+////			System.out.print(			Integer.parseInt(a.substring(i, i + 2), 16) + " ");
+////			Integer.parseInt(a.substring(i, i + 2), 16);
+////			b[i / 2] = a.substring(i, i + 2);
+////		}
+////		System.out.println(Double.parseDouble(sb.toString()) / 100000);
+//		
+//		int n1 = 0;
+//		int n2 = 0;
+//		int n3 = 9;
+//		StringBuilder sb = new StringBuilder();
+//		sb.append(n1).append(n2).append(".").append((n3 > 9) ? n3 : "0" + n3);
+//		System.out.println(new BigDecimal(sb.toString()));
+		
+//		char[] value = "4b33".toCharArray();
+//		//反转
+//		char[] val = CharUtils.reverse(value);
+//		//降位
+//		val = CharUtils.lowerText(val, 3);
+//		int n1 = CharUtils.charToDecimal(val[0], val[1]);
+//		int n2 = CharUtils.charToDecimal(val[2], val[3]);
+//		StringBuilder sb = new StringBuilder();
+//		sb.append(n1).append(n2);
+//		System.out.println(sb.toString());
 //	}
 
 }

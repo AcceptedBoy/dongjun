@@ -33,18 +33,18 @@ public class DLT645_97MessageCreator implements MessageCreator {
 	private static final List<String> ADDRESS_LIST = new ArrayList<String>() {
 		{
 			//电压ABC相
-			add("b611");
-			add("b612");
-			add("b613");
+			add("44e9");	//b611
+			add("45e9");	//b612
+			add("46e9");	//b613
 			//电流ABC相
-			add("b621");
-			add("b622");
-			add("b623");
+			add("54e9");	//b621
+			add("55e9");	//b622
+			add("56e9");	//b623
 			//总功率因数、功率ABC相
-			add("b630");
-			add("b631");
-			add("b632");
-			add("b633");
+			add("63e9");	//b630
+			add("64e9");	//b631
+			add("65e9");	//b632
+			add("66e9");	//b633
 		}
 	};
 
@@ -52,7 +52,7 @@ public class DLT645_97MessageCreator implements MessageCreator {
 	public List<String> generateTotalCall(String address) {
 		List<String> msgList = new ArrayList<String>();
 		for (String dataField : ADDRESS_LIST) {
-			msgList.add(getReadMessage(address, TemperatureDeviceCommandUtil.reverseString(dataField)));
+			msgList.add(getReadMessage(address, dataField));
 		}
 		return msgList;
 	}
@@ -139,12 +139,12 @@ public class DLT645_97MessageCreator implements MessageCreator {
 		return HEX.charAt(num);
 	}
 	
-	public static void main(String[] args) {
-		
-		DLT645_97MessageCreator c = new DLT645_97MessageCreator();
-		for (String s : c.generateTotalCall("400100010800")) {
-			System.out.println(s);
-		}
-	}
+//	public static void main(String[] args) {
+//		
+//		DLT645_97MessageCreator c = new DLT645_97MessageCreator();
+//		for (String s : c.generateTotalCall("999999999999")) {
+//			System.out.println(s);
+//		}
+//	}
 	
 }

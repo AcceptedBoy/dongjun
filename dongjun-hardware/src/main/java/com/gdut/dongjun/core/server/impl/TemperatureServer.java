@@ -52,15 +52,15 @@ public class TemperatureServer extends NetServer {
 				if (info.getDecimalAddress().length() != BYTE * 6) {
 					//如果地址不足偶数位，首位补0
 					String a = info.getDecimalAddress();
-					if (!(info.getDecimalAddress().length() % 2 == 0)) {
-						a = "0" + info.getDecimalAddress();
-					}					
+//					if (!(info.getDecimalAddress().length() % 2 == 0)) {
+//						a = "0" + info.getDecimalAddress();
+//					}					
 					StringBuilder sb = new StringBuilder();
+					sb.append(TemperatureDeviceCommandUtil.reverseString(a));
 					int numOf0 = BYTE * 6 - a.length();
 					for (int i = 0; i < numOf0; i++) {
-						sb.append("a");
+						sb.append("0");
 					}
-					sb.append(TemperatureDeviceCommandUtil.reverseString(a));
 					address = sb.toString();
 				} else {
 					address = TemperatureDeviceCommandUtil.reverseString(info.getDecimalAddress());
@@ -71,18 +71,7 @@ public class TemperatureServer extends NetServer {
 				logger.info("发送电能表总召命令：" + order);
 				info.getCtx().writeAndFlush(order);
 				try {
-					Thread.sleep(500);
-				} catch (InterruptedException e) {
-					logger.info("发报文线程出错！");
-					e.printStackTrace();
-				}
-			}
-			List<String> wideCall = elecMessageCreator.generateTotalCall("999999999999");
-			for (String order : wideCall) {
-				logger.info("发送电能表广播总召命令：" + order);
-				info.getCtx().writeAndFlush(order);
-				try {
-					Thread.sleep(500);
+					Thread.sleep(100);
 				} catch (InterruptedException e) {
 					logger.info("发报文线程出错！");
 					e.printStackTrace();
