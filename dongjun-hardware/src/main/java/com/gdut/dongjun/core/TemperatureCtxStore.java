@@ -30,11 +30,8 @@ public class TemperatureCtxStore extends CtxStore {
 	 * 否则只能通过ApplicationContext来弄
 	 * @param deviceService
 	 */
-	private static TemperatureModuleService moduleService;
 	@Autowired
-	public void setDeviceService(TemperatureModuleService moduleService) {
-		TemperatureCtxStore.moduleService = moduleService;
-	}
+	private TemperatureModuleService moduleService;
 
 	/*
 	 * TODO 线程安全？
@@ -44,11 +41,11 @@ public class TemperatureCtxStore extends CtxStore {
 	
 	private static Logger logger = Logger.getLogger(TemperatureCtxStore.class);
 	
-	public static Double getUpperBoundById(String id) {
+	public Double getUpperBoundById(String id) {
 		return upperBound.get(id);
 	}
 	
-	public static Double getLowerBoundById(String id) {
+	public Double getLowerBoundById(String id) {
 		return lowerBound.get(id);
 	}
 	
@@ -56,7 +53,7 @@ public class TemperatureCtxStore extends CtxStore {
 	 * 是否超过设定的阈值。如果没有设置阈值，则返回false。
 	 * @return
 	 */
-	public static boolean isAboveBound(String id, Double value) {
+	public boolean isAboveBound(String id, Double value) {
 		
 		if (!upperBound.containsKey(id) && !lowerBound.containsKey(id)) {
 			synchronized (TemperatureCtxStore.class) {
@@ -96,7 +93,7 @@ public class TemperatureCtxStore extends CtxStore {
 	 * 设置阈值上下限
 	 * @param id
 	 */
-	public static void setBound(String id) {
+	public void setBound(String id) {
 		TemperatureModule device = moduleService.selectByPrimaryKey(id);
 		if (null == device) {
 			return ;

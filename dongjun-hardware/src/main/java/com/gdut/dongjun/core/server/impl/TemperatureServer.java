@@ -32,7 +32,8 @@ public class TemperatureServer extends NetServer {
 	@Resource(name = "TemperatureServerInitializer")
 	public void setInitializer(ServerInitializer initializer) {
 		super.initializer = initializer;
-		super.hitchEventBreak = 30 * 60 * 1000;
+		super.hitchEventBreak = 5 * 60 * 1000;
+//		super.hitchEventBreak = 30 * 60 * 1000;
 		// super.cvReadBreak = 30 * 1000;//设置较短的读取间隔
 	}
 
@@ -83,7 +84,7 @@ public class TemperatureServer extends NetServer {
 		}
 		//发送报文
 		for (int i = 0; i < textNum; i++) {
-			long sendNano = System.nanoTime();
+//			long sendNano = System.nanoTime();
 			for (ChannelSendMessage csm : senderList) {
 				Stack<String> stack = csm.getAllMessage();
 				if (0 == stack.size()) {
@@ -94,7 +95,8 @@ public class TemperatureServer extends NetServer {
 			}
 			//对于一个Channel来说，相邻两个报文发送的间隔近乎2s
 			try {
-				Thread.sleep(2 * 1000 - (System.nanoTime() - sendNano) / 1000);
+//				Thread.sleep(2 * 1000 - (System.nanoTime() - sendNano) / 1000);
+				Thread.sleep(2 * 1000);
 			} catch (InterruptedException e) {
 				logger.info("发报文线程被中断!!！");
 			}

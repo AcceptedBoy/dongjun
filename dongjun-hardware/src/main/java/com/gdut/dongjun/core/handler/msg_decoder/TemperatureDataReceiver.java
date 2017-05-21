@@ -423,7 +423,7 @@ public class TemperatureDataReceiver extends AbstractDataReceiver implements Ini
 		measureHistoryService.insert(new TemperatureMeasureHistory(UUIDUtil.getUUID(), deviceId,
 				new Timestamp(System.currentTimeMillis()), tag, Integer.parseInt(value, 16) * 10 + ""));
 		doSaveMeasure0(value, deviceId, tag);
-		if (TemperatureCtxStore.isAboveBound(deviceId, 
+		if (ctxStore.isAboveBound(deviceId, 
 				Double.valueOf("" + Integer.parseInt(value, 16)) / 10)) {
 			createHitchEvent(deviceId, value, tag, ctx);
 		}
@@ -449,7 +449,7 @@ public class TemperatureDataReceiver extends AbstractDataReceiver implements Ini
 					new Timestamp(System.currentTimeMillis()), i, Integer.parseInt(value[i - 1], 16) * 10 + ""));
 			doSaveMeasure0(value[i - 1], deviceId, i);
 			// 插入报警数据
-			if (TemperatureCtxStore.isAboveBound(deviceId,
+			if (ctxStore.isAboveBound(deviceId,
 					Double.valueOf("" + Integer.parseInt(value[i - 1], 16)) / 10)) {
 				createHitchEvent(deviceId, value[i - 1], i, ctx);
 			}

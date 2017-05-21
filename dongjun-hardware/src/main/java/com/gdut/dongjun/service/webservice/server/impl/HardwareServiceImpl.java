@@ -18,6 +18,8 @@ import com.gdut.dongjun.core.handler.ChannelInfo;
 import com.gdut.dongjun.core.handler.msg_decoder.ElectronicDataReceiver;
 import com.gdut.dongjun.core.handler.msg_decoder.GPRSDataReceiver;
 import com.gdut.dongjun.core.handler.msg_decoder.TemperatureDataReceiver;
+import com.gdut.dongjun.core.handler.thread.ScheduledTaskExecutor;
+import com.gdut.dongjun.core.handler.thread.TemperatureCacheTask;
 import com.gdut.dongjun.core.server.impl.TemperatureServer;
 import com.gdut.dongjun.domain.dto.HitchEventDTO;
 import com.gdut.dongjun.domain.po.ModuleHitchEvent;
@@ -91,9 +93,13 @@ public class HardwareServiceImpl implements HardwareService {
 //		return ctxStore.get(id);
 //	}
 
+	/**
+	 * 改为提交延时任务
+	 */
 	@Override
 	public void changeTemperatureDevice(String id) {
-		TemperatureCtxStore.setBound(id);
+		ScheduledTaskExecutor.submit(new TemperatureCacheTask(id, temCtxStore));
+//		temCtxStore.setBound(id);
 	}
 
 	@Override

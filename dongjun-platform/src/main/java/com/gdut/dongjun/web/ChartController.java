@@ -405,6 +405,8 @@ public class ChartController {
 				powerService.selectByTime(deviceId, beginDate, endDate, "B"));
 		measureMap.put("C相",
 				powerService.selectByTime(deviceId, beginDate, endDate, "C"));
+		measureMap.put("总功率",
+				powerService.selectByTime(deviceId, beginDate, endDate, "D"));
 		ElectronicPowerChartData chartData = new ElectronicPowerChartData();
 		return chartData.getJsonChart(measureMap);
 	}
