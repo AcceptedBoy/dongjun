@@ -318,10 +318,8 @@ public class TemperatureDataReceiver extends AbstractDataReceiver implements Ini
 			ctx.writeAndFlush(correctTime);
 		}
 
-//		SwitchGPRS gprs = ctxStore.get(ctx);
 		ChannelInfo info = ctxStore.get(ctx);
 		String moduleId = info.getModuleId();
-//		String deviceId = gprs.getId();
 
 		if (CharUtils.equals(data, 20, 22, CODE_01)) {
 			// 处理遥测变化
@@ -361,8 +359,6 @@ public class TemperatureDataReceiver extends AbstractDataReceiver implements Ini
 		}
 		ChannelInfo info = ctxStore.get(ctx);
 		String moduleId = info.getModuleId();
-//		SwitchGPRS gprs = ctxStore.get(ctx);
-//		String deviceId = gprs.getId();
 		int index = 26 * BYTE;
 		for (int i = index; i < data.length - 2 * BYTE; i = i + BYTE) {
 			if (i >= index + 39 * BYTE) {

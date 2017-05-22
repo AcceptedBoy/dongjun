@@ -34,8 +34,6 @@ public class GPRSModuleController {
 	@Autowired
 	private GPRSModuleService gprsService;
 	@Autowired
-	private PlatformGroupService pgService;
-	@Autowired
 	private UserService userService;
 	@Autowired
 	private HardwareServiceClient hardwareServiceClient;
@@ -63,6 +61,7 @@ public class GPRSModuleController {
 			}
 			gprs.setId(UUIDUtil.getUUID());
 			gprs.setAvailable(true);
+			//设置DataMonitorSubmodule
 			DataMonitorSubmodule submodule = new DataMonitorSubmodule();
 			submodule.setId(UUIDUtil.getUUID());
 			submodule.setAvailable(1);
@@ -78,8 +77,10 @@ public class GPRSModuleController {
 				return ResponseMessage.success("操作成功");
 			}
 		} else {
-			// GPRSModule module =
-			// gprsService.selectByPrimaryKey(gprs.getDeviceNumber());
+			GPRSModule m = gprsService.selectByPrimaryKey(gprs.getId());
+			if (null == m) {
+				return ResponseMessage.warning("该设备未注册"); 
+			}
 			List<GPRSModule> modules = gprsService
 					.selectByParameters(MyBatisMapUtil.warp("device_number", gprs.getDeviceNumber()));
 			if (0 != modules.size() && !modules.get(0).getId().equals(gprs.getId())) {

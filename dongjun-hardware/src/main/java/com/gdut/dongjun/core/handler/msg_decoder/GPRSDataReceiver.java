@@ -150,6 +150,7 @@ public class GPRSDataReceiver extends AbstractDataReceiver {
 	 * @param ctx
 	 */
 	public void initChannelInfo(String gprsId, ChannelHandlerContext ctx) {
+		//TODO 事先要添加GPRS到DataMonitorSubmodule
 		String monitorId = submoduleService.selectMonitorIdByModuleId(gprsId);
 		List<DataMonitorSubmodule> submodules = submoduleService.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
 		for (DataMonitorSubmodule submodule : submodules) {
