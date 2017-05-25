@@ -1,344 +1,503 @@
-var notification = (function(){
-	// 储存每个通知标签
-	var store = {
-		notify: [],
-		maxIndex: 0, // 当前notify数组中最大的下标
-		length: 0,
-		blanks: [],
-		ignore: [],
-		done: [],
-		hasLoadDetail: []
-	}
-	// 相关dom
-	var doms = {
-		cover: null,
-		wrapper: null
-	}
-	var className = {
-		detail: 'notification_full_item detail',
-		normal: 'notification_full_item'
-	}
-	var icon = {
-		danger: '!',
-		success: 'O',
-		normal: '·'
-	}
-	// 用于匹配显示详情时的label，由初始时传入
-	var detailLabel = {}
-	// 用于选择显示在简易通知的标题和描述
-	var simpleLabel = {
-		title: 'title',
-		description: 'description'
-	}
+/**
+ * 寄生式继承 继承原型
+ * 处理的不是对象，而是类的原型
+ * @param subClass      子类
+ * @param superClass    父类
+ **/
+function inheritPrototype(subClass, superClass) {
+  // 声明一个过渡函数对象
+  function F() {}
+  // 过渡对象的原型继承父对象
+  F.prototype = superClass.prototype
+  // 返回过渡对象的一个实例， 该实例的原型继承了父对象
+  // 复制一份父类的原型副本保存在p中
+  var p = new F()
+  // 修正因为重写子类原型导致子类的constructor属性被修改
+  p.constructor = subClass
+  // 设置子类的原型
+  subClass.prototype = p
+}
 
-	// 限制显示通知数，超过限制显示btn
-	var limit = {
-		__hasFlow: false,
-		num: 100,
-		text: '查看更多',
-		href: '#',
-		action: null
-	}
-	var isHiding = true 
-	return {
-		getStore: function() {
-			return store
-		},
-		start: function(setting) {
-			// 匹配显示详情时的label
-			detailLabel = setting.detail
-			// 显示在简易通知的标题和描述
-			if(setting.simple) {
-				simpleLabel = setting.simple
-			}
-			if(setting.limit) {
-				for(var k in setting.limit) {
-					limit[k] = setting.limit[k]
-				}
-				limit.__hasFlow = false
-			}
-			var nFull = document.createElement('div')
-			nFull.id = 'notification_full'
-			nFull.className = 'hide'
-			var containerDomStr = '<div class="notification_full_container">'+
-										            '<div class="notification_full_wrapper" id="notification_full_wrapper">'+
-										            '</div>'+
-										        '</div>'+
-										        '<div class="notification_full_close" data-type="close_btn">×</div>';
-			nFull.innerHTML = containerDomStr
-			doms.wrapper = nFull.querySelector('#notification_full_wrapper')
-			doms.cover = nFull
-			var body = document.getElementsByTagName('body')[0]
-			body.appendChild(nFull)
+var NotifyBase = function(data) {
+  this.el = document.createElement('div')
+  this.el.className = 'notification_full_item '
+  this.data = data && data.data || null
+  this.setting = data
+  this.id = data && data.id || ''
+  // this.init()
+}
 
-			this.listen()
-		},
-		changeDetail: function(type, data, isCover) {
-			switch(type) {
-				case 'edit': 
-					for(var k in data) {
-						if(detailLabel[k] && isCover) {
-							detailLabel[k] = data[k]
-						} else {
-							detailLabel[k] = data[k]
-						}
-					}
-					return
-				case 'delete':
-					if(Object.prototype.toString.call(data) == '[object Array]') {
-						data.forEach(function(key) {
-							delete detailLabel[key]
-						})
-					} else {
-						delete detailLabel[detail]
-					}
-					return
-			}
-		},
-		listen: function() {
-			doms.cover.addEventListener('click', function(e) {
-				var ev = e || window.event
-				var target = ev.target
-				var fncType = target.dataset.type
-				if(typeof fncType == 'undefined') {
-					return
-				}
-				if(fncType.match(/^item/)) {
-					while(!target.dataset.type.match(/^item$/)) {
-						target = target.parentNode
-					}
-					if(fncType == 'item-ignore') {
-						this.ignoreNotify(target)
-					} else {
-						this.notifyDetail(target)
-					}
-					// this.removeNotify(target)
-				} else if(fncType == 'close_btn'){
-					this.clearNotify()
-				}
-			}.bind(this))
-		},
-		showCover: function() {
-			isHiding = false
-			doms.cover.className = 'show'
-		},
-		hideCover: function() {
-			isHiding = true
-			doms.cover.className = 'hide'
-		},
-		createNotify: function(data, type) {
-			var index
-			if(store.blanks.length > 0) {
-				index = store.blanks.shift()
-				store.notify.splice(index, 1, data)
-			} else {
-				index = store.maxIndex++ 
-				store.notify.push(data)
-			}
-			store.length++
-			// store.notify.push(data)	// 暂存
-			var currentTime = this.getCurrentTime()
-			var item = document.createElement('div')
-			item.className = 'notification_full_item ' + type
-			item.dataset.type = 'item'
-			item.dataset.index = index
-			var domStr = 	'<div class="notification_full_item_icon" data-type="item-icon"> ' + icon[type] + '</div>' +
-                    '<div class="notification_full_item_content" data-type="item-content">' +
-                        '<div class="content_title" data-type="item-content"> '+ data[simpleLabel.title] +' </div>' +
-                        '<div class="content_time" data-type="item-content"> '+ currentTime +'</div>' +
-                        '<div class="content_description" data-type="item-content"> '+ data[simpleLabel.description] +' </div>' +
-                        '<div class="content_enter" data-type="item-content">点击查看详情</div>' +
-                    '</div>' +
-                    '<div class="notification_full_item_close" data-type="item-ignore" style="font-size: 1.4em">×</div>'
-      item.innerHTML = domStr
-      return item
-		},
-		notifyDetail: function(item) {
-			if(item.className.search(/\sdetail$/) != -1) {
-				item.className = item.className.replace(/\sdetail/, '')
-				return
-			}
-			var index = parseInt(item.dataset.index)
-			if(store.hasLoadDetail.indexOf(index) == -1) {
-				var data = store.notify[index]
-				var detailDom = this.createDetail(data)
-				item.appendChild(detailDom)
-				store.hasLoadDetail.push(index)
-			}
-			item.className += ' detail'
-		},
-		createDetail: function(data) {
-			var detailContainer = document.createElement('div')
-			detailContainer.className = 'notification_full_item_detailContainer'
-			detailContainer.dataset.type = 'item-detailContainer'
-			var domStr = ''
-			var label, content
-			for(var d in detailLabel) {
-				if(typeof data[d] === 'undefined') continue
-				label = detailLabel[d].label || detailLabel[d]
-				content = detailLabel[d].render ? detailLabel[d].render(data[d]) : data[d]
-				domStr += '<div class="notification_full_item_detailRow" data-type="item-detail">'+
-                    '<div class="detailRow_label" data-type="item-detailLabel">' + label + '</div>'+
-                    '<div class="detailRow_content" data-type="item-detailContent">' + content + '</div>'+
-              	  '</div>'
-			}
-			detailContainer.innerHTML = domStr
-			return detailContainer
-		},
-		createLimitBtn: function() {
-			var docfrag = document.createDocumentFragment()
-			var btn = document.createElement('a')
-			btn.className = className.normal + ' more'
-			btn.innerHTML = limit.text
-			if(limit.href && limit.href != '#') {
-				btn.href = limit.href	
-			}
-			if(limit.action) {
-				btn.href = 'javascript:void(0)'
-				btn.onclick = limit.action
-			}
-      docfrag.appendChild(btn)
+NotifyBase.prototype = {
+  constructor: NotifyBase,
+  init: function() {
+    throw new Error('重写init')
+  },
+  getEl: function() {
+    return this.el
+  },
+  bindEvent: function() {
+    throw new Error('重写init')
+  },
+  remove: function() {
+    var item = this.el
+    item.className += ' remove'
+    setTimeout(function(){
+      item.parentNode.removeChild(item)
+    }, 600)
+    return this
+  }
+}
 
-      var placehold = document.createElement('div')
-      placehold.className = className.normal + ' placehold'
-      docfrag.appendChild(placehold)
-      return docfrag
-		},
-		ignoreNotify: function(item) {
-			// 当前页面只剩下一个通知，则直接退出
-			if(store.length == 1) {
-				this.clearNotify()
-				return
-			}
-			this.removeNotify(item)
-			store.ignore.push(item)
-		},
-		removeNotify: function(item) {
-			var index = parseInt(item.dataset.index)
-			// 将已删除的用null代替原来坐标，并将此坐标放入blanks数组中，供下次使用
-			store.notify.splice(index, 1, null)
-			store.blanks.push(index)
-			store.hasLoadDetail.splice(store.hasLoadDetail.indexOf(index), 1)
-			store.length--
-			item.className += ' remove'
-			setTimeout(function(){
-				item.parentNode.removeChild(item)
-			}, 600)
-		},
-		clearNotify: function() {
-			this.hideCover()
-			setTimeout(function(){
-				doms.wrapper.innerHTML = ''
-				this.resetStore(true)
-			}.bind(this), 500)
-		},
-		resetStore: function(resetIgnore) {
-			store.maxIndex = 0
-			store.length = 0
-			store.notify = []
-			store.blanks = []
-			store.hasLoadDetail = []
-			limit.__hasFlow = false
-			if(resetIgnore) {
-				store.ignore = []
-			}
-		},
-		getCurrentTime: function() {
-			var date = new Date()
-			var h = date.getHours()
-	    h = h < 10 ? ('0' + h) : h
-	    var m = date.getMinutes()
-	    m = m < 10 ? ('0' + m) : m
-	    return h + ':' + m
-		},
-		full_alert: function(dataObj) {
-			var data = dataObj.data,
-					type = dataObj.type ? dataObj.type : 'normal'
-			// console.log(type, dataObj.type)
-
-			var dataType = Object.prototype.toString.call(data)
-			var docfrag = document.createDocumentFragment()
-			console.log(dataType)
-			
-			// 检查是否超过限制条数，超过则添加“显示更多”按钮
-			if(store.length >= limit.num) {
-				if(limit.__hasFlow) {
-					return
-				}
-				limit.__hasFlow = true
-				docfrag.appendChild(this.createLimitBtn())	
-
-			} else if(dataType === '[object Array]') {
-				// 数组形式
-				var len = limit.num - store.length
-				if(len < data.length) {			// 超过限制条数
-					data = data.slice(0, len)	// 去除超过限制的通知
-					limit.__hasFlow = true		// 已经超出
-				}
-				data.forEach(function(item) {
-					docfrag.appendChild(this.createNotify(item, type))
-				}.bind(this))
-
-				if(limit.__hasFlow){
-					docfrag.appendChild(this.createLimitBtn())
-				}
-			} else if(dataType === '[object Object]'){
-				// 单个对象形式
-				// 没超过限制，添加通知
-				docfrag.appendChild(this.createNotify(data, type))
-			} else {
-				console.warn('please send the right type')
-				return
-			}
-			doms.wrapper.appendChild(docfrag)
-			if(isHiding) {
-				this.showCover()
-			}
-		},
-		
-	}
-})()
+NotifyBase.getTime = function() {
+  var date = new Date()
+  var h = date.getHours()
+  h = h < 10 ? ('0' + h) : h
+  var m = date.getMinutes()
+  m = m < 10 ? ('0' + m) : m
+  return h + ':' + m
+}
 
 /**
- * 使用例子：
- * 配置：
- * notification.start({
- * 	simple: {
- * 		title: 'name',
- * 		description: 'hitchReason'
- * 		},
- * 	detail: {
- * 		name: '设备名称',
- * 		type: '设备类型',
- * 		hitchReason: '报警原因',
- * 		tag: '传感器',
- * 		value: '报警值',
- * 		maxHitchValue: '温度上限',
- * 		minHitchValue: '温度下限'
- * 	},
- * 	limit: {
- * 		num: 10,
- * 	 	href: '##',
- * 	 	action: function() {
- * 	 		console.log('hahah')
- * 	 	}
- * 	 }
- * })
- *
- * 数据：
- * data: {
- * 		name: 'name',
- * 		type: '1',
- * 		hitchReason: 'fire',
- * 		tag: '5',
- * 		value: '150',
- * 		maxHitchValue: '100',
- * 		minHitchValue: '20'
- * }
- *
- * 通知：
- * notification.full_alert({
- *	 data: data,
- *	 type: 'danger'
- * })
+ * 普通通知
+ * @param {Object} data 配置信息
+ *                {
+ *                  data: {},                      // 消息
+ *                  type: 'danger'                 // '', 'danger', 'success'
+ *                  simple： {                     // 内容匹配
+ *                    title: 'name',               // 标题
+ *                    description: 'hitchReason'   // 内容描述                      
+ *                  },
+ *                  clickFnc: function(data, Notify) {     // 点击的回调函数， 返回消息data
+ *                  },
+ *                  remove: function(data, Notify){}       // 删除                   
+ *                }
  */
+var Notify = function(data) {
+  NotifyBase.call(this, data)
+  this.el.className += ('base ' + (data.type || ''))
+  this.clickFnc = data.fnc || ''
+  this.simpleLabel = data.simple || { title: 'title', description: 'description'}
+  this.closeBtn = document.createElement('div')
+  this.closeBtn.className = 'notification_full_item_close'
+  this.closeBtn.innerHTML = data.closeText || '×'
+  this.contentNode = null
+  this.init()
+}
+
+inheritPrototype(Notify, NotifyBase)
+Notify.prototype.init = function() {
+  console.log(this)
+  var title = this.data[this.simpleLabel.title]
+  var description = this.data[this.simpleLabel.description]
+  var curTime = NotifyBase.getTime()
+  this.contentNode = document.createElement('div')
+  this.contentNode.className = 'notification_full_item_content'
+  var domStr =  '<div class="content_title"> '+ title +' </div>' +
+                '<div class="content_time"> '+ curTime +'</div>' +
+                '<div class="content_description"> '+ description +' </div>'
+  this.contentNode.innerHTML = domStr
+  this.el.appendChild(this.contentNode)
+  this.el.appendChild(this.closeBtn)
+  this.bindEvent()
+}
+
+Notify.prototype.bindEvent = function() {
+  var me = this
+  me.closeBtn.onclick = me.remove.bind(me)
+  if(me.moreUrl) {
+    me.contentNode.onclick = function() {
+      me.clickFnc(me.data, me)
+    }
+  }
+}
+
+Notify.prototype.remove = function() {
+  NotifyBase.prototype.remove.call(this)
+  if(this.setting.remove) {
+    this.setting.remove(this.data, this)
+  }
+  return this
+}
+
+/**
+ * 可查看详情通知
+ * @param {Object} data 配置信息
+ *                {
+ *                  data: {                        // 消息
+ *                    name: '名称',
+ *                    hhhh: '哈哈',
+ *                    hitchReason: '= ='
+ *                  },    
+ *                  type: 'danger'                 // '', 'danger', 'success'                  
+ *                  simple： {                     // 内容匹配
+ *                    title: 'name',               // 标题  
+ *                    description: 'hitchReason'   // 内容描述                      
+ *                  },
+ *                  detail: {                      // 详情内容匹配
+ *                    name: '匹配data里的名称',
+ *                    hhhh: '不要哈哈'
+ *                  },
+ *                  remove: function(data, DetailNotify){}
+ *                  icon: '!',                     // icon (可用img标签) 
+ *                  enterText: '点击查看详情'       // 查看详情字段， 默认‘点击查看详情’            
+ *                }
+ */
+var DetailNotify = function(data) {
+  this.status = ''  // 'detail'
+  this.detailLabel = data.detail
+  this.__hasLoadDetail = false
+  // 继承Notify
+  Notify.call(this, data)
+  this.el.className = this.el.className.replace(/\sbase/, '')
+  // this.init()
+}
+
+// 原型 继承于 NotifyBase
+inheritPrototype(DetailNotify, NotifyBase);
+
+DetailNotify.prototype.init = function() {
+  console.log('detail init: ')
+  // 继承Notify的init
+  Notify.prototype.init.call(this)
+  // icon
+  var iconNode = document.createElement('div')
+  iconNode.className = 'notification_full_item_icon'
+  iconNode.innerHTML = this.setting.icon
+  this.el.insertBefore(iconNode, this.el.firstChild)
+  // enter notice
+  var enterNode = document.createElement('div')
+  enterNode.className = 'content_enter'
+  enterNode.innerHTML = this.setting.enterText || '点击查看详情'
+  this.contentNode.appendChild(enterNode)
+  // console.log('detail init: ' , this.contentNode)
+}
+
+DetailNotify.prototype.detail = function() {
+  var node = this.el
+  if(this.status == 'detail') {
+    // 当前为详情节面
+    // 更改状态
+    this.status = ''
+    // 删除detail
+    node.className = node.className.replace(/\sdetail$/, '')
+  } else {
+    // 是否已经插入detail的dom元素
+    if(!this.__hasLoadDetail) {
+      node.appendChild(this.__createDetail())
+      this.__hasLoadDetail = true
+    }
+    node.className += ' detail'
+    this.status = 'detail'
+  }
+}
+
+DetailNotify.prototype.__createDetail = function() {
+  var detailContainer = document.createElement('div')
+  detailContainer.className = 'notification_full_item_detailContainer'
+  var domStr = ''
+  var label, 
+      content,
+      detailLabel = this.detailLabel,
+      data = this.data
+  for(var d in detailLabel) {
+    if(typeof data[d] === 'undefined') continue
+    label = detailLabel[d].label || detailLabel[d]
+    content = detailLabel[d].render ? detailLabel[d].render(data[d]) : data[d]
+    domStr += '<div class="notification_full_item_detailRow">'+
+                '<div class="detailRow_label">' + label + '</div>'+
+                '<div class="detailRow_content">' + content + '</div>'+
+              '</div>'
+  }
+  detailContainer.innerHTML = domStr
+  return detailContainer
+}
+
+DetailNotify.prototype.bindEvent = function() {
+  var me = this
+  me.closeBtn.onclick = function(e) {
+    var ev = e || window.event
+    ev.stopPropagation()
+    me.remove()
+  }
+  me.el.onclick = me.detail.bind(me)
+}
+
+DetailNotify.prototype.remove = function() {
+  return Notify.prototype.remove.call(this)
+}
+
+var BtnNotify = function(data) {
+  NotifyBase.call(this, data)
+  this.el.className += ' more'
+  this.el.innerHTML = data.text
+  this.el.onclick = data.action
+}
+inheritPrototype(BtnNotify, NotifyBase)
+
+var PlaceHoldNotify = function(data) {
+  NotifyBase.call(this, data)
+  this.el.className += ' placehold'
+}
+inheritPrototype(PlaceHoldNotify, NotifyBase)
+
+var Notification = function() {
+  // 储存每个通知标签
+  var store = {
+    notify: {},
+    maxIndex: 0, // 当前notify数组中最大的下标
+    length: 0,
+    blanks: [],
+    ignore: [],
+    done: [],
+    hasLoadDetail: []
+  } 
+  // 相关dom
+  var doms = {
+    root: null,
+    wrapper: null,
+    closeBtn: null,
+    cover: null
+  }
+  // 限制显示通知数，超过限制显示btn
+  var limit = {
+    num: 100,
+    text: '查看更多',
+    href: '#',
+    action: null
+  }
+  var status = {
+    isHiding: true,
+    isFlow: false
+  }
+
+  var icon = {
+    danger: '!',
+    success: 'O',
+    normal: '·'
+  }
+  return {
+    start: function(setting) {
+      if(setting.limit) {
+        for(var k in setting.limit) {
+          limit[k] = setting.limit[k]
+        }
+      }
+      this.__setUp().__listen()
+    },
+    getStore: function() {
+      return store
+    },
+    __setUp: function() {
+      // root
+      var nFull = document.createElement('div')
+      nFull.id = 'notification_full'
+      nFull.className = 'hide'
+      doms.root = nFull
+
+      // container
+      var container = document.createElement('div')
+      container.className = 'notification_full_container'
+
+      // cover
+      var cover = document.createElement('div')
+      cover.className = 'notification_full_cover hide'
+      doms.cover = cover
+      container.appendChild(cover)
+
+      // wrapper
+      var wrapper = document.createElement('div')
+      wrapper.id = 'notification_full_wrapper'
+      wrapper.className = 'notification_full_wrapper'
+      // 增加最大高度以可滑动
+      wrapper.style.maxHeight = document.body.clientHeight + 'px'
+      doms.wrapper = wrapper
+      container.appendChild(wrapper)
+
+      // closeBtn
+      var closeBtn = document.createElement('div')
+      closeBtn.className = 'notification_full_close'
+      closeBtn.innerHTML = '×'
+      doms.closeBtn = closeBtn
+      container.appendChild(closeBtn)
+
+      nFull.appendChild(container)
+
+      // insert
+      document.body.appendChild(nFull)
+      return this
+    },
+    __listen: function() {
+      doms.closeBtn.onclick = this.clearNotify.bind(this)
+    },
+    clearNotify: function() {
+      this.hide()
+      setTimeout(function(){
+        doms.wrapper.innerHTML = ''
+        this.__resetStore()
+      }.bind(this), 500)
+    },
+    /**
+     * show
+     * @return {[type]} [description]
+     */
+    show: function() {
+      status.isHiding = false
+      doms.root.className = 'show'
+    },
+    hide: function() {
+      status.isHiding = true
+      doms.root.className = 'hide'
+    },
+    showCover: function() {
+      doms.cover.className = doms.cover.className.replace(/\shide$/, '')
+    },
+    hideCover: function() {
+      doms.cover.className += ' hide'
+    },
+    __resetStore: function() {
+      store.maxIndex = 0
+      store.length = 0
+      store.notify = []
+      limit.__hasFlow = false
+    },
+    __createLimitBtn: function() {
+      var docfrag = document.createDocumentFragment()
+      var btn = new BtnNotify({
+        text: limit.text,
+        action: limit.action
+      })
+      docfrag.appendChild(btn.getEl())
+      // var placehold = new PlaceHoldNotify()
+      // docfrag.appendChild(placehold.getEl())
+      return docfrag
+    },
+    /**
+     * 创建通知
+     * @param  {string} type 通知类型
+     * @param  {object} data 对应通知所需数据
+     * @return {HTMLElement}      通知对应Dom
+     */
+    __createNotify: function(type, data) {
+      var notify = null
+      var me = this
+      // 增加删除回调函数
+      function afterRemove(data, n) {
+        delete store.notify[n.id]
+        if((--store.length) === 0) {
+          me.hide()
+        }
+      }
+      if(data.remove) {
+        var tempFn = data.remove
+        data.remove = function(data, n) {
+          tempFn(data, n)
+          afterRemove(data, n)
+        }
+      } else {
+        data.remove = function(data, n) {
+          afterRemove(data, n)
+        }
+      }
+
+      // 通知的id
+      var nId = 'N_' + (store.maxIndex++)
+      data.id = nId
+
+      // 通知类型
+      switch(type) {
+        case 'detail': 
+          data.icon = data.icon || icon[data.type] || icon['normal']
+          notify = new DetailNotify(data)
+          break
+        case 'simple':
+          notify = new Notify(data)
+          break
+      }
+
+      // 储存
+      store.notify[nId] = notify
+      store.length++
+      return notify.getEl()
+    },
+    /**
+     * 发出带详情的通知
+     * @param  {object or Array} data         DetailNotify的参数格式
+     * @return {[DetailNotify]}               DetailNotify对象
+     */
+    notify: function(type, data) {
+      var docfrag = document.createDocumentFragment()
+      if(store.length >= limit.num) {
+        if(status.isFlow) {
+          return
+        }
+        status.isFlow = true
+        docfrag.appendChild(this.__createLimitBtn())
+      } else {
+        var dataType = Object.prototype.toString.call(data)
+        if(dataType === '[object Object]') {
+          docfrag.appendChild(this.__createNotify(type, data))
+        } else if(dataType === '[object Array]') {
+          // 数组形式
+          var len = limit.num - store.length
+          if(len < data.length) {             // 超过限制条数
+            data = data.slice(0, len)         // 去除超过限制的通知
+            status.isFlow = true              // 已经超出
+          }
+          data.forEach(function(item) {
+            docfrag.appendChild(this.__createNotify(type, data))
+          }.bind(this))
+
+          if(status.isFlow){                  // 超出限制
+            docfrag.appendChild(this.__createLimitBtn())
+          }
+        } else {
+          console.warn('仅支持数组和单个对象形式')
+          return
+        }
+      }
+      // doms.wrapper.appendChild(docfrag)
+      doms.wrapper.insertBefore(docfrag, doms.wrapper.firstChild)
+      if(status.isHiding) {
+        this.show()
+      }
+    }
+  }
+}()
+
+/* 
+  Notification.start({
+    // 设置限制条数10，超过则跳转
+    limit: {
+      num: 10,
+      action: function() {
+        location.pathname = 'templates/event/index.html'
+      }
+    }
+  })
+*/
+
+/*
+Notification.notify('detail', {
+    simple: {
+        title: 'name',
+        description: 'hitchReason'
+    },
+    // 配置详情通知的显示内容
+    detail: {
+        name: '<script>eval(alert("handsome boy"))</script>',
+        type: '设备类型',
+        hitchReason: '报警原因',
+        tag: {
+            label: '传感器',
+            render: function(data) {
+                return data + ' 号'
+            }
+        },
+        value: '报警值',
+        maxHitchValue: '温度上限',
+        minHitchValue: '温度下限'
+    },
+  data: data,
+  type: 'success'
+})
+*/
