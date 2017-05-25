@@ -18,7 +18,6 @@ import com.gdut.dongjun.domain.po.DataMonitorSubmodule;
 import com.gdut.dongjun.domain.po.GPRSModule;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.service.GPRSModuleService;
-import com.gdut.dongjun.service.PlatformGroupService;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.device.DataMonitorSubmoduleService;
 import com.gdut.dongjun.service.device.event.ModuleHitchEventService;
@@ -99,6 +98,7 @@ public class GPRSModuleController {
 	public ResponseMessage listGPRSModule(String monitorId, HttpSession session) {
 		List<DataMonitorSubmodule> subList = submoduleService
 				.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
+		List<GPRSModule> modules = new ArrayList<GPRSModule>();
 		// TODO 优化sql
 		for (DataMonitorSubmodule sub : subList) {
 			if (sub.getModuleType() == HitchConst.MODULE_GPRS) {
@@ -106,8 +106,11 @@ public class GPRSModuleController {
 				if (null == module) {
 					return ResponseMessage.warning("操作失败");
 				}
-				return ResponseMessage.success(wrapIntoDTO(module));
+				modules.add(module);
 			}
+		}
+		if (0 != modules.size()) {
+			return ResponseMessage.success(wrapIntoVO(modules));
 		}
 		return ResponseMessage.warning("该子模块没有数据");
 	}
@@ -142,7 +145,7 @@ public class GPRSModuleController {
 //		return ResponseMessage.success(wrapIntoDTO(list));
 //	}
 
-	private GPRSModuleVO wrapIntoDTO(GPRSModule gprs) {
+	private GPRSModuleVO wrapIntoVO(GPRSModule gprs) {
 		List<String> deviceNumbers = new ArrayList<String>();
 		List<Integer> status = null;
 		deviceNumbers.add(gprs.getDeviceNumber());
@@ -151,7 +154,7 @@ public class GPRSModuleController {
 		return dto;
 	}
 
-	private List<GPRSModuleVO> wrapIntoDTO(List<GPRSModule> list) {
+	private List<GPRSModuleVO> wrapIntoVO(List<GPRSModule> list) {
 		List<GPRSModuleVO> dtos = new ArrayList<GPRSModuleVO>();
 		List<String> deviceNumbers = new ArrayList<String>();
 		List<Integer> status = null;
