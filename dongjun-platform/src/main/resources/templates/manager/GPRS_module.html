@@ -2,6 +2,7 @@
 
 	<div class="form-inline">
 		<div class="form-group" id="control-btns">
+			<a href="#edit_GPRS_modal" class="btn" data-toggle="modal" data-backdrop="static">添加GPRS</a>
 		</div>
 	</div>
 	<table id="gprs_list" class="table table-bordered table-striped table-hover table-condensed success" style="width: 100%">
@@ -77,8 +78,17 @@
 						'url': defUrl,
 						'type': 'POST',
 						'dataSrc': function(json) {
-              json.text = Object.prototype.toString.call(json.text) == '[object Object]' ? [json.text] : []
-              return json.text
+							var type = Object.prototype.toString.call(json.text)
+              // json.text = type == '[object Object]' ? [json.text] : []
+              switch(type) {
+              	case '[object Array]':
+              		return json.text
+              	case '[object Null]':
+              		return []
+              	default:
+              		return [json.text]
+              }
+              // return json.text
             },
 						'data': {
 							'monitorId': curMonitorId
@@ -150,7 +160,7 @@
 								// 超管
 								// 引入modal
 
-								console.log(table)
+								// console.log(table)
 								table.column(-1).visible(true)
 							  // table.column(-2).visible(true)
 							  // var control_btns = '<a href="#edit_GPRS_modal" class="btn btn-primary" data-toggle="modal" data-backdrop="static">添加GPRS</a>'
