@@ -1,7 +1,5 @@
 package com.gdut.dongjun.service.webservice.server.impl;
 
-import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -15,19 +13,17 @@ import com.gdut.dongjun.core.HitchConst;
 import com.gdut.dongjun.core.TemperatureCtxStore;
 import com.gdut.dongjun.core.handler.ChannelHandlerManager;
 import com.gdut.dongjun.core.handler.ChannelInfo;
+import com.gdut.dongjun.core.handler.DLT645_07ParseStrategy;
+import com.gdut.dongjun.core.handler.DLT645_97ParseStrategy;
+import com.gdut.dongjun.core.handler.TemperatureParseStrategy;
 import com.gdut.dongjun.core.handler.msg_decoder.ElectronicDataReceiver;
 import com.gdut.dongjun.core.handler.msg_decoder.GPRSDataReceiver;
 import com.gdut.dongjun.core.handler.msg_decoder.TemperatureDataReceiver;
+import com.gdut.dongjun.core.handler.thread.ScheduledTaskExecutor;
+import com.gdut.dongjun.core.handler.thread.TemperatureCacheTask;
 import com.gdut.dongjun.core.server.impl.TemperatureServer;
-import com.gdut.dongjun.domain.dto.HitchEventDTO;
-import com.gdut.dongjun.domain.po.ModuleHitchEvent;
-import com.gdut.dongjun.domain.po.TemperatureMeasureHitchEvent;
-import com.gdut.dongjun.service.ModuleHitchEventService;
-import com.gdut.dongjun.service.TemperatureMeasureHitchEventService;
 import com.gdut.dongjun.service.webservice.client.WebsiteServiceClient;
 import com.gdut.dongjun.service.webservice.server.HardwareService;
-import com.gdut.dongjun.util.SpringApplicationContextHolder;
-import com.gdut.dongjun.util.UUIDUtil;
 
 import io.netty.channel.ChannelHandlerContext;
 
@@ -46,6 +42,12 @@ public class HardwareServiceImpl implements HardwareService {
 	private TemperatureCtxStore temCtxStore;
 	@Autowired
 	private ElectronicCtxStore elecCtxStore;
+	@Autowired
+	private TemperatureParseStrategy temParseStrategy;
+	@Autowired
+	private DLT645_07ParseStrategy elec07ParseStrategy;
+	@Autowired
+	private DLT645_97ParseStrategy elec97ParseStrategy;
 	
 	private static final Logger logger = Logger.getLogger(HardwareServiceImpl.class);
 
@@ -91,9 +93,13 @@ public class HardwareServiceImpl implements HardwareService {
 //		return ctxStore.get(id);
 //	}
 
+	/**
+	 * 改为提交延时任务
+	 */
 	@Override
 	public void changeTemperatureDevice(String id) {
-		TemperatureCtxStore.setBound(id);
+		ScheduledTaskExecutor.submit(new TemperatureCacheTask(id, temCtxStore));
+//		temCtxStore.setBound(id);
 	}
 
 	@Override
@@ -184,20 +190,23 @@ public class HardwareServiceImpl implements HardwareService {
 		CtxStore ctxStore = null;
 		switch (type) {
 		case 2: {
-			ctxStore = (CtxStore) SpringApplicationContextHolder.getSpringBean(ElectronicDataReceiver.class);
+			ctxStore = elecCtxStore;
 			ChannelInfo info = ctxStore.getByModuleId(moduleId);
 			ChannelHandlerContext ctx = info.getCtx();
 			ctxStore.remove(moduleId);
-			CtxStore.removeCtxAttribute(ctx, ElectronicDataReceiver.ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED);
+			elec07ParseStrategy.clearCache(ctx);
+			elec97ParseStrategy.clearCache(ctx);
+//			CtxStore.removeCtxAttribute(ctx, ElectronicDataReceiver.ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED);
 			break;
 		}
 		case 3: {
-			ctxStore = (CtxStore) SpringApplicationContextHolder.getSpringBean(TemperatureDataReceiver.class);
+			ctxStore = temCtxStore;
 			ChannelInfo info = ctxStore.getByModuleId(moduleId);
 			ChannelHandlerContext ctx = info.getCtx();
 			ctxStore.remove(moduleId);
-			CtxStore.removeCtxAttribute(ctx, TemperatureDataReceiver.ATTRIBUTE_FIRST_CALL);
-			CtxStore.removeCtxAttribute(ctx, TemperatureDataReceiver.ATTRIBUTE_TEMPERATURE_MODULE_IS_REGISTED);
+			temParseStrategy.clearCache(ctx);
+//			CtxStore.removeCtxAttribute(ctx, TemperatureDataReceiver.ATTRIBUTE_FIRST_CALL);
+//			CtxStore.removeCtxAttribute(ctx, TemperatureDataReceiver.ATTRIBUTE_TEMPERATURE_MODULE_IS_REGISTED);
 			break;
 		}
 		case 4:

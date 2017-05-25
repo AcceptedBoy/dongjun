@@ -74,6 +74,10 @@ public class TemperatureModuleController {
 				return ResponseMessage.warning("操作失败");
 			}
 		} else {
+			TemperatureModule m = moduleService.selectByPrimaryKey(module.getId());
+			if (null == m) {
+				return ResponseMessage.warning("该设备未被注册"); 
+			}
 			List<TemperatureModule> modules = moduleService
 					.selectByParameters(MyBatisMapUtil.warp("device_number", module.getDeviceNumber()));
 			if (0 != modules.size() && !modules.get(0).getId().equals(module.getId())) {

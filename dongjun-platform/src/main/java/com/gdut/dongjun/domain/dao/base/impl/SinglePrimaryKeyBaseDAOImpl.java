@@ -60,9 +60,10 @@ public class SinglePrimaryKeyBaseDAOImpl<T> implements
 
 	@Transactional
 	public int updateByPrimaryKeySelective(T record) {
-
+		
 		return template.update(getNamespace("updateByPrimaryKeySelective"),
 				record);
+
 	}
 
 	/**

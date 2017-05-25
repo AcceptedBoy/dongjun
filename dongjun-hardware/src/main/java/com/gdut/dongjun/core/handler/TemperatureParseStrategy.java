@@ -12,6 +12,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.HitchConst;
@@ -47,6 +48,7 @@ import io.netty.channel.ChannelHandlerContext;
  * @author Gordan_Deng
  * @date 2017年5月11日
  */
+@Component
 public class TemperatureParseStrategy extends ParseStrategy implements InitializingBean {
 
 	private static final char[] EB_UP = new char[] { 'E', 'B', '9', '0' }; // EB90
@@ -83,10 +85,10 @@ public class TemperatureParseStrategy extends ParseStrategy implements Initializ
 	@Autowired
 	private TemperatureMeasureHitchEventService hitchEventService;
 
-	private Logger logger = Logger.getLogger(TemperatureParseStrategy.class);
+//	private Logger logger = Logger.getLogger(TemperatureParseStrategy.class);
 
-	public TemperatureParseStrategy(String parserId, Logger logger) {
-		super("301", logger);
+	public TemperatureParseStrategy() {
+		super("301", Logger.getLogger(TemperatureParseStrategy.class));
 	}
 
 	@Override
@@ -94,11 +96,13 @@ public class TemperatureParseStrategy extends ParseStrategy implements Initializ
 		super.ctxStore = ctxStore;
 	}
 
+	@Override
 	protected String getDecimalAddress(char[] data) {
 		String address = TemperatureDeviceCommandUtil.reverseString(getAddress(data));
 		return Integer.parseInt(address) + "";
 	}
 
+	@Override
 	protected String getAddress(char[] data) {
 		return CharUtils.newString(data, 10, 18).intern();
 	}
@@ -205,7 +209,7 @@ public class TemperatureParseStrategy extends ParseStrategy implements Initializ
 	 * @param data
 	 */
 	private void handleRemoteMeasure(ChannelHandlerContext ctx, char[] data) {
-		// String address = CharUtils.newString(data, 10, 18); // 地址域
+//		String address = CharUtils.newString(data, 10, 18); // 地址域
 
 		// 第一次总召对时
 		Integer call = (Integer) CtxStore.getCtxAttribute(ctx, ATTRIBUTE_FIRST_CALL);
@@ -215,10 +219,8 @@ public class TemperatureParseStrategy extends ParseStrategy implements Initializ
 			ctx.writeAndFlush(correctTime);
 		}
 
-		// SwitchGPRS gprs = ctxStore.get(ctx);
 		ChannelInfo info = ctxStore.get(ctx);
 		String moduleId = info.getModuleId();
-		// String deviceId = gprs.getId();
 
 		if (CharUtils.equals(data, 20, 22, CODE_01)) {
 			// 处理遥测变化
@@ -251,15 +253,13 @@ public class TemperatureParseStrategy extends ParseStrategy implements Initializ
 	 * @param data
 	 */
 	private void handleRemoteSignal(ChannelHandlerContext ctx, char[] data) {
-
+		
 		if (data.length != (26 + 55 + 2) * BYTE) {
 			logger.info("非法全遥信报文，长度不足" + String.valueOf(data));
 			return;
 		}
 		ChannelInfo info = ctxStore.get(ctx);
 		String moduleId = info.getModuleId();
-		// SwitchGPRS gprs = ctxStore.get(ctx);
-		// String deviceId = gprs.getId();
 		int index = 26 * BYTE;
 		for (int i = index; i < data.length - 2 * BYTE; i = i + BYTE) {
 			if (i >= index + 39 * BYTE) {
@@ -320,7 +320,8 @@ public class TemperatureParseStrategy extends ParseStrategy implements Initializ
 		measureHistoryService.insert(new TemperatureMeasureHistory(UUIDUtil.getUUID(), deviceId,
 				new Timestamp(System.currentTimeMillis()), tag, Integer.parseInt(value, 16) * 10 + ""));
 		doSaveMeasure0(value, deviceId, tag);
-		if (TemperatureCtxStore.isAboveBound(deviceId, Double.valueOf("" + Integer.parseInt(value, 16)) / 10)) {
+		if (ctxStore.isAboveBound(deviceId, 
+				Double.valueOf("" + Integer.parseInt(value, 16)) / 10)) {
 			createHitchEvent(deviceId, value, tag, ctx);
 		}
 	}
@@ -339,13 +340,13 @@ public class TemperatureParseStrategy extends ParseStrategy implements Initializ
 			if (value[i - 1].equals("0000")) {
 				continue;
 			}
-			// 判断传感器是否在数据库中存在，若没有则执行insert
+			//判断传感器是否在数据库中存在，若没有则执行insert
 			isSensorExist(sensorList, i, deviceId);
 			measureHistoryService.insert(new TemperatureMeasureHistory(UUIDUtil.getUUID(), deviceId,
 					new Timestamp(System.currentTimeMillis()), i, Integer.parseInt(value[i - 1], 16) * 10 + ""));
 			doSaveMeasure0(value[i - 1], deviceId, i);
 			// 插入报警数据
-			if (TemperatureCtxStore.isAboveBound(deviceId,
+			if (ctxStore.isAboveBound(deviceId,
 					Double.valueOf("" + Integer.parseInt(value[i - 1], 16)) / 10)) {
 				createHitchEvent(deviceId, value[i - 1], i, ctx);
 			}
@@ -357,7 +358,8 @@ public class TemperatureParseStrategy extends ParseStrategy implements Initializ
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("module_id", device.getId());
 		map.put("module_type", 3);
-		List<DataMonitorSubmodule> submoduleList = submoduleService.selectByParameters(MyBatisMapUtil.warp(map));
+		List<DataMonitorSubmodule> submoduleList = submoduleService
+				.selectByParameters(MyBatisMapUtil.warp(map));
 		if (null == submoduleList || 1 != submoduleList.size()) {
 			logger.info("该温度子模块没有注册");
 			return;
@@ -391,7 +393,7 @@ public class TemperatureParseStrategy extends ParseStrategy implements Initializ
 		vo.setType(HitchConst.HITCH_OVER_TEMPERATURE);
 		vo.setId(moduleHitch.getId());
 		websiteService.getService().callbackHitchEvent(vo);
-		// hitchEventManager.addHitchEvent(event);
+//		hitchEventManager.addHitchEvent(event);
 	}
 
 	/**
@@ -496,6 +498,13 @@ public class TemperatureParseStrategy extends ParseStrategy implements Initializ
 	// TODO
 	private boolean checkTime(char[] time) {
 		return true;
+	}
+
+	@Override
+	public Object clearCache(ChannelHandlerContext ctx) {
+		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_TEMPERATURE_MODULE_IS_REGISTED);
+		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_FIRST_CALL);
+		return null;
 	}
 
 }

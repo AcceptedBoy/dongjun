@@ -93,7 +93,6 @@ public class Application extends SpringBootServletInitializer {
 
 		SqlSessionFactoryBean sFactoryBean = new SqlSessionFactoryBean();
 		sFactoryBean.setDataSource(dataSource());
-
 		String packageSearchPath = "classpath*:com/gdut/dongjun/domain/dao/**/*.xml";
 		Resource[] resources = null;
 		try {
@@ -113,7 +112,7 @@ public class Application extends SpringBootServletInitializer {
 	 */
 	@Bean(name = "msg_sqlSessionTemplate")
 	public SqlSessionTemplate sessionTemplate() {
-
+		
 		SqlSessionTemplate sst = null;
 		try {
 			sst = new SqlSessionTemplate(sessionFactory().getObject());
@@ -124,7 +123,7 @@ public class Application extends SpringBootServletInitializer {
 	}
 	
 	/*--------------------------------------------------------
-	 * 					事务管理配置
+	 * 					事务管理配置 TODO
 	 * -------------------------------------------------------
 	 */
 	public DataSourceTransactionManager txManager() {
@@ -132,6 +131,10 @@ public class Application extends SpringBootServletInitializer {
 		txManager.setDataSource(dataSource());
 		return txManager;
 	}
+	
+//	public SpringManagedTransactionFactory springManagedTransactionFactory() {
+//		SpringManagedTransactionFactory txManager = new SpringManagedTransactionFactory();
+//	}
 	
 	/*--------------------------------------------------------
 	 * 					编码过滤器 配置
