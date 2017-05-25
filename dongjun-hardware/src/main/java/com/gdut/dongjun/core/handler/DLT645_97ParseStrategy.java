@@ -53,7 +53,7 @@ public class DLT645_97ParseStrategy extends ParseStrategy implements Initializin
 	private static final char VOLTAGE = '4';
 	private static final char CURRENT = '5';
 	private static final char POWER = '6';
-	private static final char TOTAL_POWER = '0';
+	private static final char TOTAL_POWER = '3';
 	private static final char A_PHASE = '4';
 	private static final char B_PHASE = '5';
 	private static final char C_PHASE = '6';
