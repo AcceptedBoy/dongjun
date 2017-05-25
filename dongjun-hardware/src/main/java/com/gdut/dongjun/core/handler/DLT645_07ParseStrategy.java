@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.ElectronicCtxStore;
@@ -39,6 +40,7 @@ import io.netty.channel.ChannelHandlerContext;
  * @author Gordan_Deng
  * @date 2017年5月16日
  */
+@Component
 public class DLT645_07ParseStrategy extends ParseStrategy implements InitializingBean {
 
 	// TODO 考虑下要不要将ElectronicModule直接塞到Attribute里面
@@ -94,10 +96,8 @@ public class DLT645_07ParseStrategy extends ParseStrategy implements Initializin
 	@Autowired
 	private WebsiteServiceClient websiteService;
 
-	private static Logger logger = Logger.getLogger(DLT645_07ParseStrategy.class);
-
 	public DLT645_07ParseStrategy() {
-		super("201", logger);
+		super("201", Logger.getLogger(DLT645_07ParseStrategy.class));
 	}
 
 	@Override
@@ -325,6 +325,12 @@ public class DLT645_07ParseStrategy extends ParseStrategy implements Initializin
 		dto.setMonitorId(info.getMonitorId());
 		dto.setType(moduleEvent.getType());
 		websiteService.getService().callbackHitchEvent(dto);
+	}
+
+	@Override
+	public Object clearCache(ChannelHandlerContext ctx) {
+		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED);
+		return null;
 	}
 
 }

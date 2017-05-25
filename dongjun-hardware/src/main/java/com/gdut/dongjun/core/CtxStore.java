@@ -1,6 +1,5 @@
 package com.gdut.dongjun.core;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -659,6 +658,7 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 		for(int length = list.size() - 1, i = length; i >= 0; --i) {
 			if(list.get(i).getModuleId() != null && list.get(i).getModuleId().equals(moduleId)) {
 				list.remove(i);
+				break;
 			}
 		}
 	}

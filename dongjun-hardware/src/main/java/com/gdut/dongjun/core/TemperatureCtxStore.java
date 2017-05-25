@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.gdut.dongjun.core.handler.ChannelInfo;
 import com.gdut.dongjun.core.handler.thread.DeviceOfflineTask;
 import com.gdut.dongjun.domain.po.TemperatureModule;
 import com.gdut.dongjun.service.TemperatureModuleService;

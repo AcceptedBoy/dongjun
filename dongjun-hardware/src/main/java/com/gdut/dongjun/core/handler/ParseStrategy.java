@@ -11,26 +11,24 @@ import com.gdut.dongjun.service.webservice.client.WebsiteServiceClient;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
- * 协议解析策略
- * parserId为ParseStrategy的唯一标识
- * 201 为DLT645_07
- * 202 为DLT645_97
- * 301 为温度
+ * 协议解析策略 parserId为ParseStrategy的唯一标识 201 为DLT645_07 202 为DLT645_97 301 为温度
+ * 
  * @author Gordan_Deng
  * @date 2017年5月11日
  */
 public abstract class ParseStrategy implements MessageParser {
-	
+
 	protected String parserId;
 	protected Logger logger;
 	protected CtxStore ctxStore;
 	@Autowired
 	protected WebsiteServiceClient webClient;
-	
+
 	public ParseStrategy(String parserId, Logger logger) {
+		this.parserId = parserId;
 		this.logger = logger;
 	}
-	
+
 	protected String getOnlineAddress(ChannelHandlerContext ctx, char[] data) {
 		ChannelInfo info = ctxStore.get(ctx);
 
@@ -45,7 +43,7 @@ public abstract class ParseStrategy implements MessageParser {
 			channelInfo.setCtx(ctx);
 			channelInfo.setAddress(address);
 		} else {
-			//TODO 未测试
+			// TODO 未测试
 			InfoEventDTO dto = new InfoEventDTO(channelInfo);
 			dto.setType(InfoConst.MODULE_NOT_DEFINED);
 			dto.setText(decimalAddress);
@@ -54,10 +52,10 @@ public abstract class ParseStrategy implements MessageParser {
 			return null;
 		}
 		// TODO 未测试，也应该不会上线
-//		ChannelHandlerManager.addCtx(info.getMonitorId(), ctx);
-		return info.getModuleId();
+		// ChannelHandlerManager.addCtx(info.getMonitorId(), ctx);
+		return channelInfo.getModuleId();
 	}
-	
+
 	/**
 	 * 验证数据合法性
 	 * 
@@ -66,30 +64,26 @@ public abstract class ParseStrategy implements MessageParser {
 	 * @return
 	 */
 	protected abstract boolean check(ChannelHandlerContext ctx, char[] data);
-	
+
 	/**
 	 * 抽取地址
+	 * 
 	 * @param data
 	 * @return
 	 */
 	protected abstract String getAddress(char[] data);
-	
+
 	/**
 	 * 转换成十进制地址
+	 * 
 	 * @param data
 	 * @return
 	 */
 	protected abstract String getDecimalAddress(char[] data);
-	
+
 	protected abstract Object parseInternal(ChannelHandlerContext ctx, char[] data);
 
-	public String getParserId() {
-		return parserId;
-	}
-
-	public void setParserId(String parserId) {
-		this.parserId = parserId;
-	}
+	public abstract Object clearCache(ChannelHandlerContext ctx);
 
 	@Override
 	public Object parse(char[] data, ChannelHandlerContext ctx) {
@@ -98,5 +92,9 @@ public abstract class ParseStrategy implements MessageParser {
 		}
 		return null;
 	}
-	
+
+	public String getParserId() {
+		return parserId;
+	}
+
 }

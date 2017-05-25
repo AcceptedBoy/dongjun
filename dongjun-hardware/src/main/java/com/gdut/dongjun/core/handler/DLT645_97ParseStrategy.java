@@ -7,11 +7,11 @@ import java.util.List;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.ElectronicCtxStore;
 import com.gdut.dongjun.core.HitchConst;
-import com.gdut.dongjun.core.handler.msg_decoder.ElectronicDataReceiver;
 import com.gdut.dongjun.domain.dto.HitchEventDTO;
 import com.gdut.dongjun.domain.po.DataMonitorSubmodule;
 import com.gdut.dongjun.domain.po.ElectronicModule;
@@ -41,6 +41,7 @@ import io.netty.channel.ChannelHandlerContext;
  * @author Gordan_Deng
  * @date 2017年5月16日
  */
+@Component
 public class DLT645_97ParseStrategy extends ParseStrategy implements InitializingBean {
 
 	// TODO 考虑下要不要将ElectronicModule直接塞到Attribute里面
@@ -114,10 +115,8 @@ public class DLT645_97ParseStrategy extends ParseStrategy implements Initializin
 	@Autowired
 	private WebsiteServiceClient websiteService;
 
-	private Logger logger = Logger.getLogger(DLT645_97ParseStrategy.class);
-
-	public DLT645_97ParseStrategy(String parserId, Logger logger) {
-		super("202", logger);
+	public DLT645_97ParseStrategy() {
+		super("202", Logger.getLogger(DLT645_97ParseStrategy.class));
 	}
 
 	@Override
@@ -210,9 +209,7 @@ public class DLT645_97ParseStrategy extends ParseStrategy implements Initializin
 	}
 
 	private void saveVoltage(ChannelHandlerContext ctx, char[] data) {
-		char[] address = CharUtils.subChars(data, BYTE, BYTE * 6);
-		String deviceNumber = String.valueOf(address);
-		deviceNumber = Integer.parseInt(deviceNumber) + "";
+		String deviceNumber = getAddress(data);
 		char[] value = CharUtils.subChars(data, BYTE * 12, BYTE * 2);
 		BigDecimal val = parseVoltage(value);
 		ElectronicModuleVoltage voltage = new ElectronicModuleVoltage();
@@ -241,11 +238,7 @@ public class DLT645_97ParseStrategy extends ParseStrategy implements Initializin
 	}
 
 	private void saveCurrent(ChannelHandlerContext ctx, char[] data) {
-		char[] address = CharUtils.subChars(data, BYTE, BYTE * 6);
-		String deviceNumber = String.valueOf(address);
-		deviceNumber = Integer.parseInt(deviceNumber) + "";
-		// ElectronicModule module =
-		// moduleService.selectByDeviceNumber(deviceNumber);
+		String deviceNumber = getAddress(data);
 		char[] value = CharUtils.subChars(data, BYTE * 12, BYTE * 2);
 		BigDecimal val = parseCurrent(value);
 		ElectronicModuleCurrent current = new ElectronicModuleCurrent();
@@ -273,11 +266,7 @@ public class DLT645_97ParseStrategy extends ParseStrategy implements Initializin
 	}
 
 	private void savePower(ChannelHandlerContext ctx, char[] data) {
-		char[] address = CharUtils.subChars(data, BYTE, BYTE * 6);
-		String deviceNumber = String.valueOf(address);
-		deviceNumber = Integer.parseInt(deviceNumber) + "";
-		// ElectronicModule module =
-		// moduleService.selectByDeviceNumber(deviceNumber);
+		String deviceNumber = getAddress(data);
 		char[] value = CharUtils.subChars(data, BYTE * 12, BYTE * 3);
 		BigDecimal val = parsePower(value);
 		// = new
@@ -423,6 +412,12 @@ public class DLT645_97ParseStrategy extends ParseStrategy implements Initializin
 		dto.setMonitorId(info.getMonitorId());
 		dto.setType(moduleEvent.getType());
 		websiteService.getService().callbackHitchEvent(dto);
+	}
+	
+	@Override
+	public Object clearCache(ChannelHandlerContext ctx) {
+		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED);
+		return null;
 	}
 
 }
