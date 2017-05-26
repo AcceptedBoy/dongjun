@@ -9,4 +9,9 @@ import com.gdut.dongjun.domain.po.DataMonitorSubmodule;
 @Repository
 public class DataMonitorSubmoduleDAOImpl extends SinglePrimaryKeyBaseDAOImpl<DataMonitorSubmodule> implements DataMonitorSubmoduleMapper {
 
+	@Override
+	public String selectMonitorIdByModuleId(String moduleId) {
+		return template.selectOne(getNamespace("selectMonitorIdByModuleId"), moduleId);
+	}
+
 }

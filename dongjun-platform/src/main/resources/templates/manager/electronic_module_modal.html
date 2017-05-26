@@ -1,0 +1,153 @@
+<div id="edit_electronic_modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal"
+            aria-hidden="true">×</button>
+    <h3>编辑设备</h3>
+  </div>
+  <div class="modal-body">
+    <div id="edit_electronic_form" class="form-horizontal">
+      <div class="control-group">
+        <label class="control-label" for="editElectronicName">设备名称</label>
+        <div class="controls">
+          <input type="text" id="editElectronicName" name="name" />
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="editElectronicNumber">设备号码</label>
+        <div class="controls">
+          <input type="text" id="editElectronicNumber" name="deviceNumber" />
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="editElectronicAddress">地址</label>
+        <div class="controls">
+          <input type="text" id="editElectronicAddress" name="address" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+        <button id="add_switch_confirm_btn" class="btn btn-primary"
+                aria-hidden="true" onclick="electronicModuleModal.save()">确定</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  var electronicModuleModal = function(){
+    var urls = {};
+    var completeFnc = null;
+    var nowId = {
+      groupId: -1,
+      id: -1
+    }
+    var status = {
+      isAdd: true
+    }
+    var panel = {
+      edit: $('#edit_electronic_modal')
+    }
+    return {
+      init: function(o) {
+        completeFnc = o.complete
+        urls = {
+          add: o.url.add,
+          edit: o.url.edit,
+          del: o.url.del
+        }
+      },
+      add: function() {
+        status.isAdd = true
+        this.clearForm()
+        panel.edit.modal('show')
+      },
+      clearForm: function() {
+        var inputs = panel.edit.find('input')
+        for (var i = inputs.length - 1; i >= 0; i--) {
+          var input = inputs[i]
+          input.value = ''
+        }
+      },
+      save: function() {
+        var curModal = panel.edit
+        var inputs = curModal.find('input')
+        var data = {}
+        for (var i = inputs.length - 1; i >= 0; i--) {
+          var input = inputs[i]
+          if(!$.trim(input.value)) {
+            input.focus()
+            alert('您还有选项暂未填写')
+            return
+          }
+          data[input.name] = input.value
+        }
+
+        var params = data
+        params.groupId = typeof selectManager == 'undefined' ? undefined : selectManager.getCompany()
+        params.monitorId = ModulesTabPanel.getMonitorId()
+        if(!status.isAdd) {
+          params['id'] = nowId.id
+        }
+
+        $.ajax({
+          type : 'POST',
+          url : status.isAdd ? urls.add : urls.edit,
+          async : false,
+          data : params,
+          success : function(data) {
+            if(data.success) {
+              if(data.type != 'SUCCESS') {
+                alert(data.text)
+              } else {
+                completeFnc()
+                alert('操作成功')
+                curModal.modal('hide')
+              }
+            } else {
+              alert('失败 ')
+            }
+          }
+        })
+      },
+      edit: function(data) {
+        status.isAdd = false
+        var inputs = panel.edit.find('input')
+        nowId.id = data.id
+        Array.prototype.forEach.call(inputs, function(item) {
+          item.value = data[item.name] || ''
+        })
+      },
+      del: function(id) {
+        nowId.id = id
+        Popup.Confirm({
+          title: '警告',
+          text: '您确定要删除吗？请慎重考虑',
+          cancelText: '关闭',
+          successText: '删除',
+          success: this.sureDel.bind(this)
+        })
+      },
+      sureDel: function() {
+        $.ajax({
+          type: 'POST',
+          url: urls.del,
+          data: {
+            'id': nowId.id
+          },
+          success: function(data) {
+            if(data.success) {
+              if(data.type == 'WARNING') {
+                alert(data.text)
+              } else {
+                completeFnc()
+                alert('操作成功')
+              }
+            } else {
+              alert('失败')
+            }
+          }
+        })
+      }
+    }
+  }()
+</script>

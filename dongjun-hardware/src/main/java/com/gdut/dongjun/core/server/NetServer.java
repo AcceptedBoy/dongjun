@@ -222,6 +222,7 @@ public abstract class NetServer {
 			while (hitchEventSypSign) {
 
 				try {
+					//TODO
 					Thread.sleep(hitchEventBreak);
 					logger.info("开始发起总召。。。");
 				} catch (InterruptedException e) {

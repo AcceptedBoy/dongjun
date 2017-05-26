@@ -7,6 +7,8 @@ import java.util.Arrays;
  */
 public class CharUtils {
 	
+	private static final int BYTE = 2;
+	
 	private static final String HEX_STR = "0123456789abcdef";
 
     public static char[] removeSpecChar(char[] src, char c) {
@@ -172,4 +174,115 @@ public class CharUtils {
 	public static int charToInt(char c) {
 		return  HEX_STR.indexOf(c);
 	}
+	
+	/**
+	 * byte转16进制，用10进制数字表示
+	 * @param data
+	 * @return
+	 */
+	public static int byteToHex(char[] data) {
+		if (data.length < 2) {
+			return 0;
+		}
+		return 16 * charToHex(data[0]) + charToHex(data[1]);
+	}
+	
+	/**
+	 * byte转16进制，用10进制数字表示
+	 * @param pre
+	 * @param post
+	 * @return
+	 */
+	public static int byteToHex(char pre, char post) {
+		return 16 * charToHex(pre) + charToHex(post);
+	}
+	
+	/**
+	 * char转16进制，用10进制数字表示
+	 * 0 48
+	 * 9 57
+	 * a 97
+	 * f 102
+	 * A 65
+	 * Z 70
+	 * @param c
+	 * @return
+	 */
+	public static int charToHex(char c) {
+		int num = (int)c;
+		if (num >= 48 && num <= 57) {
+			return num - 48;
+		}
+		else if (num >= 97 && num <= 102) {
+			return num - 87;
+		}
+		else if (num >= 65 && num <= 70) {
+			return num - 55;
+		}
+		return 0;
+	}
+	
+	public static char intToHex(int num) {
+		return HEX_STR.charAt(num);
+	}
+	
+	/**
+	 * char变10进制数字
+	 * 0 48
+	 * 9 57
+	 * @param c
+	 * @return
+	 */
+	public static int charToDecimal(char c) {
+		int num = (int)c;
+		if (num >= 48 && num <= 57) {
+			return num - 48;
+		}
+		throw new IllegalArgumentException("参数错误，char转换十进制数字出错：" + c);
+	}
+	
+	public static int charToDecimal(char pre, char post) {
+		return 10 * charToDecimal(pre) + charToDecimal(post);
+	}
+	
+	/**
+	 * 以字节为单位反转char数组
+	 * @param data
+	 * @return
+	 */
+	public static char[] reverse(char[] data) {
+		char temp;
+		int length = data.length / BYTE / 2;
+		int flag = (data.length / BYTE) % 2; // 0是偶数个字节，1为奇数个字节
+		int mid = data.length / 2 - flag;
+		for (int i = 0; i < length; i++) {
+			temp = data[mid - BYTE * (i + 1)];
+			data[mid - BYTE * (i + 1)] = data[mid + BYTE * (i + flag)];
+			data[mid + BYTE * (i + flag)] = temp;
+
+			temp = data[mid - BYTE * (i + 1) + 1];
+			data[mid - BYTE * (i + 1) + 1] = data[mid + BYTE * (i + flag) + 1];
+			data[mid + BYTE * (i + flag) + 1] = temp;
+		}
+		return data;
+	}
+	
+	/**
+	 * 将char数组中每隔char降低对应数字
+	 * @param data
+	 * @param po
+	 * @return
+	 */
+	public static char[] lowerText(char[] data, int dec) {
+		char[] hexArray = HEX_STR.toCharArray();
+		for (int i = 0; i < data.length; i++) {
+			int prePo = charToInt(data[i]);
+			if (prePo < dec) {
+				throw new IllegalArgumentException("参数错误，char数组每位降低对应数字时出错：" + String.valueOf(data));
+			}
+			data[i] = hexArray[prePo - 3];
+		}
+		return data;
+	}
+
 }

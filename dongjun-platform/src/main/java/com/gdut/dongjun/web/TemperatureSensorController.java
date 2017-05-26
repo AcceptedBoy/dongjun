@@ -11,11 +11,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.TemperatureSensor;
-import com.gdut.dongjun.dto.TemperatureSensorDTO;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.device.TemperatureSensorService;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.UUIDUtil;
+import com.gdut.dongjun.web.vo.TemperatureSensorVO;
 
 @Controller
 @RequestMapping("/dongjun/temperature_sensor")
@@ -31,9 +31,9 @@ public class TemperatureSensorController {
 	@ResponseBody
 	public ResponseMessage getSensorByDeviceId(String deviceId) {
 		List<TemperatureSensor> list = sensorService.selectByParameters(MyBatisMapUtil.warp("device_id", deviceId));
-		List<TemperatureSensorDTO> dtoList = new ArrayList<TemperatureSensorDTO>();
+		List<TemperatureSensorVO> dtoList = new ArrayList<TemperatureSensorVO>();
 		for (TemperatureSensor s : list) {
-			dtoList.add(TemperatureSensorDTO.wrap(s));
+			dtoList.add(TemperatureSensorVO.wrap(s));
 		}
 		return ResponseMessage.success(dtoList);
 	}

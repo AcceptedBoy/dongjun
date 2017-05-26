@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+<generatorConfiguration>
+	<classPathEntry
+		location="D:\\WORKING\\plug-in\\mysql-connector-java-5.1.38\\mysql-connector-java-5.1.38\\mysql-connector-java-5.1.38-bin.jar" />
+	<context id="context1" targetRuntime="MyBatis3">
+		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
+			connectionURL="jdbc:mysql://115.28.7.40:3306/elecon" userId="root"
+			password="topview+624">
+		</jdbcConnection>
+		<javaModelGenerator targetPackage="com.gdut.dongjun.po"
+			targetProject="D:\\WORKING\\git\\dongjun_dzc\\dongjun-center" />
+
+		<sqlMapGenerator targetPackage="com.gdut.dongjun.dao"
+			targetProject="D:\\WORKING\\git\\dongjun_dzc\\dongjun-center" />
+
+		<javaClientGenerator targetPackage="com.gdut.dongjun.dao"
+			targetProject="D:\\WORKING\\git\\dongjun_dzc\\dongjun-center" type="XMLMAPPER" />
+
+		<table schema="root" tableName="company" domainObjectName="Company"
+			enableCountByExample="false" enableUpdateByExample="false"
+			enableDeleteByExample="false" enableSelectByExample="false"
+			selectByExampleQueryId="false" />
+
+		<table schema="root" tableName="high_voltage_switch"
+			domainObjectName="HighVoltageSwitch" enableCountByExample="false"
+			enableUpdateByExample="false" enableDeleteByExample="false"
+			enableSelectByExample="false" selectByExampleQueryId="false" />
+
+		<table schema="root" tableName="line" domainObjectName="Line"
+			enableCountByExample="false" enableUpdateByExample="false"
+			enableDeleteByExample="false" enableSelectByExample="false"
+			selectByExampleQueryId="false" />
+
+		<table schema="root" tableName="location_swtich"
+			domainObjectName="LocationSwtich" enableCountByExample="false"
+			enableUpdateByExample="false" enableDeleteByExample="false"
+			enableSelectByExample="false" selectByExampleQueryId="false" />
+
+		<table schema="root" tableName="low_voltage_switch"
+			domainObjectName="LowVoltageSwitch" enableCountByExample="false"
+			enableUpdateByExample="false" enableDeleteByExample="false"
+			enableSelectByExample="false" selectByExampleQueryId="false" />
+			
+				<table schema="root" tableName="control_measure_switch"
+			domainObjectName="ControlMeasureSwitch" enableCountByExample="false"
+			enableUpdateByExample="false" enableDeleteByExample="false"
+			enableSelectByExample="false" selectByExampleQueryId="false" />	
+			
+							<table schema="root" tableName="module"
+			domainObjectName="Module" enableCountByExample="false"
+			enableUpdateByExample="false" enableDeleteByExample="false"
+			enableSelectByExample="false" selectByExampleQueryId="false" />	
+			
+										<table schema="root" tableName="substation"
+			domainObjectName="Substation" enableCountByExample="false"
+			enableUpdateByExample="false" enableDeleteByExample="false"
+			enableSelectByExample="false" selectByExampleQueryId="false" />	
+			
+	
+
+	</context>
+</generatorConfiguration>
+

@@ -1,7 +1,5 @@
 package com.gdut.dongjun.service.webservice.client.service;
 
-import java.util.List;
-
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
@@ -9,8 +7,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
-import com.gdut.dongjun.domain.vo.HitchEventVO;
+import com.gdut.dongjun.domain.dto.HitchEventDTO;
+import com.gdut.dongjun.domain.dto.InfoEventDTO;
 
 /**
  *
@@ -34,5 +32,11 @@ public interface WebsiteService {
     @POST
     @Path("/callback_hitch_event")
     @Consumes({MediaType.APPLICATION_JSON})
-    public void callbackHitchEvent(HitchEventVO event);
+    public void callbackHitchEvent(HitchEventDTO event);
+    
+    @POST
+    @Path("/callback_info_event")
+    @Consumes({MediaType.APPLICATION_JSON})
+    public void callbackInfoEvent(InfoEventDTO event);
+    
 }

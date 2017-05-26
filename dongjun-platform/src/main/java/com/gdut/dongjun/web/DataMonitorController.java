@@ -1,5 +1,7 @@
 package com.gdut.dongjun.web;
 
+import java.util.List;
+
 import javax.servlet.http.HttpSession;
 
 import org.apache.shiro.SecurityUtils;
@@ -9,17 +11,21 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.gdut.dongjun.HitchConst;
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.DataMonitor;
+import com.gdut.dongjun.domain.po.DataMonitorSubmodule;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.po.UserDeviceMapping;
 import com.gdut.dongjun.service.DeviceGroupMappingService;
+import com.gdut.dongjun.service.GPRSModuleService;
 import com.gdut.dongjun.service.PlatformGroupService;
 import com.gdut.dongjun.service.UserDeviceMappingService;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.authc.RoleService;
 import com.gdut.dongjun.service.device.DataMonitorService;
 import com.gdut.dongjun.service.device.DataMonitorSubmoduleService;
+import com.gdut.dongjun.service.device.ElectronicModuleService;
 import com.gdut.dongjun.service.device.TemperatureModuleService;
 import com.gdut.dongjun.service.device.TemperatureSensorService;
 import com.gdut.dongjun.util.MyBatisMapUtil;
@@ -47,6 +53,12 @@ public class DataMonitorController {
 	private RoleService roleService;
 	@Autowired
 	private PlatformGroupService pgService;
+	@Autowired
+	private TemperatureModuleService temModuleService;
+	@Autowired
+	private ElectronicModuleService elecModuleService;
+	@Autowired
+	private GPRSModuleService gprsModuleService;
 
 	@ResponseBody
 	@RequestMapping("/edit")
@@ -55,18 +67,18 @@ public class DataMonitorController {
 		if (null == monitor.getId() || "".equals(monitor.getId())) {
 			monitor.setId(UUIDUtil.getUUID());
 			Subject currentUser = SecurityUtils.getSubject();
+			User user = userService.getCurrentUser(session);
 			if (!currentUser.hasRole("platform_group_admin")) {
 				//更新UserDeviceMapping
-				User user = userService.getCurrentUser(session);
 				UserDeviceMapping m = new UserDeviceMapping();
 				m.setId(UUIDUtil.getUUID());
 				m.setDeviceId(monitor.getId());
 				m.setUserId(user.getId());
 				userDeviceMappingService.updateByPrimaryKey(m);
-				monitor.setGroupId(user.getCompanyId());
-				if (0 == monitorService.updateByPrimaryKey(monitor)) {
-					return ResponseMessage.warning("操作失败"); 
-				}
+			}
+			monitor.setGroupId(user.getCompanyId());
+			if (0 == monitorService.updateByPrimaryKey(monitor)) {
+				return ResponseMessage.warning("操作失败"); 
 			}
 		} else {
 			if (0 == monitorService.updateByPrimaryKeySelective(monitor)) {
@@ -86,6 +98,25 @@ public class DataMonitorController {
 		deviceGroupMappingService.deleteByParameters(MyBatisMapUtil.warp("device_id", id));
 		//删除UserDeviceMapping
 		userDeviceMappingService.deleteByParameters(MyBatisMapUtil.warp("device_id", id));
+		//删除子模块
+		List<DataMonitorSubmodule> submodules = submoduleService.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", id));
+		for (DataMonitorSubmodule submodule : submodules) {
+			switch (submodule.getModuleType()) {
+			case HitchConst.MODULE_GPRS : {
+				gprsModuleService.deleteByPrimaryKey(submodule.getModuleId());
+				break;
+			}
+			case HitchConst.MODULE_ELECTRICITY : {
+				elecModuleService.deleteByPrimaryKey(submodule.getModuleId());
+				break;
+			}
+			case HitchConst.MODULE_TEMPERATURE : {
+				temModuleService.deleteByPrimaryKey(submodule.getModuleId());
+				break;
+			}
+			default : break;
+			}
+		}
 		//删除DataMonitorSubmodule
 		submoduleService.deleteByParameters(MyBatisMapUtil.warp("data_monitor_id", id));
 		return ResponseMessage.success("操作成功");

@@ -14,6 +14,7 @@ import com.gdut.dongjun.domain.po.DataMonitorSubmodule;
 import com.gdut.dongjun.domain.po.ElectronicModule;
 import com.gdut.dongjun.service.device.DataMonitorSubmoduleService;
 import com.gdut.dongjun.service.device.ElectronicModuleService;
+import com.gdut.dongjun.service.device.event.ModuleHitchEventService;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.UUIDUtil;
 
@@ -25,6 +26,8 @@ public class ElectronicModuleController {
 	private ElectronicModuleService moduleService;
 	@Autowired
 	private DataMonitorSubmoduleService submoduleService;
+	@Autowired
+	private ModuleHitchEventService moduleHitchEventService;
 	
 	/**
 	 * TODO 要增加和DataMonitor的关联
@@ -56,6 +59,10 @@ public class ElectronicModuleController {
 				return ResponseMessage.warning("操作失败");
 			}
 		} else {
+			ElectronicModule m = moduleService.selectByPrimaryKey(module.getId());
+			if (null == m) {
+				return ResponseMessage.warning("该设备未被注册");
+			}
 			List<ElectronicModule> modules = moduleService
 					.selectByParameters(MyBatisMapUtil.warp("device_number", module.getDeviceNumber()));
 			if (0 != modules.size() && !modules.get(0).getId().equals(module.getId())) {
@@ -78,9 +85,11 @@ public class ElectronicModuleController {
 	@ResponseBody
 	@RequestMapping("/del")
 	public ResponseMessage del(String id) {
+		//删除子模块
 		if (!moduleService.deleteByPrimaryKey(id)) {
 			return ResponseMessage.warning("操作失败");
 		}
+		//删除DataMonitorSubmodule
 		List<DataMonitorSubmodule> submodules = submoduleService.selectByParameters(MyBatisMapUtil.warp("module_id", id));
 		if (0 == submodules.size()) {
 			return ResponseMessage.warning("操作失败");
@@ -89,6 +98,8 @@ public class ElectronicModuleController {
 		if (!submoduleService.deleteByPrimaryKey(submodule.getId())) {
 			return ResponseMessage.warning("操作失败"); 
 		}
+		//删除报警信息
+		moduleHitchEventService.deleteByParameters(MyBatisMapUtil.warp("module_id", id));
 		return ResponseMessage.success("操作成功");
 	}
 	

@@ -17,15 +17,14 @@ import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.DataMonitorSubmodule;
 import com.gdut.dongjun.domain.po.GPRSModule;
 import com.gdut.dongjun.domain.po.User;
-import com.gdut.dongjun.dto.GPRSModuleDTO;
 import com.gdut.dongjun.service.GPRSModuleService;
-import com.gdut.dongjun.service.PlatformGroupService;
 import com.gdut.dongjun.service.UserService;
-import com.gdut.dongjun.service.authc.RoleService;
 import com.gdut.dongjun.service.device.DataMonitorSubmoduleService;
+import com.gdut.dongjun.service.device.event.ModuleHitchEventService;
 import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.UUIDUtil;
+import com.gdut.dongjun.web.vo.GPRSModuleVO;
 
 @Controller
 @RequestMapping("/dongjun/gprs")
@@ -34,15 +33,13 @@ public class GPRSModuleController {
 	@Autowired
 	private GPRSModuleService gprsService;
 	@Autowired
-	private PlatformGroupService pgService;
-	@Autowired
 	private UserService userService;
 	@Autowired
 	private HardwareServiceClient hardwareServiceClient;
 	@Autowired
-	private RoleService roleService;
-	@Autowired
 	private DataMonitorSubmoduleService submoduleService;
+	@Autowired
+	private ModuleHitchEventService moduleHitchEventService;
 
 	// 6f1b9f044e1346f299af9cc0fe7e005d
 	// 6f1b9f044e1346f299af9cc0fe7e005d
@@ -63,6 +60,7 @@ public class GPRSModuleController {
 			}
 			gprs.setId(UUIDUtil.getUUID());
 			gprs.setAvailable(true);
+			//设置DataMonitorSubmodule
 			DataMonitorSubmodule submodule = new DataMonitorSubmodule();
 			submodule.setId(UUIDUtil.getUUID());
 			submodule.setAvailable(1);
@@ -78,8 +76,10 @@ public class GPRSModuleController {
 				return ResponseMessage.success("操作成功");
 			}
 		} else {
-			// GPRSModule module =
-			// gprsService.selectByPrimaryKey(gprs.getDeviceNumber());
+			GPRSModule m = gprsService.selectByPrimaryKey(gprs.getId());
+			if (null == m) {
+				return ResponseMessage.warning("该设备未注册"); 
+			}
 			List<GPRSModule> modules = gprsService
 					.selectByParameters(MyBatisMapUtil.warp("device_number", gprs.getDeviceNumber()));
 			if (0 != modules.size() && !modules.get(0).getId().equals(gprs.getId())) {
@@ -98,6 +98,7 @@ public class GPRSModuleController {
 	public ResponseMessage listGPRSModule(String monitorId, HttpSession session) {
 		List<DataMonitorSubmodule> subList = submoduleService
 				.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
+		List<GPRSModule> modules = new ArrayList<GPRSModule>();
 		// TODO 优化sql
 		for (DataMonitorSubmodule sub : subList) {
 			if (sub.getModuleType() == HitchConst.MODULE_GPRS) {
@@ -105,8 +106,11 @@ public class GPRSModuleController {
 				if (null == module) {
 					return ResponseMessage.warning("操作失败");
 				}
-				return ResponseMessage.success(wrapIntoDTO(module));
+				modules.add(module);
 			}
+		}
+		if (0 != modules.size()) {
+			return ResponseMessage.success(wrapIntoVO(modules));
 		}
 		return ResponseMessage.warning("该子模块没有数据");
 	}
@@ -114,9 +118,11 @@ public class GPRSModuleController {
 	@ResponseBody
 	@RequestMapping("/del")
 	public ResponseMessage del(String id) {
+		//删除GPRSModule
 		if (!gprsService.deleteByPrimaryKey(id)) {
 			return ResponseMessage.warning("操作失败");
 		}
+		//删除DataMonitorSubmodule
 		List<DataMonitorSubmodule> submodules = submoduleService.selectByParameters(MyBatisMapUtil.warp("module_id", id));
 		if (0 == submodules.size()) {
 			return ResponseMessage.warning("操作失败");
@@ -125,6 +131,8 @@ public class GPRSModuleController {
 		if (!submoduleService.deleteByPrimaryKey(submodule.getId())) {
 			return ResponseMessage.warning("操作失败"); 
 		}
+		//删除报警信息
+		moduleHitchEventService.deleteByParameters(MyBatisMapUtil.warp("module_id", id));
 		return ResponseMessage.success("操作成功");
 	}
 
@@ -137,17 +145,17 @@ public class GPRSModuleController {
 //		return ResponseMessage.success(wrapIntoDTO(list));
 //	}
 
-	private GPRSModuleDTO wrapIntoDTO(GPRSModule gprs) {
+	private GPRSModuleVO wrapIntoVO(GPRSModule gprs) {
 		List<String> deviceNumbers = new ArrayList<String>();
 		List<Integer> status = null;
 		deviceNumbers.add(gprs.getDeviceNumber());
 		status = hardwareServiceClient.getService().getGPRSModuleStatus(deviceNumbers);
-		GPRSModuleDTO dto = new GPRSModuleDTO(gprs, status.get(0));
+		GPRSModuleVO dto = new GPRSModuleVO(gprs, status.get(0));
 		return dto;
 	}
 
-	private List<GPRSModuleDTO> wrapIntoDTO(List<GPRSModule> list) {
-		List<GPRSModuleDTO> dtos = new ArrayList<GPRSModuleDTO>();
+	private List<GPRSModuleVO> wrapIntoVO(List<GPRSModule> list) {
+		List<GPRSModuleVO> dtos = new ArrayList<GPRSModuleVO>();
 		List<String> deviceNumbers = new ArrayList<String>();
 		List<Integer> status = null;
 		for (GPRSModule gprs : list) {
@@ -158,7 +166,7 @@ public class GPRSModuleController {
 
 		int i = 0;
 		for (GPRSModule gprs : list) {
-			GPRSModuleDTO dto = new GPRSModuleDTO(gprs, status.get(i));
+			GPRSModuleVO dto = new GPRSModuleVO(gprs, status.get(i));
 			dtos.add(dto);
 			i++;
 		}

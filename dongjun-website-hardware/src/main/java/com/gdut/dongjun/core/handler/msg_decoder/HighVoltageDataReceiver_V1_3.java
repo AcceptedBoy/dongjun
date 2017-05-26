@@ -492,7 +492,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 	}
 
 	private void getMessageAddress(String code, String address, String value) {
-
+		System.out.println("code  " + code + "    address  " + address + "  value  " + value);
 		if (code == null || code.length() == 0 || code.length() != 4) {
 			return;
 		}

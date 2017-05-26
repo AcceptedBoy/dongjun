@@ -114,13 +114,14 @@
 		 * @param {Boolean} isActive  [是否正在显示这个图表类]
 		 * @param {[type]}  idConfig  [一些tab的id]
 		 */
-    function Chart(chart, tablename, isActive, idConfig) {
-      this.chart = echarts.init(document.getElementById(chart))
-      this._tablename = tablename
-      this._isActive = isActive
-      this._tableId = idConfig.tableId || ''
-      this._tabId = idConfig.tabId || ''
-      this._chartTabId = idConfig.chartTabId || ''
+    function Chart(op) {
+      this.chart = echarts.init(document.getElementById(op.chart))
+      this._tablename = op.tablename
+      this._xFormatter = op.xFormatter
+      this._isActive = op.isActive
+      this._tableId = op.idConfig.tableId || ''
+      this._tabId = op.idConfig.tabId || ''
+      this._chartTabId = op.idConfig.chartTabId || ''
 			chartNodes.addChart(this)
     }
 
@@ -130,6 +131,13 @@
 	 */
 	Chart.prototype.getChartTabId = function() {
 		return this._chartTabId
+	}
+	 
+	Chart.prototype.changeFormatter = function(op) {
+		console.log('changeFormatter', op)
+	  op.yAxis[0].axisLabel = {
+	    formatter: '{value}' + (this._xFormatter || '')
+	  }
 	}
 
 	Chart.prototype.getTabId = function() {
@@ -241,8 +249,8 @@
 		 * @param {Boolean} isActive  [description]
 		 * @param {[type]}  idConfig  [description]
 		 */
-    function TemChart(chart, tablename, isActive, idConfig) {
-      Chart.call(this, chart, tablename, isActive, idConfig)
+    function TemChart(op) {
+      Chart.call(this, op)
     }
 
 		/**
@@ -254,8 +262,8 @@
 		 * @param {[type]}  idConfig  [description]
 		 * @param {[type]}  url       [description]
 		 */
-    function EleChart(chart, tablename, isActive, idConfig, url) {
-      Chart.call(this, chart, tablename, isActive, idConfig)
+    function EleChart(op, url) {
+      Chart.call(this, op)
 			this.url = url
     }
 
@@ -290,6 +298,7 @@
           success: function(res) {
             if(res) {
               chartView.setChart(res, name)
+              self.changeFormatter(res)
               self.chart.setOption(res, true)
               self.showTable()
             } else {
@@ -379,6 +388,7 @@
 					success: function(res) {
 						if(res) {
 							chartView.setChart(res, name)
+							self.changeFormatter(res)
               self.chart.setOption(res, true)
               self.showTable()
 						} else {
@@ -625,29 +635,53 @@
    */
     var chartManager = function() {
 
-      var temperature = new TemChart('temperature', 't_data_list', true, {
+      var temperature = new TemChart({
+    	  chart: 'temperature',
+    	  tablename: 't_data_list',
+    	  xFormatter: '°C',
+    	  isActive: true,
+    	  idConfig: {
 				tabId: 'showTExcal',
 				tableId: 'excalChartT',
 				chartTabId: 'showTchart'
-			})
+			}
+      })
 
-      var voltageChart = new EleChart('VoltageChart', 'v_data_list', false, {
+      var voltageChart = new EleChart({
+    	  chart: 'VoltageChart',
+    	  tablename: 'v_data_list',
+    	  xFormatter: 'V',
+    	  isActive: false,
+    	  idConfig: {
 				tabId: 'showVExcal',
 				tableId: 'excalChartV',
 				chartTabId: 'showVchart'
-			}, '/dongjun/chart/electronic_voltage')
+			}
+      }, '/dongjun/chart/electronic_voltage')
 
-      var currentChart = new EleChart('current', 'c_data_list', false, {
+      var currentChart = new EleChart({
+    	  chart: 'current',
+    	  tablename: 'c_data_list',
+    	  xFormatter: 'A',
+    	  isActive: false,
+    	  idConfig: {
 				tabId: 'showCExcal',
 				tableId: 'excalChartC',
 				chartTabId: 'showCchart'
-			}, '/dongjun/chart/electronic_current')
+			}
+      }, '/dongjun/chart/electronic_current')
 
-      var powerChart = new EleChart('power', 'p_data_list', false, {
+      var powerChart = new EleChart({
+    	  chart: 'power',
+    	  tablename: 'p_data_list',
+    	  xFormatter: 'kW',
+    	  isActive: false,
+    	  idConfig: {
 				tabId: 'showPExcal',
 				tableId: 'excalChartP',
 				chartTabId: 'showPchart'
-			}, '/dongjun/chart/electronic_power')
+			}
+      }, '/dongjun/chart/electronic_power')
 
       return {
 				refresh: function() {

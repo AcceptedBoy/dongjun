@@ -8,8 +8,11 @@ import java.util.Map;
 
 import javax.servlet.http.HttpSession;
 
+import org.apache.catalina.security.SecurityUtil;
+import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,13 +51,13 @@ public class DeviceGroupController {
 	@Autowired
 	private UserDeviceMappingService userMappingService;
 
-//	@RequiresPermissions("device_group_admin:edit")
+	// @RequiresPermissions("device_group_admin:edit")
 	@RequiresAuthentication
 	@RequestMapping("/edit")
 	@ResponseBody
 	public ResponseMessage addGroup(DeviceGroup dGroup, HttpSession session) {
 		User user = (User) session.getAttribute("currentUser");
-		dGroup.setPlatformGroupId(user.getCompanyId());	//实际上是PlatformGroup的id
+		dGroup.setPlatformGroupId(user.getCompanyId()); // 实际上是PlatformGroup的id
 		if (null == dGroup.getId() || "".equals(dGroup.getId())) {
 			dGroup.setId(UUIDUtil.getUUID());
 		}
@@ -65,7 +68,7 @@ public class DeviceGroupController {
 			return ResponseMessage.warning("操作失败");
 	}
 
-//	@RequiresPermissions("device_group_admin:delete")
+	// @RequiresPermissions("device_group_admin:delete")
 	@RequiresAuthentication
 	@RequestMapping("/del")
 	@ResponseBody
@@ -90,8 +93,8 @@ public class DeviceGroupController {
 	@ResponseBody
 	public ResponseMessage getDeviceGroup(HttpSession session) {
 		User user = (User) session.getAttribute("currentUser");
-		 List<DeviceGroup> list = deviceGroupService.selectByParameters(MyBatisMapUtil.warp("platform_group_id",
-		 user.getCompanyId()));
+		List<DeviceGroup> list = deviceGroupService
+				.selectByParameters(MyBatisMapUtil.warp("platform_group_id", user.getCompanyId()));
 		return ResponseMessage.success(list);
 	}
 
@@ -103,7 +106,7 @@ public class DeviceGroupController {
 	 * @param deviceGroupId
 	 * @return
 	 */
-//	@RequiresPermissions("device_group_admin:edit")
+	// @RequiresPermissions("device_group_admin:edit")
 	@RequiresAuthentication
 	@RequestMapping(value = "/edit_device", method = RequestMethod.POST)
 	@ResponseBody
@@ -113,8 +116,16 @@ public class DeviceGroupController {
 		String[] splitId = deviceId.split(",=");
 		DeviceGroupMapping mapping = new DeviceGroupMapping();
 		mapping.setDeviceGroupId(deviceGroupId);
+		List<DeviceGroupMapping> list = null;
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("device_group_id", deviceGroupId);
 		for (int i = 0; i < splitId.length; i++) {
-			//保留字段type，默认0
+			map.put("device_id", splitId[i]);
+			list = deviceGroupMappingService.selectByParameters(MyBatisMapUtil.warp(map));
+			if (null != list && 0 != list.size()) {
+				continue;
+			}
+			// 保留字段type，默认0
 			mapping.setType(0);
 			mapping.setDeviceId(splitId[i]);
 			mapping.setId(UUIDUtil.getUUID());
@@ -125,7 +136,7 @@ public class DeviceGroupController {
 		return ResponseMessage.success("操作成功");
 	}
 
-//	@RequiresPermissions("device_group_admin:delete")
+	// @RequiresPermissions("device_group_admin:delete")
 	@RequiresAuthentication
 	@RequestMapping("/del_device")
 	@ResponseBody
@@ -135,7 +146,7 @@ public class DeviceGroupController {
 		map.put("device_id", id);
 		List<DeviceGroupMapping> list = deviceGroupMappingService.selectByParameters(MyBatisMapUtil.warp(map));
 		if (null == list || 1 != list.size()) {
-			return ResponseMessage.danger("操作失败"); 
+			return ResponseMessage.danger("操作失败");
 		}
 		if (deviceGroupMappingService.deleteByPrimaryKey(list.get(0).getId())) {
 			return ResponseMessage.success("操作成功");
@@ -144,8 +155,8 @@ public class DeviceGroupController {
 	}
 
 	/**
-	 * 根据DeviceGroup的id返回DataMonitor
-	 * TODO
+	 * 根据DeviceGroup的id返回DataMonitor TODO
+	 * 
 	 * @param groupId
 	 * @return
 	 */
@@ -177,6 +188,10 @@ public class DeviceGroupController {
 		User user = userService.getCurrentUser(session);
 		List<DataMonitor> devices = monitorService
 				.selectByParameters(MyBatisMapUtil.warp("group_id", user.getCompanyId()));
+		Subject subject = SecurityUtils.getSubject();
+		if (subject.hasRole("platform_group_admin")) {
+			return ResponseMessage.success(devices);
+		}
 		List<String> ids = userMappingService.selectMonitorIdByUserId(userService.getCurrentUser(session).getId());
 		List<DataMonitor> dtos = new ArrayList<DataMonitor>();
 		for (DataMonitor d : devices) {

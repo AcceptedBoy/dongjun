@@ -5,22 +5,21 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import com.gdut.dongjun.core.ElectronicCtxStore;
-import com.gdut.dongjun.core.SwitchGPRS;
+import com.gdut.dongjun.core.handler.ChannelInfo;
 import com.gdut.dongjun.core.initializer.ServerInitializer;
-import com.gdut.dongjun.core.message.impl.ElectronicModuleMessageCreator;
+import com.gdut.dongjun.core.message.impl.DLT645_07MessageCreator;
 import com.gdut.dongjun.core.server.NetServer;
-//AbstractNioChannel AbstractChannel AbstractChannelHandlerContext
-@Service("ElectronicServer")
+
+//@Service("ElectronicServer")
 public class ElectronicServer extends NetServer {
 
 	private ServerInitializer initializer;
 	@Autowired
 	private ElectronicCtxStore ctxStore;
 	@Autowired
-	private ElectronicModuleMessageCreator messageCreator;
+	private DLT645_07MessageCreator messageCreator;
 
 	@Resource(name = "ElectronicServerInitializer")
 	public void setInitializer(ServerInitializer initializer) {
@@ -35,11 +34,11 @@ public class ElectronicServer extends NetServer {
 	 */
 	@Override
 	protected void hitchEventSpy() {
-		List<SwitchGPRS> gprsList = ctxStore.getInstance();
-		for (SwitchGPRS device : gprsList) {
-			List<String> msgList = messageCreator.generateTotalCall(device.getAddress());
-			for (String msg : msgList) {
-				device.getCtx().writeAndFlush(msg);
+		List<ChannelInfo> infoList = ctxStore.getInstance();
+		for (ChannelInfo info : infoList) {
+			List<String> msgList = messageCreator.generateTotalCall(info.getAddress());
+			for (String order : msgList) {
+				info.getCtx().writeAndFlush(order);
 			}
 		}
 	}

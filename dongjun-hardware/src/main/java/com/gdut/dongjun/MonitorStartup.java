@@ -7,7 +7,6 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.gdut.dongjun.core.server.impl.ElectronicServer;
 import com.gdut.dongjun.core.server.impl.TemperatureServer;
 import com.gdut.dongjun.domain.dao.ProtocolPortMapper;
 import com.gdut.dongjun.domain.po.ProtocolPort;
@@ -25,8 +24,8 @@ public class MonitorStartup implements InitializingBean {
 	
 	@Autowired
 	private TemperatureServer temperatureServer;
-    @Autowired
-    private ElectronicServer electronicServer;
+//    @Autowired
+//    private ElectronicServer electronicServer;
 	@Autowired
 	private ProtocolPortMapper protocolPortDAOImpl;
 //	@Autowired
@@ -104,9 +103,10 @@ public class MonitorStartup implements InitializingBean {
 		for (ProtocolPort port : ports) {
 			if (port.getRemark().equals("temperature_device")) {
 				temperatureServer.setPort(port.getPort());
-			} else if (port.getRemark().equals("electronic_module")) {
-				electronicServer.setPort(port.getPort());
 			}
+//			else if (port.getRemark().equals("electronic_module")) {
+//				electronicServer.setPort(port.getPort());
+//			}
 			else {
 				logger.warn("服务器启动端" + port.getRemark() + ":" + port.getPort() + "口有误，请查看服务器启动代码是否有误");
 			}
@@ -116,9 +116,9 @@ public class MonitorStartup implements InitializingBean {
 			logger.info("温度设备端口号：" + temperatureServer.getPort());
 			temperatureServer.start();
 		}
-		if (null != electronicServer.getPort()) {
-			logger.info("电能表端口号：" + electronicServer.getPort());
-			electronicServer.start();
-		}
+//		if (null != electronicServer.getPort()) {
+//			logger.info("电能表端口号：" + electronicServer.getPort());
+//			electronicServer.start();
+//		}
 	}	
 }

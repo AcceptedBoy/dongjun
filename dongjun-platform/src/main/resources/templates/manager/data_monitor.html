@@ -31,7 +31,7 @@
       <ul id="modules_panel_tab" class="nav nav-tabs" style="font-size: 0.6em; float: right; margin-bottom: 0">
         <li><a href="#temperature_module" data-toggle="tab">温度</a></li>
         <li><a href="#GPRS_module" data-toggle="tab">GPRS</a></li>
-        <li><a href="#power_module" data-toggle="tab">电能表</a></li>
+        <li><a href="#electronic_module" data-toggle="tab">电能表</a></li>
       </ul>
     </h3>
   </div>
@@ -42,14 +42,14 @@
     <div class="tab-pane fade" id="GPRS_module" style="width: 100%">
       数据加载中。。。
     </div>
-    <div class="tab-pane fade" id="power_module" style="width: 100%">
+    <div class="tab-pane fade" id="electronic_module" style="width: 100%">
       数据加载中。。。
     </div>
   </div>
 </div>
 
 <script>
-  var Popup = function() {
+/*  var Popup = function() {
     var c = null
     return {
       Confirm: function(data) {
@@ -153,7 +153,7 @@
   Confirm.prototype.hide = function(data) {
     $(this.panel).modal('hide')
     return this
-  }
+  }*/
 
   var panelObserver = function() {
     var __message = {}
@@ -216,7 +216,7 @@
             // {
             //   'data': 'id',
             //   'render': function(data, type, row) {
-            //     return '<a role="button" class="btn" data-fnc="goToPowerModule" data-name="'+ row.name +'"  data-id="'+ data +'">查看</a>'
+            //     return '<a role="button" class="btn" data-fnc="goToelectronicModule" data-name="'+ row.name +'"  data-id="'+ data +'">查看</a>'
             //   }
             // },
             {
@@ -258,7 +258,7 @@
                 case 'goToGPRSModule':
                   ModulesTabPanel.show('GPRS', target.data('name'), target.data('id'))
                   return
-                case 'goToPowerModule':
+                case 'goToElectronicModule':
                   alert('暂未开放, 请等待')
                   return
                 // 删除功能
@@ -304,20 +304,21 @@
     var template = {
       temperature: 'temperature_module.html',
       GPRS: 'GPRS_module.html',
-      power: 'power_module.html'
+      electronic: 'electronic_module.html'
     }
     var titleNode = $('#module_info_title')
     var contentNode = {
       temperature: $('#temperature_module'),
       GPRS: $('#GPRS_module'),
-      power: $('#power_module')
+      electronic: $('#electronic_module')
     }
 
     var currentTab = ''
     var curMonitorId = ''
     var fireFnc = {
       temperature: 'showTemModule',
-      GPRS: 'showGPRSModule'
+      GPRS: 'showGPRSModule',
+      electronic: 'showElectronicModule'
     }
 
     // var afterLoad = function() {}

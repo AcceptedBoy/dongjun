@@ -16,7 +16,9 @@ import com.gdut.dongjun.domain.po.DataMonitorSubmodule;
 import com.gdut.dongjun.domain.po.TemperatureMeasure;
 import com.gdut.dongjun.domain.po.TemperatureSensor;
 import com.gdut.dongjun.domain.vo.chart.ChartData;
-import com.gdut.dongjun.domain.vo.chart.ElectronicChartData;
+import com.gdut.dongjun.domain.vo.chart.ElectronicCurrentChartData;
+import com.gdut.dongjun.domain.vo.chart.ElectronicPowerChartData;
+import com.gdut.dongjun.domain.vo.chart.ElectronicVoltageChartData;
 import com.gdut.dongjun.domain.vo.chart.TemperatureChartData;
 import com.gdut.dongjun.service.device.DataMonitorService;
 import com.gdut.dongjun.service.device.DataMonitorSubmoduleService;
@@ -335,7 +337,7 @@ public class ChartController {
 				currentService.selectByTime(deviceId, beginDate, endDate, "B"));
 		measureMap.put("C相",
 				currentService.selectByTime(deviceId, beginDate, endDate, "C"));
-		ElectronicChartData chartData = new ElectronicChartData();
+		ElectronicCurrentChartData chartData = new ElectronicCurrentChartData();
 		return chartData.getJsonChart(measureMap);
 	}
 	
@@ -369,7 +371,7 @@ public class ChartController {
 				voltageService.selectByTime(deviceId, beginDate, endDate, "B"));
 		measureMap.put("C相",
 				voltageService.selectByTime(deviceId, beginDate, endDate, "C"));
-		ElectronicChartData chartData = new ElectronicChartData();
+		ElectronicVoltageChartData chartData = new ElectronicVoltageChartData();
 		return chartData.getJsonChart(measureMap);
 	}
 	
@@ -403,7 +405,9 @@ public class ChartController {
 				powerService.selectByTime(deviceId, beginDate, endDate, "B"));
 		measureMap.put("C相",
 				powerService.selectByTime(deviceId, beginDate, endDate, "C"));
-		ElectronicChartData chartData = new ElectronicChartData();
+		measureMap.put("总功率",
+				powerService.selectByTime(deviceId, beginDate, endDate, "D"));
+		ElectronicPowerChartData chartData = new ElectronicPowerChartData();
 		return chartData.getJsonChart(measureMap);
 	}
 	
