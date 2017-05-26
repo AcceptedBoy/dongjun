@@ -116,6 +116,7 @@
 		 */
     function Chart(op) {
       this.chart = echarts.init(document.getElementById(op.chart))
+      this._chartname = op.chart
       this._tablename = op.tablename
       this._xFormatter = op.xFormatter
       this._isActive = op.isActive
@@ -136,8 +137,12 @@
 	Chart.prototype.changeFormatter = function(op) {
 		console.log('changeFormatter', op)
 	  op.yAxis[0].axisLabel = {
-	    formatter: '{value}' + (this._xFormatter || '')
+	    formatter: '{value}' + (this._xFormatter.split('/')[1] || '')
 	  }
+	}
+	
+	Chart.prototype.setDW = function() {
+		$('#' + this._chartname).append('<h4 style="position:absolute; top:0; left:8%">' + this._xFormatter + '</h4>')
 	}
 
 	Chart.prototype.getTabId = function() {
@@ -300,6 +305,7 @@
               chartView.setChart(res, name)
               self.changeFormatter(res)
               self.chart.setOption(res, true)
+              self.setDW()
               self.showTable()
             } else {
               alert('没有数据')
@@ -638,7 +644,7 @@
       var temperature = new TemChart({
     	  chart: 'temperature',
     	  tablename: 't_data_list',
-    	  xFormatter: '°C',
+    	  xFormatter: '温度/°C',
     	  isActive: true,
     	  idConfig: {
 				tabId: 'showTExcal',
@@ -650,7 +656,7 @@
       var voltageChart = new EleChart({
     	  chart: 'VoltageChart',
     	  tablename: 'v_data_list',
-    	  xFormatter: 'V',
+    	  xFormatter: '电压/V',
     	  isActive: false,
     	  idConfig: {
 				tabId: 'showVExcal',
@@ -662,7 +668,7 @@
       var currentChart = new EleChart({
     	  chart: 'current',
     	  tablename: 'c_data_list',
-    	  xFormatter: 'A',
+    	  xFormatter: '电流/A',
     	  isActive: false,
     	  idConfig: {
 				tabId: 'showCExcal',
@@ -674,7 +680,7 @@
       var powerChart = new EleChart({
     	  chart: 'power',
     	  tablename: 'p_data_list',
-    	  xFormatter: 'kW',
+    	  xFormatter: '千瓦/kW',
     	  isActive: false,
     	  idConfig: {
 				tabId: 'showPExcal',
