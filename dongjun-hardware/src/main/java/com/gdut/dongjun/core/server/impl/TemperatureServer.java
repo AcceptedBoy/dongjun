@@ -18,6 +18,9 @@ import com.gdut.dongjun.core.message.impl.DLT645_97MessageCreator;
 import com.gdut.dongjun.core.server.NetServer;
 import com.gdut.dongjun.util.TemperatureDeviceCommandUtil;
 
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandlerContext;
+
 @Service("TemperatureServer")
 public class TemperatureServer extends NetServer {
 	
@@ -75,7 +78,9 @@ public class TemperatureServer extends NetServer {
 			//得到报文
 			List<String> msgList = elecMessageCreator.generateTotalCall(address);
 			ChannelSendMessage send = new ChannelSendMessage();
-			send.setChannel(info.getCtx().channel());
+			for (ChannelHandlerContext c : info.getCtxList()) {
+				send.getChannel().add(c.channel());
+			}
 			Stack<String> stack = new Stack<String>();
 			stack.addAll(msgList);
 			send.setAllMessage(stack);
@@ -91,7 +96,9 @@ public class TemperatureServer extends NetServer {
 					continue;
 				}
 				String msg = stack.pop();
-				csm.getChannel().writeAndFlush(msg);
+				for (Channel c : csm.getChannel()) {
+					c.writeAndFlush(msg);
+				}
 			}
 			//对于一个Channel来说，相邻两个报文发送的间隔近乎2s
 			try {
@@ -161,7 +168,9 @@ public class TemperatureServer extends NetServer {
 		List<ChannelInfo> infoList = elecStore.getInstance();
 		for (ChannelInfo info : infoList) {
 			logger.info("发送测试报文：" + m);
-			info.getCtx().channel().writeAndFlush(m);
+			for (ChannelHandlerContext c : info.getCtxList()) {
+				c.channel().writeAndFlush(m);
+			}
 		}
 	}
 }

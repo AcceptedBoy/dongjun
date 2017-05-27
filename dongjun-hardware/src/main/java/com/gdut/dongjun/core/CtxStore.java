@@ -465,11 +465,11 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 		return ctxList;
 	}
 	
-	public ChannelHandlerContext getCtxByAddress(String address) {
+	public List<ChannelHandlerContext> getCtxByAddress(String address) {
 		
 		for(ChannelInfo gprs : ctxList) {
 			if(gprs.getAddress() != null && gprs.getAddress().equals(address)) {
-				return gprs.getCtx();
+				return gprs.getCtxList();
 			}
 		}
 		return null;
@@ -484,7 +484,8 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 
 			for (ChannelInfo gprs : ctxList) {
 
-				if (gprs != null && ctx.equals(gprs.getCtx())) {
+				if (gprs != null && 
+						gprs.getCtxList().contains(ctx)) {
 					return gprs;
 				}
 			}
@@ -556,11 +557,9 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 		if (ctxList != null) {
 
 			for (ChannelInfo gprs : ctxList) {
-
 				if (gprs != null && address.equals(gprs.getAddress())) {
 					return gprs.getModuleId();
 				}
-
 			}
 		} else {
 			logger.info("ctxlist is empty!");
@@ -614,7 +613,8 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 
 			for (ChannelInfo gprs : ctxList) {
 
-				if (gprs != null && ctx.equals(gprs.getCtx())) {
+				if (gprs != null 
+						&& gprs.getCtxList().contains(ctx)) {
 
 					ctxList.remove(gprs);	
 				}
@@ -669,8 +669,10 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 		}
 		List<ChannelInfo> list = getInstance();
 		for (ChannelInfo info : list) {
-			if (info.getCtx().pipeline().channel() == channel) {
-				return info;
+			for (ChannelHandlerContext c : info.getCtxList()) {
+				if (c.channel() == channel) {
+					return info;
+				}
 			}
 		}
 		return null;

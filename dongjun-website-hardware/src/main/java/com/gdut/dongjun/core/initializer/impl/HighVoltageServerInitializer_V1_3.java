@@ -1,13 +1,17 @@
 package com.gdut.dongjun.core.initializer.impl;
 
-import com.gdut.dongjun.core.handler.Decoder;
-import com.gdut.dongjun.core.handler.Encoder;
-import com.gdut.dongjun.core.handler.msg_decoder.HighVoltageDataReceiver_V1_3;
-import com.gdut.dongjun.core.initializer.ServerInitializer;
-import io.netty.channel.ChannelPipeline;
-import io.netty.channel.socket.SocketChannel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.gdut.dongjun.core.handler.Decoder;
+import com.gdut.dongjun.core.handler.Encoder;
+import com.gdut.dongjun.core.handler.SeparatedTextDecoder;
+import com.gdut.dongjun.core.handler.msg_decoder.HighVoltageDataReceiver_V1_3;
+import com.gdut.dongjun.core.initializer.ServerInitializer;
+import com.sun.xml.bind.v2.TODO;
+
+import io.netty.channel.ChannelPipeline;
+import io.netty.channel.socket.SocketChannel;
 
 
 /**   
@@ -27,7 +31,8 @@ public class HighVoltageServerInitializer_V1_3 extends ServerInitializer{
 		
 		super.initChannel(ch);
 		ChannelPipeline p = ch.pipeline();
-		p.addLast(new Decoder());
+		p.addLast(new SeparatedTextDecoder());
+//		p.addLast(new Decoder());
 		p.addLast(new Encoder());
 		p.addLast(dataReceiver);
 	}
