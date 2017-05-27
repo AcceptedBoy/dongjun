@@ -125,6 +125,11 @@ public class GPRSParseStrategy extends ParseStrategy {
 					preInfo = new ChannelInfo(submodule.getModuleId(), submodule.getDataMonitorId(), module.getGroupId(),
 							module.getDeviceNumber(), ctx);
 					elecStore.add(preInfo);
+				} else {
+					List<ChannelHandlerContext> ctxList = preInfo.getCtxList();
+					if (!ctxList.contains(ctx) && null == preInfo.getAddress()) {
+						ctxList.add(ctx);
+					}
 				}
 				break;
 			}
@@ -136,6 +141,11 @@ public class GPRSParseStrategy extends ParseStrategy {
 					preInfo = new ChannelInfo(submodule.getModuleId(), submodule.getDataMonitorId(), module.getGroupId(),
 							module.getDeviceNumber(), ctx);
 					temStore.add(preInfo);
+				} else {
+					List<ChannelHandlerContext> ctxList = preInfo.getCtxList();
+					if (!ctxList.contains(ctx) && null == preInfo.getAddress()) {
+						ctxList.add(ctx);
+					}
 				}
 				break;
 			}

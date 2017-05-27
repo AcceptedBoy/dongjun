@@ -28,7 +28,7 @@ public class ChannelInfo implements Serializable {
 	private String address; // 子模块真实地址
 	private String decimalAddress; // 子模块的十进制地址
 	private transient List<Class<?>> handlerClassList; // 现在ChannelPipeline拥有的ChannelHandler的Class
-	private transient ChannelHandlerContext ctx;
+	private transient List<ChannelHandlerContext> ctxList;
 
 	public ChannelInfo(String moduleId, String monitorId, String groupId, String decimalAddress,
 			ChannelHandlerContext ctx) {
@@ -43,7 +43,8 @@ public class ChannelInfo implements Serializable {
 		super();
 		this.handlerClassList = new ArrayList<Class<?>>();
 		checkHandler(ctx.pipeline());
-		this.ctx = ctx;
+		ctxList = new ArrayList<ChannelHandlerContext>();
+		ctxList.add(ctx);
 	}
 
 	public ChannelInfo() {
@@ -95,12 +96,12 @@ public class ChannelInfo implements Serializable {
 		this.handlerClassList = handlerClassList;
 	}
 
-	public ChannelHandlerContext getCtx() {
-		return ctx;
+	public List<ChannelHandlerContext> getCtxList() {
+		return ctxList;
 	}
 
-	public void setCtx(ChannelHandlerContext ctx) {
-		this.ctx = ctx;
+	public void setCtxList(List<ChannelHandlerContext> ctxList) {
+		this.ctxList = ctxList;
 	}
 
 	public String getGroupId() {

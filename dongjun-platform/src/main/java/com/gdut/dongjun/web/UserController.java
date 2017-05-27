@@ -167,7 +167,7 @@ public class UserController {
 					dto.setMonitorId(message.getMonitorId());
 					dto.setGroupId(message.getGroupId());
 					dto.setType(message.getType());
-					return hitchEventService.wrapIntoVO(dto);
+					return hitchEventService.wrapHitchVO(dto);
 				}
 
 			}, 5);

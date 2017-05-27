@@ -67,8 +67,8 @@ public class TemperatureDataReceiver extends AbstractDataReceiver implements Ini
 
 	@Override
 	public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-		ctxStore.remove(ctx);
 		strategy.clearCache(ctx);
+		ctxStore.remove(ctx);
 	}
 
 }

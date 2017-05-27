@@ -1,9 +1,11 @@
 package de.jonashackt.tutorial;
 
-import com.symon.SimpleBootCxfApplication;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.web.WebAppConfiguration;
+
+import com.gdut.dongjun.SimpleBootCxfApplication;
+
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 

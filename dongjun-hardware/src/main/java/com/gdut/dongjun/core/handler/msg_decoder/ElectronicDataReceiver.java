@@ -62,8 +62,8 @@ public class ElectronicDataReceiver extends AbstractDataReceiver implements Init
 
 	@Override
 	public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-		ctxStore.remove(ctx);
 		strategy.clearCache(ctx);
+		ctxStore.remove(ctx);
 		super.handlerRemoved(ctx);
 	}
 	

@@ -1,18 +1,24 @@
 package com.gdut.dongjun.core.message;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 import io.netty.channel.Channel;
 
 public class ChannelSendMessage {
 
-	private Channel channel;
+	private List<Channel> channel;
 	private Stack<String> allMessage;
 	
-	public Channel getChannel() {
+	public ChannelSendMessage() {
+		channel = new ArrayList<Channel>();
+	}
+	
+	public List<Channel> getChannel() {
 		return channel;
 	}
-	public void setChannel(Channel channel) {
+	public void setChannel(List<Channel> channel) {
 		this.channel = channel;
 	}
 	public Stack<String> getAllMessage() {

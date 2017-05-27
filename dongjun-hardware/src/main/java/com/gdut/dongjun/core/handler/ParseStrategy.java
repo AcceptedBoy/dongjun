@@ -1,5 +1,7 @@
 package com.gdut.dongjun.core.handler;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -40,8 +42,10 @@ public abstract class ParseStrategy implements MessageParser {
 		String decimalAddress = getDecimalAddress(data);
 		ChannelInfo channelInfo = ctxStore.getChannelInfoByDecimalAddress(decimalAddress);
 		if (null != channelInfo) {
-			channelInfo.setCtx(ctx);
 			channelInfo.setAddress(address);
+			List<ChannelHandlerContext> ctxList = channelInfo.getCtxList();
+			ctxList.clear();
+			ctxList.add(ctx);
 		} else {
 			// TODO 未测试
 			InfoEventDTO dto = new InfoEventDTO(channelInfo);
