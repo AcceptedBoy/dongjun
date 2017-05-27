@@ -16,11 +16,6 @@ import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.service.PersistentHitchMessageService;
 import com.gdut.dongjun.service.RemoteEventService;
 import com.gdut.dongjun.service.UserService;
-import com.gdut.dongjun.service.device.DataMonitorService;
-import com.gdut.dongjun.service.device.DataMonitorSubmoduleService;
-import com.gdut.dongjun.service.device.TemperatureModuleService;
-import com.gdut.dongjun.service.mq.UserMQService;
-import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 import com.gdut.dongjun.service.webservice.client.po.InfoEventDTO;
 import com.gdut.dongjun.service.webservice.server.WebsiteService;
 import com.gdut.dongjun.util.MyBatisMapUtil;
@@ -37,25 +32,12 @@ public class WebsiteServiceImpl implements WebsiteService {
 
 	@Autowired
 	private SimpMessagingTemplate template;
-//	@Autowired
-//	private DeviceCommonService deviceCommonService;
-	@Autowired
-	private HardwareServiceClient hardwareClient;
 	@Autowired
 	private UserService userService;
 	@Autowired
 	private RemoteEventService remoteEventService;
 	@Autowired
 	private PersistentHitchMessageService persistentMessageService;
-	@Autowired
-	private UserMQService mqService;
-	@Autowired
-	private DataMonitorSubmoduleService submoduleService;
-	@Autowired
-	private DataMonitorService monitorService;
-	@Autowired
-	private TemperatureModuleService temModuleService;
-	
 	@Autowired
 	public WebsiteServiceImpl(SimpMessagingTemplate messagingTemplate) {
 		this.template = messagingTemplate;
