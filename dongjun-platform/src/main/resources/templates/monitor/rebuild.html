@@ -141,7 +141,7 @@
 	  }
 	}
 	
-	Chart.prototype.setDW = function() {
+	Chart.prototype.setUnit = function() {
 		$('#' + this._chartname).append('<h4 style="position:absolute; top:0; left:8%">' + this._xFormatter + '</h4>')
 	}
 
@@ -305,7 +305,7 @@
               chartView.setChart(res, name)
               self.changeFormatter(res)
               self.chart.setOption(res, true)
-              self.setDW()
+              self.setUnit()
               self.showTable()
             } else {
               alert('没有数据')
@@ -396,6 +396,7 @@
 							chartView.setChart(res, name)
 							self.changeFormatter(res)
               self.chart.setOption(res, true)
+              self.setUnit()
               self.showTable()
 						} else {
 							alert('没有数据')
