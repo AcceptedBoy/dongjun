@@ -218,7 +218,6 @@ public class DLT645_97ParseStrategy extends ParseStrategy implements Initializin
 		voltage.setId(UUIDUtil.getUUID());
 		voltage.setGmtCreate(new Date());
 		voltage.setGmtModified(new Date());
-
 		voltage.setTime(new Date()); // TODO
 		voltage.setValue(val);
 		if (A_PHASE == data[BYTE * 10 + 1]) {

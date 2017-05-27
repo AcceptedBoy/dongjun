@@ -127,7 +127,7 @@ public class GPRSParseStrategy extends ParseStrategy {
 					elecStore.add(preInfo);
 				} else {
 					List<ChannelHandlerContext> ctxList = preInfo.getCtxList();
-					if (!ctxList.contains(ctx)) {
+					if (!ctxList.contains(ctx) && null == preInfo.getAddress()) {
 						ctxList.add(ctx);
 					}
 				}
@@ -143,7 +143,7 @@ public class GPRSParseStrategy extends ParseStrategy {
 					temStore.add(preInfo);
 				} else {
 					List<ChannelHandlerContext> ctxList = preInfo.getCtxList();
-					if (!ctxList.contains(ctx)) {
+					if (!ctxList.contains(ctx) && null == preInfo.getAddress()) {
 						ctxList.add(ctx);
 					}
 				}
