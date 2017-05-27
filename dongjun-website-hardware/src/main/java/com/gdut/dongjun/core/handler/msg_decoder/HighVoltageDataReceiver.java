@@ -68,6 +68,7 @@ import io.netty.util.AttributeKey;
 @Sharable
 public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 
+    //
 	private static final char[] EB_UP = new char[]{'E', 'B', '9', '0'}; //EB90
 	private static final char[] EB_DOWN = new char[]{'e', 'b', '9', '0'}; //eb90
     private static final char[] CODE_64 = new char[]{'6', '4'}; //64
