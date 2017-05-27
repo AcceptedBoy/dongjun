@@ -1,11 +1,10 @@
 package com.gdut.dongjun.cxf.po;
 
+import java.util.List;
+
 import com.gdut.dongjun.po.HighVoltageSwitch;
 import com.gdut.dongjun.po.Line;
 import com.gdut.dongjun.po.Substation;
-import com.sun.xml.txw2.annotation.XmlElement;
-
-import java.util.List;
 
 /**
  * Created by symon on 16-9-29.

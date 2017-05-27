@@ -19,23 +19,23 @@ public class DeviceOfflineTask extends ScheduledTask {
 	private String groupId;
 	private String monitorId;
 	private String moduleId;
-	private String deviceType;
+	private String moduleType;
 
-	public DeviceOfflineTask(String groupId, String monitorId, String moduleId, String deviceType) {
+	public DeviceOfflineTask(String groupId, String monitorId, String moduleId, String moduleType) {
 		super(EXPIRED_TIME);
 		this.groupId = groupId;
 		this.monitorId = monitorId;
 		this.moduleId = moduleId;
-		this.deviceType = deviceType;
+		this.moduleType = moduleType;
 	}
 	
 	public DeviceOfflineTask(Integer executeTime, String groupId, String monitorId, String moduleId,
-			String deviceType) {
+			String moduleType) {
 		super(executeTime);
 		this.groupId = groupId;
 		this.monitorId = monitorId;
 		this.moduleId = moduleId;
-		this.deviceType = deviceType;
+		this.moduleType = moduleType;
 	}
 
 	@Override
@@ -53,7 +53,7 @@ public class DeviceOfflineTask extends ScheduledTask {
 			dto.setMonitorId(this.monitorId);
 			dto.setId(null);
 			dto.setType(InfoConst.MODULE_OFFLINE);
-			dto.setText(this.deviceType);
+			dto.setText(this.moduleType);
 			WebsiteServiceClient client = (WebsiteServiceClient) SpringApplicationContextHolder
 					.getSpringBean("websiteServiceClient");
 			client.getService().callbackInfoEvent(dto);

@@ -1,6 +1,5 @@
 package com.gdut.dongjun.service.webservice.server.impl;
 
-import java.util.Date;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -11,15 +10,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import com.gdut.dongjun.domain.dto.ActiveHighSwitch;
-import com.gdut.dongjun.domain.dto.DeviceOnlineDTO;
 import com.gdut.dongjun.domain.dto.HitchEventDTO;
-import com.gdut.dongjun.domain.model.SubcribeResponseMessage;
-import com.gdut.dongjun.domain.po.DataMonitor;
-import com.gdut.dongjun.domain.po.DataMonitorSubmodule;
 import com.gdut.dongjun.domain.po.PersistentHitchMessage;
 import com.gdut.dongjun.domain.po.User;
-import com.gdut.dongjun.service.RemoteEventService;
 import com.gdut.dongjun.service.PersistentHitchMessageService;
+import com.gdut.dongjun.service.RemoteEventService;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.device.DataMonitorService;
 import com.gdut.dongjun.service.device.DataMonitorSubmoduleService;
@@ -29,10 +24,9 @@ import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 import com.gdut.dongjun.service.webservice.client.po.InfoEventDTO;
 import com.gdut.dongjun.service.webservice.server.WebsiteService;
 import com.gdut.dongjun.util.MyBatisMapUtil;
-import com.gdut.dongjun.util.TimeUtil;
 import com.gdut.dongjun.util.UUIDUtil;
-import com.gdut.dongjun.web.vo.DeviceOnlineVO;
 import com.gdut.dongjun.web.vo.HitchEventVO;
+import com.gdut.dongjun.web.vo.InfoEventVO;
 
 /**
  */
@@ -73,31 +67,10 @@ public class WebsiteServiceImpl implements WebsiteService {
 	@Override
 	public void callbackDeviceChange(String switchId, Integer type) {}
 
-//	@Override
-//	public void callbackDeviceChange(String switchId, Integer type) {
-//		LOG.info("设备状态发生变化" + switchId + "    type为" + type);
-//		List<User> userList = DeviceBinding.getListenUser(switchId);
-//		if (!CollectionUtils.isEmpty(userList)) {
-//			for (User user : userList) {
-//				
-//				template.convertAndSendToUser(user.getName(), "/queue/read_current",
-//						deviceCommonService.getCurrentService(Integer.valueOf(type)).readCurrent(switchId));
-//
-//				template.convertAndSendToUser(user.getName(), "/queue/read_voltage",
-//						deviceCommonService.getVoltageService(Integer.valueOf(type)).getVoltage(switchId));
-//
-//				HighVoltageStatus status = hardwareClient.getService().getStatusbyId(switchId);
-//				if (status != null) {
-//					template.convertAndSendToUser(user.getName(), "/queue/read_hv_status", status);
-//				}
-//			}
-//		}
-//	}
-
 	@Override
 	public void callbackHitchEvent(HitchEventDTO event) {
 		LOG.info("报警信息到达，报警设备为" + event.getMonitorId() + "    报警类型为" + event.getType());
-		HitchEventVO dto = remoteEventService.wrapIntoVO(event);
+		HitchEventVO dto = remoteEventService.wrapHitchVO(event);
 		List<User> userList = userService.selectByParameters(MyBatisMapUtil.warp("company_id", event.getGroupId()));
 		if (!CollectionUtils.isEmpty(userList)) {
 			for (User user : userList) {
@@ -131,44 +104,19 @@ public class WebsiteServiceImpl implements WebsiteService {
 		}
 	}
 
-//	@Override
-//	public void callbackDeviceOnline(DeviceOnlineDTO event) {
-////		LOG.info(event.getId() + "设备状态变动为" + event.getStatus());
-//		DeviceOnlineDTO dto = new DeviceOnlineDTO();
-//		
-//		SubcribeResponseMessage message = new SubcribeResponseMessage();
-//		message.setDate(event.getDate());
-//		message.setMessageType(event.getDeviceType());
-//		
-//		List<DataMonitorSubmodule> submodules = submoduleService.selectByParameters(MyBatisMapUtil.warp("module_id", event.getId()));
-//		String monitorId = submodules.get(0).getId();
-//		DataMonitor monitor = monitorService.selectByPrimaryKey(monitorId);
-//		dto.setMonitorName(monitor.getName());
-//		dto.setType(event.getDeviceType());
-//		dto.setDate(TimeUtil.timeFormat(event.getDate()));
-//		dto.setStatus(event.getStatus());
-//		message.setText(dto);
-//		List<User> userList = userService.selectByParameters(MyBatisMapUtil.warp("company_id", monitor.getGroupId()));
-//		if (!CollectionUtils.isEmpty(userList)) {
-//			for (User user : userList) {
-//				template.convertAndSend("/queue/user-" + user.getId() + "/hitch", message);
-//			}
-//		}
-//	}
-
 	@Override
 	public void callbackInfoEvent(InfoEventDTO event) {
 		LOG.info("通知信息到达，信息类型为" + event.getType());
+		InfoEventVO vo = remoteEventService.wrapIntoVO(event);
 		List<User> userList = userService.selectByParameters(MyBatisMapUtil.warp("company_id", event.getGroupId()));
 		for (User user : userList) {
 			if (userService.isUserOnline(user.getId())) {
-				//TODO
-				
-				
-			} else {
-				//信息持久化
-				
-			}
+				template.convertAndSend("/queue/user-" + user.getId() + "/info", vo);
+			} 
+//			else {
+//				//信息持久化
+//				
+//			}
 		}
 		
 		

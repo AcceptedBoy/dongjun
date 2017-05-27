@@ -7,7 +7,7 @@ import com.gdut.dongjun.web.vo.InfoEventVO;
 
 public interface RemoteEventService {
 
-	public HitchEventVO wrapIntoVO(HitchEventDTO dto);
+	public HitchEventVO wrapHitchVO(HitchEventDTO dto);
 
 	public InfoEventVO wrapIntoVO(InfoEventDTO dto);
 }
