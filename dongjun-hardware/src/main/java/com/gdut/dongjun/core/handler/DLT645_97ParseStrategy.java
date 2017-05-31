@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.ElectronicCtxStore;
 import com.gdut.dongjun.core.HitchConst;
+import com.gdut.dongjun.core.server.impl.TemperatureServer;
 import com.gdut.dongjun.domain.dto.HitchEventDTO;
 import com.gdut.dongjun.domain.po.DataMonitorSubmodule;
 import com.gdut.dongjun.domain.po.ElectronicModule;
@@ -169,6 +170,8 @@ public class DLT645_97ParseStrategy extends ParseStrategy implements Initializin
 
 	@Override
 	protected Object parseInternal(ChannelHandlerContext ctx, char[] data) {
+		//报文到达，清除缓存
+		TemperatureServer.confirmMsgArrived(ctxStore.get(ctx).getAddress(), CharUtils.newString(data, data.length - 8, data.length - 4));
 		// 登录包、心跳包，或长度过少的报文，忽略
 		if (data.length < 10) {
 			logger.info("忽略报文" + String.valueOf(data));
@@ -218,7 +221,9 @@ public class DLT645_97ParseStrategy extends ParseStrategy implements Initializin
 		voltage.setId(UUIDUtil.getUUID());
 		voltage.setGmtCreate(new Date());
 		voltage.setGmtModified(new Date());
-		voltage.setTime(new Date()); // TODO
+		//和发送报文的时间点统一
+		String address = CharUtils.newString(data, BYTE, BYTE * 7);
+		voltage.setTime(TemperatureServer.getMsgDate(address));
 		voltage.setValue(val);
 		if (A_PHASE == data[BYTE * 10 + 1]) {
 			voltage.setPhase("A");
@@ -246,7 +251,9 @@ public class DLT645_97ParseStrategy extends ParseStrategy implements Initializin
 		current.setGmtCreate(new Date());
 		current.setGmtModified(new Date());
 		current.setSubmoduleId(ctxStore.getModuleIdbyAddress(deviceNumber));
-		current.setTime(new Date());// TODO
+		//和发送报文的时间点统一
+		String address = CharUtils.newString(data, BYTE, BYTE * 7);
+		current.setTime(TemperatureServer.getMsgDate(address));
 		current.setValue(val);
 		if (A_PHASE == data[BYTE * 10 + 1]) {
 			current.setPhase("A");
@@ -277,7 +284,9 @@ public class DLT645_97ParseStrategy extends ParseStrategy implements Initializin
 		power.setGmtCreate(new Date());
 		power.setGmtModified(new Date());
 		power.setSubmoduleId(ctxStore.getModuleIdbyAddress(deviceNumber));
-		power.setTime(new Date());// TODO
+		//和发送报文的时间点统一
+		String address = CharUtils.newString(data, BYTE, BYTE * 7);
+		power.setTime(TemperatureServer.getMsgDate(address));
 		power.setValue(val);
 		if (A_PHASE == data[BYTE * 10 + 1]) {
 			power.setPhase("A");
