@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.gdut.dongjun.core.ElectronicCtxStore;
 import com.gdut.dongjun.core.HitchConst;
+import com.gdut.dongjun.core.handler.ChannelInfo;
 import com.gdut.dongjun.core.handler.DLT645_97ParseStrategy;
 import com.gdut.dongjun.core.server.impl.TemperatureServer;
 
@@ -49,8 +50,13 @@ public class ElectronicDataReceiver extends AbstractDataReceiver implements Init
 
 	@Override
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-		ctxStore.remove(ctx);
+		ChannelInfo info = ctxStore.get(ctx);
+		if (null != info && null != info.getAddress()) {
+			//清除报文缓存
+			TemperatureServer.deviceOffline(info.getAddress());
+		}
 		strategy.clearCache(ctx);
+		ctxStore.remove(ctx);
 		super.channelInactive(ctx);
 	}
 
@@ -63,10 +69,10 @@ public class ElectronicDataReceiver extends AbstractDataReceiver implements Init
 
 	@Override
 	public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-		strategy.clearCache(ctx);
-		ctxStore.remove(ctx);
-		//清除报文缓存
-		TemperatureServer.deviceOffline(ctxStore.get(ctx).getAddress());
+//		strategy.clearCache(ctx);
+//		ctxStore.remove(ctx);
+//		//清除报文缓存
+//		TemperatureServer.deviceOffline(ctxStore.get(ctx).getAddress());
 		super.handlerRemoved(ctx);
 	}
 	

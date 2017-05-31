@@ -28,6 +28,8 @@ import io.netty.channel.ChannelHandlerContext;
 
 /**
  * 这里有发送报文的逻辑，暂时发送报文只考虑到给电能表使用，以后有其他设备就改改逻辑吧。
+ * 这里有一个坑，如果系统给设备发了读数据报文，但是刚好设备下线了，msgMap还是会留有该设备的数据，不会清掉。
+ * 里面的数据会等下一次设备连接上来时候复用。
  * @author Gordan_Deng
  * @date 2017年5月31日
  */
