@@ -171,7 +171,7 @@ public class DLT645_97ParseStrategy extends ParseStrategy implements Initializin
 	@Override
 	protected Object parseInternal(ChannelHandlerContext ctx, char[] data) {
 		//报文到达，清除缓存
-		TemperatureServer.confirmMsgArrived(ctxStore.get(ctx).getAddress(), CharUtils.newString(data, data.length - 8, data.length - 4));
+		TemperatureServer.confirmMsgArrived(ctxStore.get(ctx).getAddress(), CharUtils.newString(data, data.length - 12, data.length - 8));
 		// 登录包、心跳包，或长度过少的报文，忽略
 		if (data.length < 10) {
 			logger.info("忽略报文" + String.valueOf(data));

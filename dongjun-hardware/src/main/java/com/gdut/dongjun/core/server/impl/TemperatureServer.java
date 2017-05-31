@@ -112,6 +112,7 @@ public class TemperatureServer extends NetServer {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		logger.info("开始重发未确认报文");
 		//复用senderList
 		senderList.clear();
 		textNum = 0;
@@ -189,6 +190,7 @@ public class TemperatureServer extends NetServer {
 				}
 				String msg = stack.pop();
 				for (Channel c : csm.getChannel()) {
+					logger.info("发送读数据报文：" + msg);
 					c.writeAndFlush(msg);
 				}
 			}
@@ -227,4 +229,5 @@ public class TemperatureServer extends NetServer {
 	public static Date getMsgDate(String address) {
 		return currentMsgDate;
 	}
+	
 }
