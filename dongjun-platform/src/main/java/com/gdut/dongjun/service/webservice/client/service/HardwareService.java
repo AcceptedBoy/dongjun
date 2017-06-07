@@ -87,6 +87,7 @@ public interface HardwareService {
 	
 	/**
 	 * TODO 线程不安全
+	 * 一旦去除ChannelInfo正在解析的报文可能会出错
 	 * 主要的工作是去除ChannelInfo，重新添加的时机是
 	 * {@link com.gdut.dongjun.core.handler.msg_decoder.GPRSDataReceiver}接收到登录包或者心跳包
 	 */	

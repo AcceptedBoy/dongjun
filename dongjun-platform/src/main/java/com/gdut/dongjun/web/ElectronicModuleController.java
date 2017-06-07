@@ -15,6 +15,7 @@ import com.gdut.dongjun.domain.po.ElectronicModule;
 import com.gdut.dongjun.service.device.DataMonitorSubmoduleService;
 import com.gdut.dongjun.service.device.ElectronicModuleService;
 import com.gdut.dongjun.service.device.event.ModuleHitchEventService;
+import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.UUIDUtil;
 
@@ -28,6 +29,8 @@ public class ElectronicModuleController {
 	private DataMonitorSubmoduleService submoduleService;
 	@Autowired
 	private ModuleHitchEventService moduleHitchEventService;
+	@Autowired
+	private HardwareServiceClient hardwareClient;
 	
 	/**
 	 * TODO 要增加和DataMonitor的关联
@@ -71,9 +74,8 @@ public class ElectronicModuleController {
 			if (0 == moduleService.updateByPrimaryKeySelective(module)) {
 				return ResponseMessage.warning("操作失败");
 			}
+			hardwareClient.getService().changeSubmoduleAddress(module.getId(), HitchConst.MODULE_ELECTRICITY);
 		}
-
-		
 		return ResponseMessage.success("操作成功");
 	}
 	

@@ -59,6 +59,7 @@ public class TemperatureServer extends NetServer {
 	
 	/**
 	 * 设置报警事件监听，每30分钟发送一次总召，因为新的协约不要求主动发总召报文，故删去
+	 * TODO senderList存在缓存
 	 * @throws  
 	 */
 	@Override
@@ -171,7 +172,7 @@ public class TemperatureServer extends NetServer {
 		Map<String, String> map = resendMessageFrame.getMsgs();
 		map.clear();
 		for (String m : sendMsg.getAllMessage()) {
-			String register = m.substring(m.length() - 8, m.length() - 4);
+			String register = m.substring(20, 24);
 			map.put(register, m);
 		}
 	}
