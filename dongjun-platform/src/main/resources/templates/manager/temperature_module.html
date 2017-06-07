@@ -16,6 +16,7 @@
         <td>温度上限</td>
         <td>温度下限</td>
         <td style="width: 70px;">修改</td>
+        <td style="width: 70px">删除</td>
       </thead>
     </table>
   </div>
@@ -119,6 +120,13 @@
               'width': '70px',
               'render': function(data) {
                 return '<a href="#edit_module_modal" role="button" class="btn" data-toggle="modal" data-fnc="edit" data-id="'+ data +'">修改 &raquo;</a>'
+              }
+            },
+            {
+              'data': 'id',
+              'width': '70px',
+              'render': function(data) {
+                return '<a role="button" class="btn" data-toggle="modal" data-fnc="del" data-id="'+ data +'">删除 &raquo;</a>'
               }
             },
           ],
