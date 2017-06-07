@@ -78,6 +78,9 @@
 						'url': defUrl,
 						'type': 'POST',
 						'dataSrc': function(json) {
+							if(json.type == 'WARNING') {
+								return []
+							}
 							var type = Object.prototype.toString.call(json.text)
               // json.text = type == '[object Object]' ? [json.text] : []
               switch(type) {
