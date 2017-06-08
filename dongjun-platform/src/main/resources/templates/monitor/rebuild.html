@@ -53,6 +53,8 @@
   <div class="clean"></div>
   <div class="tab-content" id="dataChart" style="display: none;">
       <div class="tab-pane Mychart" id="excalChartV">
+      	<a href="javascript:void(0)" class="btn btn-primary excelBtn">导出Excel</a>
+      	<h3 class="vTableTle tableTitle"></h3>
           <table id="v_data_list" class="table table-bordered table-striped table-hover table-condensed success" cellspacing="0" width="100%">
               <thead>
               <th>设备</th>
@@ -62,6 +64,9 @@
           </table>
       </div>
       <div class="tab-pane Mychart" id="excalChartC">
+      	
+      	<a href="javascript:void(0)" class="btn btn-primary excelBtn">导出Excel</a>
+      	<h3 class="cTableTle tableTitle"></h3>
           <table id="c_data_list" class="table table-bordered table-striped table-hover table-condensed success" cellspacing="0" width="100%">
               <thead>
               <th>设备</th>
@@ -71,6 +76,8 @@
           </table>
       </div>
       <div class="tab-pane Mychart" id="excalChartP">
+      	<a href="javascript:void(0)" class="btn btn-primary excelBtn">导出Excel</a>
+      	<h3 class="pTableTle tableTitle"></h3>
           <table id="p_data_list" class="table table-bordered table-striped table-hover table-condensed success" cellspacing="0" width="100%">
               <thead>
               <th>设备</th>
@@ -80,6 +87,10 @@
           </table>
       </div>
       <div class="tab-pane Mychart active" id="excalChartT">
+      	<div class="tableTitle">
+      		<h3 class="tTableTle normalTle"></h3>
+      		<a href="javascript:void(0)" class="btn btn-primary excelBtn">导出Excel</a>
+      	</div>
           <table id="t_data_list" class="table table-bordered table-striped table-hover table-condensed success" cellspacing="0" width="100%">
               <thead>
               <th>设备</th>
@@ -118,6 +129,7 @@
       this.chart = echarts.init(document.getElementById(op.chart))
       this._chartname = op.chart
       this._tablename = op.tablename
+      this._tableTle = op.tableTitle || '',
       this._xFormatter = op.xFormatter
       this._isActive = op.isActive
       this._tableId = op.idConfig.tableId || ''
@@ -332,8 +344,10 @@
       var op = this.chart.getOption()
       if(op.series[0]) {
         var arr = [];
-				for(var j = 0; j<op.xAxis[0].data.length; j++) {
-          for(var i = 0; i<op.series.length; i++) {
+		// for(var j = 0; j<op.xAxis[0].data.length; j++) {
+          // for(var i = 0; i<op.series.length; i++) {
+        for(var j = op.xAxis[0].data.length-1; j>=0; j--) {
+          for(var i = op.series.length-1; i>=0; i--) {
             arr.push({
               "name": op.legend[0].data[i],
               "time": op.xAxis[0].data[j],
@@ -353,6 +367,8 @@
 		 */
     TemChart.prototype.showTable = function() {
       var data = this.createTable()
+      $('.'+this._tableTle).text(chartNodes.getName())
+      var self = this
       data = data ? data : []
       var tablename = this._tablename
       $('#' + tablename).DataTable({
@@ -364,8 +380,16 @@
         }, {
           "data" : "time"
         }, {
-          "data" : "temperatrue"
-        }],
+          "title": self._xFormatter,
+          "data" : "temperatrue",
+          "render": function(data, type, row) {
+        	  if(data) {
+        		  return data + (self._xFormatter.split('/')[1] || '')
+        	  } else {
+        		  return '<span style="color: red">没有数据</span>'
+        	  }
+          }
+		}],
         "data": data
       });
     }
@@ -418,8 +442,8 @@
 			var op = this.chart.getOption()
 			if(op.series[0]) {
 				var arr = []
-				for(var j = 0; j<op.xAxis[0].data.length; j++) {
-		          for(var i = 0; i<op.series.length; i++) {
+				for(var j = op.xAxis[0].data.length-1; j>=0; j--) {
+		          for(var i = op.series.length-1; i>=0; i--) {
 		            arr.push({
 		              "name": op.legend[0].data[i],
 		              "time": op.xAxis[0].data[j],
@@ -435,6 +459,7 @@
 
 		EleChart.prototype.showTable = function(data) {
 			var data = this.createTable()
+			$('.'+this._tableTle).text(chartNodes.getName())
 			data = data ? data : []
 			var tablename = this._tablename
 			$('#' + tablename).DataTable({
@@ -446,7 +471,15 @@
 				}, {
 					"data" : "time"
 				}, {
-					"data" : "eleData"
+					"title": self._xFormatter,
+					"data" : "eleData",
+					"render": function(data, type, row) {
+						if(data) {
+		        		  return data + (self._xFormatter.split('/')[1] || '')
+		        	  } else {
+		        		  return '<span style="color: red">没有数据</span>'
+		        	  }
+					}
 				}],
 				"data": data
 			});
@@ -645,6 +678,7 @@
       var temperature = new TemChart({
     	  chart: 'temperature',
     	  tablename: 't_data_list',
+    	  tableTitle: 'tTableTle',
     	  xFormatter: '温度/°C',
     	  isActive: true,
     	  idConfig: {
@@ -657,6 +691,7 @@
       var voltageChart = new EleChart({
     	  chart: 'VoltageChart',
     	  tablename: 'v_data_list',
+    	  tableTitle: 'vTableTle',
     	  xFormatter: '电压/V',
     	  isActive: false,
     	  idConfig: {
@@ -669,6 +704,7 @@
       var currentChart = new EleChart({
     	  chart: 'current',
     	  tablename: 'c_data_list',
+    	  tableTitle: 'cTableTle',
     	  xFormatter: '电流/A',
     	  isActive: false,
     	  idConfig: {
@@ -681,6 +717,7 @@
       var powerChart = new EleChart({
     	  chart: 'power',
     	  tablename: 'p_data_list',
+    	  tableTitle: 'pTableTle',
     	  xFormatter: '千瓦/kW',
     	  isActive: false,
     	  idConfig: {
