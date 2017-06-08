@@ -72,3 +72,20 @@
 	background: url(../../img/temperature.png) no-repeat;
 	background-size: cover;
 }
+
+.tableTitle {
+	position: absolute; 
+	left: 50%; 
+	top: -3%;
+	transform: translateX(-60%);
+	z-index: 1;
+}
+
+.normalTle {
+	display: inline-block;
+}
+
+.excelBtn {
+	display: inline-block;
+	margin: 10px 0px 15px 10px;
+}
