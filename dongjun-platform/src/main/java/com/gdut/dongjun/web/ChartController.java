@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.gdut.dongjun.HitchConst;
 import com.gdut.dongjun.domain.po.DataMonitorSubmodule;
+import com.gdut.dongjun.domain.po.ElectronicModulePower;
 import com.gdut.dongjun.domain.po.TemperatureMeasure;
 import com.gdut.dongjun.domain.po.TemperatureSensor;
 import com.gdut.dongjun.domain.vo.chart.ChartData;

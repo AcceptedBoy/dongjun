@@ -88,7 +88,7 @@ public class HardwareServiceImpl implements HardwareService {
 				@Override
 				public void run() {
 					try {
-						Thread.sleep(1000 * 5);
+						Thread.sleep(1000 * 10);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					} finally{
@@ -134,7 +134,7 @@ public class HardwareServiceImpl implements HardwareService {
 				@Override
 				public void run() {
 					try {
-						Thread.sleep(1000 * 5);
+						Thread.sleep(1000 * 10);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					} finally{
@@ -172,14 +172,14 @@ public class HardwareServiceImpl implements HardwareService {
 						public void run() {
 							int count = 0;
 							while (count < 3) {
-								defCtxStore.getCtxByAddress(realAddress).writeAndFlush(callMsg1);
-								logger.info(realAddress + "老机器额外总召: " + callMsg1);
-								count++;
 								try {
-									Thread.sleep(1000 * 10);
+									Thread.sleep(1000 * 30);
 								} catch (InterruptedException e) {
 									e.printStackTrace();
 								}
+								defCtxStore.getCtxByAddress(realAddress).writeAndFlush(callMsg1);
+								logger.info(realAddress + "老机器额外总召: " + callMsg1);
+								count++;
 							}
 						}
 					});

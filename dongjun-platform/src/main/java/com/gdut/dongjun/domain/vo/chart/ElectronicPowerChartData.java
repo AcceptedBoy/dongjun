@@ -37,7 +37,6 @@ public class ElectronicPowerChartData extends ChartData {
 
 		timeList.addAll(set);
 		Collections.sort(timeList);
-
 		// 没有数据即返回
 		if (CollectionUtils.isEmpty(timeList)) {
 			return null;
@@ -48,7 +47,10 @@ public class ElectronicPowerChartData extends ChartData {
 		Date j_time = null;
 
 		for (Entry<String, Object> entry : data.entrySet()) {
+			// 判断数据集是不是轮询完毕
 			int flag = 1;
+			// 判断数据集中是不是出现两个在同一时间内的数据
+			int sameTimeFlag = 0;
 			ChaseData chaseData = null;
 			chaseData = new ChaseData(entry.getKey());
 			legendData.add(entry.getKey());
@@ -66,13 +68,28 @@ public class ElectronicPowerChartData extends ChartData {
 			int count = 0;
 			for (;;) {
 				if (i.hasNext()) {
-					i_time = (Date) i.next();
+					if (sameTimeFlag == 0) {
+						i_time = (Date) i.next();
+					} else {
+						sameTimeFlag = 0;
+					}
 				} else {
 					// 如果完整的时间集合遍历完毕，则退出
 					break;
 				}
 				if (flag == 1 && i_time.getTime() == j_time.getTime()) {
 					chartValue.add(measureList.get(count).getValue().floatValue());
+					if (j.hasNext()) {
+						j_time = ((ElectronicModulePower) j.next()).getTime();
+					} else {
+						// 时间集合遍历完毕，设置标志位为0
+						flag = 0;
+					}
+					count++;
+				}
+				// 数据集中出现有时间在同一分钟内的数据，丢弃这数据
+				else if (flag == 1 && i_time.getTime() > j_time.getTime()) {
+					sameTimeFlag = 1;
 					if (j.hasNext()) {
 						j_time = ((ElectronicModulePower) j.next()).getTime();
 					} else {
@@ -89,6 +106,8 @@ public class ElectronicPowerChartData extends ChartData {
 					}
 				}
 			}
+			//暂时解决数量
+//			chartValue.add(null);
 			chaseData.setData(chartValue);
 			chartData.series.add(chaseData);
 		}

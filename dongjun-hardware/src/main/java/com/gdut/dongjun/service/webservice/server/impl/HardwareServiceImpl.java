@@ -189,28 +189,30 @@ public class HardwareServiceImpl implements HardwareService {
 	public void changeSubmoduleAddress(String moduleId, Integer type) {
 		CtxStore ctxStore = null;
 		switch (type) {
-		case 2: {
+		case HitchConst.MODULE_ELECTRICITY: {
+			logger.info("电能表id为" + moduleId + "的设备发生改变，清除ChannelInfo");
 			ctxStore = elecCtxStore;
 			ChannelInfo info = ctxStore.getByModuleId(moduleId);
-			ChannelHandlerContext ctx = info.getCtx();
+			for (ChannelHandlerContext ctx : info.getCtxList()) {
+				elec07ParseStrategy.clearCache(ctx);
+				elec97ParseStrategy.clearCache(ctx);
+			}
 			ctxStore.remove(moduleId);
-			elec07ParseStrategy.clearCache(ctx);
-			elec97ParseStrategy.clearCache(ctx);
 //			CtxStore.removeCtxAttribute(ctx, ElectronicDataReceiver.ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED);
 			break;
 		}
-		case 3: {
+		case HitchConst.MODULE_TEMPERATURE: {
+			logger.info("温度设备id为" + moduleId + "的设备发生改变，清除ChannelInfo");
 			ctxStore = temCtxStore;
 			ChannelInfo info = ctxStore.getByModuleId(moduleId);
-			ChannelHandlerContext ctx = info.getCtx();
+			for (ChannelHandlerContext ctx : info.getCtxList()) {
+				temParseStrategy.clearCache(ctx);
+			}
 			ctxStore.remove(moduleId);
-			temParseStrategy.clearCache(ctx);
 //			CtxStore.removeCtxAttribute(ctx, TemperatureDataReceiver.ATTRIBUTE_FIRST_CALL);
 //			CtxStore.removeCtxAttribute(ctx, TemperatureDataReceiver.ATTRIBUTE_TEMPERATURE_MODULE_IS_REGISTED);
 			break;
 		}
-		case 4:
-			break;
 		default:
 			break;
 		}

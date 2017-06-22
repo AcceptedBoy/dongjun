@@ -33,4 +33,23 @@ public class StringCommonUtil extends StringUtils {
 		}
 		return -1;
 	}
+	
+	public static int getFirstIndexOfEndTag(char[] strChar, int begin, String endTag) {
+
+		char[] endTagChar = endTag.toCharArray();
+		for(int length = strChar.length, i = begin; i < length; i++) {
+			if(strChar[i] == endTagChar[0]) {
+				int limit = endTagChar.length, j = 1;
+				for(; j < limit; j++) {
+					if(strChar[i + j] != endTagChar[j]) {
+						break;
+					}
+				}
+				if(j >= limit) {
+					return i + j;
+				}
+			}
+		}
+		return -1;
+	}
 }

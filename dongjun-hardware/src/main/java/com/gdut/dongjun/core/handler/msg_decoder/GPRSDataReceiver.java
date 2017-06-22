@@ -84,9 +84,9 @@ public class GPRSDataReceiver extends AbstractDataReceiver implements Initializi
 
 	@Override
 	public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-		String address = (String)strategy.clearCache(ctx);
-		logger.info("GPRS" + address + "设备去除解析模块");
-		GPRSCtxStore.removeGPRS(address);
+//		String address = (String)strategy.clearCache(ctx);
+//		logger.info("GPRS" + address + "设备去除解析模块");
+//		GPRSCtxStore.removeGPRS(address);
 	}
 
 }

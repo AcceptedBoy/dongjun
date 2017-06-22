@@ -88,6 +88,7 @@ public class TemperatureModuleController {
 			}
 			//更新硬件系统的上下限缓存
 			hardwareClient.getService().changeTemperatureDevice(module.getId());
+			hardwareClient.getService().changeSubmoduleAddress(module.getId(), HitchConst.MODULE_TEMPERATURE);
 		}
 		return ResponseMessage.success("操作成功");
 	}

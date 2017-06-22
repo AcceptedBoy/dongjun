@@ -22,6 +22,7 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -189,7 +190,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 			/*
 			 * 为应对老机器中将总召，遥控，遥测值都加在同一份数据块而做的解析
 			 */
-			if (data.length > 36) {
+			if (data.length > 36 && isMultiedCode(data)) {
 				getSwitchAllInfo(ctx, data, hitchEventDesc);
 			}
 		} else if (CharUtils.equals(infoIdenCode, CODE_03)) {
@@ -235,17 +236,74 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 	 */
 	private void getSwitchAllInfo(ChannelHandlerContext ctx, char[] data, String hitchEventDesc) {
 
-		/*
-		 * 遥控信息
-		 */
+		int begin = 0;
 		while (data.length != 0) {
-			int index = StringCommonUtil.getFirstIndexOfEndTag(data, "16");
+			int index = StringCommonUtil.getFirstIndexOfEndTag(data, begin, "16");
 			if (index != -1) {
-				char[] dataInfo = CharUtils.subChars(data, 0, index);
-				handleIdenCode(ctx, dataInfo, hitchEventDesc);
-				data = CharUtils.subChars(data, index, data.length - index);
+				//判断Index所指的地方是不是两段报文的分割点
+				if (isEndOfMessage(data, index)) {
+					char[] dataInfo = CharUtils.subChars(data, 0, index);
+					handleIdenCode(ctx, dataInfo, hitchEventDesc);
+					data = CharUtils.subChars(data, index, data.length - index);
+				} else {
+					begin = index;
+				}
+			} else {
+				// permit the unsolved str like "681680" that could cause
+				// endless loop.
+				break;
 			}
 		}
+	}
+	
+	/**
+	 * 判断Index所指的地方是不是两段报文的分割点
+	 * 
+	 * @param data
+	 * @param index
+	 * @return
+	 */
+	private boolean isEndOfMessage(char[] data, int index) {
+		// 如果index是data的终点，返回true
+		if (index == data.length) {
+			return true;
+		}
+		// 如果16后面是68xx68，返回true
+		else if (CharUtils.equals(CharUtils.subChars(data, index, 2), CODE_68)
+				&& CharUtils.equals(CharUtils.subChars(data, index + 6, 2), CODE_68)) {
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * 判断一段报文是不是由几段报文拼凑而成
+	 * 
+	 * @param data
+	 * @return
+	 */
+	private boolean isMultiedCode(char[] data) {
+		for (int i = 0; i < data.length - 1; i++) {
+			// 如果是16开头
+			if (data[i] == '1' && data[i + 1] == '6') {
+				// 如果16在报文结尾，返回false
+				if (data.length == i + 2) {
+					return false;
+				}
+				//如果不是1668xx68的结构，返回false
+				if (i + 9 >= data.length) {
+					return false;
+				}
+				// 如果的确是1668xx68的结构，返回true
+				if (data[i + 2] == '6' 
+						&& data[i + 3] == '8' 
+						&& data[i + 8] == '6' 
+						&& data[i + 9] == '8') {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -403,6 +461,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 			logger.info("测归一值-------" + String.valueOf(data));
 			// 680e0e68f4680009010301680008400000001a16
 			// 680e0e68f4ca0009010301ca000a40fbff00da16
+			// 680e0e68f4c90009010301c9000a40f0ff00cd16
 			// 68131368f46600090203016600054000000006402700008116
 			// 68131368f46600090203016600054000000006402700008116
 			// 68131368f4710009020301710006402c000008402a0000c916
@@ -471,6 +530,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 			 */
 			code = LowVoltageDeviceCommandUtil.reverseStringBy2(code);
 		}
+		
 		if (CtxStore.getIdbyAddress(address) == null
 				|| hvCtxStore.getStatusbyId(CtxStore.getIdbyAddress(address)) == null) {
 			return;
@@ -521,6 +581,12 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 		}
 	}
 
+	/**
+	 * TODO 未完成
+	 * @param code
+	 * @param address
+	 * @param value
+	 */
 	private void getMessageAddress(String code, String address, String value) {
 		System.out.println("code  " + code + "    address  " + address + "  value  " + value);
 		if (code == null || code.length() == 0 || code.length() != 4) {
@@ -574,10 +640,10 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 		String address;
 		if (CharUtils.startWith(data, CODE_68)) {
 			// 普通报文
-			address = CharUtils.newString(data, BYTE * 5, BYTE * 2).intern();
+			address = CharUtils.newString(data, BYTE * 5, BYTE * 7).intern();
 		} else {
-			// eb90eb90eb90
-			address = CharUtils.newString(data, BYTE * 6, BYTE * 2).intern();
+			// eb90eb90eb90710016
+			address = CharUtils.newString(data, BYTE * 6, BYTE * 8).intern();
 		}
 		gprs.setAddress(address);
 		address = new HighVoltageDeviceCommandUtil().reverseString(address);
@@ -718,5 +784,19 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 	private String getStr0Or01(char[] data, int beginIndex, int endIndex) {
 	    return CharUtils.equals(data, beginIndex, endIndex, CODE_01) ? STR_01 : STR_00;
     }
+	
+//	public static void main(String[] args) {
+//		String b = "680e0e68f4cc0009010301cc000a40fbff00de16";
+//		String a = "683b3b68f4cc0009901401cc000140ff2b000000006c0000000000600000000000000000000000042200fbff000500000000008a13001d00000000000000005016";
+//		String c = "683b3b68f477000990140177000140c22a00000000600900000000480900000000000000000000421f00e5ff000a0000a4ff008a13002200002800000000005016";
+//		System.out.println(c.length());
+//		System.out.println(c.substring(30, c.length() - 4).length() / 6);
+//		String d = "68 7D 7D 68 F4 01 00 09 A6 14 01 01 00 01 40 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 54 0A 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 DB 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 14 00 00 14 00 00 14 00 00 70 16".trim().replace(" ", "");
+//		System.out.println(d.length() + "   " + c.length());
+//		System.out.println(d.substring(30,  d.length() - 4).length() / 6);
+//		System.out.println(b.substring(22, 26));
+//		String e = "68 54 54 68 F4 01 00 01 C9 14 01 01 00 01 00 00 00 00 00 01 00 00 00 01 00 00 00 01 00 00 00 01 00 00 00 00 00 01 01 01 00 01 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 DF 16".trim().replace(" ", "");
+//		System.out.println(e.substring(30,  e.length() - 4).length() / 6);
+//	}
 
 }
