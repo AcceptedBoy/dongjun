@@ -31,8 +31,8 @@ public class HighVoltageServerInitializer_V1_3 extends ServerInitializer{
 		
 		super.initChannel(ch);
 		ChannelPipeline p = ch.pipeline();
-		p.addLast(new SeparatedTextDecoder());
-//		p.addLast(new Decoder());
+//		p.addLast(new SeparatedTextDecoder());
+		p.addLast(new Decoder());
 		p.addLast(new Encoder());
 		p.addLast(dataReceiver);
 	}
