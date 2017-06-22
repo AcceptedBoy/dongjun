@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.ElectronicCtxStore;
 import com.gdut.dongjun.core.HitchConst;
+import com.gdut.dongjun.core.server.impl.TemperatureServer;
 import com.gdut.dongjun.domain.dto.HitchEventDTO;
 import com.gdut.dongjun.domain.po.DataMonitorSubmodule;
 import com.gdut.dongjun.domain.po.ElectronicModule;
@@ -145,15 +146,17 @@ public class DLT645_97ParseStrategy extends ParseStrategy implements Initializin
 	@Override
 	protected String getDecimalAddress(char[] data) {
 		String address = getAddress(data);
-		//好像是后面用0来补齐的，不是开头用a补齐
-//		for (;; i++) {
-//			char ch = address.charAt(i);
-//			if (!('a' == ch || 'A' == ch)) {
-//				break;
-//			}
-//		}
-		address = TemperatureDeviceCommandUtil.reverseString(address); 
-//		address = TemperatureDeviceCommandUtil.reverseString(address.substring(i, address.length() - 1));
+		// 好像是后面用0来补齐的，不是开头用a补齐
+		// for (;; i++) {
+		// char ch = address.charAt(i);
+		// if (!('a' == ch || 'A' == ch)) {
+		// break;
+		// }
+		// }
+		address = TemperatureDeviceCommandUtil.reverseString(address);
+		// address =
+		// TemperatureDeviceCommandUtil.reverseString(address.substring(i,
+		// address.length() - 1));
 		int i = 0;
 		for (;; i++) {
 			char ch = address.charAt(i);
@@ -169,12 +172,14 @@ public class DLT645_97ParseStrategy extends ParseStrategy implements Initializin
 
 	@Override
 	protected Object parseInternal(ChannelHandlerContext ctx, char[] data) {
+
 		// 登录包、心跳包，或长度过少的报文，忽略
 		if (data.length < 10) {
 			logger.info("忽略报文" + String.valueOf(data));
 			return null;
 		}
-
+		// 报文到达，清除缓存
+		TemperatureServer.confirmMsgArrived(ctxStore.get(ctx).getAddress(), CharUtils.newString(data, 20, 24));
 		char[] control = CharUtils.subChars(data, BYTE * 8, BYTE);
 		if (!CharUtils.equals(CODE_81, control)) {
 			logger.info("非读数据报文：" + String.valueOf(data));
@@ -210,6 +215,7 @@ public class DLT645_97ParseStrategy extends ParseStrategy implements Initializin
 	}
 
 	private void saveVoltage(ChannelHandlerContext ctx, char[] data) {
+		logger.info("读取电压：" + String.valueOf(data));
 		String deviceNumber = getAddress(data);
 		char[] value = CharUtils.subChars(data, BYTE * 12, BYTE * 2);
 		BigDecimal val = parseVoltage(value);
@@ -218,7 +224,9 @@ public class DLT645_97ParseStrategy extends ParseStrategy implements Initializin
 		voltage.setId(UUIDUtil.getUUID());
 		voltage.setGmtCreate(new Date());
 		voltage.setGmtModified(new Date());
-		voltage.setTime(new Date()); // TODO
+		// 和发送报文的时间点统一
+		String address = CharUtils.newString(data, BYTE, BYTE * 7);
+		voltage.setTime(TemperatureServer.getMsgDate(address));
 		voltage.setValue(val);
 		if (A_PHASE == data[BYTE * 10 + 1]) {
 			voltage.setPhase("A");
@@ -238,6 +246,7 @@ public class DLT645_97ParseStrategy extends ParseStrategy implements Initializin
 	}
 
 	private void saveCurrent(ChannelHandlerContext ctx, char[] data) {
+		logger.info("读取电流：" + String.valueOf(data));
 		String deviceNumber = getAddress(data);
 		char[] value = CharUtils.subChars(data, BYTE * 12, BYTE * 2);
 		BigDecimal val = parseCurrent(value);
@@ -246,7 +255,9 @@ public class DLT645_97ParseStrategy extends ParseStrategy implements Initializin
 		current.setGmtCreate(new Date());
 		current.setGmtModified(new Date());
 		current.setSubmoduleId(ctxStore.getModuleIdbyAddress(deviceNumber));
-		current.setTime(new Date());// TODO
+		// 和发送报文的时间点统一
+		String address = CharUtils.newString(data, BYTE, BYTE * 7);
+		current.setTime(TemperatureServer.getMsgDate(address));
 		current.setValue(val);
 		if (A_PHASE == data[BYTE * 10 + 1]) {
 			current.setPhase("A");
@@ -266,6 +277,7 @@ public class DLT645_97ParseStrategy extends ParseStrategy implements Initializin
 	}
 
 	private void savePower(ChannelHandlerContext ctx, char[] data) {
+		logger.info("读取功率：" + String.valueOf(data));
 		String deviceNumber = getAddress(data);
 		char[] value = CharUtils.subChars(data, BYTE * 12, BYTE * 3);
 		BigDecimal val = parsePower(value);
@@ -277,7 +289,9 @@ public class DLT645_97ParseStrategy extends ParseStrategy implements Initializin
 		power.setGmtCreate(new Date());
 		power.setGmtModified(new Date());
 		power.setSubmoduleId(ctxStore.getModuleIdbyAddress(deviceNumber));
-		power.setTime(new Date());// TODO
+		// 和发送报文的时间点统一
+		String address = CharUtils.newString(data, BYTE, BYTE * 7);
+		power.setTime(TemperatureServer.getMsgDate(address));
 		power.setValue(val);
 		if (A_PHASE == data[BYTE * 10 + 1]) {
 			power.setPhase("A");
@@ -413,7 +427,7 @@ public class DLT645_97ParseStrategy extends ParseStrategy implements Initializin
 		dto.setType(moduleEvent.getType());
 		websiteService.getService().callbackHitchEvent(dto);
 	}
-	
+
 	@Override
 	public Object clearCache(ChannelHandlerContext ctx) {
 		CtxStore.removeCtxAttribute(ctx, ATTRIBUTE_ELECTRONIC_MODULE_IS_REGISTED);

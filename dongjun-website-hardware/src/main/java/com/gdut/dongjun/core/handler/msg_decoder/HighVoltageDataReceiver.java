@@ -61,6 +61,7 @@ import io.netty.util.AttributeKey;
 
 /**
  * TODO 值得关注的一个类
+ * 
  * @author Sherlock
  * @author Acceptedboy
  */
@@ -68,26 +69,26 @@ import io.netty.util.AttributeKey;
 @Sharable
 public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 
-    //
-	private static final char[] EB_UP = new char[]{'E', 'B', '9', '0'}; //EB90
-	private static final char[] EB_DOWN = new char[]{'e', 'b', '9', '0'}; //eb90
-    private static final char[] CODE_64 = new char[]{'6', '4'}; //64
-    private static final char[] CODE_03 = new char[]{'0', '3'}; //03
-    private static final char[] CODE_2E = new char[]{'2', 'e'}; //2e
-    private static final char[] CODE_1F = new char[]{'1', 'f'}; //1f
-    private static final char[] CODE_09 = new char[]{'0', '9'}; //09
-    private static final char[] CODE_81 = new char[]{'8', '1'}; //81
-    private static final char[] CODE_OO = new char[]{'0', '0'}; //OO
-    private static final char[] CODE_01 = new char[]{'0', '1'}; //OO
-    private static final char[] CODE_47 = new char[]{'4', '7'}; //47
-    private static final char[] CODE_16 = new char[]{'1', '6'}; //16
-    private static final char[] CODE_68 = new char[]{'6', '8'}; //68
-    
-    private static final String STR_00 = "00".intern();
-    private static final String STR_01 = "01".intern();
+	//
+	private static final char[] EB_UP = new char[] { 'E', 'B', '9', '0' }; // EB90
+	private static final char[] EB_DOWN = new char[] { 'e', 'b', '9', '0' }; // eb90
+	private static final char[] CODE_64 = new char[] { '6', '4' }; // 64
+	private static final char[] CODE_03 = new char[] { '0', '3' }; // 03
+	private static final char[] CODE_2E = new char[] { '2', 'e' }; // 2e
+	private static final char[] CODE_1F = new char[] { '1', 'f' }; // 1f
+	private static final char[] CODE_09 = new char[] { '0', '9' }; // 09
+	private static final char[] CODE_81 = new char[] { '8', '1' }; // 81
+	private static final char[] CODE_OO = new char[] { '0', '0' }; // OO
+	private static final char[] CODE_01 = new char[] { '0', '1' }; // OO
+	private static final char[] CODE_47 = new char[] { '4', '7' }; // 47
+	private static final char[] CODE_16 = new char[] { '1', '6' }; // 16
+	private static final char[] CODE_68 = new char[] { '6', '8' }; // 68
+
+	private static final String STR_00 = "00".intern();
+	private static final String STR_01 = "01".intern();
 
 	private static final Logger logger = LoggerFactory.getLogger(HighVoltageDataReceiver.class);
-	
+
 	@Autowired
 	private HighVoltageCurrentService currentService;
 	@Autowired
@@ -98,7 +99,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	private HistoryHighVoltageVoltageService historyVoltageService;
 	@Autowired
 	private HighVoltageHitchEventService hitchEventService;
-	@Resource(name="HighVoltageSwitchMessageEngine")
+	@Resource(name = "HighVoltageSwitchMessageEngine")
 	private HighVoltageSwitchMessageEngine highVoltageEngine;
 	@Autowired
 	private HighVoltageSwitchService switchService;
@@ -120,26 +121,27 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			CtxStore.add(gprs);
 		}
 	}
-	
+
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-
 
 		/*
 		 * fix bug-> logger打下的日志不是原生接收的报文
 		 *
-		 * String data = ((String) msg).replace(" ", "");
-		 * logger.info("接收到的报文： " + data);
+		 * String data = ((String) msg).replace(" ", ""); logger.info("接收到的报文： "
+		 * + data);
 		 *
 		 */
 		String rowMsg = (String) msg;
 		logger.info("接收到的报文： " + rowMsg);
 		char[] data = CharUtils.removeSpace(rowMsg.toCharArray());
 
-		/*String hitchEventDesc = "控制回路";
-		if (data.length == 190) {
-			hitchEventDesc = "控制回路"*//*getHitchReason(data.substring(140, 160))*//*;
-		}*/
+		/*
+		 * String hitchEventDesc = "控制回路"; if (data.length == 190) {
+		 * hitchEventDesc = "控制回路"
+		 *//* getHitchReason(data.substring(140, 160)) *//*
+														 * ; }
+														 */
 		handleIdenCode(ctx, data);
 	}
 
@@ -149,7 +151,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		SwitchGPRS gprs = CtxStore.get(ctx);
 		if (gprs != null) {
 			CtxStore.remove(ctx);// 从Store中移除这个context
-			if(gprs.getId() != null) {
+			if (gprs.getId() != null) {
 				HighVoltageSwitch hvSwitch = switchService.selectByPrimaryKey(gprs.getId());
 				hvSwitch.setOnlineTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
 				switchService.updateByPrimaryKey(hvSwitch);
@@ -162,10 +164,10 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		cause.printStackTrace();
 		ctx.close();
 	}
-	
+
 	private void handleIdenCode(ChannelHandlerContext ctx, char[] data) {
 
-		//长度大于最长的全遥测，估计是报文杂糅在一起
+		// 长度大于最长的全遥测，估计是报文杂糅在一起
 		if (data.length > 262) {
 			getSwitchAllInfo(ctx, data);
 		}
@@ -175,7 +177,8 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		/*
 		 * 这里做一个设备的注册，以免系统重启后设备不再发送eb90报文，出现设备不上线的情况
 		 */
-		if (!(CharUtils.startWith(data, EB_UP) || CharUtils.startWith(data, EB_DOWN)) && CharUtils.endsWith(data, CODE_16)) {
+		if (!(CharUtils.startWith(data, EB_UP) || CharUtils.startWith(data, EB_DOWN))
+				&& CharUtils.endsWith(data, CODE_16)) {
 			AttributeKey<Integer> key = AttributeKey.valueOf("isRegisted");
 			Attribute<Integer> attr = ctx.attr(key);
 			if (null == attr.get()) {
@@ -185,45 +188,44 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		}
 
 		/*
-		 * 将接收到的客户端信息分类处理
-		 * 读通信地址并将地址反转
+		 * 将接收到的客户端信息分类处理 读通信地址并将地址反转
 		 */
 		if (CharUtils.startWith(data, EB_UP) || CharUtils.startWith(data, EB_DOWN)) {
-			
+
 			getOnlineAddress(ctx, data);
-		} else if(CharUtils.equals(infoIdenCode, CODE_64)) {
-			
+		} else if (CharUtils.equals(infoIdenCode, CODE_64)) {
+
 			/*
 			 * 总召激活确定
 			 */
 			logger.info("总召激活已经确定：" + CharUtils.newString(data, 10, 14));
-			
+
 			/*
 			 * 为应对老机器中将总召，遥控，遥测值都加在同一份数据块而做的解析
 			 */
-			if(data.length > 36) {
+			if (data.length > 36 && isMultiedCode(data)) {
 				getSwitchAllInfo(ctx, data);
 			}
-		} else if(CharUtils.equals(infoIdenCode, CODE_03)) {
-			
+		} else if (CharUtils.equals(infoIdenCode, CODE_03)) {
+
 			/*
 			 * 遥信变位初步确定
 			 */
 			confirmSignalInitialChange(ctx, data);
-		} else if(CharUtils.equals(infoIdenCode, CODE_2E)) {
-			
+		} else if (CharUtils.equals(infoIdenCode, CODE_2E)) {
+
 			/*
 			 * 遥控预置接收并发送遥控
 			 */
 			whetherOperateSwitch(data);
-		} else if(CharUtils.equals(infoIdenCode, CODE_1F)) {
-		
+		} else if (CharUtils.equals(infoIdenCode, CODE_1F)) {
+
 			/*
 			 * 遥信变位确定
 			 */
 			confirmSignalChangeInfo(ctx, data);
 		} else if (CharUtils.equals(infoIdenCode, CODE_09)) {
-			
+
 			/*
 			 * 遥测变化值，或者总召获取全部遥测值
 			 */
@@ -242,34 +244,94 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 
 	/**
 	 * 老版本机器中将总召，遥信，遥测值都放在一起，将其一起解析，可以获取某个开关的所有开关信息
-	 * @param data 报文
+	 * 
+	 * @param data
+	 *            报文
 	 */
 	private void getSwitchAllInfo(ChannelHandlerContext ctx, char[] data) {
-		
+
 		/*
 		 * 遥控信息
 		 */
-		while(data.length != 0) {
-			int index = StringCommonUtil.getFirstIndexOfEndTag(data, "16");	//这里应该还要做校验和验证
-			if(index != -1) {
-				handleIdenCode(ctx, ArrayUtils.subarray(data, 0, index));
-				data = ArrayUtils.subarray(data, index, data.length);
+		int begin = 0;
+		while (data.length != 0) {
+			int index = StringCommonUtil.getFirstIndexOfEndTag(data, begin, "16");
+			if (index != -1) {
+				//判断Index所指的地方是不是两段报文的分割点
+				if (isEndOfMessage(data, index)) {
+					handleIdenCode(ctx, ArrayUtils.subarray(data, 0, index));
+					data = ArrayUtils.subarray(data, index, data.length);
+				} else {
+					begin = index;
+				}
 			} else {
-				//permit the unsolved str like "681680" that could cause endless loop.
+				// permit the unsolved str like "681680" that could cause
+				// endless loop.
 				break;
 			}
 		}
 	}
 
-    /**
-	 * 在发送遥控预置操作之后，若开关空闲，则可以开始对本开关进行开合闸操作<br><br>
+	/**
+	 * 判断Index所指的地方是不是两段报文的分割点
+	 * 
+	 * @param data
+	 * @param index
+	 * @return
+	 */
+	private boolean isEndOfMessage(char[] data, int index) {
+		// 如果index是data的终点，返回true
+		if (index == data.length) {
+			return true;
+		}
+		// 如果16后面是68xx68，返回true
+		else if (CharUtils.equals(CharUtils.subChars(data, index, 2), CODE_68)
+				&& CharUtils.equals(CharUtils.subChars(data, index + 6, 2), CODE_68)) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * 判断一段报文是不是由几段报文拼凑而成
+	 * 
+	 * @param data
+	 * @return
+	 */
+	private boolean isMultiedCode(char[] data) {
+		for (int i = 0; i < data.length - 1; i++) {
+			// 如果是16开头
+			if (data[i] == '1' && data[i + 1] == '6') {
+				// 如果16在报文结尾，返回false
+				if (data.length == i + 2) {
+					return false;
+				}
+				//如果不是1668xx68的结构，返回false
+				if (i + 9 >= data.length) {
+					return false;
+				}
+				// 如果的确是1668xx68的结构，返回true
+				if (data[i + 2] == '6' 
+						&& data[i + 3] == '8' 
+						&& data[i + 8] == '6' 
+						&& data[i + 9] == '8') {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * 在发送遥控预置操作之后，若开关空闲，则可以开始对本开关进行开合闸操作<br>
+	 * <br>
 	 * 
 	 * TODO 现在如果前端发送一个开合闸的命令，那么该命令会同时生成一个预执行命令和执行命令，
 	 * 并且拼接起来全部发送给设备，所以这个地方是没有按照协议中写的来进行的，当时也是为了让设备
-	 * 能够快速看到效果，即马上开合闸，不然如果报文因为网速的缘故迟迟不来的话，页面上没看到效果就认为
-	 * 是这个项目的原因。
+	 * 能够快速看到效果，即马上开合闸，不然如果报文因为网速的缘故迟迟不来的话，页面上没看到效果就认为 是这个项目的原因。
 	 * 因为下面的方法是当接收到预执行命令才去调用方法的，通过报文返回的数据来判断是否要去发出执行命令，
 	 * 所以是不会被执行的。如果到时发现了重大的问题，就对发送命令的方法进行重写吧！这个类在这里
+	 * 
 	 * @see HighVoltageSwitchMessageEngine#generateCloseSwitchMessage(String)
 	 * @see HighVoltageSwitchMessageEngine#generateOpenSwitchMessage(String)
 	 */
@@ -278,14 +340,14 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		/*
 		 * 81代表终端空闲；80代表拒绝
 		 */
-		if(data.length > 32) {
-			if(CharUtils.equals(data, 30, 32, CODE_81)) {
+		if (data.length > 32) {
+			if (CharUtils.equals(data, 30, 32, CODE_81)) {
 				String address = CharUtils.newString(data, 10, 14).intern();
 				SwitchGPRS gprs = CtxStore.getByAddress(address);
 				/*
 				 * 1合闸；2分闸；
 				 */
-				if(gprs.getPrepareType() == 1) {
+				if (gprs.getPrepareType() == 1) {
 					highVoltageEngine.generateCloseSwitchMessage(address);
 				} else {
 					highVoltageEngine.generateOpenSwitchMessage(address);
@@ -297,17 +359,19 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 
 	/**
 	 * 所有遥信值的获取
-	 * @param hitchEventDesc	报警原因描述
+	 * 
+	 * @param hitchEventDesc
+	 *            报警原因描述
 	 * @param data
 	 */
 	private void readAllSignal(char[] data) {
-		
+
 		String address = CharUtils.newString(data, 10, 14).intern();
 		String id = CtxStore.getIdbyAddress(address);
 
 		if (id != null && address != null) {
 
-			HighVoltageStatus s	 = hvCtxStore.getStatusbyId(id);
+			HighVoltageStatus s = hvCtxStore.getStatusbyId(id);
 			SwitchGPRS gprs = CtxStore.get(id);
 
 			if (s == null) {
@@ -389,42 +453,42 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		}
 	}
 
-    /**
-     * 这个方法是对{@code data.substring(76, 78)}的优化，因为substring还需要切割字符串产生新的对象，
-     * 所以为了减少对象的生成，采取下面的方法，不会产生新对象，{@code 01}和{@code 00}都是可重用的final
-     * 常量池对象
-     * @param data
-     * @param beginIndex
-     * @param endIndex
-     * @return
-     */
+	/**
+	 * 这个方法是对{@code data.substring(76, 78)}的优化，因为substring还需要切割字符串产生新的对象，
+	 * 所以为了减少对象的生成，采取下面的方法，不会产生新对象，{@code 01}和{@code 00}都是可重用的final 常量池对象
+	 * 
+	 * @param data
+	 * @param beginIndex
+	 * @param endIndex
+	 * @return
+	 */
 	private String getStr0Or01(char[] data, int beginIndex, int endIndex) {
-	    return CharUtils.equals(data, beginIndex, endIndex, CODE_01) ? STR_01 : STR_00;
-    }
+		return CharUtils.equals(data, beginIndex, endIndex, CODE_01) ? STR_01 : STR_00;
+	}
 
 	/**
 	 * 遥测归一值获取（遥测中的变化数据）
+	 * 
 	 * @param data
 	 */
 	private void changeMesurementInfo(char[] data) {
-		
-		if(!CharUtils.equals(data, 2, 4, CODE_47)) {
+
+		if (!CharUtils.equals(data, 2, 4, CODE_47)) {
 			/*
 			 * 若data.length=40，遥测变位，测归一值
 			 */
-			logger.info("测归一值-------" + data);
-			//680e0e68f4680009010301680008400000001a16
-			//68131368f46600090203016600054000000006402700008116
-			//68131368f46600090203016600054000000006402700008116
-			for(int i = 22; i + 14 < data.length; i += 10) {
-				getMessageAddress(CharUtils.newString(data, i + 4, i + 8),
-                        CharUtils.newString(data, 22, 26),
-                        CharUtils.newString(data, i + 8, i + 14));
+			logger.info("测归一值-------" + String.valueOf(data));
+			// 680e0e68f4680009010301680008400000001a16
+			// 68131368f46600090203016600054000000006402700008116
+			// 68131368f46600090203016600054000000006402700008116
+			for (int i = 22; i + 14 < data.length; i += 10) {
+				getMessageAddress(CharUtils.newString(data, i + 4, i + 8), CharUtils.newString(data, 22, 26),
+						CharUtils.newString(data, i + 8, i + 14));
 			}
 			return;
 		}
-		//全遥测
-		logger.info("解析CV---------" + data);
+		// 全遥测
+		logger.info("解析CV---------" + String.valueOf(data));
 		String address = CharUtils.newString(data, 10, 14);
 		String id = CtxStore.getIdbyAddress(address);
 		if (id != null) {
@@ -437,21 +501,25 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 
 	/**
 	 * 遥信值的归一值获取，并且遥信变化是要服务器端发出接收确认的
+	 * 
 	 * @param ctx
 	 * @param data
 	 */
 	private void confirmSignalChangeInfo(ChannelHandlerContext ctx, char[] data) {
 
-		//>>>>>>>>>>>>> 修正bug:不能显示合闸分分闸：双点遥信
-		/*for(int i = 26, j = Integer.valueOf(data.substring(16, 18)); j > 0; i += 6, --j) {
-			changeState(data.substring(22, 26), data.substring(i, i + 4), data.substring(i + 4, i + 6));
-		}*/
-		//测试报文：68 13 13 68 F3 01 00 1F 01 03 01 01 00 05 00 01 A3 D7 06 0D B3 03 0A 70 16
+		// >>>>>>>>>>>>> 修正bug:不能显示合闸分分闸：双点遥信
+		/*
+		 * for(int i = 26, j = Integer.valueOf(data.substring(16, 18)); j > 0; i
+		 * += 6, --j) { changeState(data.substring(22, 26), data.substring(i, i
+		 * + 4), data.substring(i + 4, i + 6)); }
+		 */
+		// 测试报文：68 13 13 68 F3 01 00 1F 01 03 01 01 00 05 00 01 A3 D7 06 0D B3
+		// 03 0A 70 16
 
 		String address = CharUtils.newString(data, 10, 14).intern();
 		HighVoltageStatus s = hvCtxStore.getStatusbyId(CtxStore.getIdbyAddress(address));
-		if(CharUtils.equals(data, 30, 32, CODE_01)) {
-			//遥信
+		if (CharUtils.equals(data, 30, 32, CODE_01)) {
+			// 遥信
 		} else {
 
 		}
@@ -462,11 +530,12 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 
 	/**
 	 * 遥信值的归一值初始获取，遥信值变化时会分两个流程，第一个流程先发一次，若有收到回复，再发一次，整个流程才算结束。
+	 * 
 	 * @param ctx
 	 * @param data
 	 */
 	private void confirmSignalInitialChange(ChannelHandlerContext ctx, char[] data) {
-		
+
 		String resu = new HighVoltageDeviceCommandUtil().confirmChangeAffair(CharUtils.newString(data, 10, 14));
 		logger.info("遥信变位确定---------" + resu);
 		ctx.writeAndFlush(resu, ctx.voidPromise());
@@ -474,87 +543,119 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 
 	private void changeState(String address, String code, String value) {
 
-		if(code == null || code.length() == 0 || code.length() != 4) {
+		if (code == null || code.length() == 0 || code.length() != 4) {
 			return;
 		}
-		if(code.endsWith("00")) {
+		if (code.endsWith("00")) {
 			/*
 			 * 报文反转
 			 */
 			code = LowVoltageDeviceCommandUtil.reverseStringBy2(code);
 		}
-		if(CtxStore.getIdbyAddress(address) == null || 
-				hvCtxStore.getStatusbyId(CtxStore.getIdbyAddress(address)) == null) {
+		if (CtxStore.getIdbyAddress(address) == null
+				|| hvCtxStore.getStatusbyId(CtxStore.getIdbyAddress(address)) == null) {
 			return;
 		}
-		if(value.equals("02")) {
+		if (value.equals("02")) {
 			value = STR_01;
 		} else {
 			value = STR_00;
 		}
 		HighVoltageStatus hvs = hvCtxStore.getStatusbyId(CtxStore.getIdbyAddress(address));
-		switch(code) {
-			case "0000": hvs.setGuo_liu_yi_duan(value.intern());break;
-			case "0001": hvs.setGuo_liu_er_duan(value.intern());break;
-			case "0002": hvs.setGuo_liu_san_duan(value.intern());break;
-			case "0004": hvs.setLing_xu_guo_liu_(value.intern());break;
-			case "000A": hvs.setPt1_you_ya(value.intern());break;
-			case "000B": hvs.setPt1_guo_ya(value.intern());break;
-			case "000C": hvs.setPt2_guo_ya(value.intern());break;
-			case "000D": hvs.setShou_dong_he_zha(value.intern());break;
-			case "000E": hvs.setShou_dong_fen_zha(value.intern());break;
-			case "00FB": hvs.setYao_kong_he_zha(value.intern());break;
-			case "00FC": hvs.setYao_kong_he_zha(value.intern());break;
-			case "00FD": hvs.setYao_kong_fu_gui(value.intern());break;
+		switch (code) {
+		case "0000":
+			hvs.setGuo_liu_yi_duan(value.intern());
+			break;
+		case "0001":
+			hvs.setGuo_liu_er_duan(value.intern());
+			break;
+		case "0002":
+			hvs.setGuo_liu_san_duan(value.intern());
+			break;
+		case "0004":
+			hvs.setLing_xu_guo_liu_(value.intern());
+			break;
+		case "000A":
+			hvs.setPt1_you_ya(value.intern());
+			break;
+		case "000B":
+			hvs.setPt1_guo_ya(value.intern());
+			break;
+		case "000C":
+			hvs.setPt2_guo_ya(value.intern());
+			break;
+		case "000D":
+			hvs.setShou_dong_he_zha(value.intern());
+			break;
+		case "000E":
+			hvs.setShou_dong_fen_zha(value.intern());
+			break;
+		case "00FB":
+			hvs.setYao_kong_he_zha(value.intern());
+			break;
+		case "00FC":
+			hvs.setYao_kong_he_zha(value.intern());
+			break;
+		case "00FD":
+			hvs.setYao_kong_fu_gui(value.intern());
+			break;
 		}
 	}
 
 	private void getMessageAddress(String code, String address, String value) {
 
-		if(code == null || code.length() == 0 || code.length() != 4) {
+		if (code == null || code.length() == 0 || code.length() != 4) {
 			return;
 		}
-		if(code.endsWith("40")) {
+		if (code.endsWith("40")) {
 			/*
 			 * 报文反转
 			 */
 			code = LowVoltageDeviceCommandUtil.reverseStringBy2(code);
 		}
-		if(CtxStore.getIdbyAddress(address) == null) {
+		if (CtxStore.getIdbyAddress(address) == null) {
 			return;
 		}
-		
-		switch(code) {
-			case "4001": saveVoltageForValue(CtxStore.getIdbyAddress(address), "A",
-				HighVoltageDeviceCommandUtil.changToRight(value));break;
-			case "4006": saveCurrentForValue(CtxStore.getIdbyAddress(address), "A",
-					HighVoltageDeviceCommandUtil.changToRight(value));break;
-			case "4007": saveCurrentForValue(CtxStore.getIdbyAddress(address), "B",
-					HighVoltageDeviceCommandUtil.changToRight(value));break;
-			case "4008": saveCurrentForValue(CtxStore.getIdbyAddress(address), "C",
-					HighVoltageDeviceCommandUtil.changToRight(value));break;
-			default:break;
+
+		switch (code) {
+		case "4001":
+			saveVoltageForValue(CtxStore.getIdbyAddress(address), "A",
+					HighVoltageDeviceCommandUtil.changToRight(value));
+			break;
+		case "4006":
+			saveCurrentForValue(CtxStore.getIdbyAddress(address), "A",
+					HighVoltageDeviceCommandUtil.changToRight(value));
+			break;
+		case "4007":
+			saveCurrentForValue(CtxStore.getIdbyAddress(address), "B",
+					HighVoltageDeviceCommandUtil.changToRight(value));
+			break;
+		case "4008":
+			saveCurrentForValue(CtxStore.getIdbyAddress(address), "C",
+					HighVoltageDeviceCommandUtil.changToRight(value));
+			break;
+		default:
+			break;
 		}
 	}
-	
+
 	/**
 	 * 获取在线开关的逻辑地址
 	 */
 	private void getOnlineAddress(ChannelHandlerContext ctx, char[] data) {
-		
+
 		SwitchGPRS gprs = CtxStore.get(ctx);
 		/*
 		 * 当注册的高压开关的地址不为空，说明已经注册过了，不再进行相关操作
 		 */
-		if(gprs != null && gprs.getAddress() != null) {
+		if (gprs != null && gprs.getAddress() != null) {
 			ctx.channel().writeAndFlush(data);
 			return;
 		}
 		String address;
 		if (CharUtils.startWith(data, CODE_68)) {
 			address = CharUtils.newString(data, 10, 14).intern();
-		}
-		else
+		} else
 			address = CharUtils.newString(data, 12, 16).intern();
 		gprs.setAddress(address);
 
@@ -574,20 +675,17 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 				gprs.setId(id);
 				websiteClient.getService().callbackDeviceChange(id, 1);
 				/*
-				 * 这个地方是开始对bug的一个测试，当开关从跳闸到合闸的时候，无法及时获取，只能
-				 * 这样替换ctx才能进行状态更新
+				 * 这个地方是开始对bug的一个测试，当开关从跳闸到合闸的时候，无法及时获取，只能 这样替换ctx才能进行状态更新
 				 * 
-				 * 	if (CtxStore.get(id) != null) {
-				 *		CtxStore.remove(id);
-				 *		CtxStore.add(gprs);
-				 *	}
+				 * if (CtxStore.get(id) != null) { CtxStore.remove(id);
+				 * CtxStore.add(gprs); }
 				 * 
 				 */
-				if (CharUtils.startWith(data, CODE_68)) { //发送eb90
-					ctx.channel().writeAndFlush(CharUtils.newString(data).intern()); //intern的操作会从字符串池中查看有没有字符串跟data的字符串相符，有则返回它的引用
+				if (CharUtils.startWith(data, CODE_68)) { // 发送eb90
+					ctx.channel().writeAndFlush(CharUtils.newString(data).intern()); // intern的操作会从字符串池中查看有没有字符串跟data的字符串相符，有则返回它的引用
 				}
 				HighVoltageServer.totalCall(id);
-				if(CtxStore.get(id) != null) {
+				if (CtxStore.get(id) != null) {
 					CtxStore.remove(id);
 					CtxStore.add(gprs);
 				}
@@ -611,32 +709,32 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	 * 根据开关的id， 和报文信息来获取该开关的全部电压电流值，调用方法保存
 	 */
 	public void saveCV(String switchId, String data) {
-		
+
 		data = data.replace(" ", "");
 		String ABVoltage = new HighVoltageDeviceCommandUtil().readABPhaseVoltage(data);
 		String BCVoltage = new HighVoltageDeviceCommandUtil().readBCPhaseVoltage(data);
 		String ACurrent = new HighVoltageDeviceCommandUtil().readAPhaseCurrent(data);
 		String BCurrent = new HighVoltageDeviceCommandUtil().readBPhaseCurrent(data);
 		String CCurrent = new HighVoltageDeviceCommandUtil().readCPhaseCurrent(data);
-		
+
 		saveCurrentForValue(switchId, "A", ACurrent);
 		saveCurrentForValue(switchId, "B", BCurrent);
 		saveCurrentForValue(switchId, "C", CCurrent);
 		saveVoltageForValue(switchId, "A", ABVoltage);
 		saveVoltageForValue(switchId, "B", BCVoltage);
 	}
-	
+
 	/**
 	 * 保存电压的一个相值
 	 */
 	private void saveVoltageForValue(String switchId, String phase, String value) {
-		
+
 		Date date = new Date();
 		Map<String, Object> map = new HashMap<>(4, 1);
 		map.put("switch_id", switchId);
 		map.put("phase", phase);
 		List<HighVoltageVoltage> list = voltageService.selectByParameters(MyBatisMapUtil.warp(map));
-		if(list != null && list.size() != 0) {
+		if (list != null && list.size() != 0) {
 			HighVoltageVoltage c1 = list.get(0);
 			c1.setTime(date);
 			c1.setValue(Integer.parseInt(value));
@@ -654,18 +752,18 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			historyVoltageService.insert(c1.changeToHistory());
 		}
 	}
-	
+
 	/**
 	 * 保存电流的一个相值
 	 */
 	private void saveCurrentForValue(String switchId, String phase, String value) {
-		
+
 		Date date = new Date();
 		Map<String, Object> map = new HashMap<>(4, 1);
 		map.put("switch_id", switchId);
 		map.put("phase", phase);
 		List<HighVoltageCurrent> list = currentService.selectByParameters(MyBatisMapUtil.warp(map));
-		if(list != null && list.size() != 0) {
+		if (list != null && list.size() != 0) {
 			HighVoltageCurrent c1 = list.get(0);
 			c1.setTime(date);
 			c1.setValue(Integer.parseInt(value));
@@ -683,4 +781,5 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			historyCurrentService.insert(c1.changeToHistory());
 		}
 	}
+	
 }

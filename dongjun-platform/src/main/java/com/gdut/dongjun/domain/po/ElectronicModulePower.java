@@ -211,4 +211,10 @@ public class ElectronicModulePower extends AbstractBean {
     public void setGmtModified(Date gmtModified) {
         this.gmtModified = gmtModified;
     }
+
+	@Override
+	public String toString() {
+		return "ElectronicModulePower [id=" + id + ", phase=" + phase + ", value=" + value + ", time=" + time
+				+ ", submoduleId=" + submoduleId + "]";
+	}
 }

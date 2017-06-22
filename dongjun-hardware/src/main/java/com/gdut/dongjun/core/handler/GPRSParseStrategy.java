@@ -78,7 +78,6 @@ public class GPRSParseStrategy extends ParseStrategy {
 				}
 				sb.append(gprsNumber[i + 1]);
 			}
-			//去除开头的0
 			gprsAddress = sb.toString();
 			
 			//判断GPRS是否已在网站上注册
@@ -93,7 +92,6 @@ public class GPRSParseStrategy extends ParseStrategy {
 				} else if (CharUtils.equals(data, 6, 8, CODE_03)) {
 					logger.info(gprsAddress + " GPRS模块在线");
 				}
-				
 				initChannelInfo(gprsId, ctx);
 			} else {
 				//如果网站上没注册gprs，否决此报文
@@ -121,6 +119,7 @@ public class GPRSParseStrategy extends ParseStrategy {
 				ChannelInfo preInfo = elecStore.get(submodule.getModuleId());
 				//创建ChannelInfo
 				if (null == preInfo) {
+					logger.info("创建电能表ChannelInfo");
 					ElectronicModule module = elecModuleService.selectByPrimaryKey(submodule.getModuleId());
 					preInfo = new ChannelInfo(submodule.getModuleId(), submodule.getDataMonitorId(), module.getGroupId(),
 							module.getDeviceNumber(), ctx);
@@ -137,6 +136,7 @@ public class GPRSParseStrategy extends ParseStrategy {
 				ChannelInfo preInfo = temStore.get(submodule.getModuleId());
 				//创建ChannelInfo
 				if (null == preInfo) {
+					logger.info("创建温度设备ChannelInfo");
 					TemperatureModule module = temModuleService.selectByPrimaryKey(submodule.getModuleId());
 					preInfo = new ChannelInfo(submodule.getModuleId(), submodule.getDataMonitorId(), module.getGroupId(),
 							module.getDeviceNumber(), ctx);
