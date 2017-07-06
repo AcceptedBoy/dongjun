@@ -99,10 +99,18 @@ var treeSet = function() {
 			var nodeList;
 			if (last_value != null) {
 				nodeList = zTree.getNodesByParamFuzzy("name", last_value);
+				// Edit 2017年6月22日16:14:16
+				if(nodeList.length === 0) {
+					nodeList = zTree.getNodesByParamFuzzy("address", last_value);
+				}
 				this.update(nodeList, false);// 重置状态
 			}
 			last_value = value;
 			nodeList = zTree.getNodesByParamFuzzy("name", value);
+			// Edit 2017年6月22日16:14:16
+			if(nodeList.length === 0) {
+				nodeList = zTree.getNodesByParamFuzzy("address", last_value);
+			}
 			treeSet.update(nodeList, true);
 		},
 		getFontCss: function(treeId, treeNode) {
