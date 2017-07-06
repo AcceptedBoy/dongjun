@@ -97,6 +97,9 @@ var treeSet = function() {
 		zTreeSearch: function(value) {
 			var zTree = $.fn.zTree.getZTreeObj("treeDemo");
 			var nodeList;
+			if(value.length === 0) {
+				return
+			}
 			if (last_value != null) {
 				nodeList = zTree.getNodesByParamFuzzy("name", last_value);
 				// Edit 2017年6月22日16:14:16

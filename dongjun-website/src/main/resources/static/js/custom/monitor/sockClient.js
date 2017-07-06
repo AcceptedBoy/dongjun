@@ -55,7 +55,13 @@ var monitorSet = function() {
 		    }
 			});
 			$("#searchNode").click(function() {
-				zTreeSearch($("#search_node_key").val());
+				treeSet.zTreeSearch($("#search_node_key").val());
+			})
+			$('#search_node_key').keydown(function (e) {
+				e.stopPropagation()
+				if(e.keyCode == 13) {
+					treeSet.zTreeSearch($("#search_node_key").val())
+				}
 			})
 				// 切换ZTree显示的开关种类
 			$("#zTree_node_type").change(function() {
