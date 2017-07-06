@@ -5,8 +5,8 @@ import org.springframework.stereotype.Component;
 
 import com.gdut.dongjun.core.handler.Decoder;
 import com.gdut.dongjun.core.handler.Encoder;
-import com.gdut.dongjun.core.handler.SeparatedTextDecoder;
 import com.gdut.dongjun.core.handler.msg_decoder.HighVoltageDataReceiver_V1_3;
+import com.gdut.dongjun.core.handler.msg_decoder.SeparatedTextHandler;
 import com.gdut.dongjun.core.initializer.ServerInitializer;
 import com.sun.xml.bind.v2.TODO;
 
@@ -25,6 +25,8 @@ public class HighVoltageServerInitializer_V1_3 extends ServerInitializer{
 
 	@Autowired
 	private HighVoltageDataReceiver_V1_3 dataReceiver;
+//	@Autowired
+//	private SeparatedTextHandler separatedTextHandler;
 	
 	@Override
 	public void initChannel(SocketChannel ch) throws Exception {
@@ -34,6 +36,7 @@ public class HighVoltageServerInitializer_V1_3 extends ServerInitializer{
 //		p.addLast(new SeparatedTextDecoder());
 		p.addLast(new Decoder());
 		p.addLast(new Encoder());
+//		p.addLast(separatedTextHandler);
 		p.addLast(dataReceiver);
 	}
 

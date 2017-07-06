@@ -70,6 +70,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 
 	private static final char[] EB_UP = new char[] { 'E', 'B', '9', '0' }; // EB90
 	private static final char[] EB_DOWN = new char[] { 'e', 'b', '9', '0' }; // eb90
+	private static final char[] CODE_EB90 = new char[] { 'e', 'b', '9', '0', 'e', 'b', '9', '0', 'e', 'b', '9', '0' };
 	private static final char[] CODE_64 = new char[] { '6', '4' }; // 64
 	private static final char[] CODE_03 = new char[] { '0', '3' }; // 03
 	private static final char[] CODE_2E = new char[] { '2', 'e' }; // 2e
@@ -133,8 +134,91 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 		// if (data.length() == 190) {
 		// hitchEventDesc = getHitchReason(data.substring(140, 160));
 		// }
-		handleIdenCode(ctx, data, hitchEventDesc);
+		
+		handleSeparatedText(ctx, data, hitchEventDesc);
+//		handleIdenCode(ctx, data, hitchEventDesc);
+	}
+	
+	private void handleSeparatedText(ChannelHandlerContext ctx, char[] data, String hitchEventDesc) {
+		Integer begin = 0;
+		while (true) {
+			
+			int pos = StringCommonUtil.getFirstIndexOfEndTag(data, begin, "16");
+			if (pos != -1) {
+				if (isSeparatedPoint(data, pos)) {
+					// 分割出独立报文段
+					char[] dataInfo = CharUtils.subChars(data, begin, pos - begin);
+					handleIdenCode(ctx, dataInfo, hitchEventDesc);
+					//如果分割点是整段报文的终点，结束
+					if (pos == data.length) {
+						break;
+					}
+					begin = pos;	
+				} else {
+					//目标分割点非报文分割点
+					begin = pos;
+					continue;
+				}
+			} else {
+				break;
+			}
+			// 获取报文分割点
+//			int pos = getSeparatedPoint(data, begin);
+			// pos为-1报文异常
+//			if (pos == -1) {
+//				break;
+//			}
+			// pos为-2目标分割点非报文分割点
+//			else if (pos == -2) {
+//				continue;
+//			}
+		}
+	}
+	
+	/**
+	 * 得到报文分割点
+	 * @param data
+	 * @param begin
+	 * @return
+	 */
+	private int getSeparatedPoint(char[] data, Integer begin) {
+		int index = StringCommonUtil.getFirstIndexOfEndTag(data, begin, "16");
+		if (index != -1) {
+			if (isSeparatedPoint(data, index)) {
+				return index;
+			} else {
+				//目标分割点非报文分割点
+				begin = index;
+				return -2;
+			}
+		}
+		return -1;
+	}
 
+	/**
+	 * 检查index是否是报文分割点
+	 * @param data
+	 * @param index
+	 * @return
+	 */
+	private boolean isSeparatedPoint(char[] data, int index) {
+		// 如果index是data的终点，返回true
+		if (index == data.length) {
+			return true;
+		}
+		// 如果16后面是68xx68，返回true
+		else if (CharUtils.equals(CharUtils.subChars(data, index, 2), CODE_68)
+				&& CharUtils.equals(CharUtils.subChars(data, index + 6, 2), CODE_68)) {
+			return true;
+		}
+		// 如果16后面是eb90eb90eb90xxxx16，返回true
+		else if (
+				index + 12 < data.length &&	//防止出现数据丢包导致后续报文不足12个而导致NPE
+				CharUtils.equals(CharUtils.subChars(data, index, 12), CODE_EB90)
+				&& CharUtils.equals(CharUtils.subChars(data, index + 16, 2), CODE_16)) {
+			return true;
+		}
+		return false;
 	}
 
 	@Override
@@ -159,6 +243,8 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 
 	private void handleIdenCode(ChannelHandlerContext ctx, char[] data, String hitchEventDesc) {
 
+		logger.info("处理报文：" + String.valueOf(data));
+		
 		if (data.length < 16) {
 			return;
 		}
@@ -174,6 +260,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 		} else {
 			//eb90注册报文
 			getOnlineAddress(ctx, data);
+			return ;
 		}
 		char[] infoIdenCode = CharUtils.subChars(data, BYTE * 7, BYTE);
 //		String infoIdenCode = data.substring(14, 16);
@@ -185,7 +272,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 			/*
 			 * 总召激活确定
 			 */
-			logger.info("总召激活已经确定：" + CharUtils.newString(data, BYTE * 5, BYTE * 2).intern());
+			logger.info("总召激活已经确定：" + CharUtils.newString(data, BYTE * 5, BYTE * 7).intern());
 
 			/*
 			 * 为应对老机器中将总召，遥控，遥测值都加在同一份数据块而做的解析
@@ -326,7 +413,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 		 */
 		if (data.length > 32) {
 			if (CharUtils.equals(CharUtils.subChars(data, 30, 32), CODE_81)) {
-				String address = CharUtils.newString(data, BYTE * 5, BYTE * 2).intern();
+				String address = CharUtils.newString(data, BYTE * 5, BYTE * 7).intern();
 				SwitchGPRS gprs = CtxStore.getByAddress(address);
 				/*
 				 * 1合闸；2分闸；
@@ -350,7 +437,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 	 */
 	private void readAllSignal(String hitchEventDesc, char[] data) {
 
-		String address = CharUtils.newString(data, BYTE * 5, BYTE * 2).intern();
+		String address = CharUtils.newString(data, BYTE * 5, BYTE * 7).intern();
 		String id = CtxStore.getIdbyAddress(address);
 
 		if (id != null && address != null) {
@@ -500,7 +587,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 					CharUtils.newString(data, i + 4, i + 6));
 		}
 		String resu = new HighVoltageDeviceCommandUtil().confirmChangeAffair(
-				CharUtils.newString(data, BYTE * 5, BYTE * 2));
+				CharUtils.newString(data, BYTE * 5, BYTE * 7));
 		logger.info("遥信变位事件确定---------" + resu);
 		ctx.writeAndFlush(resu);
 	}
@@ -513,7 +600,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 	 */
 	private void confirmSignalInitialChange(ChannelHandlerContext ctx, char[] data) {
 
-		String resu = new HighVoltageDeviceCommandUtil().confirmChangeAffair(CharUtils.newString(data, BYTE * 5, BYTE * 2).intern());
+		String resu = new HighVoltageDeviceCommandUtil().confirmChangeAffair(CharUtils.newString(data, BYTE * 5, BYTE * 7).intern());
 		readAllSignal("控制回路", data);
 		logger.info("遥信变位确定---------" + resu);
 		ctx.writeAndFlush(resu);
