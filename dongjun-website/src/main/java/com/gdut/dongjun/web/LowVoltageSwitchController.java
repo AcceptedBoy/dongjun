@@ -239,7 +239,6 @@ public class LowVoltageSwitchController {
 			HttpServletResponse respone, String clazzId) throws Exception {
 
 		List<LowVoltageSwitch> sapis = switchService.selectByParameters(null);
-		System.out.println(sapis.size());
 
 		// 3.处理目标文件路径
 		String fileName = "低压开关信息";

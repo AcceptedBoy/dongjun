@@ -20,6 +20,7 @@ import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.device.DataMonitorSubmoduleService;
 import com.gdut.dongjun.service.device.TemperatureModuleService;
+import com.gdut.dongjun.service.device.TemperatureSensorService;
 import com.gdut.dongjun.service.device.event.ModuleHitchEventService;
 import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 import com.gdut.dongjun.util.MyBatisMapUtil;
@@ -39,6 +40,8 @@ public class TemperatureModuleController {
 	private HardwareServiceClient hardwareClient;
 	@Autowired
 	private ModuleHitchEventService moduleHitchEventService;
+	@Autowired
+	private TemperatureSensorService sensorService;
 	
 	/**
 	 * TODO 要增加和DataMonitor的关联
@@ -116,6 +119,8 @@ public class TemperatureModuleController {
 		}
 		//删除报警信息
 		moduleHitchEventService.deleteByParameters(MyBatisMapUtil.warp("module_id", id));
+		//删除传感器数据
+		sensorService.deleteByParameters(MyBatisMapUtil.warp("device_id", id));
 		return ResponseMessage.success("操作成功");
 	}
 	
@@ -138,6 +143,25 @@ public class TemperatureModuleController {
 		}
 		return ResponseMessage.warning(null);
 	}
-	
+
+	@ResponseBody
+	@RequestMapping("/download_excel")
+	public ResponseMessage downloadExcel(String monitorId) {
+		List<DataMonitorSubmodule> subList = submoduleService.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
+		//TODO
+		for (DataMonitorSubmodule sub : subList) {
+			if (sub.getModuleType() == 3) {
+				List<TemperatureModule> module = moduleService.selectByParameters(MyBatisMapUtil.warp("id", sub.getModuleId()));
+				if (0 == module.size()) {
+					return ResponseMessage.warning(null);
+				}
+				if (null == module || module.size() > 1) {
+					return ResponseMessage.warning("操作失败");
+				}
+				return ResponseMessage.success(module.get(0));
+			}
+		}
+		return ResponseMessage.warning(null);
+	}
 	
 }
