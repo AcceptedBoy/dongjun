@@ -53,8 +53,10 @@
   <div class="clean"></div>
   <div class="tab-content" id="dataChart" style="display: none;">
       <div class="tab-pane Mychart" id="excalChartV">
-      	<a href="/dongjun/chart/excel/voltage" class="btn btn-primary excelBtn">导出Excel</a>
-      	<h3 class="vTableTle tableTitle"></h3>
+        <div class="tableTitle">
+      	  <a href="javascript:void(0)" class="vex btn btn-primary excelBtn">导出Excel</a>
+      	  <h3 class="vTableTle normalTle"></h3>
+      	</div>
           <table id="v_data_list" class="table table-bordered table-striped table-hover table-condensed success" cellspacing="0" width="100%">
               <thead>
               <th>设备</th>
@@ -64,9 +66,10 @@
           </table>
       </div>
       <div class="tab-pane Mychart" id="excalChartC">
-      	
-      	<a href="/dongjun/chart/excel/current" class="btn btn-primary excelBtn">导出Excel</a>
-      	<h3 class="cTableTle tableTitle"></h3>
+      	  <div class="tableTitle">
+      	    <a href="javascript:void(0)" class="cex btn btn-primary excelBtn">导出Excel</a>
+      	    <h3 class="cTableTle normalTle"></h3>
+      	  </div>
           <table id="c_data_list" class="table table-bordered table-striped table-hover table-condensed success" cellspacing="0" width="100%">
               <thead>
               <th>设备</th>
@@ -76,8 +79,10 @@
           </table>
       </div>
       <div class="tab-pane Mychart" id="excalChartP">
-        <h3 class="pTableTle tableTitle"></h3>
-      	<a href="/dongjun/chart/excel/power" class="btn btn-primary excelBtn">导出Excel</a>
+	    <div class="tableTitle">
+	      <h3 class="pTableTle normalTle"></h3>
+	      <a href="javascript:void(0)" class="pex btn btn-primary excelBtn">导出Excel</a>
+      	</div>
           <table id="p_data_list" class="table table-bordered table-striped table-hover table-condensed success" cellspacing="0" width="100%">
               <thead>
               <th>设备</th>
@@ -89,7 +94,7 @@
       <div class="tab-pane Mychart active" id="excalChartT">
       	<div class="tableTitle">
       		<h3 class="tTableTle normalTle"></h3>
-      		<a href="/dongjun/chart/excel/temperature" class="btn btn-primary excelBtn">导出Excel</a>
+      		<a href="javascript:void(0)" class="tex btn btn-primary excelBtn">导出Excel</a>
       	</div>
           <table id="t_data_list" class="table table-bordered table-striped table-hover table-condensed success" cellspacing="0" width="100%">
               <thead>
@@ -135,7 +140,9 @@
       this._tableId = op.idConfig.tableId || ''
       this._tabId = op.idConfig.tabId || ''
       this._chartTabId = op.idConfig.chartTabId || ''
-			chartNodes.addChart(this)
+      this._excelUrl = op.excelUrl || ''
+      this._excelBtn = op.excelBtn || ''
+	  chartNodes.addChart(this)
     }
 
 	/**
@@ -259,6 +266,10 @@
     Chart.prototype.createTable = function() {
       console.log('createTable')
     }
+    
+    Chart.prototype.setExcel = function(id, bgtime, endtime) {
+      $('.' + this._excelBtn).attr('href', this._excelUrl + '?' + 'monitorId=' + id + '&' + 'beginDate=' + bgtime + '&' + 'endDate=' + endtime)
+    }
 		/**
 		 * [TemChart 温度表格的构造函数]
 		 * @param {[type]}  chart     [description]
@@ -319,6 +330,7 @@
               self.chart.setOption(res, true)
               self.setUnit()
               self.showTable()
+              self.setExcel(id, bgtime, endtime)
             } else {
               alert('没有数据')
               self.clearChart()
@@ -402,7 +414,7 @@
 			var self = this
 			if(!(bgtime && endtime)) {
 				bgtime = $('#begin_search_date').val()
-        endtime = $('#end_search_date').val()
+        		endtime = $('#end_search_date').val()
 			}
 			if(id && name) {
 				chartView.showLoading(self.chart)
@@ -422,6 +434,7 @@
               self.chart.setOption(res, true)
               self.setUnit()
               self.showTable()
+              self.setExcel(id, bgtime, endtime)
 						} else {
 							alert('没有数据')
 							self.clearChart()
@@ -681,6 +694,8 @@
     	  tablename: 't_data_list',
     	  tableTitle: 'tTableTle',
     	  xFormatter: '温度/°C',
+    	  excelUrl: '/dongjun/chart/excel/temperature',
+    	  excelBtn: 'tex',
     	  isActive: true,
     	  idConfig: {
 				tabId: 'showTExcal',
@@ -694,6 +709,8 @@
     	  tablename: 'v_data_list',
     	  tableTitle: 'vTableTle',
     	  xFormatter: '电压/V',
+    	  excelUrl: '/dongjun/chart/excel/voltage',
+    	  excelBtn: 'vex',
     	  isActive: false,
     	  idConfig: {
 				tabId: 'showVExcal',
@@ -707,6 +724,8 @@
     	  tablename: 'c_data_list',
     	  tableTitle: 'cTableTle',
     	  xFormatter: '电流/A',
+    	  excelUrl: '/dongjun/chart/excel/current',
+    	  excelBtn: 'cex',
     	  isActive: false,
     	  idConfig: {
 				tabId: 'showCExcal',
@@ -720,6 +739,8 @@
     	  tablename: 'p_data_list',
     	  tableTitle: 'pTableTle',
     	  xFormatter: '千瓦/kW',
+    	  excelUrl: '/dongjun/chart/excel/power',
+    	  excelBtn: 'pex',
     	  isActive: false,
     	  idConfig: {
 				tabId: 'showPExcal',
@@ -727,7 +748,32 @@
 				chartTabId: 'showPchart'
 			}
       }, '/dongjun/chart/electronic_power')
-
+	
+      // 给excel按钮加点击事件
+      /* $('.tex').click(function() {
+    	  var bgtime = $('#begin_search_date').val()
+  		  var endtime = $('#end_search_date').val()
+  		  chartManager.downloadExcel(bgtime, endtime, '/dongjun/chart/excel/temperature')
+      })
+      
+      $('.vex').click(function() {
+    	  var bgtime = $('#begin_search_date').val()
+  		  var endtime = $('#end_search_date').val()
+  		  chartManager.downloadExcel(bgtime, endtime, '/dongjun/chart/excel/voltage')
+      })
+      
+      $('.cex').click(function() {
+    	  var bgtime = $('#begin_search_date').val()
+  		  var endtime = $('#end_search_date').val()
+  		  chartManager.downloadExcel(bgtime, endtime, '/dongjun/chart/excel/current')
+      })
+      
+      $('.pex').click(function() {
+    	  var bgtime = $('#begin_search_date').val()
+  		  var endtime = $('#end_search_date').val()
+  		  chartManager.downloadExcel(bgtime, endtime, '/dongjun/chart/excel/power')
+      }) */
+      
       return {
 				refresh: function() {
 					chartManager.initail_datetimepicker()
@@ -751,6 +797,22 @@
 						}
 					}
 				},
+				/* downloadExcel: function(bg, end, url) {
+					if(chartNodes.getId()) {
+					  var id = chartNodes.getId()
+					} else {
+					  alert('请选择设备')
+					  return null
+					}
+					$.ajax({
+						url: url,
+						data: {
+						  monitorId: id,
+						  beginDate: bg,
+						  endDate: end,
+						}
+					})
+				}, */
         showChart: function() {
 					chartNodes.getActive().showChart(chartNodes.getId(), chartNodes.getName())
         },
