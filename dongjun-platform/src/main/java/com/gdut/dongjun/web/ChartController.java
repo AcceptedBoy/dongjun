@@ -1,11 +1,16 @@
 package com.gdut.dongjun.web;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,8 +18,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.gdut.dongjun.HitchConst;
 import com.gdut.dongjun.domain.po.DataMonitorSubmodule;
-import com.gdut.dongjun.domain.po.ElectronicModulePower;
+import com.gdut.dongjun.domain.po.ElectronicModule;
 import com.gdut.dongjun.domain.po.TemperatureMeasure;
+import com.gdut.dongjun.domain.po.TemperatureModule;
 import com.gdut.dongjun.domain.po.TemperatureSensor;
 import com.gdut.dongjun.domain.vo.chart.ChartData;
 import com.gdut.dongjun.domain.vo.chart.ElectronicCurrentChartData;
@@ -25,10 +31,13 @@ import com.gdut.dongjun.service.device.DataMonitorService;
 import com.gdut.dongjun.service.device.DataMonitorSubmoduleService;
 import com.gdut.dongjun.service.device.ElectronicModuleCurrentService;
 import com.gdut.dongjun.service.device.ElectronicModulePowerService;
+import com.gdut.dongjun.service.device.ElectronicModuleService;
 import com.gdut.dongjun.service.device.ElectronicModuleVoltageService;
 import com.gdut.dongjun.service.device.TemperatureModuleService;
 import com.gdut.dongjun.service.device.TemperatureSensorService;
 import com.gdut.dongjun.service.device.temperature.TemperatureMeasureService;
+import com.gdut.dongjun.util.ClassLoaderUtil;
+import com.gdut.dongjun.util.DownloadAndUploadUtil;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 
 @Controller
@@ -51,6 +60,8 @@ public class ChartController {
 	private ElectronicModulePowerService powerService;
 	@Autowired
 	private ElectronicModuleVoltageService voltageService;
+	@Autowired
+	private ElectronicModuleService elecModuleService;
 
 	/**
 	 * 
@@ -412,6 +423,215 @@ public class ChartController {
 		return chartData.getJsonChart(measureMap);
 	}
 	
+	/**
+	 * 返回功率
+	 * @param id
+	 * @param beginDate
+	 * @param endDate
+	 * @param sensorAddress
+	 * @return
+	 * @throws IOException 
+	 */
+	@RequiresAuthentication
+	@RequestMapping("/chart/excel/voltage")
+	@ResponseBody
+	public ResponseEntity<byte[]> downloadVoltageExcel(
+			@RequestParam(required = true) String monitorId, 
+			@RequestParam(required = true) String beginDate, 
+			@RequestParam(required = true) String endDate,
+			HttpServletRequest request) throws IOException {
+		List<DataMonitorSubmodule> mappings = submoduleService.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
+		String deviceId = null;
+		for (DataMonitorSubmodule mapping : mappings) {
+			if (HitchConst.MODULE_ELECTRICITY == mapping.getModuleType()) {
+				deviceId = mapping.getModuleId();
+				break;
+			}
+		}
+		Map<String, Object> measureMap = new HashMap<String, Object>();
+		measureMap.put("A相", 
+				voltageService.selectByTime(deviceId, beginDate, endDate, "A"));
+		measureMap.put("B相",
+				voltageService.selectByTime(deviceId, beginDate, endDate, "B"));
+		measureMap.put("C相",
+				voltageService.selectByTime(deviceId, beginDate, endDate, "C"));
+		ElectronicVoltageChartData chartData = new ElectronicVoltageChartData();
+		ChartData d =  chartData.getJsonChart(measureMap);
+		ElectronicModule module = elecModuleService.selectByPrimaryKey(deviceId);
+		//文件名称
+		String fileName = module.getName() + "-" + module.getDeviceNumber() + "-" + "电压";
+		//处理文件目录
+		String relativePath = ClassLoaderUtil.getExtendResource("../",
+				"dongjun-platform").toString();
+		String realPath = relativePath.replace("/", "\\");
+		File file = new File(realPath);
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+		String filePath = realPath + "\\" + fileName;
+		//生成文件
+		voltageService.createExcel(d, filePath);
+		File targetFile = new File(filePath);
+		return DownloadAndUploadUtil.download(request, targetFile, fileName);
+	}
+	
+	/**
+	 * 返回功率
+	 * @param id
+	 * @param beginDate
+	 * @param endDate
+	 * @param sensorAddress
+	 * @return
+	 * @throws IOException 
+	 */
+	@RequiresAuthentication
+	@RequestMapping("/chart/excel/current")
+	@ResponseBody
+	public ResponseEntity<byte[]> downloadCurrentExcel(
+			@RequestParam(required = true) String monitorId, 
+			@RequestParam(required = true) String beginDate, 
+			@RequestParam(required = true) String endDate,
+			HttpServletRequest request) throws IOException {
+		List<DataMonitorSubmodule> mappings = submoduleService.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
+		String deviceId = null;
+		for (DataMonitorSubmodule mapping : mappings) {
+			if (HitchConst.MODULE_ELECTRICITY == mapping.getModuleType()) {
+				deviceId = mapping.getModuleId();
+				break;
+			}
+		}
+		Map<String, Object> measureMap = new HashMap<String, Object>();
+		measureMap.put("A相", 
+				currentService.selectByTime(deviceId, beginDate, endDate, "A"));
+		measureMap.put("B相",
+				currentService.selectByTime(deviceId, beginDate, endDate, "B"));
+		measureMap.put("C相",
+				currentService.selectByTime(deviceId, beginDate, endDate, "C"));
+		measureMap.put("总功率",
+				currentService.selectByTime(deviceId, beginDate, endDate, "D"));
+		ElectronicCurrentChartData chartData = new ElectronicCurrentChartData();
+		ChartData d =  chartData.getJsonChart(measureMap);
+		ElectronicModule module = elecModuleService.selectByPrimaryKey(deviceId);
+		//文件名称
+		String fileName = module.getName() + "-" + module.getDeviceNumber() + "-" + "电流";
+		//处理文件目录
+		String relativePath = ClassLoaderUtil.getExtendResource("../",
+				"dongjun-platform").toString();
+		String realPath = relativePath.replace("/", "\\");
+		File file = new File(realPath);
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+		String filePath = realPath + "\\" + fileName;
+		//生成文件
+		currentService.createExcel(d, filePath);
+		File targetFile = new File(filePath);
+		return DownloadAndUploadUtil.download(request, targetFile, fileName);
+	}
+	
+	/**
+	 * 返回功率
+	 * @param id
+	 * @param beginDate
+	 * @param endDate
+	 * @param sensorAddress
+	 * @return
+	 * @throws IOException 
+	 */
+	@RequiresAuthentication
+	@RequestMapping("/chart/excel/power")
+	@ResponseBody
+	public ResponseEntity<byte[]> downloadPowerExcel(
+			@RequestParam(required = true) String monitorId, 
+			@RequestParam(required = true) String beginDate, 
+			@RequestParam(required = true) String endDate,
+			HttpServletRequest request) throws IOException {
+		List<DataMonitorSubmodule> mappings = submoduleService.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
+		String deviceId = null;
+		for (DataMonitorSubmodule mapping : mappings) {
+			if (HitchConst.MODULE_ELECTRICITY == mapping.getModuleType()) {
+				deviceId = mapping.getModuleId();
+				break;
+			}
+		}
+		Map<String, Object> measureMap = new HashMap<String, Object>();
+		measureMap.put("A相", 
+				powerService.selectByTime(deviceId, beginDate, endDate, "A"));
+		measureMap.put("B相",
+				powerService.selectByTime(deviceId, beginDate, endDate, "B"));
+		measureMap.put("C相",
+				powerService.selectByTime(deviceId, beginDate, endDate, "C"));
+		measureMap.put("总功率",
+				powerService.selectByTime(deviceId, beginDate, endDate, "D"));
+		ElectronicPowerChartData chartData = new ElectronicPowerChartData();
+		ChartData d =  chartData.getJsonChart(measureMap);
+		ElectronicModule module = elecModuleService.selectByPrimaryKey(deviceId);
+		//文件名称
+		String fileName = module.getName() + "-" + module.getDeviceNumber() + "-" + "功率";
+		//处理文件目录
+		String relativePath = ClassLoaderUtil.getExtendResource("../",
+				"dongjun-platform").toString();
+		String realPath = relativePath.replace("/", "\\");
+		File file = new File(realPath);
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+		String filePath = realPath + "\\" + fileName;
+		//生成文件
+		powerService.createExcel(d, filePath);
+		File targetFile = new File(filePath);
+		return DownloadAndUploadUtil.download(request, targetFile, fileName);
+	}
+	
+	/**
+	 * 返回功率
+	 * @param id
+	 * @param beginDate
+	 * @param endDate
+	 * @param sensorAddress
+	 * @return
+	 * @throws IOException 
+	 */
+	@RequiresAuthentication
+	@RequestMapping("/chart/excel/temperature")
+	public ResponseEntity<byte[]> downloadTemperatureExcel(
+			@RequestParam(required = true) String monitorId, 
+			@RequestParam(required = true) String beginDate, 
+			@RequestParam(required = true) String endDate,
+			HttpServletRequest request) throws IOException {
+		List<DataMonitorSubmodule> mappings = submoduleService.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
+		String deviceId = null;
+		for (DataMonitorSubmodule mapping : mappings) {
+			if (3 == mapping.getModuleType()) {
+				deviceId = mapping.getModuleId();
+				break;
+			}
+		}
+		TemperatureChartData chartData = new TemperatureChartData();
+		Map<String, Object> measureMap = new HashMap<String, Object>();
+		List<TemperatureSensor> sensors = sensorService.selectAllType(deviceId);
+		for (TemperatureSensor sensor : sensors) {
+			List<TemperatureMeasure> measures = temMeasureService.selectByTime(deviceId, sensor.getTag(), beginDate, endDate);
+			measureMap.put(changeType(sensor.getType()), measures);
+		}
+		ChartData d =  chartData.getJsonChart(measureMap);
+		TemperatureModule module = temModuleService.selectByPrimaryKey(deviceId);
+		//文件名称
+		String fileName = module.getName() + "-" + module.getDeviceNumber() + "-" + "温度";
+		//处理文件目录
+		String relativePath = ClassLoaderUtil.getExtendResource("../",
+				"dongjun-platform").toString();
+		String realPath = relativePath.replace("/", "\\");
+		File file = new File(realPath);
+		if (!file.exists()) {
+			file.mkdirs();
+		}
+		String filePath = realPath + "\\" + fileName;
+		//生成文件
+		temModuleService.createExcel(d, filePath);
+		File targetFile = new File(filePath);
+		return DownloadAndUploadUtil.download(request, targetFile, fileName);
+	}
 	
 	
 }

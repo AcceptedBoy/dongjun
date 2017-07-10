@@ -88,7 +88,7 @@ public class HardwareServiceImpl implements HardwareService {
 				@Override
 				public void run() {
 					try {
-						Thread.sleep(1000 * 10);
+						Thread.sleep(1000 * 60);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					} finally{
@@ -134,7 +134,7 @@ public class HardwareServiceImpl implements HardwareService {
 				@Override
 				public void run() {
 					try {
-						Thread.sleep(1000 * 10);
+						Thread.sleep(1000 * 60);	//等待一分钟
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					} finally{
