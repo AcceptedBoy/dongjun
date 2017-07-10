@@ -53,7 +53,7 @@
   <div class="clean"></div>
   <div class="tab-content" id="dataChart" style="display: none;">
       <div class="tab-pane Mychart" id="excalChartV">
-      	<a href="javascript:void(0)" class="btn btn-primary excelBtn">导出Excel</a>
+      	<a href="/dongjun/chart/excel/voltage" class="btn btn-primary excelBtn">导出Excel</a>
       	<h3 class="vTableTle tableTitle"></h3>
           <table id="v_data_list" class="table table-bordered table-striped table-hover table-condensed success" cellspacing="0" width="100%">
               <thead>
@@ -65,7 +65,7 @@
       </div>
       <div class="tab-pane Mychart" id="excalChartC">
       	
-      	<a href="javascript:void(0)" class="btn btn-primary excelBtn">导出Excel</a>
+      	<a href="/dongjun/chart/excel/current" class="btn btn-primary excelBtn">导出Excel</a>
       	<h3 class="cTableTle tableTitle"></h3>
           <table id="c_data_list" class="table table-bordered table-striped table-hover table-condensed success" cellspacing="0" width="100%">
               <thead>
@@ -76,8 +76,8 @@
           </table>
       </div>
       <div class="tab-pane Mychart" id="excalChartP">
-      	<a href="javascript:void(0)" class="btn btn-primary excelBtn">导出Excel</a>
-      	<h3 class="pTableTle tableTitle"></h3>
+        <h3 class="pTableTle tableTitle"></h3>
+      	<a href="/dongjun/chart/excel/power" class="btn btn-primary excelBtn">导出Excel</a>
           <table id="p_data_list" class="table table-bordered table-striped table-hover table-condensed success" cellspacing="0" width="100%">
               <thead>
               <th>设备</th>
@@ -89,7 +89,7 @@
       <div class="tab-pane Mychart active" id="excalChartT">
       	<div class="tableTitle">
       		<h3 class="tTableTle normalTle"></h3>
-      		<a href="javascript:void(0)" class="btn btn-primary excelBtn">导出Excel</a>
+      		<a href="/dongjun/chart/excel/temperature" class="btn btn-primary excelBtn">导出Excel</a>
       	</div>
           <table id="t_data_list" class="table table-bordered table-striped table-hover table-condensed success" cellspacing="0" width="100%">
               <thead>
@@ -460,6 +460,7 @@
 		EleChart.prototype.showTable = function(data) {
 			var data = this.createTable()
 			$('.'+this._tableTle).text(chartNodes.getName())
+			var self = this
 			data = data ? data : []
 			var tablename = this._tablename
 			$('#' + tablename).DataTable({

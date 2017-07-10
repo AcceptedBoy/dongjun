@@ -126,7 +126,7 @@ public abstract class ChartData {
 	/*
 	 * 内部类
 	 */
-	protected class XAxis {
+	public class XAxis {
 
 		private String type = "category";
 
@@ -159,7 +159,7 @@ public abstract class ChartData {
 		}
 	}
 
-	protected class YAxis {
+	public class YAxis {
 
 		private String type = "value";
 
@@ -172,7 +172,7 @@ public abstract class ChartData {
 		}
 	}
 
-	protected class ChaseData {
+	public class ChaseData {
 
 		private String name;
 
