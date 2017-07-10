@@ -35,6 +35,25 @@ var treeSet = function() {
 	var zTree = null
 	var last_value;
 	var isLoad = false;
+	var holdTree = [];
+	var resultSetting = function () {
+		var setting;
+		return setting = {
+			callback: {
+				onClick : treeSet.zTreeOnClick,// 添加节点点击事件回调函数
+				onCheck: treeSet.zTreeOnCheck,
+				beforeCheck: treeSet.zTreeBeforeCheck
+			},
+			view: {
+				showLine : false,
+				fontCss : treeSet.getFontCss
+			},
+			check: {
+				enable: true,
+				chkboxType: {'Y':'', 'N':''}
+			}
+		}
+	}
 	return {
 		getTree: function() {
 			if(zTree) {
@@ -94,6 +113,7 @@ var treeSet = function() {
 				return false;
 			}
 		},
+		// 用于树搜索的方法
 		zTreeSearch: function(value) {
 			var zTree = $.fn.zTree.getZTreeObj("treeDemo");
 			var nodeList;
@@ -114,7 +134,67 @@ var treeSet = function() {
 			if(nodeList.length === 0) {
 				nodeList = zTree.getNodesByParamFuzzy("address", last_value);
 			}
+//			treeSet.filterRes(nodeList)
+//			nodeList = treeSet.changeRes(nodeList)
+//			treeSet.zTreeSearchRes(nodeList, false, value)
 			treeSet.update(nodeList, true);
+		},
+		// 过滤搜索结果
+		filterRes: function(res) {
+			for(var i = 0; i < res.length; i++) {
+				if(!res[i].children) {
+					if(res[i].lineId) {
+						for(var j = 0; j < res.length; j++) {
+							if(res[i].parentName == res[j].name) {
+								res[i].noNeed = true
+							} else {
+								res[i].needChange = true
+							}
+						}
+					}
+				}
+			}
+		},
+		// 对做记号的数组项进行对应的修改
+		changeRes: function(res) {
+			var real = []
+			var spNode
+			for(var i = 0; i < res.length; i++) {
+				if(!res[i].noNeed) {
+					real.push(res[i])
+				}
+			}
+			for(var j = 0; j < real.length; j++) {
+				if(real[j].needChange) {
+					spNode = zTree.getNodesByParamFuzzy("name", real[j].parentName);
+					real.splice(j, 1, spNode[0])
+				}
+			}
+			return real
+		},
+		// 用于改变zTree内容,写来给zTreeSearch
+		zTreeSearchRes: function(result, isBack, val) {
+			if(!isBack) {
+				$('#searchTool').hide()
+				$('#goBack').show()
+				$.fn.zTree.getZTreeObj("treeDemo").destroy()
+				$.fn.zTree.init($("#treeDemo"), resultSetting(), result)
+				treeSet.hideCheck()
+				// 高亮显示
+				var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+				var list = zTree.getNodesByParamFuzzy("name", last_value);
+				// Edit 2017年6月22日16:14:16
+				if(list.length === 0) {
+					list = zTree.getNodesByParamFuzzy("address", last_value);
+				}
+				treeSet.update(list, true); // 调用函数进行高亮显示
+			} else {
+				$('#searchTool').show()
+				$('#goBack').hide()
+				$.fn.zTree.getZTreeObj("treeDemo").destroy()
+				$.fn.zTree.init($("#treeDemo"), resultSetting(), holdTree)
+				treeSet.hideCheck()
+			}
 		},
 		getFontCss: function(treeId, treeNode) {
 			return (!!treeNode.highlight) ? {
@@ -162,7 +242,9 @@ var treeSet = function() {
 				}
 			}
 		},
-		zTreeOnAsyncSuccess: function(event, treeId, treeNode, msg) {
+		zTreeOnAsyncSuccess: function(event, treeId, Tnode, msg) {
+			// 缓存起树上的数据用于返回时使用
+			holdTree = JSON.parse(msg)
 			if(!isLoad) {
 				var locationId = djMap.Model.location('switchId')
 				if(locationId != -1) {
@@ -203,7 +285,7 @@ var treeSet = function() {
 			if(!node.isParent) {
 				parent = node.getParentNode();
 			}
-			if(parent.isChoose || node.isChoose) {
+			if(parent && parent.isChoose || node.isChoose) {
 				/*if(!node.isParent) {
 					djMap.Control.treeNodeClick('move', node);
 				} else {
@@ -218,11 +300,15 @@ var treeSet = function() {
 					return false
 				}
 				if(!node.isParent) {
-					var nodes = node.getParentNode().children
-					djMap.Control.treeNodeClick('add', parent.id, nodes, node, parent.name);
-					parent.isChoose = true;
-					parent.checked = true;
-					zTree.updateNode(parent);
+//					if(node.getParentNode()) {
+						var nodes = node.getParentNode().children
+						djMap.Control.treeNodeClick('add', parent.id, nodes, node, parent.name);
+						parent.isChoose = true;
+						parent.checked = true;
+						zTree.updateNode(parent);
+//					} else {
+//						djMap.Control.treeNodeClick('add', parent.id, nodes, node, parent.name);
+//					}
 				} else {
 					var nodes = node.children;
 					if(!nodes[0].isParent) {
@@ -262,6 +348,7 @@ var treeSet = function() {
 				djMap.Control.treeNodeClick('del', parentId)
 			}
 		},
+		// init这个方法没有被调用过
 		init: function() {
 			zTree = $.fn.zTree.init($("#treeDemo"), this.setTree(0));
 			$("#searchNode").click(function() {
