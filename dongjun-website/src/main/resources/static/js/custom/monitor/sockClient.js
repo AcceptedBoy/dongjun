@@ -54,6 +54,7 @@ var monitorSet = function() {
 		    	  document.getElementById("zTree_node_type").options[1].selected = true;
 		    }
 			});
+			// 给初次加载页面时与设备树相关的DOM标签添加事件，本页面只执行一次
 			$("#searchNode").click(function() {
 				treeSet.zTreeSearch($("#search_node_key").val());
 			})
@@ -63,7 +64,10 @@ var monitorSet = function() {
 					treeSet.zTreeSearch($("#search_node_key").val())
 				}
 			})
-				// 切换ZTree显示的开关种类
+			$('#back').click(function() {
+				treeSet.zTreeSearchRes(null, true)
+			})
+			// 切换ZTree显示的开关种类
 			$("#zTree_node_type").change(function() {
 				$.fn.zTree.getZTreeObj("treeDemo").destroy();
 				$.fn.zTree.init($("#treeDemo"), treeSet.setTree(this.value));

@@ -79,10 +79,12 @@
 	top: -3%;
 	transform: translateX(-60%);
 	z-index: 1;
+	line-height: 65px;
 }
 
 .normalTle {
 	display: inline-block;
+	line-height: 65px;
 }
 
 .excelBtn {
