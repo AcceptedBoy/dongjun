@@ -268,6 +268,30 @@ public class CommandController {
 		return "success";
 	}
 	
+	@RequestMapping("/test_control")
+	@ResponseBody
+	public String testControl(@RequestParam(required = true) String switchId,
+			int sign, int type, HttpSession session) {
+		String address = hardwareClient.getService().getOnlineAddressById(switchId);
+		String msg = null;
+		if(sign == 0) { //开
+			msg = hardwareClient.getService().generateOpenSwitchMessage(address, type);
+			//msg = hardwareClient.getService().generateOpenSwitchMessage(address);
+		} else { //合
+			msg = hardwareClient.getService().generateCloseSwitchMessage(address, type);
+		}
+		User user = (User)session.getAttribute("currentUser");
+		oLogService.createNewOperationLog(user.getId(), type, switchId);
+		// 发送报文
+		if (msg != null) {  
+
+			logger.info("发送开合闸报文" + msg);
+		} else {
+			return "error";
+		}
+		return "success";
+	}
+	
 	/*
 	 * 未来改进的方法，删除control_switch这一个接口
 	 */

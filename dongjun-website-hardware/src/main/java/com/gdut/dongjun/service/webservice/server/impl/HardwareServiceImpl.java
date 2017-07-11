@@ -80,23 +80,23 @@ public class HardwareServiceImpl implements HardwareService {
 		default:
 			break;
 		}
-		if (msg != null && defCtxStore.getCtxByAddress(address) != null) {
+		if (msg != null && hvCtxStore.getCtxByAddress(address) != null) {
 			
-			defCtxStore.getCtxByAddress(address).writeAndFlush(msg);
+			hvCtxStore.getCtxByAddress(address).writeAndFlush(msg);
 			final String callMsg0 = callMsg;
 			callerPool.execute(new Runnable() {
 				@Override
 				public void run() {
 					try {
-						Thread.sleep(1000 * 60);
+						Thread.sleep(1000 * 10);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					} finally{
-						defCtxStore.getCtxByAddress(address).writeAndFlush(callMsg0);
+						hvCtxStore.getCtxByAddress(address).writeAndFlush(callMsg0);
 					}
 				}
 			});
-			handleOldMachineTotalCall(address, callMsg);
+//			handleOldMachineTotalCall(address, callMsg);
 			return msg;
 		}
 		return null;
@@ -112,7 +112,6 @@ public class HardwareServiceImpl implements HardwareService {
 		}
 		String msg = null;
 		String callMsg = null; //总召报文
-		SwitchGPRS gprs = null;
 		switch (type) {
 		case 0:// 低压开关
 			msg = lowVoltageDevice.generateCloseSwitchMessage(address);
@@ -127,22 +126,22 @@ public class HardwareServiceImpl implements HardwareService {
 		default:
 			break;
 		}
-		if (msg != null && defCtxStore.getCtxByAddress(address) != null) {
-			defCtxStore.getCtxByAddress(address).writeAndFlush(msg);
+		if (msg != null && hvCtxStore.getCtxByAddress(address) != null) {
+			hvCtxStore.getCtxByAddress(address).writeAndFlush(msg);
 			final String callMsg0 = callMsg;
 			callerPool.execute(new Runnable() {
 				@Override
 				public void run() {
 					try {
-						Thread.sleep(1000 * 60);	//等待一分钟
+						Thread.sleep(1000 * 10);	//等待一分钟
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					} finally{
-						defCtxStore.getCtxByAddress(address).writeAndFlush(callMsg0);
+						hvCtxStore.getCtxByAddress(address).writeAndFlush(callMsg0);
 					}
 				}
 			});
-			handleOldMachineTotalCall(address, callMsg);
+//			handleOldMachineTotalCall(address, callMsg);
 		}
 		return msg;
 	}
@@ -156,7 +155,7 @@ public class HardwareServiceImpl implements HardwareService {
 	private void handleOldMachineTotalCall(String address, String callMsg) {
 		List<AbnormalDevice> abDevices = abDeviceService.selectByParameters(null);
 		
-		String id = defCtxStore.getIdbyAddress(address);
+		String id = hvCtxStore.getIdbyAddress(address);
 		if (id == null || id.equals("")) {
 			//TODO
 			return ;
@@ -177,7 +176,7 @@ public class HardwareServiceImpl implements HardwareService {
 								} catch (InterruptedException e) {
 									e.printStackTrace();
 								}
-								defCtxStore.getCtxByAddress(realAddress).writeAndFlush(callMsg1);
+								hvCtxStore.getCtxByAddress(realAddress).writeAndFlush(callMsg1);
 								logger.info(realAddress + "老机器额外总召: " + callMsg1);
 								count++;
 							}
@@ -195,7 +194,7 @@ public class HardwareServiceImpl implements HardwareService {
 	 */
 	@Override
 	public String getOnlineAddressById(String id) {
-		SwitchGPRS gprs = defCtxStore.get(id);
+		SwitchGPRS gprs = hvCtxStore.get(id);
 		if(gprs != null) {
 			return gprs.getAddress();
 		}
@@ -207,7 +206,7 @@ public class HardwareServiceImpl implements HardwareService {
 	 */
 	@Override
 	public List<SwitchGPRS> getCtxInstance() {
-		return defCtxStore.getInstance();
+		return hvCtxStore.getInstance();
 	}
 	
 	/* (non-Javadoc)
@@ -215,7 +214,7 @@ public class HardwareServiceImpl implements HardwareService {
 	 */
 	@Override
 	public SwitchGPRS getSwitchGPRS(String id) {
-		return defCtxStore.get(id);
+		return hvCtxStore.get(id);
 	}
 
 	/* (non-Javadoc)
@@ -232,7 +231,7 @@ public class HardwareServiceImpl implements HardwareService {
 	@Deprecated
 	@Override
 	public boolean changeCtxOpen(String switchId) {
-		if(defCtxStore.changeOpen(switchId)) {
+		if(hvCtxStore.changeOpen(switchId)) {
 			return true;
 		}
 		return false;
@@ -244,7 +243,7 @@ public class HardwareServiceImpl implements HardwareService {
 	@Override
 	public List<ActiveHighSwitch> getActiveSwitchStatus() {
 
-		List<SwitchGPRS> switchs = defCtxStore.getInstance();
+		List<SwitchGPRS> switchs = hvCtxStore.getInstance();
 		List<ActiveHighSwitch> list = new ArrayList<>();
 
 		if(switchs != null) {
