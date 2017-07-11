@@ -92,7 +92,7 @@ function Change_line(lineId) {
 				},
 				success : function(data) {
 					// console.log(myUrl)
-					console.log($(".lines").val());
+					// console.log($(".lines").val());
 					data = data.data;
 					var options = "";
 					switchList = [];
@@ -101,8 +101,9 @@ function Change_line(lineId) {
 						options += "<option value='" + data[i].id + "'>" + data[i].name
 							+ "</option>";
 					}
-					$("#switchs").empty();
-					$("#switchs").append(options);
+					$("#switchs").html(options);
+					console.log('HRER')
+					afterLoadSwitch(data)
 				}
 			})
 
