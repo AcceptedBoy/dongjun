@@ -1,7 +1,13 @@
-<div class="input-append">
+<div class="input-append" id="searchTool">
 	<input id="search_node_key" class="span10" type="text" placeholder="请输入..." />
 	<button id="searchNode" class="btn btn-primary" type="button"><i class="fa fa-search"></i></button>
 </div>
+
+<!-- 返回按钮 -->
+<div class="input-append" id="goBack" style="display: none">
+      <button id="back" class="btn"><i class="icon-chevron-left"></i>返回</button>
+</div>
+
 <div class="well sidebar-nav">
 	<ul id="treeDemo" class="ztree"></ul>
 </div>
@@ -30,7 +36,23 @@
 
 		var treeSet = function() {
 			var last_value;
-
+			
+			var holdTree = [];
+			var resultSetting = function () {
+				var setting;
+				return setting = {
+					callback: {
+						onClick : treeSet.zTreeOnClick,// 添加节点点击事件回调函数
+						//onCheck: treeSet.zTreeOnCheck,
+						// beforeCheck: treeSet.zTreeBeforeCheck
+					},
+					view: {
+						showLine : false,
+						fontCss : treeSet.getFontCss
+					}
+				}
+			}
+			
 			return {
 				data_filter: function(treeId, parentNode, childNodes) {
 					if (!childNodes)
@@ -53,13 +75,80 @@
 					var nodeList;
 					if (last_value != null) {
 						nodeList = zTree.getNodesByParamFuzzy("name", last_value);
+						// Edit 2017年6月22日16:14:16
+						if(nodeList.length === 0) {
+							nodeList = zTree.getNodesByParamFuzzy("address", last_value);
+						}
 						this.update(nodeList, false);// 重置状态
 					}
 					last_value = value;
-
 					nodeList = zTree.getNodesByParamFuzzy("name", value);
-					treeSet.update(nodeList, true);
+					if(nodeList.length === 0) {
+						nodeList = zTree.getNodesByParamFuzzy("address", last_value);
+					}
+					// treeSet.update(nodeList, true);
+					treeSet.filterRes(nodeList)
+					nodeList = treeSet.changeRes(nodeList)
+					treeSet.zTreeSearchRes(nodeList, false, value)
 				},
+				// 过滤搜索结果
+				filterRes: function(res) {
+					for(var i = 0; i < res.length; i++) {
+						if(!res[i].children) {
+							if(res[i].lineId) {
+								for(var j = 0; j < res.length; j++) {
+									if(res[i].parentName == res[j].name) {
+										res[i].noNeed = true
+									} else {
+										res[i].needChange = true
+									}
+								}
+							}
+						}
+					}
+				},
+				// 对做记号的数组项进行对应的修改
+				changeRes: function(res) {
+					var real = []
+					var spNode
+					for(var i = 0; i < res.length; i++) {
+						if(!res[i].noNeed) {
+							real.push(res[i])
+						}
+					}
+					for(var j = 0; j < real.length; j++) {
+						if(real[j].needChange) {
+							spNode = zTree.getNodesByParamFuzzy("name", real[j].parentName);
+							real.splice(j, 1, spNode[0])
+						}
+					}
+					return real
+				},
+				// 用于改变zTree内容,写来给zTreeSearch
+				zTreeSearchRes: function(result, isBack, val) {
+					if(!isBack) {
+						$('#searchTool').hide()
+						$('#goBack').show()
+						$.fn.zTree.getZTreeObj("treeDemo").destroy()
+						$.fn.zTree.init($("#treeDemo"), resultSetting(), result)
+						// treeSet.hideCheck()
+						// 高亮显示
+						var zTree = $.fn.zTree.getZTreeObj("treeDemo");
+						var list = zTree.getNodesByParamFuzzy("name", last_value);
+						// Edit 2017年6月22日16:14:16
+						if(list.length === 0) {
+							list = zTree.getNodesByParamFuzzy("address", last_value);
+						}
+						treeSet.update(list, true); // 调用函数进行高亮显示
+					} else {
+						$('#searchTool').show()
+						$('#goBack').hide()
+						$.fn.zTree.getZTreeObj("treeDemo").destroy()
+						$.fn.zTree.init($("#treeDemo"), resultSetting(), holdTree)
+						// treeSet.hideCheck()
+					}
+				},
+				
 				getFontCss: function(treeId, treeNode) {
 					return (!!treeNode.highlight) ? {
 							color : "#5C297F",
@@ -96,6 +185,10 @@
 				},
 				zTreeOnAsyncSuccess: function(event, treeId, treeNode, msg) {
 					chartController.initListener();
+					$('#back').click(function() {
+						treeSet.zTreeSearchRes(null, true)
+					})
+					holdTree = JSON.parse(msg)
 				},
 				zTreeOnClick: function(event, treeId, treeNode) {
 					chartManager.newHandleClick(event, treeId, treeNode)
