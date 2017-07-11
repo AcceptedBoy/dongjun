@@ -134,10 +134,10 @@ var treeSet = function() {
 			if(nodeList.length === 0) {
 				nodeList = zTree.getNodesByParamFuzzy("address", last_value);
 			}
-//			treeSet.filterRes(nodeList)
-//			nodeList = treeSet.changeRes(nodeList)
-//			treeSet.zTreeSearchRes(nodeList, false, value)
-			treeSet.update(nodeList, true);
+			treeSet.filterRes(nodeList)
+			nodeList = treeSet.changeRes(nodeList)
+			treeSet.zTreeSearchRes(nodeList, false, value)
+//			treeSet.update(nodeList, true);
 		},
 		// 过滤搜索结果
 		filterRes: function(res) {
