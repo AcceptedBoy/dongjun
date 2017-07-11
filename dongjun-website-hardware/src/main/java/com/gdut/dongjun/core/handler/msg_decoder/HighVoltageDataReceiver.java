@@ -168,9 +168,9 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	private void handleIdenCode(ChannelHandlerContext ctx, char[] data) {
 
 		// 长度大于最长的全遥测，估计是报文杂糅在一起
-		if (data.length > 262) {
-			getSwitchAllInfo(ctx, data);
-		}
+//		if (data.length > 262) {
+//			getSwitchAllInfo(ctx, data);
+//		}
 
 		char[] infoIdenCode = ArrayUtils.subarray(data, 14, 16);
 

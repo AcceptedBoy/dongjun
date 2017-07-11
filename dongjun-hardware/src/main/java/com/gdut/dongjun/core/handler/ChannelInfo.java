@@ -6,14 +6,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Logger;
-
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
 
 /**
  * 对Channel所对应的信息的抽象 对之前的{@link com.gdut.dongjun.core.SwitchGPRS}功能有所取舍
+ * 为什么会有{@code List<ChannelHandlerContext>}这个成员变量？
+ * 因为GPRS连接上系统的时候，系统并不知道具体的ChannelHandlerContext，只能用GPRS报文发过来的通道，
+ * 也就是GPRSParseStrategy里的ChannelHandlerContext来给电表发总召。当接收到电表的报文时，相关
+ * ParseStrategy会清空ChannelInfo里的原有ChannelHandlerContext，将新的ChannelHandlerContext付给它。
+ * 由于业务特殊性，现在一个DataMonitor里有多个GPRS，各个子模块都能用这些GPRS，那么就存在不知道哪个
+ * GPRS对应电表的情况。为了方便，就设置List<ChannelHandlerContext>，发总召报文时往所有GPRS发。
+ * 这的确是个坑
  * 
  * @author Gordan_Deng
  * @date 2017年5月10日
