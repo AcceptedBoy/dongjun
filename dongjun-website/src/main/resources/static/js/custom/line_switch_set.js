@@ -26,12 +26,15 @@ function loadSwitchListWithLineId(_url, lineId) {
 				options += "<option value='" + data[i].id + "'>" + data[i].name
 						+ "</option>";
 			}
-			$("#switchs").empty();
-			$("#switchs").append(options);
+			$("#switchs").html(options);
+			afterLoadSwitch(data);
 		}
 	})
 }
 
+function afterLoadSwitch(SwitchData) {
+	console.warn('重写该完成函数 afterLoadSwitch(SwitchData) ')
+}
 /**
  * 报警事件重加载
  */
