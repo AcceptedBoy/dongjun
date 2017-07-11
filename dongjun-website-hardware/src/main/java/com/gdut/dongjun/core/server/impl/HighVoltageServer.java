@@ -30,7 +30,7 @@ public class HighVoltageServer extends NetServer {
 	@Resource(name = "HighVoltageServerInitializer")
 	private ServerInitializer initializer;
 	@Autowired
-	private HighVoltageSwitchService lowVoltageSwitchService;
+	private HighVoltageSwitchService highVoltageSwitchService;
 
 	private static final Logger logger = Logger
 			.getLogger(HighVoltageServer.class);
@@ -46,7 +46,7 @@ public class HighVoltageServer extends NetServer {
 	@Override
 	protected void hitchEventSpy() {
 
-		List<HighVoltageSwitch> switchs = lowVoltageSwitchService
+		List<HighVoltageSwitch> switchs = highVoltageSwitchService
 				.selectByParameters(null);
 
 		if (switchs != null) {
