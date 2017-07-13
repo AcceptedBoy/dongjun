@@ -3,35 +3,6 @@ $(document).ready(function() {
 	/**
 	 * 初始化列表
 	 */
-/*	$("#hitch_event_list").DataTable({  // 初始化表格
-		"destroy": true,
-		"ajax": {
-			"url": 'get_high_voltage_hitch_event_by_switch_id?switchId=75ab61fafa814ce8a587eeb6a6693464'
-		},
-		"columns" : [ {
-			"data" : "hitchTime"
-		}, {
-			"data" : "hitchReason"
-		}, {
-			"data" : "hitchPhase"
-		}, {
-			"data" : "changeType"
-		}, {
-			"data": "solvePeople"
-		}, {
-			"data": "solveTime"
-		}, {
-			"data": "solveWay"
-		}],
-		'language': {
-      'paginate': {
-        'next': '下一页',
-        'previous': '上一页'
-      },
-      'emptyTable': '找不到相关数据',
-      'zeroRecords': '找不到相关数据'
-    },
-	});*/
 
 	var highVoltageTable = function() {
 	  var table = null;
@@ -181,32 +152,31 @@ $(document).ready(function() {
 });
 
 function loadEventListWithSwitchId(_url, switchId) {
-	$('#hitch_event_list').DataTable(
-			{
-				"destroy" : true,// destroy之后才能重新加载
-				"ajax" : _url + switchId,
-				"columns" : [ {
-					"data" : "hitchTime"
-				}, {
-					"data" : "hitchReason"
-				}, {
-					"data" : "hitchPhase"
-				}, {
-					"data" : "changeType"
-				}, {
-					"data": "solvePeople"
-				}, {
-					"data": "solveTime"
-				}, {
-					"data": "solveWay"
-				}],
-				'language': {
-		            'paginate': {
-		              'next': '下一页',
-		              'previous': '上一页'
-		            },
-		            'emptyTable': '找不到相关数据',
-		            'zeroRecords': '找不到相关数据'
-		          },
-			});
+	$('#hitch_event_list').DataTable({
+		"destroy" : true,// destroy之后才能重新加载
+		"ajax" : _url + switchId,
+		"columns" : [ {
+			"data" : "hitchTime"
+		}, {
+			"data" : "hitchReason"
+		}, {
+			"data" : "hitchPhase"
+		}, {
+			"data" : "changeType"
+		}, {
+			"data": "solvePeople"
+		}, {
+			"data": "solveTime"
+		}, {
+			"data": "solveWay"
+		}],
+			'language': {
+		    'paginate': {
+		      'next': '下一页',
+		      'previous': '上一页'
+		    },
+		    'emptyTable': '找不到相关数据',
+		    'zeroRecords': '找不到相关数据'
+		  },
+	});
 }

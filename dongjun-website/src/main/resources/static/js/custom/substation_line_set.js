@@ -65,7 +65,8 @@ function Change_line(lineId) {
 				options += "<option value='" + data[i].id + "'>" + data[i].name
 					+ "</option>";
 			}
-			$(".lines").empty().append(options);
+			$(".lines").html(options);
+			afterLoadLine(data)
 			// 兼容三个页面的请求接口
 			var myUrl;
 			switch (myState) {
@@ -91,8 +92,6 @@ function Change_line(lineId) {
 					"lineId" : $(".lines").val()
 				},
 				success : function(data) {
-					// console.log(myUrl)
-					// console.log($(".lines").val());
 					data = data.data;
 					var options = "";
 					switchList = [];
@@ -102,8 +101,9 @@ function Change_line(lineId) {
 							+ "</option>";
 					}
 					$("#switchs").html(options);
-					console.log('HRER')
-					afterLoadSwitch(data)
+					if(window.afterLoadSwitch) {
+						afterLoadSwitch(data)
+					}
 				}
 			})
 
@@ -115,6 +115,10 @@ function Change_line(lineId) {
 			+ "</option>";
 	}
 	$("#searchlist").empty().append(op);
+}
+
+function afterLoadLine(lineData) {
+	console.warn('重写该完成函数 afterLoadLine(lineData) ')
 }
 
 function fuzzySearchHandler(type) {
