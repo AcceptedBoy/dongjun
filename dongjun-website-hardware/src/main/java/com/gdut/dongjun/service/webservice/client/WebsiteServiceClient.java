@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.ws.rs.FormParam;
+
 @Component
 public class WebsiteServiceClient implements InitializingBean, ApplicationContextAware {
 
@@ -82,6 +84,12 @@ public class WebsiteServiceClient implements InitializingBean, ApplicationContex
             for(WebsiteService websiteService : websiteList) {
                 websiteService.callbackHitchEvent(event);
             }
+        }
+        
+        public void callbackTextArrived(String switchId, String text) {
+        	  for(WebsiteService websiteService : websiteList) {
+                  websiteService.callbackTextArrived(switchId, text);
+              }
         }
     }
 }

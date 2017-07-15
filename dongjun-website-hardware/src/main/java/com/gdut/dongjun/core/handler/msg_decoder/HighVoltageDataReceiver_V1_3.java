@@ -22,7 +22,6 @@ import java.util.Map;
 
 import javax.annotation.Resource;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +31,7 @@ import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.HighVoltageCtxStore;
 import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.core.device_message_engine.impl.HighVoltageSwitchMessageEngine;
+import com.gdut.dongjun.core.handler.DataMonitorService;
 import com.gdut.dongjun.core.server.impl.HighVoltageServer;
 import com.gdut.dongjun.domain.HighVoltageStatus;
 import com.gdut.dongjun.domain.po.HighVoltageCurrent;
@@ -104,6 +104,8 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 	private HighVoltageSwitchService switchService;
 	@Autowired
 	private WebsiteServiceClient websiteClient;
+	@Autowired
+	private DataMonitorService monitorService;
 
 	private static final Logger logger = LoggerFactory.getLogger(HighVoltageDataReceiver_V1_3.class);
 
@@ -141,9 +143,10 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 	
 	private void handleSeparatedText(ChannelHandlerContext ctx, char[] data, String hitchEventDesc) {
 		Integer begin = 0;
+		int pointIndex = begin;
 		while (true) {
 			
-			int pos = StringCommonUtil.getFirstIndexOfEndTag(data, begin, "16");
+			int pos = StringCommonUtil.getFirstIndexOfEndTag(data, pointIndex, "16");
 			if (pos != -1) {
 				if (isSeparatedPoint(data, pos)) {
 					// 分割出独立报文段
@@ -154,9 +157,10 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 						break;
 					}
 					begin = pos;	
+					pointIndex = begin;
 				} else {
 					//目标分割点非报文分割点
-					begin = pos;
+					pointIndex = pos;
 					continue;
 				}
 			} else {
@@ -313,6 +317,11 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 		} else {
 			logger.error("接收到的非法数据--------------------" + String.valueOf(data));
 		}
+		//如果设备在被监视，通过回调函数把报文传回website系统。
+		String address = CtxStore.get(ctx).getAddress();
+		if (monitorService.isMonitored(address)) {
+			websiteClient.getService().callbackTextArrived(address, String.valueOf(data));
+		}
 	}
 
 	/**
@@ -430,6 +439,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 
 	/**
 	 * 所有遥信值的获取
+	 * 68535368f4010001c8140101000100010000010000000100000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000000000000000000000d916
 	 * 
 	 * @param hitchEventDesc
 	 *            报警原因描述

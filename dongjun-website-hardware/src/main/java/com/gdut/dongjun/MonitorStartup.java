@@ -13,11 +13,7 @@ import com.gdut.dongjun.core.server.impl.ControlMeasureServer;
 import com.gdut.dongjun.core.server.impl.HighVoltageServer;
 import com.gdut.dongjun.core.server.impl.HighVoltageServer_V1_3;
 import com.gdut.dongjun.core.server.impl.LowVoltageServer;
-import com.gdut.dongjun.core.server.impl.TemperatureServer;
 import com.gdut.dongjun.domain.dao.ProtocolPortMapper;
-import com.gdut.dongjun.domain.po.HighVoltageCurrent;
-import com.gdut.dongjun.domain.po.HighVoltageSwitch;
-import com.gdut.dongjun.domain.po.HighVoltageVoltage;
 import com.gdut.dongjun.domain.po.ProtocolPort;
 import com.gdut.dongjun.service.HighVoltageCurrentService;
 import com.gdut.dongjun.service.HighVoltageSwitchService;
@@ -45,9 +41,6 @@ public class MonitorStartup implements InitializingBean {
 	
 	@Autowired
 	private ControlMeasureServer controlMeasureServer;
-	
-	@Autowired
-	private TemperatureServer temperatureServer;
 	
 	@Autowired
 	private ProtocolPortMapper protocolPortDAOImpl;
@@ -156,9 +149,6 @@ public class MonitorStartup implements InitializingBean {
 			else if (port.getRemark().equals("control_device")) {
 				controlMeasureServer.setPort(port.getPort());
 			}
-			else if (port.getRemark().equals("temperature_device")) {
-				temperatureServer.setPort(port.getPort());
-			}
 			else if (port.getRemark().equals("high_voltage_1.3")) {
 				highVoltageServer_v1_3.setPort(port.getPort());
 			}
@@ -171,12 +161,10 @@ public class MonitorStartup implements InitializingBean {
 		logger.info("高压开关端口号：" + highVoltageServer.getPort());
 		logger.info("管控开关端口号：" + controlMeasureServer.getPort());
 		logger.info("高压版本1.3端口号：" + highVoltageServer_v1_3.getPort());
-		logger.info("温度设备端口号：" + temperatureServer.getPort());
 
 		lowVoltageServer.start();
 		highVoltageServer.start();
 		controlMeasureServer.start();
 		highVoltageServer_v1_3.start();
-		temperatureServer.start();
 	}	
 }

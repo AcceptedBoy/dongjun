@@ -2,11 +2,14 @@ package com.gdut.dongjun.core.device;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.gdut.dongjun.core.device_message_engine.ControlMessageEngine;
 import com.gdut.dongjun.core.device_message_engine.DataMessageEngine;
 import com.gdut.dongjun.core.device_message_engine.EventMessageEngine;
+import com.gdut.dongjun.core.device_message_engine.impl.HighVoltageSwitchMessageEngine;
+import com.sun.xml.bind.v2.TODO;
 
 /**   
  * @author	Sherlock-lee
@@ -23,6 +26,8 @@ public class HighVoltageDevice extends Device{
 	private DataMessageEngine dme;
 	@Resource(name="HighVoltageSwitchMessageEngine")
 	private EventMessageEngine eme;
+	@Autowired
+	private HighVoltageSwitchMessageEngine engine;
 	
 	public HighVoltageDevice() {
 		super();
@@ -61,6 +66,24 @@ public class HighVoltageDevice extends Device{
 	@Resource(name="HighVoltageSwitchMessageEngine")
 	public void setEme(EventMessageEngine eme) {
 		super.eme = eme;
+	}
+	
+	/**
+	 * 得到合闸预置报文
+	 * @param address
+	 * @return
+	 */
+	public String generatePreOpenSwitchMessage(String address) {
+		return engine.generatePreOpenSwitchMessage(address);
+	}
+	
+	/**
+	 * 得到合闸报文
+	 * @param address
+	 * @return
+	 */
+	public String generateFormalOpenSwitchMessage(String address) {
+		return engine.generateFormalOpenSwitchMessage(address);
 	}
 	
 	

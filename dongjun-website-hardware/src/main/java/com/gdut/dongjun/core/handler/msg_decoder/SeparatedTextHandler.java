@@ -15,8 +15,9 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
  * @author Gordan_Deng
  * @date 2017年6月27日
  */
-@Service
-@Sharable
+//@Service
+//@Sharable
+@Deprecated
 public class SeparatedTextHandler extends ChannelInboundHandlerAdapter {
 	
 	private static final char[] CODE_68 = new char[] { '6', '8' }; // 68
