@@ -31,17 +31,17 @@ function initial_table(id) {
 			{
 				"targets": -4,
 				"data": null,
-				"defaultContent": '<button class="btn btn enter_map">进入地图 &raquo;</button>'
+				"defaultContent": '<button class="btn btn enter_map">进入地图</button>'
 			},
 			{
 				"targets": -3,
 				"data": null,
-				"defaultContent": '<a href="#edit_switch_modal" role="button" class="edit_switch_btn btn" data-toggle="modal">修改 &raquo;</a>'
+				"defaultContent": '<a href="#edit_switch_modal" role="button" class="edit_switch_btn btn" data-toggle="modal">修改</a>'
 			},
 			{
 				"targets": -2,
 				"data": null,
-				"defaultContent": '<a href="#del_switch_modal" class="del_switch_btn btn btn-danger" data-toggle="modal" data-backdrop="static">删除&raquo; </a>'
+				"defaultContent": '<a href="#del_switch_modal" class="del_switch_btn btn btn-danger" data-toggle="modal" data-backdrop="static">删除 </a>'
 			},
 			{
 				"targets": -1,
