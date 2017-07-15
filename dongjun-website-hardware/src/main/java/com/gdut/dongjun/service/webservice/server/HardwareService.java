@@ -110,4 +110,19 @@ public interface HardwareService {
 	@Path("/gprs_module_status")
 	@Consumes({MediaType.APPLICATION_JSON})
 	public List<Integer> getGPRSModuleStatus(List<String> ids);
+	
+    @POST
+    @Path("/send_text")
+    @Consumes({MediaType.APPLICATION_JSON})
+    public boolean sendText(String switchId, String text);
+    
+    @POST
+    @Path("/regis_monitor")
+    @Consumes({MediaType.APPLICATION_JSON})
+    public boolean regisMonitor(String switchId);
+    
+    @POST
+    @Path("/remove_monitor")
+    @Consumes({MediaType.APPLICATION_JSON})
+    public boolean removeMonitor(String switchId);
 }

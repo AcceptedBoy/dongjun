@@ -12,18 +12,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.gdut.dongjun.core.CtxStore;
-import com.gdut.dongjun.core.DefaultCtxStore;
 import com.gdut.dongjun.core.HighVoltageCtxStore;
 import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.core.TemperatureCtxStore;
 import com.gdut.dongjun.core.device.Device;
+import com.gdut.dongjun.core.device.HighVoltageDevice;
 import com.gdut.dongjun.core.device_message_engine.impl.HighVoltageSwitchMessageEngine;
+import com.gdut.dongjun.core.handler.DataMonitorService;
 import com.gdut.dongjun.domain.HighVoltageStatus;
 import com.gdut.dongjun.domain.po.AbnormalDevice;
 import com.gdut.dongjun.domain.po.HighVoltageHitchEvent;
 import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
 import com.gdut.dongjun.service.AbnormalDeviceService;
 import com.gdut.dongjun.service.HighVoltageHitchEventService;
+import com.gdut.dongjun.service.HighVoltageSwitchService;
 import com.gdut.dongjun.service.webservice.server.HardwareService;
 
 @Component
@@ -31,8 +33,8 @@ public class HardwareServiceImpl implements HardwareService {
 
 	@Resource(name = "LowVoltageDevice")
 	private Device lowVoltageDevice;
-	@Resource(name = "HighVoltageDevice")
-	private Device highVoltageDevice;
+	@Autowired
+	private HighVoltageDevice highVoltageDevice;
 	@Resource(name = "ControlMeasureDevice")
 	private Device controlMeasureDevice;
 	@Autowired
@@ -44,7 +46,9 @@ public class HardwareServiceImpl implements HardwareService {
 	@Autowired
 	private HighVoltageCtxStore hvCtxStore;
 	@Autowired
-	private DefaultCtxStore defCtxStore;
+	private HighVoltageSwitchService highVoltageSwitchService;
+	@Autowired
+	private DataMonitorService monitorService;
 	
 	/**
 	 * 总召池，下面方法得到当前可用处理器个数，数量x2-1，就是线程池固有线程数
@@ -80,8 +84,9 @@ public class HardwareServiceImpl implements HardwareService {
 		default:
 			break;
 		}
+		msg = msg.toLowerCase();
 		if (msg != null && hvCtxStore.getCtxByAddress(address) != null) {
-			
+			logger.info("地址为" + address + "的设备执行分闸：" + msg);
 			hvCtxStore.getCtxByAddress(address).writeAndFlush(msg);
 			final String callMsg0 = callMsg;
 			callerPool.execute(new Runnable() {
@@ -92,6 +97,8 @@ public class HardwareServiceImpl implements HardwareService {
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					} finally{
+						//680c0c68530100640106010100000014d516
+						logger.info("地址为" + address + "的设备发送分闸后的总召");
 						hvCtxStore.getCtxByAddress(address).writeAndFlush(callMsg0);
 					}
 				}
@@ -126,7 +133,9 @@ public class HardwareServiceImpl implements HardwareService {
 		default:
 			break;
 		}
+		msg = msg.toLowerCase();
 		if (msg != null && hvCtxStore.getCtxByAddress(address) != null) {
+			logger.info("地址为" + address + "的设备执行合闸：" + msg);
 			hvCtxStore.getCtxByAddress(address).writeAndFlush(msg);
 			final String callMsg0 = callMsg;
 			callerPool.execute(new Runnable() {
@@ -137,6 +146,7 @@ public class HardwareServiceImpl implements HardwareService {
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					} finally{
+						//680c0c68530100640106010100000014d516
 						hvCtxStore.getCtxByAddress(address).writeAndFlush(callMsg0);
 					}
 				}
@@ -254,7 +264,9 @@ public class HardwareServiceImpl implements HardwareService {
 					
 					ActiveHighSwitch as = new ActiveHighSwitch();
 					as.setId(s.getId());
+					//open代表跳闸状态，true是分闸，false为合闸
 					as.setOpen(s.isOpen());
+					//status代表设备状态，00为分闸，01为合闸
 					as.setStatus(status.getStatus());
 					if(s.isOpen() == true) {
 						//唯一一个需要去查找数据库的操作
@@ -287,6 +299,25 @@ public class HardwareServiceImpl implements HardwareService {
 	@Override
 	public List<Integer> getGPRSModuleStatus(List<String> deviceNumbers) {
 		return TemperatureCtxStore.isGPRSAlive(deviceNumbers);
+	}
+
+	@Override
+	public boolean sendText(String switchId, String text) {
+		String addr = monitorService.getDeviceAddressBySwitchId(switchId);
+		CtxStore.getByAddress(addr).getCtx().writeAndFlush(text);
+		return true;
+	}
+
+	@Override
+	public boolean regisMonitor(String switchId) {
+		monitorService.addMonitor(switchId);
+		return true;
+	}
+
+	@Override
+	public boolean removeMonitor(String switchId) {
+		monitorService.removeMonitor(switchId);
+		return true;
 	}
 
 }

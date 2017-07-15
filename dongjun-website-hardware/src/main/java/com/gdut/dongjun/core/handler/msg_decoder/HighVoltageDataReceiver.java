@@ -32,6 +32,7 @@ import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.HighVoltageCtxStore;
 import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.core.device_message_engine.impl.HighVoltageSwitchMessageEngine;
+import com.gdut.dongjun.core.handler.DataMonitorService;
 import com.gdut.dongjun.core.server.impl.HighVoltageServer;
 import com.gdut.dongjun.domain.HighVoltageStatus;
 import com.gdut.dongjun.domain.po.HighVoltageCurrent;
@@ -61,6 +62,7 @@ import io.netty.util.AttributeKey;
 
 /**
  * TODO 值得关注的一个类
+ * 关有设备
  * 
  * @author Sherlock
  * @author Acceptedboy
@@ -72,6 +74,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	//
 	private static final char[] EB_UP = new char[] { 'E', 'B', '9', '0' }; // EB90
 	private static final char[] EB_DOWN = new char[] { 'e', 'b', '9', '0' }; // eb90
+	private static final char[] CODE_EB90 = new char[] { 'e', 'b', '9', '0', 'e', 'b', '9', '0', 'e', 'b', '9', '0' };
 	private static final char[] CODE_64 = new char[] { '6', '4' }; // 64
 	private static final char[] CODE_03 = new char[] { '0', '3' }; // 03
 	private static final char[] CODE_2E = new char[] { '2', 'e' }; // 2e
@@ -107,6 +110,8 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	private WebsiteServiceClient websiteClient;
 	@Autowired
 	private HighVoltageCtxStore hvCtxStore;
+	@Autowired
+	private DataMonitorService monitorService;
 
 	public HighVoltageDataReceiver() {
 		super();
@@ -142,7 +147,91 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		 *//* getHitchReason(data.substring(140, 160)) *//*
 														 * ; }
 														 */
-		handleIdenCode(ctx, data);
+		handleSeparatedText(ctx, data);
+	}
+	
+	private void handleSeparatedText(ChannelHandlerContext ctx, char[] data) {
+		Integer begin = 0;
+		int pointIndex = begin;
+		while (true) {
+			
+			int pos = StringCommonUtil.getFirstIndexOfEndTag(data, pointIndex, "16");
+			if (pos != -1) {
+				if (isSeparatedPoint(data, pos)) {
+					// 分割出独立报文段
+					char[] dataInfo = CharUtils.subChars(data, begin, pos - begin);
+					handleIdenCode(ctx, dataInfo);
+					//如果分割点是整段报文的终点，结束
+					if (pos == data.length) {
+						break;
+					}
+					begin = pos;	
+					pointIndex = begin;
+				} else {
+					//目标分割点非报文分割点
+					pointIndex = pos;
+					continue;
+				}
+			} else {
+				break;
+			}
+			// 获取报文分割点
+//			int pos = getSeparatedPoint(data, begin);
+			// pos为-1报文异常
+//			if (pos == -1) {
+//				break;
+//			}
+			// pos为-2目标分割点非报文分割点
+//			else if (pos == -2) {
+//				continue;
+//			}
+		}
+	}
+	
+	/**
+	 * 得到报文分割点
+	 * @param data
+	 * @param begin
+	 * @return
+	 */
+	private int getSeparatedPoint(char[] data, Integer begin) {
+		int index = StringCommonUtil.getFirstIndexOfEndTag(data, begin, "16");
+		if (index != -1) {
+			if (isSeparatedPoint(data, index)) {
+				return index;
+			} else {
+				//目标分割点非报文分割点
+				begin = index;
+				return -2;
+			}
+		}
+		return -1;
+	}
+
+	/**
+	 * 检查index是否是报文分割点
+	 * @param data
+	 * @param index
+	 * @return
+	 */
+	private boolean isSeparatedPoint(char[] data, int index) {
+		// 如果index是data的终点，返回true
+		if (index == data.length) {
+			return true;
+		}
+		// 如果16后面是68xx68，返回true
+		else if (CharUtils.equals(CharUtils.subChars(data, index, 2), CODE_68)
+				&& CharUtils.equals(CharUtils.subChars(data, index + 6, 2), CODE_68)) {
+			return true;
+		}
+		// 如果16后面是eb90eb90eb90xxxx16，返回true
+		else if (
+				index + 12 < data.length &&	//防止出现数据丢包导致后续报文不足12个而导致NPE
+				CharUtils.equals(CharUtils.subChars(data, index, 12), CODE_EB90)
+				&& CharUtils.equals(CharUtils.subChars(data, index + 16, 2), CODE_16)) {
+			return true;
+		}
+		return false;
 	}
 
 	@Override
@@ -166,7 +255,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	}
 
 	private void handleIdenCode(ChannelHandlerContext ctx, char[] data) {
-
+		logger.info("处理报文：" + String.valueOf(data));
 		// 长度大于最长的全遥测，估计是报文杂糅在一起
 //		if (data.length > 262) {
 //			getSwitchAllInfo(ctx, data);
@@ -203,9 +292,9 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			/*
 			 * 为应对老机器中将总召，遥控，遥测值都加在同一份数据块而做的解析
 			 */
-			if (data.length > 36 && isMultiedCode(data)) {
-				getSwitchAllInfo(ctx, data);
-			}
+//			if (data.length > 36 && isMultiedCode(data)) {
+//				getSwitchAllInfo(ctx, data);
+//			}
 		} else if (CharUtils.equals(infoIdenCode, CODE_03)) {
 
 			/*
@@ -237,8 +326,12 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			 */
 			readAllSignal(data);
 		} else {
-			logger.info("undefine message received!");
-			logger.error("接收到的非法数据--------------------" + data);
+			logger.error("接收到的非法数据--------------------" + String.valueOf(data));
+		}
+		//如果设备在被监视，通过回调函数把报文传回website系统。
+		String address = CtxStore.get(ctx).getAddress();
+		if (monitorService.isMonitored(address)) {
+			websiteClient.getService().callbackTextArrived(address, String.valueOf(data));
 		}
 	}
 
@@ -292,35 +385,35 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		return false;
 	}
 
-	/**
-	 * 判断一段报文是不是由几段报文拼凑而成
-	 * 
-	 * @param data
-	 * @return
-	 */
-	private boolean isMultiedCode(char[] data) {
-		for (int i = 0; i < data.length - 1; i++) {
-			// 如果是16开头
-			if (data[i] == '1' && data[i + 1] == '6') {
-				// 如果16在报文结尾，返回false
-				if (data.length == i + 2) {
-					return false;
-				}
-				//如果不是1668xx68的结构，返回false
-				if (i + 9 >= data.length) {
-					return false;
-				}
-				// 如果的确是1668xx68的结构，返回true
-				if (data[i + 2] == '6' 
-						&& data[i + 3] == '8' 
-						&& data[i + 8] == '6' 
-						&& data[i + 9] == '8') {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
+//	/**
+//	 * 判断一段报文是不是由几段报文拼凑而成
+//	 * 
+//	 * @param data
+//	 * @return
+//	 */
+//	private boolean isMultiedCode(char[] data) {
+//		for (int i = 0; i < data.length - 1; i++) {
+//			// 如果是16开头
+//			if (data[i] == '1' && data[i + 1] == '6') {
+//				// 如果16在报文结尾，返回false
+//				if (data.length == i + 2) {
+//					return false;
+//				}
+//				//如果不是1668xx68的结构，返回false
+//				if (i + 9 >= data.length) {
+//					return false;
+//				}
+//				// 如果的确是1668xx68的结构，返回true
+//				if (data[i + 2] == '6' 
+//						&& data[i + 3] == '8' 
+//						&& data[i + 8] == '6' 
+//						&& data[i + 9] == '8') {
+//					return true;
+//				}
+//			}
+//		}
+//		return false;
+//	}
 
 	/**
 	 * 在发送遥控预置操作之后，若开关空闲，则可以开始对本开关进行开合闸操作<br>
@@ -331,6 +424,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	 * 能够快速看到效果，即马上开合闸，不然如果报文因为网速的缘故迟迟不来的话，页面上没看到效果就认为 是这个项目的原因。
 	 * 因为下面的方法是当接收到预执行命令才去调用方法的，通过报文返回的数据来判断是否要去发出执行命令，
 	 * 所以是不会被执行的。如果到时发现了重大的问题，就对发送命令的方法进行重写吧！这个类在这里
+	 * @update：意思是@see标注的两个方法已经同时发送预置命令和执行命令，不按协议来的。之后可以改成@see的方法只发送预置命令，在这个方法接收到预置命令返回报文，再发送执行报文。
 	 * 
 	 * @see HighVoltageSwitchMessageEngine#generateCloseSwitchMessage(String)
 	 * @see HighVoltageSwitchMessageEngine#generateOpenSwitchMessage(String)
@@ -338,9 +432,10 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	private void whetherOperateSwitch(char[] data) {
 
 		/*
-		 * 81代表终端空闲；80代表拒绝
+		 * 81代表终端空闲；80代表拒绝；
 		 */
 		if (data.length > 32) {
+			//81是预置分闸返回报文，82是预置合闸返回报文
 			if (CharUtils.equals(data, 30, 32, CODE_81)) {
 				String address = CharUtils.newString(data, 10, 14).intern();
 				SwitchGPRS gprs = CtxStore.getByAddress(address);
@@ -365,7 +460,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	 * @param data
 	 */
 	private void readAllSignal(char[] data) {
-
+		logger.info("接收全遥信报文：" + String.valueOf(data));
 		String address = CharUtils.newString(data, 10, 14).intern();
 		String id = CtxStore.getIdbyAddress(address);
 
@@ -403,7 +498,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			String new_status = getStr0Or01(data, 66, 68);
 
 			if ("01".equals(s.getStatus()) && "00".equals(new_status)) {
-
+				//open为true表示跳闸成功
 				gprs.setOpen(true);
 
 				HighVoltageHitchEvent event = new HighVoltageHitchEvent();
@@ -420,7 +515,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 
 				logger.info("-----------跳闸成功");
 			} else if ("01".equals(new_status) && "00".equals(s.getStatus())) {
-
+				
 				gprs.setOpen(false);
 
 				HighVoltageHitchEvent event = new HighVoltageHitchEvent();
@@ -477,7 +572,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			/*
 			 * 若data.length=40，遥测变位，测归一值
 			 */
-			logger.info("测归一值-------" + String.valueOf(data));
+			logger.info("接收遥测变化值（测归一值）-------" + String.valueOf(data));
 			// 680e0e68f4680009010301680008400000001a16
 			// 68131368f46600090203016600054000000006402700008116
 			// 68131368f46600090203016600054000000006402700008116
@@ -488,7 +583,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			return;
 		}
 		// 全遥测
-		logger.info("解析CV---------" + String.valueOf(data));
+		logger.info("接收全遥测（解析CV）---------" + String.valueOf(data));
 		String address = CharUtils.newString(data, 10, 14);
 		String id = CtxStore.getIdbyAddress(address);
 		if (id != null) {
@@ -515,16 +610,16 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		 */
 		// 测试报文：68 13 13 68 F3 01 00 1F 01 03 01 01 00 05 00 01 A3 D7 06 0D B3
 		// 03 0A 70 16
-
+		logger.info("接收遥信变位事件---------" + String.valueOf(data));
 		String address = CharUtils.newString(data, 10, 14).intern();
 		HighVoltageStatus s = hvCtxStore.getStatusbyId(CtxStore.getIdbyAddress(address));
 		if (CharUtils.equals(data, 30, 32, CODE_01)) {
-			// 遥信
+			// 遥信 TODO
 		} else {
 
 		}
 		String resu = new HighVoltageDeviceCommandUtil().confirmChangeAffair(address);
-		logger.info("遥信变位事件确定---------" + resu);
+		logger.info("发送遥信变位事件确定---------" + resu);
 		ctx.writeAndFlush(resu, ctx.voidPromise());
 	}
 
@@ -535,9 +630,9 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	 * @param data
 	 */
 	private void confirmSignalInitialChange(ChannelHandlerContext ctx, char[] data) {
-
+		logger.info("接收遥信初步变位事件---------" + String.valueOf(data));
 		String resu = new HighVoltageDeviceCommandUtil().confirmChangeAffair(CharUtils.newString(data, 10, 14));
-		logger.info("遥信变位确定---------" + resu);
+		logger.info("发送遥信变位确定---------" + resu);
 		ctx.writeAndFlush(resu, ctx.voidPromise());
 	}
 
@@ -649,7 +744,9 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		 * 当注册的高压开关的地址不为空，说明已经注册过了，不再进行相关操作
 		 */
 		if (gprs != null && gprs.getAddress() != null) {
-			ctx.channel().writeAndFlush(data);
+			if (CharUtils.startWith(data, EB_UP) || CharUtils.startWith(data, EB_DOWN)) {
+				ctx.channel().writeAndFlush(data);
+			}
 			return;
 		}
 		String address;
