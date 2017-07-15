@@ -321,7 +321,6 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 				&& gprs.getCtx() != null) {
 			return true;
 		} else {
-			
 //			if (gprs == null) {
 //				
 //				logger.info("gprs == null");

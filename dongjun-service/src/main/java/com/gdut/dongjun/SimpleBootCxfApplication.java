@@ -46,10 +46,10 @@ public class SimpleBootCxfApplication {
     public DataSource dataSource() {
 
         ComboPooledDataSource ds = new ComboPooledDataSource();
-        ds.setJdbcUrl("jdbc:mysql://localhost:3306/elecon_service?useUnicode=true&amp;charaterEncoding=utf-8&" +
+        ds.setJdbcUrl("jdbc:mysql://115.28.7.40:3306/elecon_service?useUnicode=true&amp;charaterEncoding=utf-8&" +
                 "zeroDateTimeBehavior=convertToNull");
         ds.setUser("root");
-        ds.setPassword("root");//elecon
+        ds.setPassword("topview+624");//elecon
         try {
             ds.setDriverClass("com.mysql.jdbc.Driver");
         } catch (PropertyVetoException e) {

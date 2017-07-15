@@ -35,4 +35,14 @@ public interface WebsiteService {
     @Path("/callback_hitch_event")
     @Consumes({MediaType.APPLICATION_JSON})
     public void callbackHitchEvent(HitchEventVO event);
+    
+    /**
+     * 实时检测设备报文到达时执行的回调
+     * @param switchId
+     * @param text
+     */
+    @POST
+    @Path("/callback_text_arrived")
+    @Consumes({MediaType.APPLICATION_JSON})
+    public void callbackTextArrived(@FormParam("switchId")String switchId, @FormParam("switchId")String text);
 }

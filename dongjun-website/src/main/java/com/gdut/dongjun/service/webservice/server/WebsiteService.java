@@ -25,4 +25,14 @@ public interface WebsiteService {
    // @Consumes({MediaType.APPLICATION_JSON})
     public void callbackDeviceChange(@FormParam("switchId") String switchId,
                                      @FormParam("type") Integer type);
+    
+    /**
+     * 实时检测设备报文到达时执行的回调
+     * @param switchId
+     * @param text
+     */
+    @POST
+    @Path("/callback_text_arrived")
+    @Consumes({MediaType.APPLICATION_JSON})
+    public void callbackTextArrived(@FormParam("switchId")String switchId, @FormParam("switchId")String text);
 }

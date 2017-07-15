@@ -14,11 +14,11 @@ import com.gdut.dongjun.domain.po.TemperatureMeasureHitchEvent;
  * @author Gordan_Deng
  * @date 2017年3月4日
  */
-@Component
+//@Component
 public class HitchEventManager {
 	
-	@Autowired
-	private TemperatureHitchEventThreadFactory temHitchEventThreadFactroy;
+//	@Autowired
+//	private TemperatureHitchEventThreadFactory temHitchEventThreadFactroy;
 
 	protected static ExecutorService fixedPool = Executors
 			.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
@@ -28,6 +28,6 @@ public class HitchEventManager {
 	 * @param event
 	 */
 	public void addHitchEvent(TemperatureMeasureHitchEvent event) {
-		fixedPool.execute(temHitchEventThreadFactroy.buildHitchEventThread(event));
+//		fixedPool.execute(temHitchEventThreadFactroy.buildHitchEventThread(event));
 	}
 }

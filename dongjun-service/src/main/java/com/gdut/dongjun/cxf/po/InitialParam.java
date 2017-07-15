@@ -5,9 +5,11 @@ import java.util.List;
 import com.gdut.dongjun.po.HighVoltageSwitch;
 import com.gdut.dongjun.po.Line;
 import com.gdut.dongjun.po.Substation;
+import com.sun.xml.txw2.annotation.XmlElement;
 
 /**
  * Created by symon on 16-9-29.
+ * @update: 地方系统上线时候将所有信息更新到系统中
  */
 @XmlElement(value = "initialParam")
 public class InitialParam {

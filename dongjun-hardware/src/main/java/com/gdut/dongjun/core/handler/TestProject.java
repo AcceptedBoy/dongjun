@@ -1,65 +1,78 @@
 package com.gdut.dongjun.core.handler;
 
 public class TestProject {
-	
+
 	public static void main(String[] args) {
-		Good g = new Good();
-		Consumer c = new Consumer(g);
-		Producer p = new Producer(g);
-		new Thread(c).start();
-		new Thread(p).start();
+		Clerk cl = new Clerk();
+		Producer p = new Producer(cl);
+		Consumer c = new Consumer(cl);
+		new Thread(p, "生产者 A").start();
+		new Thread(c, "消费者 B").start();
+		new Thread(p, "生产者 C").start();
+		new Thread(c, "消费者 D").start();
 	}
+
 }
 
-class Good {
-	public int product = 0;
-}
+class Clerk {
 
-class Consumer implements Runnable {
-	
-	private Good g;
-	public Consumer(Good g) {
-		this.g = g;
-	}
-	
-	@Override
-	public void run() {
-		for (int i = 0; i < 10; i++) {
-			while (g.product == 0) {
-				//无商品时等待
-				try {
-					g.wait();
-					System.out.println("缺货了");
-				} catch (InterruptedException e) {
-				}
+	private int product = 0;
+
+	public synchronized void get() {
+		while (product >= 10) {
+			try {
+				this.wait();
+				System.out.println("满货");
+			} catch (InterruptedException e) {
 			}
-			System.out.println(Thread.currentThread().getName() + " 消费 : " + --g.product);
-			g.notifyAll();
 		}
+		System.out.println(Thread.currentThread().getName() + " : " + ++product);
+
+		this.notifyAll();
+
 	}
-	
+
+	public synchronized void sale() {
+		while (product <= 0) {
+			System.out.println("缺货");
+			try {
+				this.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		System.out.println(Thread.currentThread().getName() + " : " + --product);
+		this.notifyAll();
+
+	}
 }
 
 class Producer implements Runnable {
-	
-	private Good g;
-	public Producer(Good g) {
-		this.g = g;
+	private Clerk clerk;
+
+	public Producer(Clerk c) {
+		this.clerk = c;
 	}
-	
+
 	@Override
 	public void run() {
-		for (int i = 0; i < 10; i++) {
-			while (g.product >= 5) {
-				try {
-					//产品过剩时候等待
-					g.wait();
-					System.out.println("产品过剩");
-				} catch (InterruptedException e) {
-				}
-			}
-			System.out.println(Thread.currentThread().getName() + " 生产 : " + ++g.product);
-			g.notifyAll();
+		for (int i = 0; i < 20; i++) {
+			clerk.get();
+		}
+	}
+}
+
+class Consumer implements Runnable {
+	private Clerk clerk;
+
+	public Consumer(Clerk c) {
+		this.clerk = c;
+	}
+
+	@Override
+	public void run() {
+		for (int i = 0; i < 20; i++) {
+			clerk.sale();
 		}
 	}
 }

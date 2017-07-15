@@ -72,7 +72,7 @@ public interface HardwareService {
     public boolean changeCtxOpen(String switchId);
 
     /**
-     * 获取所有在线开关的详细状态
+     * 获取所有在线开关的详细状态，影响地图上开关的颜色。灰色是没上线，绿色为分闸，红色为合闸
      */
     @POST
     @Path("/active_switch_status")
@@ -88,4 +88,19 @@ public interface HardwareService {
     @Path("/whether_change")
     @Consumes({MediaType.APPLICATION_JSON})
     public boolean whetherChangeInfo();
+    
+    @POST
+    @Path("/send_text")
+    @Consumes({MediaType.APPLICATION_JSON})
+    public boolean sendText(String switchId, String text);
+    
+    @POST
+    @Path("/regis_monitor")
+    @Consumes({MediaType.APPLICATION_JSON})
+    public boolean regisMonitor(String switchId);
+    
+    @POST
+    @Path("/remove_monitor")
+    @Consumes({MediaType.APPLICATION_JSON})
+    public boolean removeMonitor(String switchId);
 }

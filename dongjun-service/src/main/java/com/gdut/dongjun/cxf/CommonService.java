@@ -1,18 +1,26 @@
 package com.gdut.dongjun.cxf;
 
 
-import org.apache.cxf.jaxrs.ext.multipart.Multipart;
-import org.aspectj.lang.annotation.Pointcut;
-
-import com.gdut.dongjun.cxf.po.InitialParam;
-import com.gdut.dongjun.po.*;
-import com.gdut.dongjun.vo.AvailableHighVoltageSwitch;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.MediaType;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+import com.gdut.dongjun.cxf.dto.CompanyDTO;
+import com.gdut.dongjun.cxf.po.InitialParam;
+import com.gdut.dongjun.po.HighVoltageSwitch;
+import com.gdut.dongjun.po.Line;
+import com.gdut.dongjun.po.Substation;
+import com.gdut.dongjun.po.ZTreeNode;
+import com.gdut.dongjun.vo.AvailableHighVoltageSwitch;
 
 
 /**
@@ -118,10 +126,10 @@ public interface CommonService extends Serializable {
     @Consumes({MediaType.APPLICATION_JSON})
     public Map<String, Boolean> systemInitial(InitialParam initialParam);
 
-    @POST
-    @Path("/register_service")
-    public Center registerService(@FormParam("ipAddr") Long ipAddr,
-                                  @FormParam("macAddr") String macAddr);
+//    @POST
+//    @Path("/register_service")
+//    public Center registerService(@FormParam("ipAddr") Long ipAddr,
+//                                  @FormParam("macAddr") String macAddr);
 
     @POST
     @Path("/switch_tree")
@@ -133,4 +141,5 @@ public interface CommonService extends Serializable {
     @Path("/switchs_of_line")
     public List<AvailableHighVoltageSwitch> switchsOfLine(@FormParam("type") Integer type,
                                                           @FormParam("lineId") String lineId);
+    
 }
