@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>电网智能监控系统 - 上海东君电气有限公司</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<!-- Le styles -->
+<link href="../static/css/bootstrap.css" rel="stylesheet" />
+<link href="../static/css/bootstrap-responsive.css" rel="stylesheet" />
+<link href="../static/css/ZTree/zTreeStyle.css" rel="stylesheet" />
+<link href="../static/css/index.css" rel="stylesheet" />
+<link href="../static/css/global.css" rel="stylesheet" />
+<link href="../static/css/chat.css" rel="stylesheet" />
+
+
+<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+<!--[if lt IE 9]>
+    <script src="../../js/html5shiv.js"></script>
+  <![endif]-->
+
+<!-- Fav and touch icons -->
+<link rel="shortcut icon" href="../static/img/logo.png" />
+<link
+	href="http://cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.min.css"
+	rel="stylesheet" />
+
+</head>
+<body>
+  <span style="display: none" id="module" data-web="2"></span>
+	<div class="container-fluid">
+		<div class="hero-unit">
+			<div class="row-fluid">
+				<div class="span5">
+					<h2>
+						<img src="../static/img/logo.png" style="height: 65px" />电网智能监控系统
+              <span class="label label-default">1.10</span>
+					</h2>
+				</div>
+				<div class="span6 MENU">
+					<a href="index" class="btn banner-btn btn-primary"><i class="fa fa-map-marker"></i>监控</a>
+          <a href="low_voltage_switch_manager" class="btn banner-btn btn-primary" id="manage"><i class="fa fa-cog"></i>管理</a>
+					<a href="current_voltage_chart" class="btn banner-btn btn-primary"><i class="fa fa-area-chart"></i>报表</a>
+          <a href="low_voltage_hitch_event_manager" class="btn banner-btn btn-primary" id="event"><i class="fa fa-user"></i>事件</a>
+				</div>
+        <div class="span1 log_out">
+            <button class="btn btn-danger" id="log_out">退出</button>
+        </div>
+			</div>
+		</div>
+		
+		<div class="row-fluid">
+			<div class="span2 container-fluid well sidebar-nav">
+				<ul class="nav nav-list bs-docs-sidenav" id="menu">
+					<li class="nav-header">资源管理</li>
+					<li><a href="substation_manager">变电站管理</a></li>
+					<li><a href="line_manager">线路管理</a></li>
+					<li class="nav-header">回路管理</li>
+					<li><a href="low_voltage_switch_manager">低压开关管理</a></li>
+					<li><a href="high_voltage_switch_manager">高压开关管理</a></li>
+					<li><a href="control_measure_switch_manager">无功补偿开关管理</a></li>
+          <!-- <li><a href="">温度监控</a></li> -->
+					<!--<li class="nav-header">事件管理</li>-->
+					<!--<li><a href="low_voltage_hitch_event_manager">低压开关故障事件</a></li>-->
+					<!--<li><a href="high_voltage_hitch_event_manager">高压开关故障事件</a></li>-->
+					<!--<li><a href="control_measure_hitch_event_manager">无功补偿开关故障事件</a></li>-->
+				</ul>
+			</div>
+
+			<div class="span10 container">
+				<div class="main-container">
+					<div class="chat-title">
+						<b>设备名称：</b>123123131
+					</div>
+					<div class="content">
+						<div class="chat-board">
+						</div>
+						<div class="text-board">
+							<textarea class="send-content"></textarea>
+						</div>
+						<div class="btn-list">
+							<button class="btn btn-primary" id="sendAll">总召</button>
+							<button class="btn btn-primary" id="sendMsg">发送</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</div>
+
+		<footer>
+			<p>&copy; Company 2013</p>
+		</footer>
+	</div>
+
+	<script src="../static/js/jquery.js"></script>
+	<script src="../static/js/bootstrap-transition.js"></script>
+	<script src="../static/js/bootstrap-alert.js"></script>
+	<script src="../static/js/bootstrap-modal.js"></script>
+	<script src="../static/js/bootstrap-dropdown.js"></script>
+	<script src="../static/js/bootstrap-scrollspy.js"></script>
+	<script src="../static/js/bootstrap-tab.js"></script>
+	<script src="../static/js/bootstrap-tooltip.js"></script>
+	<script src="../static/js/bootstrap-popover.js"></script>
+	<script src="../static/js/bootstrap-button.js"></script>
+	<script src="../static/js/bootstrap-collapse.js"></script>
+	<script src="../static/js/bootstrap-carousel.js"></script>
+	<script src="../static/js/bootstrap-typeahead.js"></script>
+
+	<!-- 树状图 和 百度地图 --><!-- 
+	<script src="../../js/ZTree/jquery.ztree.core-3.5.js"></script>
+	<script type="text/javascript" src="../../js/ZTree/jquery.ztree.excheck.js"></script>
+	<script
+		src="http://api.map.baidu.com/api?v=1.5&amp;ak=KdwNinCQXF9C7Cu8GOWK0nuM"></script> -->
+<!-- 	<script src="../../js/custom/index.js"></script>
+	<script src="../../js/custom/switch_detail.js"></script> -->
+
+	<!-- sockjs, storm -->
+	<script src="../static/js/websocket/sockjs.min.js"></script>
+	<script src="../static/js/websocket/storm.js"></script>
+
+  <!-- 引入全局函数 -->
+  <script src="../static/js/custom/gobal.js"></script>
+  <script src="../static/js/custom/chat.js"></script>
+
+ <!--  <script src="../../js/custom/monitor/djMap.js"></script>
+	<script src="../../js/custom/monitor/infoWin.js"></script>
+	<script src="../../js/custom/monitor/tree.js"></script>
+	<script src="../../js/custom/monitor/switch.js"></script>
+	<script src="../../js/custom/monitor/sockClient.js"></script> -->
+</body>
+</html>
