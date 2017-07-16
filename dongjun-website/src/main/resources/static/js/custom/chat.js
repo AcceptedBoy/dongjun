@@ -1,4 +1,12 @@
 (function() {
+  var api = {
+    read: '/dongjun/read_text',
+    send: '/dongjun/send_text',
+    stop: '/donjun/stop_read_text',
+    queue: 'queue/read_text',
+    infor: ''
+  }
+
   var socket = new SockJS('/portfolio')
   var stompClient = Stomp.over(socket)
   var switchId = location.href.split('#')[1]
@@ -9,7 +17,7 @@
 
   function startRead () {
     $.ajax({
-      url: '/dongjun/read_text',
+      url: api.read,
       data: {
         switchId: switchId
       }
@@ -18,15 +26,34 @@
 
   function stopRead () {
     $.ajax({
-      url: '/dongjun/stop_read_text',
+      url: api.stop,
       data: {
         switchId: switchId
       }
     })
   }
 
+  function setTitle (op) {
+    $('.equipmentName').text(op.name)
+    // ...
+  }
+
+  function askTitle () {
+    $.ajax({
+      url: '',
+      data: {
+        switchId: switchId
+      },
+      success: function(res) {
+        if(res.success) {
+          setTitle(res.text)
+        }
+      }
+    })
+  }
+
   stompClient.connect({}, function (frame) {
-    stompClient.subscribe('queue/read_text', function(msg) {
+    stompClient.subscribe(api.queue, function(msg) {
       addItem('接收', JSON.parse(message.text))
     })
   })
@@ -37,7 +64,7 @@
     var msg = $('.send-content').val()
     if(msg) {
       $.ajax({
-        url: '/dongjun/send_text',
+        url: api.send,
         data: {
           text: $('.send-content').val(),
           switchId: switchId
@@ -58,7 +85,7 @@
     if(event.keyCode == 13) {
       if(msg) {
         $.ajax({
-          url: '/dongjun/send_text',
+          url: api.send,
           data: {
             text: $('.send-content').val(),
             switchId: switchId
@@ -79,7 +106,10 @@
   })
 
   // 加载好页面后告诉后台开始订阅
-  $(window).load(startRead)
+  $(window).load(function () {
+    startRead()
+    askTitle()
+  })
 
   window.onbeforeunload = function() {
     stopRead()
