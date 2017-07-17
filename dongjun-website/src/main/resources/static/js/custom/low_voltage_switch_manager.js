@@ -308,3 +308,11 @@ function enterMap() {
 	localStorage.setItem('latitude', latitude);
 	location.href = "index";
 }
+
+function handleClick(e) {
+	var column = $(this).parent("td").prevAll()
+	if(localStorage) {
+		localStorage.setItem('switchId', column[11].innerHTML)
+		location.href = '/dongjun/chat'
+	}
+}
