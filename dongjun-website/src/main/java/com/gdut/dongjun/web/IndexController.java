@@ -85,6 +85,11 @@ public class IndexController {
 	public String currentVoltageChart() {
 		return "current_voltage_chart";
 	}
+	
+	@RequestMapping("/chat")
+	public String chat() {
+		return "chat";
+	}
 
 	/**
 	 * 

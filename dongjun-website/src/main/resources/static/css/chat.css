@@ -30,6 +30,7 @@
   padding: 10px 20px;
   color: black;
   font-size: 1.3em;
+  width: 100%;
 }
 
 .text-board {
@@ -62,4 +63,32 @@
 .chat-item {
   margin: 15px;
   font-size: 1.2em;
+}
+
+.switchNum, .switchName {
+  margin-right: 25px;
+}
+
+.return {
+  display: inline-block;
+  width: 25px;
+  height: 25px;
+  padding: 0px;
+  margin-right: 10px;
+  font-size: 2em;
+  position: relative;
+  top: 5px;
+  cursor: pointer;
+}
+
+.return::after {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  background-color: red;
+}
+
+.return-font {
+  cursor: pointer;
+  margin-right: 38px;
 }
