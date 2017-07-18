@@ -16,6 +16,8 @@ $(document).ready(function() {
 	$(".enter_map").click(enterMap);
 	$(".location_switch_btn").click(locateSwitch);
 
+	// $(".chat-btn").click(handleClick)
+
 	/**
 	 * 编辑提交
 	 */
@@ -101,7 +103,7 @@ function reloadDataTable(lineId){
 		"ajax": "high_voltage_switch_list_by_line_id.action?lineId="+lineId,
         "columns": [
             { "data": "deviceNumber" },
-            { "data": "name" },
+            { "data": "name", "maxWidth": "100px" },
             { "data": "showName"},
             { 	"data": "id",
             	"sClass": "dpass"
@@ -118,28 +120,34 @@ function reloadDataTable(lineId){
 	        { "data": null},
             { "data": null},// 设置默认值 null，表示列不会获得数据源对象的信息,否则默认值会被覆盖掉
             { "data": null},// 设置默认值 null，表示列不会获得数据源对象的信息,否则默认值会被覆盖掉
+            { "data": null},
             { "data": null}
         ],
 
         // 为下面的列设置默认值
         "columnDefs": [ {
-            "targets": -4,
+            "targets": -5,
             "data": null,
             "defaultContent": '<button class="btn btn enter_map">进入地图</button>'
         },{
-            "targets": -3,
+            "targets": -4,
             "data": null,
             "defaultContent": '<a href="#edit_switch_modal" role="button" class="edit_switch_btn btn" data-toggle="modal">修改</a>'
         },
         {
-            "targets": -2,
+            "targets": -3,
             "data": null,
             "defaultContent": '<a href="#del_switch_modal" class="del_switch_btn btn btn-danger" data-toggle="modal" data-backdrop="static">删除 </a>'
         },
         {
-        	"targets": -1,
+        	"targets": -2,
             "data": null,
             "defaultContent": '<a href="#location_switch_modal" role="button" class="location_switch_btn btn btn-primary" data-toggle="modal">设为定位中心</a>'
+        },
+        {
+        	"targets": -1,
+            "data": null,
+            "defaultContent": '<a class="chat-btn btn btn-primary">实时操控</a>'
         }
         ],
         'language': {
@@ -156,6 +164,7 @@ function reloadDataTable(lineId){
         	$(".del_switch_btn").unbind().click(delSwitch);
         	$(".enter_map").unbind().click(enterMap);
         	$(".location_switch_btn").unbind().click(locateSwitch);
+        	$(".chat-btn").click(handleClick)
           }
     } );
 
@@ -294,4 +303,20 @@ function locateSwitch() {
 			}
 		}
 	})
+}
+
+
+function handleClick(e) {
+	var column = $(this).parent("td").prevAll()
+	if(localStorage) {
+		var switchConfig = {
+			switchId: column[11].innerHTML,
+			showName: column[12].innerHTML,
+			switchName: column[13].innerHTML,
+			switchNum: column[14].innerHTML
+		}
+		var localData = JSON.stringify(switchConfig)
+		localStorage.setItem('switchConfig', localData)
+		location.href = '/dongjun/chat'
+	}
 }
