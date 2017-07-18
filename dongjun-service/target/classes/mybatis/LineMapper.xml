@@ -20,15 +20,27 @@
     id, name, substation_id
   </sql>
   
-  <select id="selectByParameters" resultMap="BaseResultMap">
+  	<select id="selectByParameters" resultMap="BaseResultMap">
 		select * from line where 1 = 1
+		<if test="map != null">
+			<foreach collection="map.entrySet()" index="key" item="item">
+				and
+				${key} =
+				#{item}
+			</foreach>
+		</if>
+	</select>
+	<delete id="deleteByParameters">
+		delete from line
+		where
+		1 = 1
 		<if test="map != null">
 			<foreach item="item" index="key" collection="map.entrySet()">
 				and ${key} =
 				#{item}
 			</foreach>
 		</if>
-	</select>
+	</delete>
   
   
   

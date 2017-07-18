@@ -651,8 +651,9 @@ public class CommandController {
 	 */
 	@RequestMapping("/send_text")
 	@ResponseBody
-	public void sendText(String switchId, String text, HttpSession session) {
-		hardwareClient.getService().sendText(switchId, text);
+	public void sendText(String switchId, String text, int type, HttpSession session) {
+		hardwareClient.getService().sendText(switchId, text, 1);
 	}
+	
 
 }

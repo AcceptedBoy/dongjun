@@ -33,7 +33,7 @@ public class CenterServiceImpl extends BaseServiceImpl<Center>
 
         Map<String, Object> checkParam = new HashMap<>();
         checkParam.put("ip_addr", record.getIpAddr());
-        checkParam.put("mac_addr", record.getMacAddr());
+//        checkParam.put("mac_addr", record.getMacAddr());
 
         if (!CollectionUtils.isEmpty(centerMapper.selectByParameters(checkParam))) {
             return true;

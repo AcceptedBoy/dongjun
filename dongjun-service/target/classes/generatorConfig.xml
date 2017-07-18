@@ -18,20 +18,12 @@
 		<javaClientGenerator targetPackage="com.gdut.dongjun.dao"
 			targetProject="D:\\WORKING\\git\\dongjun_dzc\\dongjun-service" type="XMLMAPPER" />
 			
-		<table schema="root" tableName="center"
-			domainObjectName="Center" enableCountByExample="false"
-			enableUpdateByExample="false" enableDeleteByExample="false"
-			enableSelectByExample="false" selectByExampleQueryId="false" />
 
-			<table schema="root" tableName="line"
-			domainObjectName="Line" enableCountByExample="false"
+			<table schema="root" tableName="company"
+			domainObjectName="Company" enableCountByExample="false"
 			enableUpdateByExample="false" enableDeleteByExample="false"
 			enableSelectByExample="false" selectByExampleQueryId="false" />
 	
-			<table schema="root" tableName="high_voltage_switch"
-			domainObjectName="HighVoltageSwitch" enableCountByExample="false"
-			enableUpdateByExample="false" enableDeleteByExample="false"
-			enableSelectByExample="false" selectByExampleQueryId="false" />
 			
 	</context>
 </generatorConfiguration>

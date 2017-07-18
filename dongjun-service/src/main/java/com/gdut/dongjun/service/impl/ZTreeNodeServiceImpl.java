@@ -27,7 +27,7 @@ import java.util.List;
  * @date 2015年8月3日 下午5:29:17
  * @version V1.0
  */
-@Component
+//@Component
 public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 
 	@Autowired

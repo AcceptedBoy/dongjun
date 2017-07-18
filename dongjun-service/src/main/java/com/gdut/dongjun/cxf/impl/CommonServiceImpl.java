@@ -1,22 +1,26 @@
 package com.gdut.dongjun.cxf.impl;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.cxf.common.util.StringUtils;
+import javax.servlet.http.HttpServletRequest;
+
+import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.PhaseInterceptorChain;
+import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 
 import com.gdut.dongjun.cxf.CommonService;
 import com.gdut.dongjun.cxf.po.InitialParam;
-import com.gdut.dongjun.po.Center;
+import com.gdut.dongjun.po.Company;
 import com.gdut.dongjun.po.HighVoltageSwitch;
 import com.gdut.dongjun.po.Line;
 import com.gdut.dongjun.po.Substation;
 import com.gdut.dongjun.po.ZTreeNode;
 import com.gdut.dongjun.service.CenterService;
+import com.gdut.dongjun.service.CompanyService;
 import com.gdut.dongjun.service.HighVoltageSwitchService;
 import com.gdut.dongjun.service.LineService;
 import com.gdut.dongjun.service.SubstationService;
@@ -31,18 +35,16 @@ public class CommonServiceImpl implements CommonService {
 
     @Autowired
     private SubstationService substationService;
-
     @Autowired
     private LineService lineService;
-
     @Autowired
     private HighVoltageSwitchService hvSwitchService;
-
     @Autowired
     private CenterService centerService;
-
     @Autowired
     private ZTreeNodeService treeNodeService;
+    @Autowired
+    private CompanyService companyService;
 
     private static final Map<String, Boolean> SUCCESS = new HashMap<String, Boolean>(1) {{
         put("success", true);
@@ -101,10 +103,12 @@ public class CommonServiceImpl implements CommonService {
         hvSwitchService.updateByPrimaryKeySelective(hvSwitch);
         return SUCCESS;
     }
+    
+    
 
     @Override
     public Map<String, Boolean> systemInitial(InitialParam initialParam) {
-
+        
         List<Substation> substationList = initialParam.getSubstationList();
         List<Line> lineList = initialParam.getLineList();
         List<HighVoltageSwitch> hvswitchList = initialParam.getHvswitchList();
@@ -185,4 +189,5 @@ public class CommonServiceImpl implements CommonService {
         }
         return null;
     }
+
 }

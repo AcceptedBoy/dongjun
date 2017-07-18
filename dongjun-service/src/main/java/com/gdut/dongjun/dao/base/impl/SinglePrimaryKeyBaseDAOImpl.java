@@ -88,5 +88,10 @@ public class SinglePrimaryKeyBaseDAOImpl<T> implements
 
 		return getFirstInterface() + "." + methodName;
 	}
+	
+	@Override
+	public int deleteByParameters(Map<String, Object> map) {
+		return template.delete(getNamespace("deleteByParameters"), map);
+	}
 
 }

@@ -162,6 +162,7 @@ public class HardwareServiceImpl implements HardwareService {
 	 * @param address
 	 * @param callMsg
 	 */
+	@Deprecated
 	private void handleOldMachineTotalCall(String address, String callMsg) {
 		List<AbnormalDevice> abDevices = abDeviceService.selectByParameters(null);
 		
@@ -302,9 +303,13 @@ public class HardwareServiceImpl implements HardwareService {
 	}
 
 	@Override
-	public boolean sendText(String switchId, String text) {
-		String addr = monitorService.getDeviceAddressBySwitchId(switchId);
-		CtxStore.getByAddress(addr).getCtx().writeAndFlush(text);
+	public boolean sendText(String switchId, String text, Integer type) {
+		if (type == 0) {
+			String addr = monitorService.getDeviceAddressBySwitchId(switchId);
+			CtxStore.getByAddress(addr).getCtx().writeAndFlush(text);
+		} else if (type == 1) {
+			//总召
+		}
 		return true;
 	}
 

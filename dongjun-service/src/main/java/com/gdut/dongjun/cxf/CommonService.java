@@ -14,8 +14,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import com.gdut.dongjun.cxf.dto.CompanyDTO;
 import com.gdut.dongjun.cxf.po.InitialParam;
+import com.gdut.dongjun.po.Company;
 import com.gdut.dongjun.po.HighVoltageSwitch;
 import com.gdut.dongjun.po.Line;
 import com.gdut.dongjun.po.Substation;

@@ -85,6 +85,15 @@ public class IndexController {
 	public String currentVoltageChart() {
 		return "current_voltage_chart";
 	}
+	
+	/**
+	 * 返回实时操控设备页面
+	 * @return
+	 */
+	@RequestMapping("/chat")
+	public String chat() {
+		return "chat";
+	}
 
 	/**
 	 * 

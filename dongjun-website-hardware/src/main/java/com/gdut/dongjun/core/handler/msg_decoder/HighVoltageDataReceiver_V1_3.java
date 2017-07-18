@@ -247,27 +247,35 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 
 	private void handleIdenCode(ChannelHandlerContext ctx, char[] data, String hitchEventDesc) {
 
-		logger.info("处理报文：" + String.valueOf(data));
-		
-		if (data.length < 16) {
-			return;
-		}
-		
-		//如果设备没注册，发过来68开头的报文，会进行注册
-		if (!(CharUtils.startWith(data, EB_UP) || CharUtils.startWith(data, EB_DOWN)) && CharUtils.startWith(data, CODE_68)) {
+		/*
+		 * 这里做一个设备的注册，以免系统重启后设备不再发送eb90报文，出现设备不上线的情况
+		 */
+		if (!(CharUtils.startWith(data, EB_UP) || CharUtils.startWith(data, EB_DOWN))
+				&& CharUtils.endsWith(data, CODE_16)) {
 			AttributeKey<Integer> key = AttributeKey.valueOf("isRegisted");
 			Attribute<Integer> attr = ctx.attr(key);
 			if (null == attr.get()) {
 				getOnlineAddress(ctx, data);
 				attr.set(1);
 			}
-		} else {
-			//eb90注册报文
+		} else if (CharUtils.startWith(data, EB_UP) || CharUtils.startWith(data, EB_DOWN)) {
 			getOnlineAddress(ctx, data);
 			return ;
 		}
+		// 未续费的设备的报文不接受
+		SwitchGPRS gprs = CtxStore.get(ctx);
+		if (!hvCtxStore.isAddrAvailable(gprs.getAddress())) {
+			logger.info("未续费的设备报文：" + String.valueOf(data));
+			return;
+		}
+		
+		logger.info("处理报文：" + String.valueOf(data));
+		
+		if (data.length < 16) {
+			return;
+		}
+		
 		char[] infoIdenCode = CharUtils.subChars(data, BYTE * 7, BYTE);
-//		String infoIdenCode = data.substring(14, 16);
 
 		/*
 		 * 将接收到的客户端信息分类处理 读通信地址并将地址反转
