@@ -4,7 +4,7 @@ import com.gdut.dongjun.domain.po.HighVoltageSwitch;
 import com.gdut.dongjun.domain.po.Line;
 import com.gdut.dongjun.domain.po.Substation;
 import com.gdut.dongjun.service.common.CommonSwitch;
-import com.gdut.dongjun.service.webservice.client.CentorServiceClient;
+import com.gdut.dongjun.service.webservice.client.CommonServiceClient;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 public class CentorAspect {
 
     @Autowired
-    private CentorServiceClient centorServiceClient;
+    private CommonServiceClient centorServiceClient;
 
     @Autowired
     private CommonSwitch commonSwitch;

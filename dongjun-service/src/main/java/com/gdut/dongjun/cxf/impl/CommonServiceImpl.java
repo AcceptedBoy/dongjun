@@ -108,7 +108,14 @@ public class CommonServiceImpl implements CommonService {
 
     @Override
     public Map<String, Boolean> systemInitial(InitialParam initialParam) {
-        
+        //获取调用方的ip地址，如果数据库没有与此ip地址对应的公司，则无视此次调用。
+    	Message message = PhaseInterceptorChain.getCurrentMessage();  
+    	HttpServletRequest httprequest = (HttpServletRequest)message.get(AbstractHTTPDestination.HTTP_REQUEST);  
+    	String ipAddr = httprequest.getRemoteAddr();
+    	List<Company> coms = companyService.selectByParameters(MyBatisMapUtil.warp("ip_addr", ipAddr));
+    	if (null == coms || 0 == coms.size()) {
+    		return null;
+    	}
         List<Substation> substationList = initialParam.getSubstationList();
         List<Line> lineList = initialParam.getLineList();
         List<HighVoltageSwitch> hvswitchList = initialParam.getHvswitchList();
@@ -125,7 +132,7 @@ public class CommonServiceImpl implements CommonService {
         }
         if (!CollectionUtils.isEmpty(hvswitchList)) {
             for (HighVoltageSwitch highVoltageSwitch : hvswitchList) {
-                hvSwitchService.updateByPrimaryKey(highVoltageSwitch);
+                hvSwitchService.updateByPrimaryKeySelective(highVoltageSwitch);
             }
         }
         return SUCCESS;

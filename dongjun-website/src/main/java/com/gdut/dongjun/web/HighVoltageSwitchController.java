@@ -5,7 +5,7 @@ import com.gdut.dongjun.domain.vo.AvailableHighVoltageSwitch;
 
 import com.gdut.dongjun.service.common.CommonSwitch;
 import com.gdut.dongjun.service.device.HighVoltageSwitchService;
-import com.gdut.dongjun.service.webservice.client.CentorServiceClient;
+import com.gdut.dongjun.service.webservice.client.CommonServiceClient;
 import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 import com.gdut.dongjun.service.webservice.client.po.SwitchGPRS;
 import com.gdut.dongjun.util.*;
@@ -41,7 +41,7 @@ public class HighVoltageSwitchController {
 	private HardwareServiceClient hardwareClient;
 
 	@Autowired
-	private CentorServiceClient centorServiceClient;
+	private CommonServiceClient centorServiceClient;
 
 	@Autowired
 	private CommonSwitch commonSwitch;

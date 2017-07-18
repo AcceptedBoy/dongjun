@@ -24,32 +24,21 @@ public class CenterCallServiceImpl implements CenterCallService {
 	@Override
 	public void updateSwitchAddressAvailable(List<String> addrs) {
 		//10进制的数字转换为16进制
-		List<String> hexAddr = new ArrayList<String>();
+		List<String> realAddr = new ArrayList<String>();
 		for (String addr : addrs) {
-			char[] char_addr = Integer.toHexString(Integer.parseInt(addr)).toCharArray();
-			char[] address = new char[4];
-			if (char_addr.length != 4) {
-				for (int i = 0; i < 4; i++) {
-					if (i < char_addr.length) {
-						address[i] = char_addr[i];
-					} else {
-						address[i] = 0;
-					}
+			String hexAddr = String.valueOf(Integer.toHexString(Integer.parseInt(addr)));
+			StringBuilder sb = new StringBuilder();
+			if (hexAddr.length() < 4) {
+				for (int i = 0; i < 4 - hexAddr.length(); i++) {
+					sb.append("0".intern());
 				}
 			}
-			String address1 = String.valueOf(address);
-			address1  = HighVoltageDeviceCommandUtil.reverseString(address1);
-			hexAddr.add(address1);
+			sb.append(hexAddr);
+			String address = HighVoltageDeviceCommandUtil.reverseString(
+					sb.toString());
+			realAddr.add(address);
 		}
-		ctxStore.setAvailableAddrList(hexAddr);
-	}
-	
-	private Object removeCtxAttribute(ChannelHandlerContext ctx, String name) {
-		AttributeKey<Object> key = AttributeKey.valueOf(name);
-		Attribute<Object> attr = ctx.attr(key);
-		Object temp = attr.get();
-		attr.remove();
-		return temp;
+		ctxStore.setAvailableAddrList(realAddr);
 	}
 
 }

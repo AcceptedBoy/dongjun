@@ -3,7 +3,7 @@ package com.gdut.dongjun.web;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.service.ZTreeNodeService;
 import com.gdut.dongjun.service.common.CommonSwitch;
-import com.gdut.dongjun.service.webservice.client.CentorServiceClient;
+import com.gdut.dongjun.service.webservice.client.CommonServiceClient;
 import com.gdut.dongjun.util.EncoderUtil;
 import com.gdut.dongjun.util.VoiceFixUtil;
 
@@ -30,7 +30,7 @@ public class IndexController {
 	private CommonSwitch commonSwitch;
 
 	@Autowired
-	private CentorServiceClient centorServiceClient;
+	private CommonServiceClient centorServiceClient;
 
 	/**
 	 * 

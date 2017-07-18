@@ -22,7 +22,7 @@ import com.gdut.dongjun.service.webservice.client.po.InitialParam;
 
 
 @Produces({MediaType.APPLICATION_JSON})
-public interface CenterService extends Serializable {
+public interface CommonService extends Serializable {
 
     /**
      * 添加变电站

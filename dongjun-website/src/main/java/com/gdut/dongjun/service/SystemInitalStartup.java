@@ -1,41 +1,39 @@
 package com.gdut.dongjun.service;
 
-import com.gdut.dongjun.service.common.CommonSwitch;
-import com.gdut.dongjun.service.device.HighVoltageSwitchService;
-import com.gdut.dongjun.service.webservice.client.CentorServiceClient;
-import com.gdut.dongjun.service.webservice.client.po.InitialParam;
-import com.gdut.dongjun.util.NetUtil;
+import java.util.List;
+
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import com.gdut.dongjun.domain.po.Company;
+import com.gdut.dongjun.service.common.CommonSwitch;
+import com.gdut.dongjun.service.device.HighVoltageSwitchService;
+import com.gdut.dongjun.service.webservice.client.CommonServiceClient;
+import com.gdut.dongjun.service.webservice.client.po.InitialParam;
 
 @Component
 public class SystemInitalStartup implements InitializingBean {
 
     @Autowired
     private CommonSwitch commonSwitch;
-
     @Autowired
-    private CentorServiceClient centorServiceClient;
-
+    private CommonServiceClient centorServiceClient;
     @Autowired
     private SubstationService substationService;
-
     @Autowired
     private LineService lineService;
-
     @Autowired
     private HighVoltageSwitchService hvswitchService;
+    @Autowired
+    private CompanyService companyService;
 
     @Override
     public void afterPropertiesSet() throws Exception {
 
         if(commonSwitch.canService()) {
             systemInital();
-            registerAddress();
+//            registerAddress();
         }
     }
 
@@ -48,13 +46,13 @@ public class SystemInitalStartup implements InitializingBean {
         centorServiceClient.getService().systemInitial(initialParam);
     }
 
-    private void registerAddress() throws UnknownHostException, SocketException {
-
-        try {
-            centorServiceClient.getService().registerService(NetUtil.inetAton(NetUtil.getRealLocalIp()), NetUtil.getLocalMacAddress());
-        } catch (Exception e) {
-
-        }
-    }
+//    private void registerAddress() throws UnknownHostException, SocketException {
+//
+//        try {
+//            centorServiceClient.getService().registerService(NetUtil.inetAton(NetUtil.getRealLocalIp()), NetUtil.getLocalMacAddress());
+//        } catch (Exception e) {
+//
+//        }
+//    }
 }
 

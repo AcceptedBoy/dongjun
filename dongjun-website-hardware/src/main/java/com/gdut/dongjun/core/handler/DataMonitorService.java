@@ -33,20 +33,17 @@ public class DataMonitorService {
 	 */
 	public void addMonitor(String switchId) {
 		HighVoltageSwitch s = switchService.selectByPrimaryKey(switchId);
-		char[] char_addr = Integer.toHexString(Integer.parseInt(s.getAddress())).toCharArray();
-		char[] address = new char[4];
-		if (char_addr.length != 4) {
-			for (int i = 0; i < 4; i++) {
-				if (i < char_addr.length) {
-					address[i] = char_addr[i];
-				} else {
-					address[i] = 0;
-				}
+		String hexAddr = String.valueOf(Integer.toHexString(Integer.parseInt(s.getAddress())));
+		StringBuilder sb = new StringBuilder();
+		if (hexAddr.length() < 4) {
+			for (int i = 0; i < 4 - hexAddr.length(); i++) {
+				sb.append("0".intern());
 			}
 		}
-		String address1 = String.valueOf(address);
-		address1  = new HighVoltageDeviceCommandUtil().reverseString(address1);
-		monitorMap.put(address1, switchId);
+		sb.append(hexAddr);
+		String address = HighVoltageDeviceCommandUtil.reverseString(
+				sb.toString());
+		monitorMap.put(address, switchId);
 	}
 	
 	/**
