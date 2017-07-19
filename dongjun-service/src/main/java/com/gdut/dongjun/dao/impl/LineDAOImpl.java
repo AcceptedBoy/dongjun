@@ -8,7 +8,6 @@ import com.gdut.dongjun.dao.LineMapper;
 import com.gdut.dongjun.dao.base.impl.SinglePrimaryKeyBaseDAOImpl;
 import com.gdut.dongjun.po.Line;
 
-
 /**
  * 
  * @author	Sherlock-lee
@@ -37,4 +36,20 @@ public class LineDAOImpl extends SinglePrimaryKeyBaseDAOImpl<Line> implements
 		// TODO Auto-generated method stub
 		return template.selectList("selectByKeyWord", keyWord+"%");
 	}
+
+	@Override
+	public List<String> selectId() {
+		return template.selectList("selectId");
+	}
+
+	@Override
+	public List<String> selectIdBySubstationIds(List<String> list) {
+		return template.selectList("selectIdBySubstationIds", list);
+	}
+
+	@Override
+	public int deleteByIds(List<String> list) {
+		return template.delete(getNamespace("deleteByIds"), list);
+	}
+	
 }

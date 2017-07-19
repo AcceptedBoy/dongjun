@@ -28,12 +28,24 @@ public class CenterCallServiceClient implements InitializingBean {
 	  */
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		List<Company> list = companyService.selectByParameters(null);
-		for (Company c : list) {
-			if (null != c.getIpAddr()) {
-				initConnection(c.getIpAddr());
+
+		new Thread() {
+			@Override
+			public void run() {
+				try {
+					Thread.sleep(5 * 1000);
+				} catch (InterruptedException e) {
+				}
+				List<Company> list = companyService.selectByParameters(null);
+				for (Company c : list) {
+					if (null != c.getIpAddr()) {
+						initConnection(c.getIpAddr());
+					}
+				}
+				//让已经启动的website系统上传InitialParam
+				extendedService.initCall();
 			}
-		}
+		}.start();
 	}
 	
 	/**
@@ -43,11 +55,16 @@ public class CenterCallServiceClient implements InitializingBean {
 	public void initConnection(String ip) {
 		CenterServiceConnection c = new CenterServiceConnection();
 		c.setIpAddr(ip);
-		c.setService(JAXRSClientFactory.create(
+		c.setWebsiteService(JAXRSClientFactory.create(
                         "http://" + ip + "/dongjun-website/ws/website",
-                        CenterCallService.class,
+                        CenterCallWebsiteService.class,
                         Arrays.asList(JacksonJsonProvider.class,
                                 BinaryDataProvider.class)));
+		c.setHardwareService(JAXRSClientFactory.create(
+                "http://" + ip + "/dongjun-hardware/ws/hardware",
+                CenterCallHardwareService.class,
+                Arrays.asList(JacksonJsonProvider.class,
+                        BinaryDataProvider.class)));
 		serviceList.add(c);
 	}
 	
@@ -60,27 +77,45 @@ public class CenterCallServiceClient implements InitializingBean {
 		public void updateSwitchAddressAvailable(List<String> addrs, String ipAddr) {
 			for (CenterServiceConnection service : serviceList) {
 				if (service.getIpAddr().equals(ipAddr)) {
-					service.getService().updateSwitchAddressAvailable(addrs);
+					service.getHardwareService().updateSwitchAddressAvailable(addrs);
 					return ;
 				}
 			}
 		}
+		
+		public void initCall() {
+			for (CenterServiceConnection service : serviceList) {
+				service.getWebsiteService().initCall();
+			}
+		}
     }
 	
+	/**
+	 * 拥有跟硬件系统和网站系统的连接
+	 * @author Gordan_Deng
+	 * @date 2017年7月19日
+	 */
 	private class CenterServiceConnection {
 		private String ipAddr;
-		private CenterCallService service;
+		private CenterCallHardwareService hardwareService;
+		private CenterCallWebsiteService websiteService;
 		public String getIpAddr() {
 			return ipAddr;
 		}
 		public void setIpAddr(String ipAddr) {
 			this.ipAddr = ipAddr;
 		}
-		public CenterCallService getService() {
-			return service;
+		public CenterCallHardwareService getHardwareService() {
+			return hardwareService;
 		}
-		public void setService(CenterCallService service) {
-			this.service = service;
+		public void setHardwareService(CenterCallHardwareService hardwareService) {
+			this.hardwareService = hardwareService;
+		}
+		public CenterCallWebsiteService getWebsiteService() {
+			return websiteService;
+		}
+		public void setWebsiteService(CenterCallWebsiteService websiteService) {
+			this.websiteService = websiteService;
 		}
 	}
 

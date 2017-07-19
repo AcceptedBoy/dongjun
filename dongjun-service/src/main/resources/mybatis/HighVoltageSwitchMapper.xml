@@ -236,4 +236,37 @@
 			</foreach>
 		</if>
 	</delete>
+	
+	<select id="selectIdByCompanyId" parameterType="java.lang.String" resultType="java.lang.String">
+		SELECT id FROM high_voltage_switch WHERE line_id IN (
+			SELECT id FROM line WHERE substation_id IN (
+				SELECT id FROM substation WHERE company_id = #{companyId}
+			)
+		)
+	</select>
+	
+	<select id="selectIdByLineIds" resultType="java.lang.String">
+		select id from high_voltage_switch where line_id in
+			<foreach item="item" index="index" collection="list"
+     				 open="(" separator="," close=")">
+       			 #{item}
+  			</foreach>
+	</select>
+	
+		<delete id="deleteByIds">
+		delete from high_voltage_switch where id in 
+			<foreach item="item" index="index" collection="list"
+     				 open="(" separator="," close=")">
+       			 #{item}
+  			</foreach>
+	</delete>
+	
+		<select id="selectAddrAvailableByCompanyId" parameterType="java.lang.String" resultType="java.lang.String">
+		SELECT address FROM high_voltage_switch WHERE line_id IN (
+			SELECT id FROM line WHERE substation_id IN (
+				SELECT id FROM substation WHERE company_id = #{companyId}
+			)
+		) and available = 1
+	</select>
+	
 </mapper>

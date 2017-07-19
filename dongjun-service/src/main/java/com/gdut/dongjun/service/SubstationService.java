@@ -26,4 +26,8 @@ public interface SubstationService extends BaseService<Substation> {
 	 * @throws
 	 */
 	public List<Substation> selectByCompanyId(String companyId);
+	
+	public List<String> selectIdByCompanyId(String companyId);
+	
+	public int deleteByIds(List<String> list);
 }

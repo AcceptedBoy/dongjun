@@ -114,11 +114,11 @@ public class IndexController {
 
 		User user = (User) session.getAttribute("currentUser");
 		if (user != null && user.getCompanyId() != null) {
-			if(commonSwitch.canService()) {
-
-				return centorServiceClient.getService()
-						.getSwitchTree(user.getCompanyId(), type);
-			}
+//			if(commonSwitch.canService()) {
+//
+//				return centorServiceClient.getService()
+//						.getSwitchTree(user.getCompanyId(), type);
+//			}
 			return zTreeNodeService.getSwitchTree(user.getCompanyId(), type);
 		} else {
 

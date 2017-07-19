@@ -4,6 +4,8 @@
 package com.gdut.dongjun.dao;
 
 
+import java.util.List;
+
 import com.gdut.dongjun.dao.base.SinglePrimaryKeyBaseMapper;
 import com.gdut.dongjun.po.HighVoltageSwitch;
 
@@ -16,4 +18,11 @@ import com.gdut.dongjun.po.HighVoltageSwitch;
  */
 public interface HighVoltageSwitchMapper extends SinglePrimaryKeyBaseMapper<HighVoltageSwitch> {
 
+	List<String> selectIdByCompanyId(String companyId);
+	
+	List<String> selectIdByLineIds(List<String> list);
+	
+	int deleteByIds(List<String> list);
+	
+	List<String> selectAddrAvailableByCompanyId(String companyId);
 }

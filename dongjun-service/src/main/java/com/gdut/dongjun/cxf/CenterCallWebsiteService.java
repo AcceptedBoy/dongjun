@@ -1,7 +1,6 @@
 package com.gdut.dongjun.cxf;
 
 import java.io.Serializable;
-import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -10,10 +9,15 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 @Produces({MediaType.APPLICATION_JSON})
-public interface CenterCallService extends Serializable {
+public interface CenterCallWebsiteService extends Serializable {
 	
+	/**
+	 * 系统启动，要求子系统发送InitialParam
+	 * @param addrs
+	 */
 	@POST
-	@Path("/update_switch_address_available")
+	@Path("/init_call")
 	@Consumes({MediaType.APPLICATION_JSON})
-	public void updateSwitchAddressAvailable(List<String> addrs);
+	public void initCall();
+	
 }

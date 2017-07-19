@@ -121,4 +121,24 @@ public class HighVoltageSwitchServiceImpl extends
 			return false;
 		}
 	}
+
+	@Override
+	public List<String> selectIdByCompanyId(String companyId) {
+		return currentMapper.selectIdByCompanyId(companyId);
+	}
+
+	@Override
+	public List<String> selectIdByLineIds(List<String> lineIds) {
+		return currentMapper.selectIdByLineIds(lineIds);
+	}
+
+	@Override
+	public int deleteByIds(List<String> list) {
+		return currentMapper.deleteByIds(list);
+	}
+
+	@Override
+	public List<String> selectAddrAvailableByCompanyId(String companyId) {
+		return currentMapper.selectAddrAvailableByCompanyId(companyId);
+	}
 }

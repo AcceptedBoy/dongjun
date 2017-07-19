@@ -18,7 +18,7 @@ public class BusinessController {
 	private HighVoltageSwitchService switchService;
 	
 	/**
-	 * 批量更改设备终止日期
+	 * 更改设备终止日期
 	 * @param deviceId
 	 * @param endDate
 	 * @return
@@ -36,7 +36,7 @@ public class BusinessController {
 	}
 	
 	/**
-	 * 批量处理设备可用性
+	 * 处理设备可用性
 	 * @param deviceId
 	 * @param available
 	 * @return

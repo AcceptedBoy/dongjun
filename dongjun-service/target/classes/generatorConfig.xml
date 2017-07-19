@@ -19,10 +19,16 @@
 			targetProject="D:\\WORKING\\git\\dongjun_dzc\\dongjun-service" type="XMLMAPPER" />
 			
 
-			<table schema="root" tableName="company"
-			domainObjectName="Company" enableCountByExample="false"
+			<table schema="root" tableName="substation"
+			domainObjectName="Substation" enableCountByExample="false"
 			enableUpdateByExample="false" enableDeleteByExample="false"
 			enableSelectByExample="false" selectByExampleQueryId="false" />
+			
+						<table schema="root" tableName="line"
+			domainObjectName="Line" enableCountByExample="false"
+			enableUpdateByExample="false" enableDeleteByExample="false"
+			enableSelectByExample="false" selectByExampleQueryId="false" />
+			
 	
 			
 	</context>

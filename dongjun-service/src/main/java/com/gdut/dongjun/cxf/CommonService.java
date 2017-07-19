@@ -14,9 +14,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.gdut.dongjun.cxf.po.HighVoltageSwitchDTO;
 import com.gdut.dongjun.cxf.po.InitialParam;
-import com.gdut.dongjun.po.Company;
-import com.gdut.dongjun.po.HighVoltageSwitch;
 import com.gdut.dongjun.po.Line;
 import com.gdut.dongjun.po.Substation;
 import com.gdut.dongjun.po.ZTreeNode;
@@ -99,7 +98,7 @@ public interface CommonService extends Serializable {
     @POST
     @Path("/hvSwitch/add")
     @Consumes({MediaType.APPLICATION_JSON})
-    public Map<String, Boolean> addHighVoltageSwitch(HighVoltageSwitch hvSwitch);
+    public Map<String, Boolean> addHighVoltageSwitch(HighVoltageSwitchDTO hvSwitch);
 
     /**
      * 删除高压开关
@@ -118,7 +117,7 @@ public interface CommonService extends Serializable {
     @POST
     @Path("/hvSwitch/update")
     @Consumes({MediaType.APPLICATION_JSON})
-    public Map<String, Boolean> updateVoltageSwitch(HighVoltageSwitch hvSwitch);
+    public Map<String, Boolean> updateVoltageSwitch(HighVoltageSwitchDTO hvSwitch);
 
 
     @POST

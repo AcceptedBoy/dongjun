@@ -61,6 +61,16 @@ public class SubstationServiceImpl extends BaseServiceImpl<Substation>
 			return false;
 		}
 	}
+
+	@Override
+	public List<String> selectIdByCompanyId(String companyId) {
+		return substationMapper.selectIdByCompanyId(companyId);
+	}
+
+	@Override
+	public int deleteByIds(List<String> list) {
+		return substationMapper.deleteByIds(list);
+	}
 	
 	
 	
