@@ -1,20 +1,27 @@
 package com.gdut.dongjun.service.webservice.client.po;
 
 
-import com.gdut.dongjun.domain.po.HighVoltageSwitch;
+import java.util.List;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+
 import com.gdut.dongjun.domain.po.Line;
 import com.gdut.dongjun.domain.po.Substation;
 
-import java.util.List;
-
+@XmlRootElement(name="initialParam")
+@XmlAccessorType(XmlAccessType.FIELD)
 public class InitialParam {
 
     private List<Substation> substationList;
 
     private List<Line> lineList;
 
-    private List<HighVoltageSwitch> hvswitchList;
+    private List<HighVoltageSwitchDTO> hvswitchList;
 
+    @XmlElement(name = "substationList")
     public List<Substation> getSubstationList() {
         return substationList;
     }
@@ -23,6 +30,7 @@ public class InitialParam {
         this.substationList = substationList;
     }
 
+    @XmlElement(name = "lineList")
     public List<Line> getLineList() {
         return lineList;
     }
@@ -31,11 +39,12 @@ public class InitialParam {
         this.lineList = lineList;
     }
 
-    public List<HighVoltageSwitch> getHvswitchList() {
+    @XmlElement(name = "hvswitchList")
+    public List<HighVoltageSwitchDTO> getHvswitchList() {
         return hvswitchList;
     }
 
-    public void setHvswitchList(List<HighVoltageSwitch> hvswitchList) {
+    public void setHvswitchList(List<HighVoltageSwitchDTO> hvswitchList) {
         this.hvswitchList = hvswitchList;
     }
 }

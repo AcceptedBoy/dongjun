@@ -1,5 +1,7 @@
 package com.gdut.dongjun.service.impl;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,6 +42,18 @@ public class LineServiceImpl extends BaseServiceImpl<Line> implements
 		} else {
 			return false;
 		}
+	}
+
+
+	@Override
+	public List<String> selectIdBySubstationIds(List<String> list) {
+		return lineMapper.selectIdBySubstationIds(list);
+	}
+
+
+	@Override
+	public int deleteByIds(List<String> list) {
+		return lineMapper.deleteByIds(list);
 	}
 
 }

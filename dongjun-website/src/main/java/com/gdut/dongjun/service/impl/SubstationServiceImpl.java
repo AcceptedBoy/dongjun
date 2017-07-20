@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.gdut.dongjun.service.common.CommonSwitch;
-import com.gdut.dongjun.service.webservice.client.CentorServiceClient;
+import com.gdut.dongjun.service.webservice.client.CommonServiceClient;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,7 +39,7 @@ public class SubstationServiceImpl extends BaseServiceImpl<Substation>
 	private CommonSwitch commonSwitch;
 
 	@Autowired
-	private CentorServiceClient centorServiceClient;
+	private CommonServiceClient centorServiceClient;
 
 	@Override
 	public List<Substation> selectByCompanyId(String companyId) {

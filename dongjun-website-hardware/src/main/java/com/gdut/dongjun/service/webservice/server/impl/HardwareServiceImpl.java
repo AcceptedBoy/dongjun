@@ -23,10 +23,12 @@ import com.gdut.dongjun.domain.HighVoltageStatus;
 import com.gdut.dongjun.domain.po.AbnormalDevice;
 import com.gdut.dongjun.domain.po.HighVoltageHitchEvent;
 import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
+import com.gdut.dongjun.enums.HighCommandControlCode;
 import com.gdut.dongjun.service.AbnormalDeviceService;
 import com.gdut.dongjun.service.HighVoltageHitchEventService;
 import com.gdut.dongjun.service.HighVoltageSwitchService;
 import com.gdut.dongjun.service.webservice.server.HardwareService;
+import com.gdut.dongjun.util.HighVoltageDeviceCommandUtil;
 
 @Component
 public class HardwareServiceImpl implements HardwareService {
@@ -162,6 +164,7 @@ public class HardwareServiceImpl implements HardwareService {
 	 * @param address
 	 * @param callMsg
 	 */
+	@Deprecated
 	private void handleOldMachineTotalCall(String address, String callMsg) {
 		List<AbnormalDevice> abDevices = abDeviceService.selectByParameters(null);
 		
@@ -302,9 +305,23 @@ public class HardwareServiceImpl implements HardwareService {
 	}
 
 	@Override
-	public boolean sendText(String switchId, String text) {
-		String addr = monitorService.getDeviceAddressBySwitchId(switchId);
-		CtxStore.getByAddress(addr).getCtx().writeAndFlush(text);
+	public boolean sendText(String switchId, String text, Integer type) {
+		if (type == 0) {
+			String addr = monitorService.getDeviceAddressBySwitchId(switchId);
+			CtxStore.getByAddress(addr).getCtx().writeAndFlush(text);
+			logger.info("用户发送报文：" + text);
+		} else if (type == 1) {
+			//总召
+			String addr = monitorService.getDeviceAddressBySwitchId(switchId);
+			SwitchGPRS gprs = CtxStore.getByAddress(addr);
+			String msg = new HighVoltageDeviceCommandUtil()
+					.readVoltageAndCurrent(gprs.getAddress(),
+							HighCommandControlCode.READ_VOLTAGE_CURRENT
+									.toString());
+			//用户发送总召
+			gprs.getCtx().writeAndFlush(msg);
+			logger.info("用户发送总召：" + msg);
+		}
 		return true;
 	}
 

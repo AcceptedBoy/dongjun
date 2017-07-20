@@ -39,4 +39,10 @@ public interface LineMapper extends SinglePrimaryKeyBaseMapper<Line> {
 	 * @throws
 	 */
 	public List<Line> selectByKeyWord(String keyWord);
-}
+	
+	public List<String> selectId();
+	
+	public List<String> selectIdBySubstationIds(List<String> list);
+	
+	public int deleteByIds(List<String> list);
+} 

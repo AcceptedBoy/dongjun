@@ -3,7 +3,7 @@ package com.gdut.dongjun.web;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.service.ZTreeNodeService;
 import com.gdut.dongjun.service.common.CommonSwitch;
-import com.gdut.dongjun.service.webservice.client.CentorServiceClient;
+import com.gdut.dongjun.service.webservice.client.CommonServiceClient;
 import com.gdut.dongjun.util.EncoderUtil;
 import com.gdut.dongjun.util.VoiceFixUtil;
 
@@ -30,7 +30,7 @@ public class IndexController {
 	private CommonSwitch commonSwitch;
 
 	@Autowired
-	private CentorServiceClient centorServiceClient;
+	private CommonServiceClient centorServiceClient;
 
 	/**
 	 * 
@@ -86,6 +86,10 @@ public class IndexController {
 		return "current_voltage_chart";
 	}
 	
+	/**
+	 * 返回实时操控设备页面
+	 * @return
+	 */
 	@RequestMapping("/chat")
 	public String chat() {
 		return "chat";
@@ -110,11 +114,11 @@ public class IndexController {
 
 		User user = (User) session.getAttribute("currentUser");
 		if (user != null && user.getCompanyId() != null) {
-			if(commonSwitch.canService()) {
-
-				return centorServiceClient.getService()
-						.getSwitchTree(user.getCompanyId(), type);
-			}
+//			if(commonSwitch.canService()) {
+//
+//				return centorServiceClient.getService()
+//						.getSwitchTree(user.getCompanyId(), type);
+//			}
 			return zTreeNodeService.getSwitchTree(user.getCompanyId(), type);
 		} else {
 

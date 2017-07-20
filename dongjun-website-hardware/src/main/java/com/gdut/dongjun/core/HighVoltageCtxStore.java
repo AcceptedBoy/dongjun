@@ -20,7 +20,8 @@ import com.gdut.dongjun.service.webservice.client.WebsiteServiceClient;
 public class HighVoltageCtxStore extends CtxStore {
 	
 	private static final List<HighVoltageStatus> hstalist = new CopyOnWriteArrayList<HighVoltageStatus>();
-
+	private static List<String> availableAddrList = new CopyOnWriteArrayList();
+	
 	private Logger logger = Logger.getLogger(HighVoltageCtxStore.class);
 	
 	//延迟加载CtxStore的WebServiceCilent
@@ -99,6 +100,18 @@ public class HighVoltageCtxStore extends CtxStore {
 		if (logger.isDebugEnabled()) {
 			logger.debug("add(SwitchGPRS) - end");
 		}
+	}
+	
+	public boolean isAddrAvailable(String addr) {
+		if (availableAddrList.contains(addr)) {
+			return true;
+		}
+		return false;
+	}
+	
+	public synchronized void setAvailableAddrList(List<String> addrs) {
+		availableAddrList.clear();
+		availableAddrList.addAll(addrs);
 	}
 
 }

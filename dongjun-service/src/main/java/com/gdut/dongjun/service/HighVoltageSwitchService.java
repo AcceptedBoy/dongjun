@@ -79,5 +79,12 @@ public interface HighVoltageSwitchService extends
 	 * @throws
 	 */
 	public String getSwitchId(String address);
+	
+	public List<String> selectIdByCompanyId(String companyId);
+	
+	public List<String> selectIdByLineIds(List<String> lineIds);
 
+	public int deleteByIds(List<String> list);
+	
+	public List<String> selectAddrAvailableByCompanyId(String companyId);
 }

@@ -640,7 +640,10 @@ public class CommandController {
 			return;
 		}
 		DeviceBinding.unbindingMonitor(user, switchId);
-		hardwareClient.getService().removeMonitor(switchId);
+		List<User> monitorUser = DeviceBinding.getMonitorUser(switchId);
+		if (null == monitorUser || monitorUser.size() == 0) {
+			hardwareClient.getService().removeMonitor(switchId);
+		}
 	}
 
 	/**
@@ -652,7 +655,20 @@ public class CommandController {
 	@RequestMapping("/send_text")
 	@ResponseBody
 	public void sendText(String switchId, String text, HttpSession session) {
-		hardwareClient.getService().sendText(switchId, text);
+		hardwareClient.getService().sendText(switchId, text, 0);
 	}
+	
+	/**
+	 * 实时监测报文模块发送报文
+	 * @param switchId
+	 * @param text
+	 * @param session
+	 */
+	@RequestMapping("/send_total_call")
+	@ResponseBody
+	public void sendTotalCall(String switchId, HttpSession session) {
+		hardwareClient.getService().sendText(switchId, null, 1);
+	}
+	
 
 }

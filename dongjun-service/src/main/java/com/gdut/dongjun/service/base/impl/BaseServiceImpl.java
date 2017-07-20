@@ -89,5 +89,10 @@ public abstract class BaseServiceImpl<T> implements BaseService<T> {
 	 * @throws
 	 */
 	protected abstract boolean isExist(T record);
+	
+	@Override
+	public int deleteByParameters(Map<String, Object> map) {
+		return baseMapper.deleteByParameters(map);
+	}
 
 }

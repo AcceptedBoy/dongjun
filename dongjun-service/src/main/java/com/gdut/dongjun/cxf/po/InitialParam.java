@@ -2,7 +2,6 @@ package com.gdut.dongjun.cxf.po;
 
 import java.util.List;
 
-import com.gdut.dongjun.po.HighVoltageSwitch;
 import com.gdut.dongjun.po.Line;
 import com.gdut.dongjun.po.Substation;
 import com.sun.xml.txw2.annotation.XmlElement;
@@ -18,7 +17,7 @@ public class InitialParam {
 
     private List<Line> lineList;
 
-    private List<HighVoltageSwitch> hvswitchList;
+    private List<HighVoltageSwitchDTO> hvswitchList;
 
     @XmlElement(value = "substationList")
     public List<Substation> getSubstationList() {
@@ -39,11 +38,11 @@ public class InitialParam {
     }
 
     @XmlElement(value = "hvswitchList")
-    public List<HighVoltageSwitch> getHvswitchList() {
+    public List<HighVoltageSwitchDTO> getHvswitchList() {
         return hvswitchList;
     }
 
-    public void setHvswitchList(List<HighVoltageSwitch> hvswitchList) {
+    public void setHvswitchList(List<HighVoltageSwitchDTO> hvswitchList) {
         this.hvswitchList = hvswitchList;
     }
 }
