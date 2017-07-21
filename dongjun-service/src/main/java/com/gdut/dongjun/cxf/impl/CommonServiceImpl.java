@@ -165,13 +165,19 @@ public class CommonServiceImpl implements CommonService {
         List<String> storedSwitchId = hvSwitchService.selectIdByLineIds(stroredLineId);
         //删除无用配电站信息
         storedSubstationId.removeAll(realSubstationId);
-        substationService.deleteByIds(storedSubstationId);
+        if (storedSubstationId.size() != 0) {
+            substationService.deleteByIds(storedSubstationId);
+        }
         //删除无用线路信息
         stroredLineId.removeAll(realLineId);
-        lineService.deleteByIds(stroredLineId);
+        if (stroredLineId.size() != 0) {
+            lineService.deleteByIds(stroredLineId);
+        }
         //删除无用设备信息
         storedSwitchId.removeAll(realHVId);
-        hvSwitchService.deleteByIds(storedSwitchId);
+        if (storedSwitchId.size() != 0) {
+            hvSwitchService.deleteByIds(storedSwitchId);
+        }
         
         //更新子系统的可用设备地址
         List<String> addrAvailable = hvSwitchService.selectAddrAvailableByCompanyId(c.getId());

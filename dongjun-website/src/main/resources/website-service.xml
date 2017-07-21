@@ -9,7 +9,7 @@
 
     <jaxrs:server address="/website">
         <jaxrs:serviceBeans>
-<!--             <bean class="com.gdut.dongjun.service.webservice.server.impl.WebsiteServiceImpl" /> -->
+            <bean class="com.gdut.dongjun.service.webservice.server.impl.WebsiteServiceImpl" />
             <bean class="com.gdut.dongjun.service.webservice.server.impl.CenterCallWebsiteServiceImpl" />
         </jaxrs:serviceBeans>
 <!--         <jaxrs:inInterceptors> -->

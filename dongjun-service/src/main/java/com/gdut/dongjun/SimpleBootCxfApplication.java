@@ -50,7 +50,7 @@ public class SimpleBootCxfApplication {
 
     @Bean
     public ServletRegistrationBean cxfServlet() {
-        return new ServletRegistrationBean(new CXFServlet(), "/dongjun_service/ws/*");
+        return new ServletRegistrationBean(new CXFServlet(), "/dongjun-service/ws/*");
     }
 
     @Bean
