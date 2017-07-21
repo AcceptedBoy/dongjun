@@ -1,6 +1,8 @@
 package com.gdut.dongjun.service;
 
 
+import java.util.List;
+
 import com.gdut.dongjun.po.Line;
 import com.gdut.dongjun.service.base.BaseService;
 
@@ -56,5 +58,9 @@ public interface LineService extends BaseService<Line> {
 //	 * @throws
 //	 */
 //	public List<Line> selectByKeyWord(String keyWord);
+	
+	public List<String> selectIdBySubstationIds(List<String> list);
+	
+	public int deleteByIds(List<String> list);
 
 }

@@ -90,4 +90,15 @@ public interface BaseService<T> {
 	 */
 	public int updateByPrimaryKey(T record);
 	
+	/**
+	 * 
+	 * @Title: deleteByParameters
+	 * @Description: TODO
+	 * @param @param map
+	 * @param @return
+	 * @return int
+	 * @throws
+	 */
+	public int deleteByParameters(Map<String, Object> map);
+	
 }

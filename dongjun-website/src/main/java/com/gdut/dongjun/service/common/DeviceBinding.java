@@ -58,6 +58,9 @@ public class DeviceBinding {
     
     public static void unbindingMonitor(User user, String switchId) {
     	List<User> users = monitorBind.get(switchId);
+    	if (null == users) {
+    		return ;
+    	}
     	if (users.contains(user)) {
     		users.remove(user);
     	}

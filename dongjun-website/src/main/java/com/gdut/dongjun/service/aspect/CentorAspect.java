@@ -1,14 +1,16 @@
 package com.gdut.dongjun.service.aspect;
 
-import com.gdut.dongjun.domain.po.HighVoltageSwitch;
-import com.gdut.dongjun.domain.po.Line;
-import com.gdut.dongjun.domain.po.Substation;
-import com.gdut.dongjun.service.common.CommonSwitch;
-import com.gdut.dongjun.service.webservice.client.CentorServiceClient;
 import org.aspectj.lang.annotation.After;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.gdut.dongjun.domain.po.HighVoltageSwitch;
+import com.gdut.dongjun.domain.po.Line;
+import com.gdut.dongjun.domain.po.Substation;
+import com.gdut.dongjun.service.common.CommonSwitch;
+import com.gdut.dongjun.service.webservice.client.CommonServiceClient;
+import com.gdut.dongjun.service.webservice.client.po.HighVoltageSwitchDTO;
 
 
 /**
@@ -19,7 +21,7 @@ import org.springframework.stereotype.Component;
 public class CentorAspect {
 
     @Autowired
-    private CentorServiceClient centorServiceClient;
+    private CommonServiceClient centorServiceClient;
 
     @Autowired
     private CommonSwitch commonSwitch;
@@ -68,7 +70,8 @@ public class CentorAspect {
             + " && args(highVoltageSwitch) && target(com.gdut.dongjun.domain.dao.impl.HighVoltageSwitchDAOImpl)")
     public void add(HighVoltageSwitch highVoltageSwitch) {
         if(commonSwitch.canService()) {
-            centorServiceClient.getService().addHighVoltageSwitch(highVoltageSwitch);
+        	HighVoltageSwitchDTO dto = new HighVoltageSwitchDTO(highVoltageSwitch);
+            centorServiceClient.getService().addHighVoltageSwitch(dto);
         }
     }
 
@@ -92,7 +95,8 @@ public class CentorAspect {
             + " && args(highVoltageSwitch) && target(com.gdut.dongjun.domain.dao.impl.HighVoltageSwitchDAOImpl)")
     public void update(HighVoltageSwitch highVoltageSwitch) {
         if(commonSwitch.canService()) {
-            centorServiceClient.getService().updateVoltageSwitch(highVoltageSwitch);
+        	HighVoltageSwitchDTO dto = new HighVoltageSwitchDTO(highVoltageSwitch);
+            centorServiceClient.getService().updateVoltageSwitch(dto);
         }
     }
 }

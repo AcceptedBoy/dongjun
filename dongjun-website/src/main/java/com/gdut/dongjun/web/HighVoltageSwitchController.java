@@ -5,7 +5,7 @@ import com.gdut.dongjun.domain.vo.AvailableHighVoltageSwitch;
 
 import com.gdut.dongjun.service.common.CommonSwitch;
 import com.gdut.dongjun.service.device.HighVoltageSwitchService;
-import com.gdut.dongjun.service.webservice.client.CentorServiceClient;
+import com.gdut.dongjun.service.webservice.client.CommonServiceClient;
 import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 import com.gdut.dongjun.service.webservice.client.po.SwitchGPRS;
 import com.gdut.dongjun.util.*;
@@ -41,7 +41,7 @@ public class HighVoltageSwitchController {
 	private HardwareServiceClient hardwareClient;
 
 	@Autowired
-	private CentorServiceClient centorServiceClient;
+	private CommonServiceClient centorServiceClient;
 
 	@Autowired
 	private CommonSwitch commonSwitch;
@@ -61,13 +61,13 @@ public class HighVoltageSwitchController {
 	@RequestMapping("/high_voltage_switch_manager")
 	public String getLineSwitchList(String lineId, Model model) {
 
-		if(commonSwitch.canService()) {
-			model.addAttribute("switches",
-					centorServiceClient.getService().switchsOfLine(1, lineId));
-		} else {
+//		if(commonSwitch.canService()) {
+//			model.addAttribute("switches",
+//					centorServiceClient.getService().switchsOfLine(1, lineId));
+//		} else {
 			model.addAttribute("switches", switchService.selectByParameters(
 					MyBatisMapUtil.warp("line_id", lineId)));
-		}
+//		}
 
 		return "high_voltage_switch_manager";
 	}
@@ -85,11 +85,11 @@ public class HighVoltageSwitchController {
 	@ResponseBody
 	public Object getAllLowVoltage_Switch() {
 
-		if(commonSwitch.canService()) {
-			return centorServiceClient.getService().switchsOfLine(1, null);
-		} else {
+//		if(commonSwitch.canService()) {
+//			return centorServiceClient.getService().switchsOfLine(1, null);
+//		} else {
 			return switchService.selectByParameters(null);
-		}
+//		}
 	}
 
 	/**
@@ -108,12 +108,12 @@ public class HighVoltageSwitchController {
 			@RequestParam(required = true) String lineId, Model model) {
 
 		List<AvailableHighVoltageSwitch> switchs;
-		if(commonSwitch.canService()) {
-			switchs = centorServiceClient.getService().switchsOfLine(1, lineId);
-		} else {
+//		if(commonSwitch.canService()) {
+//			switchs = centorServiceClient.getService().switchsOfLine(1, lineId);
+//		} else {
 			switchs = AvailableHighVoltageSwitch.change2default(
 					switchService.selectByParameters(MyBatisMapUtil.warp("line_id", lineId)));
-		}
+//		}
 
 		HashMap<String, Object> map = (HashMap<String, Object>) MapUtil.warp(
 				"draw", 1);

@@ -108,7 +108,7 @@ public class HighVoltageDeviceCommandUtil extends StringCommonUtil {
 	}
 
 	// 字符串反转
-	public String reverseString(String data) {
+	public static String reverseString(String data) {
 		char[] data_reverse = data.toCharArray();
 		data = "";
 		char temp;
