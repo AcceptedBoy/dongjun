@@ -10,6 +10,7 @@
     <jaxrs:server address="/hardware">
         <jaxrs:serviceBeans>
             <bean class="com.gdut.dongjun.service.webservice.server.impl.HardwareServiceImpl" />
+            <bean class="com.gdut.dongjun.service.webservice.server.impl.CenterCallHardwareServiceImpl" />
         </jaxrs:serviceBeans>
 <!--         <jaxrs:inInterceptors> -->
 <!--             <bean class="org.apache.cxf.interceptor.LoggingInInterceptor"></bean> -->

@@ -21,7 +21,7 @@ public class CommonServiceClient implements InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
         centerService = JAXRSClientFactory.create(
-                "http://localhost:8789/dongjun_service/ws/common",
+                "http://localhost:8789/dongjun-service/ws/common",
                 CommonService.class,
                 Arrays.asList(JacksonJsonProvider.class,
                         BinaryDataProvider.class));
