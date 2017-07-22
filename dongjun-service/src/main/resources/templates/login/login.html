@@ -1,0 +1,51 @@
+
+		<!-- login -->
+<div id="login-form" class="">
+	<div class="login-container">
+		<div class="login-card mdl-card mdl-shadow--4dp">
+		  <div class="mdl-card__title login-card-title">
+		     <h1>东君后台管理</h1>
+		     <div class="mdl-card__subtitle-text">
+		     		<img class="login-logo" src="../../static/img/logo/logo1.png">
+		     </div>
+		  </div>
+		  <div class="mdl-card__media login-form" id="test">
+		  	<div class="mdl-textfield mdl-js-textfield">
+			    <input class="mdl-textfield__input" type="text" id="sample1">
+			    <label class="mdl-textfield__label" for="sample1">Text...</label>
+			  </div>
+		  </div>
+		  <div class="mdl-card__actions mdl-card--border">
+		     <a href="http://en.wikipedia.org/wiki/Sky_Tower_%28Auckland%29">Wikipedia entry</a>
+	  	</div>
+	  	<div class="mdl-card__menu">
+	  	</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	// function input () {
+		var div = document.createElement('div');
+	  // var textNode = document.createTextNode('Click Me!');
+	  // button.appendChild(textNode);
+	  div.innerHTML = `<input class="mdl-textfield__input" type="text" id="sample1">
+				    <label class="mdl-textfield__label" for="sample1">Text...</label>`
+	  div.className = 'mdl-textfield mdl-js-textfield mdl-textfield--floating-label'
+	  // componentHandler.upgradeElement(div);
+	  var div1 = document.createElement('div');
+	  // var textNode = document.createTextNode('Click Me!');
+	  // button.appendChild(textNode);
+	  div1.innerHTML = `<input class="mdl-textfield__input" type="text" id="sample1">
+				    <label class="mdl-textfield__label" for="sample1">Text...</label>`
+	  div1.className = 'mdl-textfield mdl-js-textfield mdl-textfield--floating-label'
+	  componentHandler.upgradeElements([div, div1])
+	  var frag = document.createDocumentFragment()
+	  frag.appendChild(div)
+	  frag.appendChild(div1)
+	  document.getElementById('test').appendChild(frag)
+	  // classlist.innerHTML = insertClass;
+		// componentHandler.upgradeAllRegistered('MaterialMenu', 'mdl-js-menu');
+	// }
+	// componentHandler.upgradeDom()
+</script>

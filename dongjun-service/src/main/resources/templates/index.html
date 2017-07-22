@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title></title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<!-- Le styles -->
+		<link rel="stylesheet" type="text/css" href="../static/css/mdl/material.min.custom.css">
+		<link rel="stylesheet" type="text/css" href="../static/css/font-awesome-4.7.0/css/font-awesome.min.css">
+<!-- 		<link rel="stylesheet" type="text/css" href="../static/css/dataTable/dataTables.material.min.css"> -->
+		<link rel="stylesheet" type="text/css" href="../static/css/customs/stylesheets/global.css">
+		<link rel="stylesheet" type="text/css" href="../static/css/customs/stylesheets/login.css">
+		<!-- jq -->
+		<script type="text/javascript" src="../static/js/lib/jq/jquery-3.2.1.min.js"></script>
+		<!-- mock -->
+		<script type="text/javascript" src="../static/js/lib/mock-min.js"></script>
+		<script type="text/javascript" src="../static/js/customs/mockData.js"></script>
+	</head>
+	<body>
+<!-- 		<div style="position: fixed; width: 100px; top: 40%; right: 1%; z-index: 9999;">
+			<button class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" id="login">
+			  登
+			</button>
+			<br>
+			<br>
+			<button class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" id="gogo">
+			  入
+			</button>
+		</div> -->
+		<!-- app content -->
+		<div id="app">
+			<div id="dj-nav" class="hide mdl-layout mdl-js-layout mdl-layout--fixed-header dj-nav">
+			  <header class="mdl-layout__header dj-nav-header">
+			    <div class="mdl-layout__header-row">
+			      <!-- Title -->
+			      <h2 class="mdl-layout-title dj-nav-title">
+			      	<img class="dj-nav-logo" src="../../static/img/logo/logo1.png">
+			      	东君后台管理系统
+			      </h2>
+			      <!-- Add spacer, to align navigation to the right -->
+			      <div class="mdl-layout-spacer"></div>
+			      <!-- Navigation. We hide it in small screens. -->
+			      <nav class="mdl-navigation mdl-layout--large-screen-only">
+			        <a class="dj-nav-link" href="#Test1">
+			        	<button class="mdl-button mdl-js-button mdl-js-ripple-effect">
+			        		Link
+								</button>
+			        </a>
+			        <a class="dj-nav-link" href="#Test2">
+			        	<button class="mdl-button mdl-js-button mdl-js-ripple-effect">
+			        		Link
+								</button>
+			        </a>
+			      </nav>
+			    </div>
+			  </header>
+			  <main class="mdl-layout__content">
+			    <div class="page-content" id="content-container">
+				    <!-- 主要内容区 -->
+				    <button class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" id="login">
+				        登
+				      </button>
+			    </div>
+			  </main>
+			</div>
+		</div>
+		<!-- login -->
+		<div id="login-form" class="hide">
+			<div class="login-container">
+				<div class="login-card mdl-card mdl-shadow--4dp">
+				  <div class="mdl-card__title login-card-title">
+				     <h1>东君后台管理</h1>
+				     <div class="mdl-card__subtitle-text">
+				     		<img class="login-logo" src="../../static/img/logo/logo1.png">
+				     </div>
+				  </div>
+				  <div class="mdl-card__media login-form">
+				  	<div>media here</div>
+				  </div>
+				  <div class="mdl-card__actions">
+				     <a href="http://en.wikipedia.org/wiki/Sky_Tower_%28Auckland%29">Wikipedia entry</a>
+			  	</div>
+			  	<div class="mdl-card__menu">
+			  	</div>
+				</div>
+			</div>
+		</div>
+		<footer id="dj-footer" class="hide dj-footer">
+		</footer>
+	</body>
+
+	<!-- material -->
+	<script defer src="../static/js/lib/mdl/material.min.js"></script>
+	<!-- dongjun -->
+	<script type="text/javascript" src="../static/js/lib/dongjun.js"></script>
+	<script>
+
+		var indexManager = {
+			start: function () {
+				var self = this
+				$.ajax({
+					url: `${localhost}/isLogin`,
+					type: 'POST',
+					success: function (res) {
+						res = typeof res === 'string' ? JSON.parse(res) : res
+						if (!res.data) {
+							self.login()
+						} else {
+							self.enter()
+						}
+					},
+					error: function () {
+						console.log('error')
+					}
+				})
+			},
+			login: function () {
+				dj.cssLoad('../static/css/customs/stylesheets/login.css', function (){
+	    		$('#login-form').show(500)
+	    	})
+			},
+			enter: function () {
+				dj.cssLoad('../static/css/customs/stylesheets/frame.css', function (){
+	    		dj.jsLoad('../static/js/customs/router.js', function (){
+		    		$('#dj-nav').slideDown()
+		    		$('#dj-footer').slideDown()
+		    		$('#login-form').hide(500).remove()
+	    		})
+	    	})
+			}
+		}
+
+		indexManager.start()
+	</script>
+</html>
