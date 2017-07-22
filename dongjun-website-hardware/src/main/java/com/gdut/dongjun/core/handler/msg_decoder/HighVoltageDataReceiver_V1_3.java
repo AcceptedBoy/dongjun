@@ -316,8 +316,6 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 			/*
 			 * 设备心跳报文  68 0D 0D 68 F4 01 00 68 01 07 01 01 00 00 00 AA 55 66 16
 			 */
-//			String code = "680d0d68f4" + CtxStore.get(ctx).getAddress() + "680107" + CtxStore.get(ctx).getAddress()
-//					+ "0000aa55";
 			HighVoltageDeviceCommandUtil ut = new HighVoltageDeviceCommandUtil();
 			String code = ut.confirmHeart(CtxStore.get(ctx).getAddress());
 			ctx.writeAndFlush(code);
@@ -792,13 +790,18 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 	 * 根据开关的id， 和报文信息来获取该开关的全部电压电流值，调用方法保存
 	 */
 	public void saveCV(String switchId, String data) {
-
+		//TODO
 		data = data.replace(" ", "");
-		String ABVoltage = new HighVoltageDeviceCommandUtil().readABPhaseVoltage(data);
-		String BCVoltage = new HighVoltageDeviceCommandUtil().readBCPhaseVoltage(data);
-		String ACurrent = new HighVoltageDeviceCommandUtil().readAPhaseCurrent(data);
-		String BCurrent = new HighVoltageDeviceCommandUtil().readBPhaseCurrent(data);
-		String CCurrent = new HighVoltageDeviceCommandUtil().readCPhaseCurrent(data);
+		String ABVoltage = Integer.parseInt(LowVoltageDeviceCommandUtil.reverseStringBy2(data.substring(72, 78)), 16) + "";
+//				new HighVoltageDeviceCommandUtil().readABPhaseVoltage(data);
+		String BCVoltage = Integer.parseInt(LowVoltageDeviceCommandUtil.reverseStringBy2(data.substring(78, 84)), 16) + "";
+				new HighVoltageDeviceCommandUtil().readBCPhaseVoltage(data);
+		String ACurrent = Integer.parseInt(LowVoltageDeviceCommandUtil.reverseStringBy2(data.substring(30, 36)), 16) + "";
+//				new HighVoltageDeviceCommandUtil().readAPhaseCurrent(data);
+		String BCurrent =Integer.parseInt(LowVoltageDeviceCommandUtil.reverseStringBy2(data.substring(36, 42)), 16) + "";
+//				new HighVoltageDeviceCommandUtil().readBPhaseCurrent(data);
+		String CCurrent = Integer.parseInt(LowVoltageDeviceCommandUtil.reverseStringBy2(data.substring(42, 48)), 16) + "";
+//				new HighVoltageDeviceCommandUtil().readCPhaseCurrent(data);
 
 		saveCurrentForValue(switchId, "A", ACurrent);
 		saveCurrentForValue(switchId, "B", BCurrent);
