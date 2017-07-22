@@ -225,6 +225,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 
 		SwitchGPRS gprs = CtxStore.get(ctx);
+		logger.info("高压设备1.3 " + gprs.getAddress() + "下线");
 		if (gprs != null) {
 			CtxStore.remove(ctx);// 从Store中移除这个context
 			if (gprs.getId() != null) {
@@ -319,6 +320,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 //					+ "0000aa55";
 			HighVoltageDeviceCommandUtil ut = new HighVoltageDeviceCommandUtil();
 			String code = ut.confirmHeart(CtxStore.get(ctx).getAddress());
+			ctx.writeAndFlush(code);
 			logger.info("返回心跳报文：" + code);
 		} else {
 			logger.error("接收到的非法数据--------------------" + String.valueOf(data));

@@ -3,6 +3,9 @@ package com.gdut.dongjun.domain;
 import java.io.Serializable;
 
 /**   
+ * 这个类不同于{@code SwitchGPRS}，一旦建立之后就一直在{@code HighVoltageCtxStore}中。
+ * {@code SwitchGPRS}指明当前连接的情况，{@code HighVoltageStatus}指明设备上线后的情况。
+ * 所以不能拿这个类来判断设备是否上线。
  * @author	Sherlock-lee
  * @date	2016年1月15日 下午11:20:25
  * @see 	TODO

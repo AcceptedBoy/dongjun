@@ -149,6 +149,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 
 		SwitchGPRS gprs = CtxStore.get(ctx);
+		logger.info("高压设备 " + gprs.getAddress() + "下线");
 		if (gprs != null) {
 			CtxStore.remove(ctx);// 从Store中移除这个context
 			if (gprs.getId() != null) {
@@ -524,7 +525,6 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		 */
 		// 测试报文：68 13 13 68 F3 01 00 1F 01 03 01 01 00 05 00 01 A3 D7 06 0D B3
 		// 03 0A 70 16
-
 		String address = CharUtils.newString(data, 10, 14).intern();
 		HighVoltageStatus s = hvCtxStore.getStatusbyId(CtxStore.getIdbyAddress(address));
 		if (CharUtils.equals(data, 30, 32, CODE_01)) {
@@ -545,6 +545,17 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	 */
 	private void confirmSignalInitialChange(ChannelHandlerContext ctx, char[] data) {
 
+		logger.info("遥信变位：" + String.valueOf(data));
+		//在这里更改遥信值
+		String iden = String.valueOf(CharUtils.subChars(data, 2 * 13, 2));
+		String value = String.valueOf(CharUtils.subChars(data, 2 * 15, 2));
+		HighVoltageStatus s = hvCtxStore.getStatusbyId(CtxStore.get(ctx).getId());
+		switch (iden) {
+		case "01" :
+			//合闸分闸判断位
+			s.setStatus(value); break;
+		default : break;
+		}
 		String resu = new HighVoltageDeviceCommandUtil().confirmChangeAffair(CharUtils.newString(data, 10, 14));
 		logger.info("遥信变位确定---------" + resu);
 		ctx.writeAndFlush(resu, ctx.voidPromise());
