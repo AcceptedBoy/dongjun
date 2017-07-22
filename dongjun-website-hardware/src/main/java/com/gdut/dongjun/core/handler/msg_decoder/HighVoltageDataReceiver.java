@@ -236,9 +236,18 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			 * 遥信总召所有值获取
 			 */
 			readAllSignal(data);
-		} else {
+		} else if (CharUtils.equals(infoIdenCode, CODE_68)) { 
+			/*
+			 * 设备心跳报文  68 0D 0D 68 F4 01 00 68 01 07 01 01 00 00 00 AA 55 66 16
+			 */	
+			HighVoltageDeviceCommandUtil ut = new HighVoltageDeviceCommandUtil();
+			String msg = ut.confirmHeart(CtxStore.get(ctx).getAddress());
+			ctx.channel().writeAndFlush(msg);
+			logger.info("回复心跳报文" + msg);
+		}
+		else {
 			logger.info("undefine message received!");
-			logger.error("接收到的非法数据--------------------" + data);
+			logger.error("接收到的非法数据--------------------" + String.valueOf(data));
 		}
 	}
 

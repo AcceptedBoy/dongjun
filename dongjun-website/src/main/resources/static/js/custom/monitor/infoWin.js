@@ -346,6 +346,7 @@ var infoWindow = function() {
 			}
 
 			var data = JSON.parse(message.body)
+			console.log('actualUpdateHvStatus: ', data)
 			if (data == null || data == "") {
 				cloneWin.find("#status").text("离线");
 			} else {
@@ -372,6 +373,8 @@ var infoWindow = function() {
 					cloneWin.find("#status").text("分");
 				} else if (data.status == "01") {
 					cloneWin.find("#status").text("合");
+				} else {
+					cloneWin.find("#status").text("");
 				}
 			}
 			this.updateWinStore('status', cloneWin)

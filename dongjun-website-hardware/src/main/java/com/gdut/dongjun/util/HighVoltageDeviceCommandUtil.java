@@ -2,6 +2,7 @@ package com.gdut.dongjun.util;
 
 import org.springframework.stereotype.Component;
 
+import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.enums.HighCommandControlCode;
 
 /**
@@ -132,6 +133,19 @@ public class HighVoltageDeviceCommandUtil extends StringCommonUtil {
 		setData(msg);
 		return "68" + msg + this.check + "16";
 	}
+	
+	/**
+	 * 回复心跳报文
+	 * @param address
+	 * @return
+	 */
+	public String confirmHeart(String address) {
+		String code = "f4" + address + "680107" + address
+				+ "0000aa55";
+		setData(code);
+		return "680d0d68" + code + this.check + "16";
+	}
+	
 	/**
 	 * 总召激活终止指令
 	 */
@@ -235,6 +249,11 @@ public class HighVoltageDeviceCommandUtil extends StringCommonUtil {
 			break;
 		}
 		return address;
+	}
+	
+	public String anonTotalCall() {
+		return this.readVoltageAndCurrent("9999", HighCommandControlCode.READ_VOLTAGE_CURRENT
+				.toString());
 	}
 
 	// public static void main(String[] args) {

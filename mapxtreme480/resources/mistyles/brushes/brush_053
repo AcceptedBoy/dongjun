@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NamedResource><ResourceDTD>MI_XML_Protocol_MapCommonElements_4_0.dtd</ResourceDTD><ResourceXML><Style><rendition><style fill="url(#pat1)" stroke-dasharray="none" marker-continuous="none" parallel-line="none" /><symbol id="sym1" stroke-dasharray="none" marker-continuous="none" parallel-line="none" symbol-mode="image" color-replacement-mode="mapxtreme"><image href="mires:mapinfo/pat53.gif" /></symbol><pattern id="pat1"><use href="#sym1" /></pattern></rendition></Style></ResourceXML></NamedResource>

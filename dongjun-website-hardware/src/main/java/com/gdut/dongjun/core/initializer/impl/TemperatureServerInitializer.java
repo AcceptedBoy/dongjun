@@ -24,7 +24,7 @@ public class TemperatureServerInitializer extends ServerInitializer {
 		super.initChannel(ch);
 		ChannelPipeline p = ch.pipeline();
 		//处理拆包，能转16进制byte数组到String
-		p.addLast(new SeparatedTextDecoder());
+//		p.addLast(new SeparatedTDextDecoder());
 		p.addLast(new Encoder());
 		p.addLast(receiver);
 	}

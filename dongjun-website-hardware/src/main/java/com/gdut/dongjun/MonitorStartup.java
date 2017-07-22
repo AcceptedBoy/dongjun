@@ -177,6 +177,6 @@ public class MonitorStartup implements InitializingBean {
 		highVoltageServer.start();
 		controlMeasureServer.start();
 		highVoltageServer_v1_3.start();
-		temperatureServer.start();
+//		temperatureServer.start();
 	}	
 }

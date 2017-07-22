@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE RasterDataProviders[
+ <!ELEMENT RasterDataProviders (Raster*)>
+ <!ELEMENT Raster (Suffix, DataProvider+)>
+ <!ELEMENT Suffix (#PCDATA)>
+ <!ELEMENT DataProvider (#PCDATA)>
+]>
+
+<RasterDataProviders>
+
+</RasterDataProviders>

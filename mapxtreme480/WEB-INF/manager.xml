@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mapxtreme-java-manager-settings>
+  <!-- All possible client panels -->
+  <panel class="com.mapinfo.mjm.client.mapdefs.MapDefPanel" required-services="1" />
+  <panel class="com.mapinfo.mjm.client.appbuilder.AppBuilderPanel" />
+  <panel class="com.mapinfo.mjm.client.namedres.NamedResourcesPanel" required-services="9" />
+  <panel class="com.mapinfo.mjm.client.connmgr.ConnectionsManagerPanel" />
+  <!--  3rd-party JSP custom tag libraries  -->
+  <!-- Mapping preferences specified in the MJM-Client -->
+  <preferences maps_dir="D:/Program Files/mapinfo/MapXtreme-4.8.0/examples/server/data/" mime_type="image/gif" is_remote="true" />
+  <!-- Recent maps loaded in MJM-Client -->
+  <recent-maps />
+  <!-- UI preferences -->
+  <ui-preferences showLogin="false" useEnvinsaUI="false" />
+</mapxtreme-java-manager-settings>
+

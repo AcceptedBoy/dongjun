@@ -42,17 +42,33 @@ public class HighVoltageServer_V1_3 extends NetServer {
 		super.hitchEventBreak = 30 * 60 * 1000;
 		// super.cvReadBreak = 30 * 1000;//设置较短的读取间隔
 	}
+	
+	private static int initCount = 0;
 
 	@Override
 	protected void hitchEventSpy() {
+		
+		if (initCount == 0) {
+			logger.info("系统初始启动发送全域总召");
+			String msg = new HighVoltageDeviceCommandUtil().anonTotalCall();
+			for (SwitchGPRS gprs : CtxStore.getInstance()) {
+				gprs.getCtx().writeAndFlush(msg);
+			}
+			initCount++;
+			return ;
+		}
 
 		List<HighVoltageSwitch> switchs = lowVoltageSwitchService
 				.selectByParameters(null);
 
 		if (switchs != null) {
 			for (HighVoltageSwitch s : switchs) {
-				if (s.getId() != null && CtxStore.isReady(s.getId())) {
-					totalCall(s);
+				if (s.getId() != null) {
+					if (CtxStore.isReady(s.getId())) {
+						totalCall(s);
+					} else {
+						anonTotalCall(s);
+					}
 				}
 			}
 		}
@@ -92,5 +108,8 @@ public class HighVoltageServer_V1_3 extends NetServer {
 	protected void timedCVReadTask() {
 		
 	}	
+	
+	private void anonTotalCall(HighVoltageSwitch s) {
+	}
 	
 }

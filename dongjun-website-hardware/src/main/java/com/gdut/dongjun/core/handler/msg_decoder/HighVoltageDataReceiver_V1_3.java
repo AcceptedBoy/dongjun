@@ -135,8 +135,8 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 		// hitchEventDesc = getHitchReason(data.substring(140, 160));
 		// }
 		
-		handleSeparatedText(ctx, data, hitchEventDesc);
-//		handleIdenCode(ctx, data, hitchEventDesc);
+//		handleSeparatedText(ctx, data, hitchEventDesc);
+		handleIdenCode(ctx, data, hitchEventDesc);
 	}
 	
 	private void handleSeparatedText(ChannelHandlerContext ctx, char[] data, String hitchEventDesc) {
@@ -260,6 +260,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 		} else {
 			//eb90注册报文
 			getOnlineAddress(ctx, data);
+			ctx.writeAndFlush(String.valueOf(data));
 			return ;
 		}
 		char[] infoIdenCode = CharUtils.subChars(data, BYTE * 7, BYTE);
@@ -310,6 +311,15 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 			 * 遥信总召所有值获取
 			 */
 			readAllSignal(hitchEventDesc, data);
+		} else if (CharUtils.equals(infoIdenCode, CODE_68)) { 
+			/*
+			 * 设备心跳报文  68 0D 0D 68 F4 01 00 68 01 07 01 01 00 00 00 AA 55 66 16
+			 */
+//			String code = "680d0d68f4" + CtxStore.get(ctx).getAddress() + "680107" + CtxStore.get(ctx).getAddress()
+//					+ "0000aa55";
+			HighVoltageDeviceCommandUtil ut = new HighVoltageDeviceCommandUtil();
+			String code = ut.confirmHeart(CtxStore.get(ctx).getAddress());
+			logger.info("返回心跳报文：" + code);
 		} else {
 			logger.error("接收到的非法数据--------------------" + String.valueOf(data));
 		}

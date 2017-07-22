@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NamedResource>
+  <ResourceDTD>MI_XML_Protocol_MapPersistence_4_7.dtd</ResourceDTD>
+  <ResourceXML>
+    <MapDefinitionLayer Level="-1" Name="World Capitals">
+      <VisibilityConstraints>
+        <IsEnabled>true</IsEnabled>
+        <ZoomConstraints>
+          <IsZoomAware>true</IsZoomAware>
+          <LinearUnit>
+            <NameSet>
+              <name>mile</name>
+              <abbreviation>mi</abbreviation>
+            </NameSet>
+            <metresPerUnit>1609.344</metresPerUnit>
+          </LinearUnit>
+          <MinZoom>0.0</MinZoom>
+          <MaxZoom>6499.999999999999</MaxZoom>
+        </ZoomConstraints>
+      </VisibilityConstraints>
+      <LayerConditions>
+        <IsSelectable>true</IsSelectable>
+      </LayerConditions>
+      <ServerQuery>
+        <Table>worldcap.tab</Table>
+      </ServerQuery>
+      <Connection>
+        <Url>tab:D:/Program Files/mapinfo/MapXtreme-4.8.0/examples/server/data</Url>
+      </Connection>
+      <KeyColumns>
+        <AttName>MapInfo_ID</AttName>
+      </KeyColumns>
+      <FeatureStyle>
+        <BaseFeatureStyle Action="discover" />
+        <FeatureStyleColumn Action="none" />
+        <FeatureThemeList />
+      </FeatureStyle>
+      <TextLabels>
+        <BaseLabelProperties Action="use">
+          <LabelProperties>
+            <LabelTokenList>
+              <LabelToken>
+                <AttName>Capital</AttName>
+              </LabelToken>
+            </LabelTokenList>
+            <LabelConstraints>
+              <AllowDuplication>false</AllowDuplication>
+              <Alignment>
+                <HorizontalAlignment>left</HorizontalAlignment>
+                <VerticalAlignment>center</VerticalAlignment>
+              </Alignment>
+              <Offset>
+                <PixelSpacingUnit>
+                  <pixelSpacingsPerUnit>1.0</pixelSpacingsPerUnit>
+                </PixelSpacingUnit>
+                <HorizontalOffset>2.0</HorizontalOffset>
+                <VerticalOffset>0.0</VerticalOffset>
+              </Offset>
+            </LabelConstraints>
+            <Style>
+              <rendition>
+                <style font-family="Arial" font-weight="1.0" font-size="9.6" font-style="normal" text-decoration="none" filter="halo" symbol-foreground="black" symbol-background="#d0ffd0" />
+              </rendition>
+            </Style>
+          </LabelProperties>
+        </BaseLabelProperties>
+        <LabelStyleColumn Action="discover" />
+        <LabelThemeList />
+      </TextLabels>
+    </MapDefinitionLayer>
+  </ResourceXML>
+</NamedResource>
+
