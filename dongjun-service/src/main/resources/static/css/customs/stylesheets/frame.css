@@ -1,0 +1,45 @@
+/* line 5, ../sass/frame.scss */
+#content-container {
+  min-height: 100%;
+  box-sizing: border-box;
+  padding: 20px 10px;
+}
+
+/* line 13, ../sass/frame.scss */
+.dj-nav > .mdl-layout__content {
+  padding: 5px 15px 10px;
+  min-height: calc(100% - 100px);
+  max-height: calc(100% - 80px);
+  width: 100%;
+  box-sizing: border-box;
+}
+/* line 21, ../sass/frame.scss */
+.dj-nav .mdl-ripple {
+  background-color: white;
+}
+/* line 28, ../sass/frame.scss */
+.dj-nav-header .mdl-layout__header-row {
+  padding-left: 15px;
+}
+/* line 2, ../sass/_mixin.scss */
+.dj-nav-logo {
+  width: 50px;
+  margin-right: 5px;
+}
+/* line 2, ../sass/_mixin.scss */
+.dj-nav-title {
+  color: #FFFFFF;
+}
+/* line 2, ../sass/_mixin.scss */
+.dj-nav-link {
+  color: white;
+  text-decoration: none;
+}
+/* line 46, ../sass/frame.scss */
+.dj-nav-link.active {
+  background-color: rgba(0, 0, 0, 0.15);
+}
+/* line 50, ../sass/frame.scss */
+.dj-nav-link button {
+  color: white;
+}

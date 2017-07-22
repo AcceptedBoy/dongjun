@@ -1,0 +1,98 @@
+@import "variables", "mixin";
+
+%font-base {
+	color: color(font);
+	font-family: STXihei, "华文细黑", "Microsoft YaHei", "微软雅黑";
+	font-weight: lighter;
+}
+
+%span {
+	display: inline-block;
+}
+
+$cus: ".dj";
+
+html, body, div, span,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark {
+	@extend %font-base;
+}
+
+.cus-font {
+	@extend %font-base;
+}
+
+body {
+	background-color: color(bgc);
+}
+
+.hide {
+	display: none;
+}
+
+.dj-footer {
+	position: fixed;
+	bottom: 0;
+	width: 100%;
+	height: 30px;
+	background-color: #646464;
+	z-index: 9999;
+}
+
+select {
+	min-width: 150px;
+  padding: 5px 8px;
+  border: 1px solid #ededed;
+  box-sizing: border-box;
+  outline: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -ms-appearance: none;
+  appearance: none;
+  box-shadow: none;
+  background: white;
+  background-image: none;
+  color: color(font);
+
+  &.auto-size {
+  	width: 80%;
+  }
+}
+
+select::-ms-expand { display: none; }
+
+#{$cus} {
+	@include root(row) {
+		position: relative;
+		box-sizing: border-box;
+		margin: {
+			top: 5px;
+			bottom: 5px;
+		}		
+	}
+	
+	@for $i from 1 through 12 {
+		@include root(span#{$i}) {
+			@extend %span;
+			width: 8.2% * $i;
+		}
+	}
+}
+
+.mdl-data-table td {
+	text-align: center;
+}
+
+i.fa {
+	color: inherit;
+}
