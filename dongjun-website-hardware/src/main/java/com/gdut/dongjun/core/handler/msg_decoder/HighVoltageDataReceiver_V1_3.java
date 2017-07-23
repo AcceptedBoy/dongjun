@@ -82,6 +82,8 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 	private static final char[] CODE_47 = new char[] { '4', '7' }; // 47
 	private static final char[] CODE_16 = new char[] { '1', '6' }; // 16
 	private static final char[] CODE_68 = new char[] { '6', '8' }; // 68
+	private static final char[] CODE_108B = new char[] { '1', '0', '8', 'b' };
+	private static final char[] CODE_1080 = new char[] { '1', '0', '8', '0' };
 	private static int BYTE = 2;
     private static final String STR_00 = "00".intern();
     private static final String STR_01 = "01".intern();
@@ -134,9 +136,25 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 		// if (data.length() == 190) {
 		// hitchEventDesc = getHitchReason(data.substring(140, 160));
 		// }
-		
+		if (handleRegis(ctx, data)) {
+			return ;
+		}
 		handleSeparatedText(ctx, data, hitchEventDesc);
 //		handleIdenCode(ctx, data, hitchEventDesc);
+	}
+	
+	private boolean handleRegis(ChannelHandlerContext ctx, char[] data) {
+		//终端响应链路状态
+		if (CharUtils.startWith(data, CODE_108B)) {
+			// 主站复位远方链路
+			String msg = "104001004116";
+			ctx.writeAndFlush(msg);
+			return true;
+		} else if (CharUtils.startWith(data, CODE_1080)) {
+			// 终端确认复位远方链路
+			return true;
+		}
+		return false;
 	}
 	
 	private void handleSeparatedText(ChannelHandlerContext ctx, char[] data, String hitchEventDesc) {
@@ -263,6 +281,9 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 			//eb90注册报文
 			getOnlineAddress(ctx, data);
 			ctx.writeAndFlush(String.valueOf(data));
+			// 主站发起链路请求
+			String msg = "104901004a16";
+			ctx.writeAndFlush(msg);
 			return ;
 		}
 		char[] infoIdenCode = CharUtils.subChars(data, BYTE * 7, BYTE);
@@ -319,10 +340,13 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 			 */
 			logger.info("接收心跳报文：" + String.valueOf(data));
 			SwitchGPRS gprs = CtxStore.get(ctx);
-			if (null == gprs.getAddress() || "".equals(gprs.getAddress())) {
+			if (null == gprs || null == gprs.getAddress() || "".equals(gprs.getAddress())) {
 				// 如果设备还没有留下地址就发送全域总召
 				HighVoltageDeviceCommandUtil ut = new HighVoltageDeviceCommandUtil();
 				ctx.writeAndFlush(ut.anonTotalCall());
+				AttributeKey<Integer> key = AttributeKey.valueOf("isRegisted");
+				Attribute<Integer> attr = ctx.attr(key);
+				attr.set(null);
 			}
 		} else {
 			logger.error("接收到的非法数据--------------------" + String.valueOf(data));
@@ -620,6 +644,11 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 		String iden = String.valueOf(CharUtils.subChars(data, 2 * 13, 2));
 		String value = String.valueOf(CharUtils.subChars(data, 2 * 15, 2));
 		HighVoltageStatus s = hvCtxStore.getStatusbyId(CtxStore.get(ctx).getId());
+		if (s == null) {
+			s = new HighVoltageStatus();
+			s.setId(CtxStore.get(ctx).getId());
+			hvCtxStore.addStatus(s);
+		}
 		switch (iden) {
 		case "01" :
 			//合闸分闸判断位

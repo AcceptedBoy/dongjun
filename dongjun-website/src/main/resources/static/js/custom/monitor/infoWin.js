@@ -133,6 +133,32 @@ var infoWindow = function() {
 			this.initWinStore()
 			monitorSet.hvSwitchStatusSpy(now.id)
 		},
+		// 以下是临时加需求 盲改代码 晚上2点
+		// pending 
+		click_high_voltage_switch_pending: function(marker) {
+			// curMarker = marker
+			this.setNowData(marker)
+			var msg = '设备已连接，暂时无法读取状态'
+			var content = '<div class="BDM_custom_popup" id="mapInfoWin">'+'<h4>'
+									+ marker.name + '&nbsp;&nbsp;'
+									+ '<button class="btn btn-info btn-mini" data-fnc="set_center">设为中心点</button>'
+									+ '<button type="button" class="close" data-fnc="close">'
+									+ '<span aria-hidden="true" data-fnc="close">' + '&times;'
+									+ '</span>' + '</button>'
+									+ "</h4>"
+									+ '<table class="table table-bordered table-condensed">'
+									+ '<tbody>'
+									+ '<tr>'
+									+ '<td>断路器位置</td>'
+									+ '<td id="status"> ' + msg + '</td>'
+									+ '</table>'
+									+ '</div>'
+			win.setContent(content)
+			marker.openInfoWindow(win)
+			this.eventHandler()
+			// this.initWinStore()
+			// monitorSet.hvSwitchStatusSpy(now.id)
+		},
 		// 合闸和分闸是可以合并起来= =
 		// 合闸
 		click_high_voltage_switch_close: function(marker) {
@@ -346,7 +372,6 @@ var infoWindow = function() {
 			}
 
 			var data = JSON.parse(message.body)
-			console.log('actualUpdateHvStatus: ', data)
 			if (data == null || data == "") {
 				cloneWin.find("#status").text("离线");
 			} else {
@@ -373,8 +398,6 @@ var infoWindow = function() {
 					cloneWin.find("#status").text("分");
 				} else if (data.status == "01") {
 					cloneWin.find("#status").text("合");
-				} else {
-					cloneWin.find("#status").text("");
 				}
 			}
 			this.updateWinStore('status', cloneWin)

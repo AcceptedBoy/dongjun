@@ -34,6 +34,7 @@ djMap.Model = function(){
 		low_voltage: '../../ico/voltage-outLine_low.jpg',					// 低压开关的图标
 		high_voltage: '../../ico/voltage-outLine_high.jpg',				// 高压开关的图标
 		control_measure: '../../ico/control_measure_switch.jpg',	// 低压开关的图标
+		pending: '../../ico/pending.jpg'							// 已连接但是暂时无法获取状态的图标
 		old_icon: null																											// BMap.icon 对象，储存上一个图标
 	}
 
@@ -444,6 +445,9 @@ djMap.View = function(_map) {
 						marker.node = node
 						marker.open = node.open
 					}
+				} else {
+					// 以下是临时加需求 盲改代码
+					marker.status = '99'
 				}
 
 				// set icon to marker
@@ -470,8 +474,15 @@ djMap.View = function(_map) {
 							break
 					}
 					if(iconName != '') {
-						iconName = (marker.status == '00') ? model.getIcon('open_'+iconName) :
-											(marker.status == '01') ? model.getIcon('close_'+iconName) : model.getIcon(iconName+'_voltage')
+						// iconName = (marker.status == '00') ? model.getIcon('open_'+iconName) :
+						// 					(marker.status == '01') ? model.getIcon('close_'+iconName) : model.getIcon(iconName+'_voltage')
+						// 以下是临时加需求 盲改代码 晚上2点
+						switch(marker.status) {
+							case '00': iconName = model.getIcon('open_'+iconName);break;
+							case '01': iconName = model.getIcon('close_'+iconName);break;
+							case '99': iconName = model.getIcon('pending');break;
+							default	 : iconName = model.getIcon(iconName+'_voltage');break;
+						}
 					} else {
 						iconName = model.getIcon('control_measure')
 					}
@@ -676,7 +687,11 @@ djMap.Control = function(_map) {
 								}
 								break
 							case '02': 	// 报警
-						  	infoWindow.alarm_handle_modal(marker); 	// pop up a handle window
+						  		infoWindow.alarm_handle_modal(marker); 	// pop up a handle window
+								break
+							// 以下是临时加需求 盲改代码
+							case '99': // 已连接但是没数据
+								infoWindow.click_high_voltage_switch_pending(marker);
 								break
 						}
 					}
