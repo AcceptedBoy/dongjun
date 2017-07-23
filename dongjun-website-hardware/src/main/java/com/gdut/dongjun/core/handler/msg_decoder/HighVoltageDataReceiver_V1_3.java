@@ -829,6 +829,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 					CtxStore.add(gprs);
 				}
 				logger.info("高压设备1.3 " + address + "上线");
+				websiteClient.getService().callbackCtxChange();
 			} else {
 				logger.info("this device is not registered!!");
 			}

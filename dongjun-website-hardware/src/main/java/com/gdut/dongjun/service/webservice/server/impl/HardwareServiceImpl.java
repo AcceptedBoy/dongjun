@@ -243,9 +243,8 @@ public class HardwareServiceImpl implements HardwareService {
 	@Override
 	public List<ActiveHighSwitch> getActiveSwitchStatus() {
 
-		List<SwitchGPRS> switchs = hvCtxStore.getInstance();
+		List<SwitchGPRS> switchs = CtxStore.getInstance();
 		List<ActiveHighSwitch> list = new ArrayList<>();
-
 		if(switchs != null) {
 			for(SwitchGPRS s : switchs) {
 				
@@ -264,6 +263,15 @@ public class HardwareServiceImpl implements HardwareService {
 						}
 					}
 					list.add(as);
+				} else {
+					if (null != s.getAddress()) {
+						ActiveHighSwitch as = new ActiveHighSwitch();
+						as.setId(s.getId());
+						as.setOpen(s.isOpen());
+						as.setStatus(null);
+						as.setHitchEventId(null);
+						list.add(as);
+					}
 				}
 			}
 		}
