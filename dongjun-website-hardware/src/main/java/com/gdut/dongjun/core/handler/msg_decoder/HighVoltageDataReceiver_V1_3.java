@@ -932,5 +932,9 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 //		System.out.println(b.replace(" ", "").length());
 //		String c = "4f2c00000000f80400000000280500000000000000000000b61600ebff001b0000000000851300220000140000000000";
 //		System.out.println(c.length());
+		//68131368f46c00090203016c000a4079ff000c40bbff00a316
+		//68131368f46c00090203016c000a4074ff000c40b6ff009916
+		//680e0e68f46c00090103016c000f400000002916
+		//
 //	}
 }
