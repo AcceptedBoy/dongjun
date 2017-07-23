@@ -251,8 +251,13 @@ public class HighVoltageDeviceCommandUtil extends StringCommonUtil {
 		return address;
 	}
 	
+	/**
+	 * 在不知道设备地址情况下的全域总召
+	 * 用0001地址代替源地址
+	 * @return
+	 */
 	public String anonTotalCall() {
-		return this.readVoltageAndCurrent("9999", HighCommandControlCode.READ_VOLTAGE_CURRENT
+		return this.readVoltageAndCurrent("0100", HighCommandControlCode.READ_VOLTAGE_CURRENT
 				.toString());
 	}
 

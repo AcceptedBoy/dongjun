@@ -135,15 +135,16 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 		// hitchEventDesc = getHitchReason(data.substring(140, 160));
 		// }
 		
-//		handleSeparatedText(ctx, data, hitchEventDesc);
-		handleIdenCode(ctx, data, hitchEventDesc);
+		handleSeparatedText(ctx, data, hitchEventDesc);
+//		handleIdenCode(ctx, data, hitchEventDesc);
 	}
 	
 	private void handleSeparatedText(ChannelHandlerContext ctx, char[] data, String hitchEventDesc) {
 		Integer begin = 0;
+		int pos = 0;
 		while (true) {
 			
-			int pos = StringCommonUtil.getFirstIndexOfEndTag(data, begin, "16");
+			pos = StringCommonUtil.getFirstIndexOfEndTag(data, pos, "16");
 			if (pos != -1) {
 				if (isSeparatedPoint(data, pos)) {
 					// 分割出独立报文段
@@ -156,7 +157,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 					begin = pos;	
 				} else {
 					//目标分割点非报文分割点
-					begin = pos;
+//					begin = pos;
 					continue;
 				}
 			} else {
@@ -316,10 +317,13 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 			/*
 			 * 设备心跳报文  68 0D 0D 68 F4 01 00 68 01 07 01 01 00 00 00 AA 55 66 16
 			 */
-			HighVoltageDeviceCommandUtil ut = new HighVoltageDeviceCommandUtil();
-			String code = ut.confirmHeart(CtxStore.get(ctx).getAddress());
-			ctx.writeAndFlush(code);
-			logger.info("返回心跳报文：" + code);
+			logger.info("接收心跳报文：" + String.valueOf(data));
+			SwitchGPRS gprs = CtxStore.get(ctx);
+			if (null == gprs.getAddress() || "".equals(gprs.getAddress())) {
+				// 如果设备还没有留下地址就发送全域总召
+				HighVoltageDeviceCommandUtil ut = new HighVoltageDeviceCommandUtil();
+				ctx.writeAndFlush(ut.anonTotalCall());
+			}
 		} else {
 			logger.error("接收到的非法数据--------------------" + String.valueOf(data));
 		}
@@ -562,7 +566,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 			// 68131368f46600090203016600054000000006402700008116
 			// 68131368f46600090203016600054000000006402700008116
 			// 68131368f4710009020301710006402c000008402a0000c916
-			
+			// 683b3b68f4660009901401660001404f2c00000000f80400000000280500000000000000000000b61600ebff001b0000000000851300220000140000000000f216 
 			// 68131368f46c0009020301 6c000a4074ff000c40baff009d16
 			for (int i = 22; i + 14 < data.length; i += 10) {
 				getMessageAddress(
@@ -921,4 +925,12 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 //		System.out.println(e.substring(30,  e.length() - 4).length() / 6);
 //	}
 
+//	public static void main(String[] args) {
+//		String a = "683b3b68f4660009901401660001404f2c00000000f80400000000280500000000000000000000b61600ebff001b0000000000851300220000140000000000f216";
+//		System.out.println(a.length());
+//		String b = "68 7D 7D 68 F4 01 00 09 A6 14 01 01 00 01 40 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 54 0A 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 DB 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 14 00 00 14 00 00 14 00 00 70 16";
+//		System.out.println(b.replace(" ", "").length());
+//		String c = "4f2c00000000f80400000000280500000000000000000000b61600ebff001b0000000000851300220000140000000000";
+//		System.out.println(c.length());
+//	}
 }
