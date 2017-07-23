@@ -135,12 +135,12 @@ public class HighVoltageDeviceCommandUtil extends StringCommonUtil {
 	}
 	
 	/**
-	 * 回复心跳报文
+	 * 发送心跳报文
 	 * @param address
 	 * @return
 	 */
 	public String confirmHeart(String address) {
-		String code = "f4" + address + "680107" + address
+		String code = "72" + address + "68018601" + address
 				+ "0000aa55";
 		setData(code);
 		return "680d0d68" + code + this.check + "16";

@@ -5,6 +5,7 @@ import java.util.List;
 import javax.annotation.Resource;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +26,7 @@ import com.gdut.dongjun.util.HighVoltageDeviceCommandUtil;
  * @since 1.0
  */
 @Service("HighVoltageServer_V1_3")
-public class HighVoltageServer_V1_3 extends NetServer {
+public class HighVoltageServer_V1_3 extends NetServer implements InitializingBean {
 
 	@Resource(name = "HighVoltageServerInitializer_V1_3")
 	private ServerInitializer initializer;
@@ -41,6 +42,32 @@ public class HighVoltageServer_V1_3 extends NetServer {
 		super.initializer = initializer;
 		super.hitchEventBreak = 30 * 60 * 1000;
 		// super.cvReadBreak = 30 * 1000;//设置较短的读取间隔
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		new Thread() {
+
+			@Override
+			public void run() {
+				while (true) {
+					logger.info("主站发送心跳报文");
+					for (SwitchGPRS gprs : CtxStore.getInstance()) {
+						if (null != gprs.getAddress()) {
+							String msg = new HighVoltageDeviceCommandUtil().confirmHeart(gprs.getAddress());
+							gprs.getCtx().writeAndFlush(msg);
+						}
+					}
+					try {
+						Thread.sleep(1000 * 60 * 5);
+					} catch (InterruptedException e) {
+						logger.info("心跳线程终止");
+						e.printStackTrace();
+					}
+				}
+			}
+			
+		}.start();
 	}
 	
 	private static int initCount = 0;
@@ -66,8 +93,6 @@ public class HighVoltageServer_V1_3 extends NetServer {
 				if (s.getId() != null) {
 					if (CtxStore.isReady(s.getId())) {
 						totalCall(s);
-					} else {
-						anonTotalCall(s);
 					}
 				}
 			}
@@ -107,9 +132,7 @@ public class HighVoltageServer_V1_3 extends NetServer {
 	@Override
 	protected void timedCVReadTask() {
 		
-	}	
-	
-	private void anonTotalCall(HighVoltageSwitch s) {
 	}
+
 	
 }

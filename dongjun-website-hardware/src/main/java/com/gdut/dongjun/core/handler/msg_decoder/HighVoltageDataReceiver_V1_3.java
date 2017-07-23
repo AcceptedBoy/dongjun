@@ -562,6 +562,8 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 			// 68131368f46600090203016600054000000006402700008116
 			// 68131368f46600090203016600054000000006402700008116
 			// 68131368f4710009020301710006402c000008402a0000c916
+			
+			// 68131368f46c0009020301 6c000a4074ff000c40baff009d16
 			for (int i = 22; i + 14 < data.length; i += 10) {
 				getMessageAddress(
 						CharUtils.newString(data, i + 4, i + 8),
@@ -609,7 +611,17 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 	 * @param data
 	 */
 	private void confirmSignalInitialChange(ChannelHandlerContext ctx, char[] data) {
-
+		logger.info("遥信变位：" + String.valueOf(data));
+		//在这里更改遥信值
+		String iden = String.valueOf(CharUtils.subChars(data, 2 * 13, 2));
+		String value = String.valueOf(CharUtils.subChars(data, 2 * 15, 2));
+		HighVoltageStatus s = hvCtxStore.getStatusbyId(CtxStore.get(ctx).getId());
+		switch (iden) {
+		case "01" :
+			//合闸分闸判断位
+			s.setStatus(value); break;
+		default : break;
+		}
 		String resu = new HighVoltageDeviceCommandUtil().confirmChangeAffair(CharUtils.newString(data, BYTE * 5, BYTE * 7).intern());
 		readAllSignal("控制回路", data);
 		logger.info("遥信变位确定---------" + resu);
@@ -700,19 +712,27 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 		}
 
 		switch (code) {
-		case "4001":
+//		case "4001": 
+		case "4008" : 
 			saveVoltageForValue(CtxStore.getIdbyAddress(address), "A",
 					HighVoltageDeviceCommandUtil.changToRight(value));
 			break;
-		case "4006":
+		case "4009" : 
+			saveVoltageForValue(CtxStore.getIdbyAddress(address), "B",
+					HighVoltageDeviceCommandUtil.changToRight(value));
+			break;
+//		case "4006":
+		case "4001" : 
 			saveCurrentForValue(CtxStore.getIdbyAddress(address), "A",
 					HighVoltageDeviceCommandUtil.changToRight(value));
 			break;
-		case "4007":
+//		case "4007":
+		case "4002" : 
 			saveCurrentForValue(CtxStore.getIdbyAddress(address), "B",
 					HighVoltageDeviceCommandUtil.changToRight(value));
 			break;
-		case "4008":
+//		case "4008":
+		case "4003" : 
 			saveCurrentForValue(CtxStore.getIdbyAddress(address), "C",
 					HighVoltageDeviceCommandUtil.changToRight(value));
 			break;

@@ -545,17 +545,17 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	 */
 	private void confirmSignalInitialChange(ChannelHandlerContext ctx, char[] data) {
 
-		logger.info("遥信变位：" + String.valueOf(data));
-		//在这里更改遥信值
-		String iden = String.valueOf(CharUtils.subChars(data, 2 * 13, 2));
-		String value = String.valueOf(CharUtils.subChars(data, 2 * 15, 2));
-		HighVoltageStatus s = hvCtxStore.getStatusbyId(CtxStore.get(ctx).getId());
-		switch (iden) {
-		case "01" :
-			//合闸分闸判断位
-			s.setStatus(value); break;
-		default : break;
-		}
+//		logger.info("遥信变位：" + String.valueOf(data));
+//		//在这里更改遥信值
+//		String iden = String.valueOf(CharUtils.subChars(data, 2 * 13, 2));
+//		String value = String.valueOf(CharUtils.subChars(data, 2 * 15, 2));
+//		HighVoltageStatus s = hvCtxStore.getStatusbyId(CtxStore.get(ctx).getId());
+//		switch (iden) {
+//		case "01" :
+//			//合闸分闸判断位
+//			s.setStatus(value); break;
+//		default : break;
+//		}
 		String resu = new HighVoltageDeviceCommandUtil().confirmChangeAffair(CharUtils.newString(data, 10, 14));
 		logger.info("遥信变位确定---------" + resu);
 		ctx.writeAndFlush(resu, ctx.voidPromise());
