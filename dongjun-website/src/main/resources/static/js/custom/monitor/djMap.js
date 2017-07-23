@@ -34,7 +34,7 @@ djMap.Model = function(){
 		low_voltage: '../../ico/voltage-outLine_low.jpg',					// 低压开关的图标
 		high_voltage: '../../ico/voltage-outLine_high.jpg',				// 高压开关的图标
 		control_measure: '../../ico/control_measure_switch.jpg',	// 低压开关的图标
-		pending: '../../ico/pending.jpg'							// 已连接但是暂时无法获取状态的图标
+		pending: '../../ico/pending.jpg',							// 已连接但是暂时无法获取状态的图标
 		old_icon: null																											// BMap.icon 对象，储存上一个图标
 	}
 
