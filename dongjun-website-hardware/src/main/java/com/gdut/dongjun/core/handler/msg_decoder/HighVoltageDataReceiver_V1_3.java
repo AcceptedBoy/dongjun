@@ -15,6 +15,7 @@
  */
 package com.gdut.dongjun.core.handler.msg_decoder;
 
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -50,6 +51,7 @@ import com.gdut.dongjun.util.HighVoltageDeviceCommandUtil;
 import com.gdut.dongjun.util.LowVoltageDeviceCommandUtil;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.StringCommonUtil;
+import com.gdut.dongjun.util.TemperatureDeviceCommandUtil;
 import com.gdut.dongjun.util.TimeUtil;
 import com.gdut.dongjun.util.UUIDUtil;
 
@@ -82,6 +84,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 	private static final char[] CODE_47 = new char[] { '4', '7' }; // 47
 	private static final char[] CODE_16 = new char[] { '1', '6' }; // 16
 	private static final char[] CODE_68 = new char[] { '6', '8' }; // 68
+	private static final char[] CODE_67 = new char[] { '6', '7' };
 	private static final char[] CODE_108B = new char[] { '1', '0', '8', 'b' };
 	private static final char[] CODE_1080 = new char[] { '1', '0', '8', '0' };
 	private static int BYTE = 2;
@@ -121,6 +124,9 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 		if (CtxStore.get(ctx) == null) {
 			CtxStore.add(gprs);
 		}
+		// 对时
+		HighVoltageDeviceCommandUtil ut = new HighVoltageDeviceCommandUtil();
+		ctx.writeAndFlush(ut.checkTime());
 	}
 
 	@Override
@@ -175,22 +181,11 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 					begin = pos;	
 				} else {
 					//目标分割点非报文分割点
-//					begin = pos;
 					continue;
 				}
 			} else {
 				break;
 			}
-			// 获取报文分割点
-//			int pos = getSeparatedPoint(data, begin);
-			// pos为-1报文异常
-//			if (pos == -1) {
-//				break;
-//			}
-			// pos为-2目标分割点非报文分割点
-//			else if (pos == -2) {
-//				continue;
-//			}
 		}
 	}
 	
@@ -246,7 +241,12 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 		SwitchGPRS gprs = CtxStore.get(ctx);
 		logger.info("高压设备1.3 " + gprs.getAddress() + "下线");
 		if (gprs != null) {
-			CtxStore.remove(ctx);// 从Store中移除这个context
+			// 从Store中移除这个context
+			CtxStore.remove(ctx);
+			// 清空Attribute
+			AttributeKey<Integer> key = AttributeKey.valueOf("isRegisted");
+			Attribute<Integer> attr = ctx.attr(key);
+			attr.set(null);
 			if (gprs.getId() != null) {
 				HighVoltageSwitch hvSwitch = switchService.selectByPrimaryKey(gprs.getId());
 				hvSwitch.setOnlineTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
@@ -287,7 +287,6 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 			return ;
 		}
 		char[] infoIdenCode = CharUtils.subChars(data, BYTE * 7, BYTE);
-//		String infoIdenCode = data.substring(14, 16);
 
 		/*
 		 * 将接收到的客户端信息分类处理 读通信地址并将地址反转
@@ -348,7 +347,11 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 				Attribute<Integer> attr = ctx.attr(key);
 				attr.set(null);
 			}
-		} else {
+		} else if (CharUtils.equals(infoIdenCode, CODE_67)) {
+			// 终端响应对时命令
+			logger.info("终端响应对时命令：" + String.valueOf(data));
+		}
+		else {
 			logger.error("接收到的非法数据--------------------" + String.valueOf(data));
 		}
 	}
@@ -626,8 +629,9 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 					CharUtils.newString(data, i, i + 4),
 					CharUtils.newString(data, i + 4, i + 6));
 		}
-		String resu = new HighVoltageDeviceCommandUtil().confirmChangeAffair(
-				CharUtils.newString(data, BYTE * 5, BYTE * 7));
+//		String resu = new HighVoltageDeviceCommandUtil().confirmChangeAffair(
+//				CharUtils.newString(data, BYTE * 5, BYTE * 7));
+		String resu = "100001001116";
 		logger.info("遥信变位事件确定---------" + resu);
 		ctx.writeAndFlush(resu);
 	}
@@ -655,8 +659,9 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 			s.setStatus(value); break;
 		default : break;
 		}
-		String resu = new HighVoltageDeviceCommandUtil().confirmChangeAffair(CharUtils.newString(data, BYTE * 5, BYTE * 7).intern());
+//		String resu = new HighVoltageDeviceCommandUtil().confirmChangeAffair(CharUtils.newString(data, BYTE * 5, BYTE * 7).intern());
 		readAllSignal("控制回路", data);
+		String resu = "100001001116";
 		logger.info("遥信变位确定---------" + resu);
 		ctx.writeAndFlush(resu);
 	}
@@ -823,6 +828,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 					CtxStore.remove(id);
 					CtxStore.add(gprs);
 				}
+				logger.info("高压设备1.3 " + address + "上线");
 			} else {
 				logger.info("this device is not registered!!");
 			}
@@ -966,4 +972,5 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 		//680e0e68f46c00090103016c000f400000002916
 		//
 //	}
+	
 }
