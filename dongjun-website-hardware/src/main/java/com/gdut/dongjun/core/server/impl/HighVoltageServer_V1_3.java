@@ -70,20 +70,8 @@ public class HighVoltageServer_V1_3 extends NetServer implements InitializingBea
 		}.start();
 	}
 	
-	private static int initCount = 0;
-
 	@Override
 	protected void hitchEventSpy() {
-		
-		if (initCount == 0) {
-			logger.info("系统初始启动发送全域总召");
-			String msg = new HighVoltageDeviceCommandUtil().anonTotalCall();
-			for (SwitchGPRS gprs : CtxStore.getInstance()) {
-				gprs.getCtx().writeAndFlush(msg);
-			}
-			initCount++;
-			return ;
-		}
 
 		List<HighVoltageSwitch> switchs = lowVoltageSwitchService
 				.selectByParameters(null);

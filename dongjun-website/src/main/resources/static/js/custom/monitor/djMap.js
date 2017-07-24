@@ -37,7 +37,15 @@ djMap.Model = function(){
 		pending: '../../ico/pending.jpg',							// 已连接但是暂时无法获取状态的图标
 		old_icon: null																											// BMap.icon 对象，储存上一个图标
 	}
-
+	
+	var status = {
+		'default': '-1',							// 离线
+		'open':  '00',							// 分闸
+		'close': '01',							// 合闸
+		'alarm': '02',							// 报警
+		'pending': '99'							// 已连接但无数据 （后端返回status为null）
+	}
+	
 	// polyline的颜色，待用
 	var lineColor = {
 		all: ['#2B0BB4', '#389510', '#F2611D', '#0E8CB3', '#A34545', '#CA0CBE', '#DFE21A'],
@@ -605,7 +613,9 @@ djMap.Control = function(_map) {
 						var pos = oldIds.indexOf(item.id)
 						if(pos == -1) {	// add
 							// console.log('fresh—add')
-							node.status = item.status
+							// 临时修改状态判断，后端状态可能为null，为null时我们给他个‘99’作为标识，下同
+							// model层里 status变量记录相关信息，应该使用它（现在没有时间大改）
+							node.status = item.status ? item.status : '99'
 							node.open = item.open
 							newMarker[item.id] = view.addMarkerByNode(node)[0]
 							// newNodeList.push(node)
@@ -614,7 +624,7 @@ djMap.Control = function(_map) {
 							// console.log(markers[item.id].status, item.status)
 							if(markers[item.id].status != item.status) {	// update old marker
 								// console.log('fresh-update')
-								markers[item.id].status = item.status
+								markers[item.id].status = item.status ? item.status : '99'
 								markers[item.id].open = item.open
 								view.setMarkerIcon(markers[item.id])
 							}
@@ -639,7 +649,7 @@ djMap.Control = function(_map) {
 				nodeData.forEach(function(item) {
 					var node = zTree.getNodesByParamFuzzy('id', item.id)[0]
 					if(!!node) {
-						node.status = item.status
+						node.status = item.status ? item.status : '99'
 						node.open = item.open
 						newMarker[item.id] = view.addMarkerByNode(node)[0]
 						// newNodeList.push(node)

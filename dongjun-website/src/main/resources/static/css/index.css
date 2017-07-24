@@ -43,3 +43,9 @@
 	display: block;
 }
 
+.yellow_point {
+  width: 10px;
+  height: 10px;
+  background-color: #dbbe35;
+  display: block;
+}

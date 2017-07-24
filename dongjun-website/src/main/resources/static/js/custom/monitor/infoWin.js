@@ -174,22 +174,22 @@ var infoWindow = function() {
 										+ '<table class="table table-bordered table-condensed">'
 										+ '<tbody>'
 										+ '<tr>'
-										+ '<td></td><td>电压</td><td>电流</td>'
+										+ '<td></td><td>电压</td><td></td><td>电流</td>'
 										+ '<td>过流I段保护</td>'
 										+ '<td id="guo_liu_yi_duan"></td>'
 										+ '</tr>'
 										+ '<tr>'
-										+ '<td>A相</td><td id="a_phase_voltage" class="red"></td><td id="a_phase_current" class="red"></td>'
+										+ '<td>AB相</td><td id="a_phase_voltage" class="red"></td><td>A相</td><td id="a_phase_current" class="red"></td>'
 										+ '<td>过流II段保护</td>'
 										+ '<td id="guo_liu_er_duan"></td>'
 										+ '</tr>'
 										+ '<tr>'
-										+ '<td>B相</td><td id="b_phase_voltage" class="red"></td><td id="b_phase_current" class="red"></td>'
+										+ '<td>BC相</td><td id="b_phase_voltage" class="red"></td><td>B相</td><td id="b_phase_current" class="red"></td>'
 										+ '<td>过流III段保护</td>'
 										+ '<td id="guo_liu_san_duan"></td>'
 										+ '</tr>'
 										+ '<tr>'
-										+ '<td>C相</td><td id="c_phase_voltage" class="red"></td><td id="c_phase_current" class="red"></td>'
+										+ '<td></td><td id="c_phase_voltage" class="red"></td><td>C相</td><td id="c_phase_current" class="red"></td>'
 										+ '<td>零序过流保护</td>'
 										+ '<td id="ling_xu_guo_liu_"></td>'
 										+ '</tr>'
@@ -255,22 +255,22 @@ var infoWindow = function() {
 									+ "<table class='table table-bordered table-condensed'>"
 									+ "<tbody>"
 									+ "<tr>"
-									+ "<td></td><td>电压</td><td>电流</td>"
+									+ "<td></td><td>电压</td><td></td><td>电流</td>"
 									+ "<td>过流I段保护</td>"
 									+ "<td id='guo_liu_yi_duan'></td>"
 									+ "</tr>"
 									+ "<tr>"
-									+ "<td>A相</td><td id='a_phase_voltage' class='red'></td><td id='a_phase_current' class='red'></td>"
+									+ "<td>AB相</td><td id='a_phase_voltage' class='red'></td><td>A相</td><td id='a_phase_current' class='red'></td>"
 									+ "<td>过流II段保护</td>"
 									+ "<td id='guo_liu_er_duan'></td>"
 									+ "</tr>"
 									+ "<tr>"
-									+ "<td>B相</td><td id='b_phase_voltage' class='red'></td><td id='b_phase_current' class='red'></td>"
+									+ "<td>BC相</td><td id='b_phase_voltage' class='red'></td><td>B相</td><td id='b_phase_current' class='red'></td>"
 									+ "<td>过流III段保护</td>"
 									+ "<td id='guo_liu_san_duan'></td>"
 									+ "</tr>"
 									+ "<tr>"
-									+ "<td>C相</td><td id='c_phase_voltage' class='red'></td><td id='c_phase_current' class='red'></td>"
+									+ "<td></td><td id='c_phase_voltage' class='red'></td><td>C相</td><td id='c_phase_current' class='red'></td>"
 									+ "<td>零序过流保护</td>"
 									+ "<td id='ling_xu_guo_liu_'></td>"
 									+ "</tr>"
@@ -364,10 +364,12 @@ var infoWindow = function() {
 			}
 			var green_or_red = function(sign) {
 				if(sign == '00') {
-					return 'green_point';
+					return 'green_point'
 				}
 				else if(sign == '01') {
-					return 'red_point';
+					return 'red_point'
+				} else if(sign == '02') {
+					return 'yellow_point'
 				}
 			}
 
@@ -428,7 +430,7 @@ var infoWindow = function() {
 
 			cloneWin.find("#b_phase_voltage").text(data[1] / volacc)
 
-			cloneWin.find("#c_phase_voltage").text(data[2] / volacc)
+			// cloneWin.find("#c_phase_voltage").text(data[2] / volacc)
 			this.updateWinStore('vol', cloneWin)
 		},
 		// 更新低压状态
