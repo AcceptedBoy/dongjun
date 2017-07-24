@@ -639,37 +639,37 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 			hvCtxStore.addStatus(s);
 		}
 		switch (iden) {
-		case "00" :
+		case "01" :
 			//合闸分闸判断位，设备变色
 			s.setStatus(value); websiteClient.getService().callbackCtxChange(); break;
-		case "03" : 
+		case "04" : 
 			// PT1有压
 			s.setPt1_you_ya(value); break;
-		case "06" : 
+		case "07" : 
 			// PT1过压
 			s.setPt1_guo_ya(value); break;
-		case "07" : 
+		case "08" : 
 			// PT2有压
 			s.setPt2_you_ya(value); break;
-		case "10" : 
+		case "11" : 
 			// PT2过压
 			s.setPt2_guo_ya(value); break;
-		case "20" : 
+		case "21" : 
 			//	手动合闸
 			s.setShou_dong_he_zha(value); break;
-		case "21" : 
+		case "22" : 
 			//	手动分闸
 			s.setShou_dong_fen_zha(value); break;
-		case "25" : 
+		case "26" : 
 			//	遥控复归
 			s.setYao_kong_fu_gui(value); break;
-		case "35" : 
+		case "36" : 
 			//	过流一段
 			s.setGuo_liu_yi_duan(value); break;
-		case "36" : 
+		case "37" : 
 			//	过流二段
 			s.setGuo_liu_er_duan(value);; break;
-		case "37" : 
+		case "38" : 
 			//	过流三段
 			s.setGuo_liu_san_duan(value); break;
 		default : break;
@@ -731,23 +731,23 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 		}
 
 		switch (code) {
-		case "4000" : //UAB
+		case "4001" : //UAB
 			saveVoltageForValue(CtxStore.getIdbyAddress(address), "A",
 					HighVoltageDeviceCommandUtil.changToRight(value));
 			break;
-		case "4001" :  //UBC
+		case "4002" :  //UBC
 			saveVoltageForValue(CtxStore.getIdbyAddress(address), "B",
 					HighVoltageDeviceCommandUtil.changToRight(value));
 			break;
-		case "4002" : //IA
+		case "4003" : //IA
 			saveCurrentForValue(CtxStore.getIdbyAddress(address), "A",
 					HighVoltageDeviceCommandUtil.changToRight(value));
 			break;
-		case "4003" : //IB
+		case "4004" : //IB
 			saveCurrentForValue(CtxStore.getIdbyAddress(address), "B",
 					HighVoltageDeviceCommandUtil.changToRight(value));
 			break;
-		case "4004" : //IC
+		case "4005" : //IC
 			saveCurrentForValue(CtxStore.getIdbyAddress(address), "C",
 					HighVoltageDeviceCommandUtil.changToRight(value));
 			break;

@@ -10,9 +10,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.gdut.dongjun.core.CtxStore;
+import com.gdut.dongjun.core.HighVoltageCtxStore;
 import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.core.initializer.ServerInitializer;
 import com.gdut.dongjun.core.server.NetServer;
+import com.gdut.dongjun.domain.HighVoltageStatus;
 import com.gdut.dongjun.domain.po.HighVoltageSwitch;
 import com.gdut.dongjun.enums.HighCommandControlCode;
 import com.gdut.dongjun.service.HighVoltageSwitchService;
@@ -32,6 +34,8 @@ public class HighVoltageServer_V1_3 extends NetServer implements InitializingBea
 	private ServerInitializer initializer;
 	@Autowired
 	private HighVoltageSwitchService lowVoltageSwitchService;
+	@Autowired
+	private HighVoltageCtxStore ctxStore;
 
 	private static final Logger logger = Logger
 			.getLogger(HighVoltageServer_V1_3.class);
@@ -46,8 +50,11 @@ public class HighVoltageServer_V1_3 extends NetServer implements InitializingBea
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
+		final HighVoltageDeviceCommandUtil ut = new HighVoltageDeviceCommandUtil();
+		/*
+		 * 心跳线程，每分钟向所有设备发心跳报文，对已连接未获取状态的设备进行总召
+		 */
 		new Thread() {
-
 			@Override
 			public void run() {
 				while (true) {
@@ -56,6 +63,13 @@ public class HighVoltageServer_V1_3 extends NetServer implements InitializingBea
 						if (null != gprs.getAddress()) {
 							String msg = new HighVoltageDeviceCommandUtil().confirmHeart(gprs.getAddress());
 							gprs.getCtx().writeAndFlush(msg);
+							if (null != gprs.getId()) {
+								HighVoltageStatus s = ctxStore.getStatusbyId(gprs.getId());
+								if (null == s || null == s.getStatus()) {
+									//	设备已连接但未获取状态，进行全域总召
+									gprs.getCtx().writeAndFlush(ut.anonTotalCall());
+								}
+							}
 						}
 					}
 					try {
@@ -66,7 +80,6 @@ public class HighVoltageServer_V1_3 extends NetServer implements InitializingBea
 					}
 				}
 			}
-			
 		}.start();
 	}
 	

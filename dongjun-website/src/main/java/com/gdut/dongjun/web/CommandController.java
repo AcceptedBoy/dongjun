@@ -454,8 +454,6 @@ public class CommandController {
 		}
 		template.convertAndSendToUser(user.getName(), "/queue/read_current",
 				deviceCommonService.getCurrentService(Integer.valueOf(type)).readCurrent(switchId));
-		//MsgPushThreadManager.createScheduledPoolDaemonThread(
-		//		getCurrentRunnable(user.getName(), type, switchId), 6, user.getId());
 	}
 	
 	/**
