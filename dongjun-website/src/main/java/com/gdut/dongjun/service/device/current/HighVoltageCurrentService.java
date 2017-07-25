@@ -50,4 +50,8 @@ public interface HighVoltageCurrentService extends
 	 * @throws
 	 */
 	public List<HighVoltageCurrent> getRecentlyCurrent(String switchId, String phase);
+	
+	public List<Float> getRealCurrent(String switchId, List<Integer> list);
+	
+	public Float getRealCurrent(String switchId, Integer list); 
 }

@@ -18,13 +18,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
 import com.gdut.dongjun.domain.HighVoltageStatus;
-import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
 import com.gdut.dongjun.service.OperationLogService;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.common.DeviceBinding;
 import com.gdut.dongjun.service.device.DeviceCommonService;
+import com.gdut.dongjun.service.device.current.HighVoltageCurrentService;
 import com.gdut.dongjun.service.thread.manager.DefaultThreadManager;
 import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 
@@ -41,16 +41,15 @@ public class CommandController {
 
 	@Autowired
 	private DeviceCommonService deviceCommonService;
-
 	@Autowired
 	private HardwareServiceClient hardwareClient;
-
 	@Autowired
 	private UserService userService;
-
 	@Autowired
 	private OperationLogService oLogService;
-
+	@Autowired
+	private HighVoltageCurrentService currentService;
+	
 	private final SimpMessagingTemplate template;
 
 	@Autowired
@@ -412,10 +411,9 @@ public class CommandController {
 		if (session.getAttribute("currentUser") != null) {
 			user = (User) session.getAttribute("currentUser");
 		}
-		template.convertAndSendToUser(user.getName(), "/queue/read_current",
-				deviceCommonService.getCurrentService(Integer.valueOf(type)).readCurrent(switchId));
-		// MsgPushThreadManager.createScheduledPoolDaemonThread(
-		// getCurrentRunnable(user.getName(), type, switchId), 6, user.getId());
+		List<Integer> list = deviceCommonService.getCurrentService(Integer.valueOf(type)).readCurrent(switchId);
+		template.convertAndSendToUser(user.getName(), "/queue/read_current", 
+				currentService.getRealCurrent(switchId, list));
 	}
 
 	/**
@@ -594,15 +592,15 @@ public class CommandController {
 	}
 
 	private Integer[] getVoltVisual() {
-
-		int i = new Random().nextInt(4);
-		if (i == 1) {
-			return new Integer[] { 12345, 0, 0 };
-		} else if (i == 3) {
-			return new Integer[] { 11266, 0, 0 };
-		} else {
-			return new Integer[] { 16726, 0, 0 };
-		}
+    	
+    	int i = new Random().nextInt(4);
+    	if(i == 1) {
+    		return new Integer[] {12345, 0,0};
+    	} else if(i == 3) {
+    		return new Integer[] {11266, 0, 0};
+    	} else {
+    		return new Integer[] {16726, 0, 0};
+    	}
 	}
 
 	/**

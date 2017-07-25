@@ -1,7 +1,10 @@
 package com.gdut.dongjun.util;
 
+import java.util.Calendar;
+
 import org.springframework.stereotype.Component;
 
+import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.enums.HighCommandControlCode;
 
 /**
@@ -132,6 +135,19 @@ public class HighVoltageDeviceCommandUtil extends StringCommonUtil {
 		setData(msg);
 		return "68" + msg + this.check + "16";
 	}
+	
+	/**
+	 * 发送心跳报文
+	 * @param address
+	 * @return
+	 */
+	public String confirmHeart(String address) {
+		String code = "72" + address + "68018601" + address
+				+ "0000aa55";
+		setData(code);
+		return "680d0d68" + code + this.check + "16";
+	}
+	
 	/**
 	 * 总召激活终止指令
 	 */
@@ -236,19 +252,49 @@ public class HighVoltageDeviceCommandUtil extends StringCommonUtil {
 		}
 		return address;
 	}
-
-	// public static void main(String[] args) {
-	// HighVoltageDeviceCommandUtil a = new HighVoltageDeviceCommandUtil();
-	// System.out.println(a.closeSwitchPre("01 00",
-	// HighCommandControlCode.PRE_CLOSE_SWITCH.toString()));
-	// System.out.println(a.closeSwitch("01 00",
-	// HighCommandControlCode.CLOSE_SWITCH.toString()));
-	// System.out.println(a.openSwitch("01 00",
-	// HighCommandControlCode.OPEN_SWITCH.toString()));
-	// System.out.println(a.openSwitchPre("01 00",
-	// HighCommandControlCode.PRE_OPEN_SWITCH.toString()));
-	// System.out.println(a.readVoltageAndCurrent("01 00",
-	// HighCommandControlCode.READ_VOLTAGE_CURRENT.toString()));
-	// }
-
+	
+	/**
+	 * 在不知道设备地址情况下的全域总召
+	 * 用0001地址代替源地址
+	 * @return
+	 */
+	public String anonTotalCall() {
+		return this.readVoltageAndCurrent("0100", HighCommandControlCode.READ_VOLTAGE_CURRENT
+				.toString());
+	}
+	
+	/**
+	 * 对时
+	 * @param address
+	 * @return
+	 */
+	public String checkTime() {
+		Calendar cal = Calendar.getInstance();
+		String second = Integer.toHexString(cal.get(Calendar.SECOND) * 1000);
+		if (second.length() != 4) {
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < 4 - second.length(); i++) {
+				sb.append("0".intern());
+			}
+			sb.append(second);
+			second = reverseString(sb.toString());
+		} else {
+			second = reverseString(second);
+		}
+		String minute = Integer.toHexString(cal.get(Calendar.MINUTE));
+		String hour = Integer.toHexString(cal.get(Calendar.HOUR));
+		String day = Integer.toHexString(cal.get(Calendar.DATE));
+		String month = Integer.toHexString(cal.get(Calendar.MONTH) + 1);
+		String year = cal.get(Calendar.YEAR) + "";
+		year = year.substring(2, 4);
+		year = Integer.toHexString(Integer.parseInt(year));
+		String time = second
+				+ ((minute.length() == 1) ? "0" + minute : minute) + ((hour.length() == 1) ? "0" + hour : hour)
+				+ ((day.length() == 1) ? "0" + day : day) + ((month.length() == 1) ? "0" + month : month)
+				+ ((year.length() == 1) ? "0" + year : year);
+		String msg = "7301006701060101000000" + time;
+		this.setData(msg);
+		return "68121268" + msg + this.check + "16";
+	}
+	
 }

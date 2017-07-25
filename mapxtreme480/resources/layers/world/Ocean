@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<NamedResource>
+  <ResourceDTD>MI_XML_Protocol_MapPersistence_4_7.dtd</ResourceDTD>
+  <ResourceXML>
+    <MapDefinitionLayer Level="-1" Name="Ocean">
+      <ServerQuery>
+        <Table>ocean.tab</Table>
+      </ServerQuery>
+      <Connection>
+        <Url>tab:D:/Program Files/mapinfo/MapXtreme-4.8.0/examples/server/data</Url>
+      </Connection>
+      <KeyColumns>
+        <AttName>MapInfo_ID</AttName>
+      </KeyColumns>
+      <FeatureStyle>
+        <BaseFeatureStyle Action="discover" />
+        <FeatureStyleColumn Action="none" />
+        <FeatureThemeList />
+      </FeatureStyle>
+      <TextLabels>
+        <VisibilityConstraints>
+          <IsEnabled>false</IsEnabled>
+        </VisibilityConstraints>
+        <BaseLabelProperties Action="use">
+          <LabelProperties>
+            <LabelTokenList>
+              <LabelToken>
+                <AttName>Name</AttName>
+              </LabelToken>
+            </LabelTokenList>
+            <LabelConstraints>
+              <AllowDuplication>false</AllowDuplication>
+              <Alignment>
+                <HorizontalAlignment>center</HorizontalAlignment>
+                <VerticalAlignment>center</VerticalAlignment>
+              </Alignment>
+              <Offset>
+                <PixelSpacingUnit>
+                  <pixelSpacingsPerUnit>1.0</pixelSpacingsPerUnit>
+                </PixelSpacingUnit>
+                <HorizontalOffset>0.0</HorizontalOffset>
+                <VerticalOffset>0.0</VerticalOffset>
+              </Offset>
+            </LabelConstraints>
+            <Style>
+              <rendition>
+                <style font-family="Arial" font-weight="1.0" font-size="10.799999999999999" font-style="normal" text-decoration="none" symbol-foreground="black" symbol-background="white" />
+              </rendition>
+            </Style>
+          </LabelProperties>
+        </BaseLabelProperties>
+        <LabelStyleColumn Action="discover" />
+        <LabelThemeList />
+      </TextLabels>
+    </MapDefinitionLayer>
+  </ResourceXML>
+</NamedResource>
+

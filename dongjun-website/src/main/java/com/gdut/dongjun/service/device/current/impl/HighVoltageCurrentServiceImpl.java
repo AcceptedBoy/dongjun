@@ -8,12 +8,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.gdut.dongjun.service.device.current.HighVoltageCurrentService;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.gdut.dongjun.domain.dao.HighVoltageCurrentMapper;
 import com.gdut.dongjun.domain.po.HighVoltageCurrent;
+import com.gdut.dongjun.domain.po.HighVoltageSwitch;
+import com.gdut.dongjun.service.device.HighVoltageSwitchService;
+import com.gdut.dongjun.service.device.current.HighVoltageCurrentService;
 import com.gdut.dongjun.util.MapUtil;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 
@@ -26,10 +29,23 @@ import com.gdut.dongjun.util.MyBatisMapUtil;
  */
 @Service
 public class HighVoltageCurrentServiceImpl extends CurrentServiceImpl<HighVoltageCurrent> implements
-		HighVoltageCurrentService {
+		HighVoltageCurrentService, InitializingBean {
+	
+	private Map<String, Float> currentRatioMap = new HashMap<>();
 
 	@Autowired
 	private HighVoltageCurrentMapper currentMapper;
+	@Autowired
+	private HighVoltageSwitchService switchService;
+	
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		List<HighVoltageSwitch> list = switchService.selectByParameters(null);
+		for (HighVoltageSwitch s : list) {
+			currentRatioMap.put(s.getId(), s.getCurrentRatio());
+		}
+	}
+	
 	/* (non-Javadoc)
 	 * @see com.gdut.dongjun.service.HighVoltageCurrentService#selectBySwitchId(java.lang.String)
 	 */
@@ -122,4 +138,32 @@ public class HighVoltageCurrentServiceImpl extends CurrentServiceImpl<HighVoltag
 		}
 		return result;
 	}
+
+	@Override
+	public List<Float> getRealCurrent(String switchId, List<Integer> list) {
+		Float ratio = currentRatioMap.get(switchId);
+		List<Float> valueList = new ArrayList<>();
+		for (int i : list) {
+			valueList.add(i / ratio);
+		}
+		return valueList;
+	}
+
+	@Override
+	public Float getRealCurrent(String switchId, Integer value) {
+		Float ratio = currentRatioMap.get(switchId);
+		return value / ratio;
+	}
+	
+	/**
+	 * 重新设置电流比例值
+	 * @param switchId
+	 * @param ratio
+	 */
+	public void setCurrentRatio(String switchId, Float ratio) {
+		currentRatioMap.remove(switchId);
+		currentRatioMap.put(switchId, ratio);
+	}
+
+
 }

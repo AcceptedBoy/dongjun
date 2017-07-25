@@ -1,0 +1,248 @@
+<?xml version="1.0" standalone="yes"?>
+
+<!-- 
+     One of the Internet Assigned Numbers Authority's (IANA)
+     (http://www.iana.org/) many duties is the maintenance of a database of 
+		 registered encodings (character sets). For example; one such encoding
+		 registered with IANA has the name ANSI_X3.4-1968 but its preferred MIME 
+		 name is US-ASCII. A character set has a name, an optional preferred MIME 
+		 name, and an optional list of aliases. See 
+		 http://www.iana.org/assignments/character-sets for more information. The
+		 encoding names found in IANA's registry are frequently used as the 
+		 encoding "attribute" in an XML header.
+
+		 Java also has character set names that are used when converting Java's
+		 internal Unicode character set to a specific character set. However, these
+		 names frequently do not match the names registered with IANA. Java's 
+		 encoding name for US-ASCII is ASCII.
+
+		 This file facilitates the mapping of Java's encoding names to ones 
+		 registered with IANA. If a new Java encoding name appears just add it to
+		 this list. The mapping facility is very flexible in that any name to be 
+		 entered not just names registered with IANA.
+		 
+		 Two encodings are not included in this file and will not be read if added:
+		 UTF-8 and UTF-16 are not allowed to be mapped to anything else.
+ -->
+
+<!DOCTYPE EncodingMap [
+
+	<!ELEMENT EncodingMap (XmlEncoding?, JavaEncoding*)>
+
+	<!-- The encoding for writing XML --> 
+	<!ELEMENT XmlEncoding (#PCDATA) >
+
+	<!-- Defines a mapping between a Java encoding name and a standard name -->
+	<!ELEMENT JavaEncoding (JavaName, MimeName)>
+
+	<!-- The name Java assigns to a specific encoding (Case sensative) -->
+	<!ELEMENT JavaName (#PCDATA)>
+
+	<!-- The IANA equivalent name for the Java encoding name --> 
+	<!ELEMENT MimeName (Name, Alias*)>
+
+	<!-- The name (Case insensative) -->
+	<!ELEMENT Name (#PCDATA)>
+
+	<!-- An IANA alias for a MIME name (Case insensative) -->
+	<!ELEMENT Alias (#PCDATA)>
+]>
+
+<EncodingMap>
+
+	<!-- Set to the desired MIME defined in this file -->
+	<XmlEncoding>UTF-8</XmlEncoding>
+
+	<!-- ASCII -->
+	<JavaEncoding>
+		<JavaName>ASCII</JavaName>
+		<MimeName>
+			<Name>US-ASCII</Name>
+		</MimeName>
+	</JavaEncoding>
+	
+	<!-- Latin1 -->
+	<JavaEncoding>
+		<JavaName>ISO8859_1</JavaName>
+		<MimeName>
+			<Name>ISO-8859-1</Name>
+			<Alias>ISO_8859-1</Alias>
+			<Alias>LATIN1</Alias>
+			<Alias>L1</Alias>
+			<Alias>IBM819</Alias>
+			<Alias>CP819</Alias>
+		</MimeName>
+	</JavaEncoding>
+	
+	<!-- Latin2 -->
+	<JavaEncoding>
+		<JavaName>ISO8859_2</JavaName>
+		<MimeName>
+			<Name>ISO-8859-2</Name>
+			<Alias>ISO_8859-2</Alias>
+			<Alias>Latin2</Alias>
+			<Alias>L2</Alias>
+			<Alias>ISO-IR-101</Alias>
+		</MimeName>
+	</JavaEncoding>
+
+	<!-- Latin3 -->
+	<JavaEncoding>
+		<JavaName>ISO8859_3</JavaName>
+		<MimeName>
+			<Name>ISO-8859-3</Name>
+			<Alias>ISO_8859-3</Alias>
+			<Alias>Latin3</Alias>
+			<Alias>L3</Alias>
+			<Alias>ISO-IR-109</Alias>
+		</MimeName>
+	</JavaEncoding>
+	
+	<!-- Latin4 -->
+	<JavaEncoding>
+		<JavaName>ISO8859_4</JavaName>
+		<MimeName>
+			<Name>ISO-8859-4</Name>
+			<Alias>ISO_8859-4</Alias>
+			<Alias>Latin4</Alias>
+			<Alias>L4</Alias>
+			<Alias>ISO-IR-110</Alias>
+		</MimeName>
+	</JavaEncoding>
+	
+	<!-- Latin/Cyrillic -->
+	<JavaEncoding>
+		<JavaName>ISO8859_5</JavaName>
+		<MimeName>
+			<Name>ISO-8859-5</Name>
+			<Alias>ISO_8859-5</Alias>
+			<Alias>CYRILLIC</Alias>
+			<Alias>ISO-IR-144</Alias>
+		</MimeName>
+	</JavaEncoding>
+	
+	<!-- Latin/Arabic -->
+	<JavaEncoding>
+		<JavaName>ISO8859_6</JavaName>
+		<MimeName>
+			<Name>ISO-8859-6</Name>
+			<Alias>ISO_8859-6</Alias>
+			<Alias>ISO-IR-127</Alias>
+			<Alias>ECMA-114</Alias>
+			<Alias>ASMO-708</Alias>
+			<Alias>ARABIC</Alias>
+		</MimeName>
+	</JavaEncoding>
+
+	<!-- Latin/Greek -->
+	<JavaEncoding>
+		<JavaName>ISO8859_7</JavaName>
+		<MimeName>
+			<Name>ISO-8859-7</Name>
+			<Alias>ISO_8859-7</Alias>
+			<Alias>ISO-IR-126</Alias>
+			<Alias>ECMA-118</Alias>
+			<Alias>ELOT_928</Alias>
+			<Alias>GREEK</Alias>
+			<Alias>GREEK8</Alias>
+		</MimeName>
+	</JavaEncoding>
+
+	<!-- Latin/Hebrew -->
+	<JavaEncoding>
+		<JavaName>ISO8859_8</JavaName>
+		<MimeName>
+			<Name>ISO-8859-8</Name>
+			<Alias>ISO_8859-8</Alias>
+			<Alias>ISO-IR-138</Alias>
+			<Alias>HEBREW</Alias>
+		</MimeName>
+	</JavaEncoding>
+
+	<!-- Latin9 -->
+	<JavaEncoding>
+		<JavaName>ISO8859_9</JavaName>
+		<MimeName>
+			<Name>ISO-8859-9</Name>
+			<Alias>ISO_8859-9</Alias>
+			<Alias>ISO-IR-148</Alias>
+			<Alias>LATIN9</Alias>
+			<Alias>L9</Alias>
+		</MimeName>
+	</JavaEncoding>
+
+	<!-- Traditional Chinese -->
+	<JavaEncoding>
+		<JavaName>Big5</JavaName>
+		<MimeName>
+			<Name>Big5</Name>
+		</MimeName>
+	</JavaEncoding>
+
+	<!-- Traditional Chinese with Hong Kong Supplementary Character Set --> 
+	<JavaEncoding>
+		<JavaName>Big5_HKSCS</JavaName>
+		<MimeName>
+			<Name>Big5-HKSCS</Name>
+		</MimeName>
+	</JavaEncoding>
+	
+	<!-- Simplified Chinese  -->
+	<JavaEncoding>
+		<JavaName>GB2312</JavaName>
+		<MimeName>
+			<Name>GB2312</Name>
+		</MimeName>
+	</JavaEncoding>
+	
+	<!-- Korean -->
+	<JavaEncoding>
+		<JavaName>ISO2022KR</JavaName>
+		<MimeName>
+			<Name>ISO-2022-KR</Name>
+		</MimeName>
+	</JavaEncoding>
+
+	<!-- Korean, EUC encoding -->
+	<JavaEncoding>
+		<JavaName>EUC_KR</JavaName>
+		<MimeName>
+			<Name>EUC-KR</Name>
+		</MimeName>
+	</JavaEncoding>
+	
+	<!-- Japanese -->
+	<JavaEncoding>
+		<JavaName>ISO2022JP</JavaName>
+		<MimeName>
+			<Name>ISO-2022-JP</Name>
+		</MimeName>
+	</JavaEncoding>
+	
+	<!-- Japanese, EUC encoding -->
+	<JavaEncoding>
+		<JavaName>EUC_JP</JavaName>
+		<MimeName>
+			<Name>EUC-JP</Name>
+		</MimeName>
+	</JavaEncoding>
+	
+	<!-- Japanese (Shift_JIS) -->
+	<JavaEncoding>
+		<JavaName>SJIS</JavaName>
+		<MimeName>
+			<Name>SHIFT_JIS</Name>
+			<Alias>MS_Kanji</Alias>
+		</MimeName>
+	</JavaEncoding>
+	
+	<!-- Windows-1252 -->
+	<JavaEncoding>
+		<JavaName>Cp1252</JavaName>
+		<MimeName>
+			<Name>WINDOWS-1252</Name>
+		</MimeName>
+	</JavaEncoding>
+
+</EncodingMap>
+

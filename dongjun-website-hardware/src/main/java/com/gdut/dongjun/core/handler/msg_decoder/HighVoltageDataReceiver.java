@@ -238,6 +238,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 
 		SwitchGPRS gprs = CtxStore.get(ctx);
+		logger.info("高压设备 " + gprs.getAddress() + "下线");
 		if (gprs != null) {
 			CtxStore.remove(ctx);// 从Store中移除这个context
 			if (gprs.getId() != null) {
@@ -327,6 +328,11 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			 * 遥信总召所有值获取
 			 */
 			readAllSignal(data);
+		} else if (CharUtils.equals(infoIdenCode, CODE_68)) { 
+			/*
+			 * 设备心跳报文  68 0D 0D 68 F4 01 00 68 01 07 01 01 00 00 00 AA 55 66 16
+			 */	
+			logger.info("回复心跳报文" + String.valueOf(data));
 		} else {
 			logger.error("接收到的非法数据--------------------" + String.valueOf(data));
 		}
@@ -639,7 +645,22 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	 * @param data
 	 */
 	private void confirmSignalInitialChange(ChannelHandlerContext ctx, char[] data) {
+
 		logger.info("接收遥信初步变位事件---------" + String.valueOf(data));
+
+
+//		logger.info("遥信变位：" + String.valueOf(data));
+//		//在这里更改遥信值
+//		String iden = String.valueOf(CharUtils.subChars(data, 2 * 13, 2));
+//		String value = String.valueOf(CharUtils.subChars(data, 2 * 15, 2));
+//		HighVoltageStatus s = hvCtxStore.getStatusbyId(CtxStore.get(ctx).getId());
+//		switch (iden) {
+//		case "01" :
+//			//合闸分闸判断位
+//			s.setStatus(value); break;
+//		default : break;
+//		}
+
 		String resu = new HighVoltageDeviceCommandUtil().confirmChangeAffair(CharUtils.newString(data, 10, 14));
 		logger.info("发送遥信变位确定---------" + resu);
 		ctx.writeAndFlush(resu, ctx.voidPromise());
