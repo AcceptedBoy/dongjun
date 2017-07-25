@@ -18,13 +18,13 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
 import com.gdut.dongjun.domain.HighVoltageStatus;
-import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
 import com.gdut.dongjun.service.OperationLogService;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.common.DeviceBinding;
 import com.gdut.dongjun.service.device.DeviceCommonService;
+import com.gdut.dongjun.service.device.current.HighVoltageCurrentService;
 import com.gdut.dongjun.service.thread.manager.DefaultThreadManager;
 import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 
@@ -41,15 +41,14 @@ public class CommandController {
 
 	@Autowired
 	private DeviceCommonService deviceCommonService;
-
 	@Autowired
 	private HardwareServiceClient hardwareClient;
-	
 	@Autowired
 	private UserService userService;
-	
 	@Autowired
 	private OperationLogService oLogService;
+	@Autowired
+	private HighVoltageCurrentService currentService;
 	
 	private final SimpMessagingTemplate template;
 
@@ -452,8 +451,9 @@ public class CommandController {
 		if(session.getAttribute("currentUser") != null) {
 			user = (User) session.getAttribute("currentUser");
 		}
-		template.convertAndSendToUser(user.getName(), "/queue/read_current",
-				deviceCommonService.getCurrentService(Integer.valueOf(type)).readCurrent(switchId));
+		List<Integer> list = deviceCommonService.getCurrentService(Integer.valueOf(type)).readCurrent(switchId);
+		template.convertAndSendToUser(user.getName(), "/queue/read_current", 
+				currentService.getRealCurrent(switchId, list));
 	}
 	
 	/**
@@ -700,6 +700,7 @@ public class CommandController {
     		return new Integer[] {16726, 0, 0};
     	}
     }
+	
 
 }
 

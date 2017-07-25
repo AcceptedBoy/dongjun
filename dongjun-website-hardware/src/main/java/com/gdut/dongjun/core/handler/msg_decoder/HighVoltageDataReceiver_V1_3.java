@@ -31,6 +31,7 @@ import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.HighVoltageCtxStore;
 import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.core.device_message_engine.impl.HighVoltageSwitchMessageEngine;
+import com.gdut.dongjun.core.handler.HitchConst;
 import com.gdut.dongjun.core.server.impl.HighVoltageServer;
 import com.gdut.dongjun.domain.HighVoltageStatus;
 import com.gdut.dongjun.domain.po.HighVoltageCurrent;
@@ -88,6 +89,8 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 	private static int BYTE = 2;
     private static final String STR_00 = "00".intern();
     private static final String STR_01 = "01".intern();
+    private static final String STR_02 = "02".intern();
+    private static final String STR_03 = "03".intern();
 
 	@Autowired
 	private HighVoltageCurrentService currentService;
@@ -304,7 +307,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 		} else if (CharUtils.equals(infoIdenCode, CODE_03)) {
 
 			/*
-			 * 遥信变位初步确定
+			 * 遥信变位初步确定，双点遥信
 			 */
 			confirmSignalInitialChange(ctx, data);
 		} else if (CharUtils.equals(infoIdenCode, CODE_2E)) {
@@ -328,7 +331,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 		} else if (CharUtils.equals(infoIdenCode, CODE_01)) {
 
 			/*
-			 * 遥信总召所有值获取
+			 * 遥信总召所有值获取，单点遥信
 			 */
 			readAllSignal(hitchEventDesc, data);
 		} else if (CharUtils.equals(infoIdenCode, CODE_68)) { 
@@ -518,8 +521,9 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 				HighVoltageHitchEvent event = new HighVoltageHitchEvent();
 
 				event.setHitchTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
-				event.setHitchPhase("A");
-				event.setHitchReason(hitchEventDesc == null ? "未知报警" : hitchEventDesc);
+//				event.setHitchPhase("A");
+//				event.setHitchReason(hitchEventDesc == null ? "未知报警" : hitchEventDesc);
+				event.setHitchReason("全遥信记录状态变化");
 				event.setChangeType(0);
 				event.setSolveWay("分闸");
 				event.setId(UUIDUtil.getUUID());
@@ -536,7 +540,8 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 
 				event.setHitchTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
 				event.setHitchPhase("A");
-				event.setHitchReason(hitchEventDesc == null ? "未知报警" : hitchEventDesc);
+//				event.setHitchReason(hitchEventDesc == null ? "未知报警" : hitchEventDesc);
+				event.setHitchReason("全遥信记录状态变化");
 				event.setChangeType(1);
 				event.setSolveWay("合闸");
 				event.setId(UUIDUtil.getUUID());
@@ -624,12 +629,12 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 	/**
 	 * 遥信值的归一值初始获取，遥信值变化时会分两个流程，第一个流程先发一次，若有收到回复，再发一次，整个流程才算结束。
 	 * 由于两个流程都带有遥信值，现在第一个流程的遥信值，但考虑安全性，以后取第二个，因为有时间戳
+	 * 双点遥信10是合位，01是分位，11是不确定。
 	 * @param ctx
 	 * @param data
 	 */
 	private void confirmSignalInitialChange(ChannelHandlerContext ctx, char[] data) {
 		logger.info("遥信变位：" + String.valueOf(data));
-		//在这里更改遥信值
 		String iden = String.valueOf(CharUtils.subChars(data, 2 * 13, 2));
 		String value = String.valueOf(CharUtils.subChars(data, 2 * 15, 2));
 		HighVoltageStatus s = hvCtxStore.getStatusbyId(CtxStore.get(ctx).getId());
@@ -641,40 +646,69 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 		switch (iden) {
 		case "01" :
 			//合闸分闸判断位，设备变色
-			s.setStatus(value); websiteClient.getService().callbackCtxChange(); break;
+			s.setStatus(getDualPointStr(value)); websiteClient.getService().callbackCtxChange(); break;
 		case "04" : 
 			// PT1有压
-			s.setPt1_you_ya(value); break;
+			s.setPt1_you_ya(getDualPointStr(value)); break;
 		case "07" : 
 			// PT1过压
-			s.setPt1_guo_ya(value); break;
+			s.setPt1_guo_ya(getDualPointStr(value)); break;
 		case "08" : 
 			// PT2有压
-			s.setPt2_you_ya(value); break;
-		case "11" : 
+			s.setPt2_you_ya(getDualPointStr(value)); break;
+		case "0b" : 
 			// PT2过压
-			s.setPt2_guo_ya(value); break;
-		case "21" : 
+			s.setPt2_guo_ya(getDualPointStr(value)); break;
+		case "15" : 
 			//	手动合闸
-			s.setShou_dong_he_zha(value); break;
-		case "22" : 
+			s.setShou_dong_he_zha(getDualPointStr(value));
+			hitchJudgement(ctx, value, iden); break;
+		case "16" : 
 			//	手动分闸
-			s.setShou_dong_fen_zha(value); break;
-		case "26" : 
+			s.setShou_dong_fen_zha(getDualPointStr(value)); 
+			hitchJudgement(ctx, value, iden); break;
+		case "18" : 
+			// 遥控器合闸
+			hitchJudgement(ctx, value, iden); break;
+		case "19" : 
+			// 遥控器分闸
+			hitchJudgement(ctx, value, iden); break;
+		case "1a" : 
 			//	遥控复归
-			s.setYao_kong_fu_gui(value); break;
-		case "36" : 
+			s.setYao_kong_fu_gui(getDualPointStr(value));  break;
+		case "24" : 
 			//	过流一段
-			s.setGuo_liu_yi_duan(value); break;
-		case "37" : 
+			s.setGuo_liu_yi_duan(getDualPointStr(value)); 
+			hitchJudgement(ctx, value, iden); break;
+		case "25" : 
 			//	过流二段
-			s.setGuo_liu_er_duan(value);; break;
-		case "38" : 
+			s.setGuo_liu_er_duan(getDualPointStr(value)); 
+			hitchJudgement(ctx, value, iden); break;
+		case "26" : 
 			//	过流三段
-			s.setGuo_liu_san_duan(value); break;
+			s.setGuo_liu_san_duan(getDualPointStr(value)); 
+			hitchJudgement(ctx, value, iden); break;
+		case "27" : 
+			//	零序一段
+			s.setLing_xu_guo_liu_(getDualPointStr(value));
+			hitchJudgement(ctx, value, iden); break;
+		case "28" : 
+			//	零序二段
+			s.setLing_xu_guo_liu_(getDualPointStr(value));
+			hitchJudgement(ctx, value, iden); break;
+		case "29" : 
+			//	零序三段
+			s.setLing_xu_guo_liu_(getDualPointStr(value));
+			hitchJudgement(ctx, value, iden); break;
+		case "37" : 
+			//	快速分闸
+			hitchJudgement(ctx, value, iden); break;
+		case "3b" : 
+			//	超温跳闸
+			hitchJudgement(ctx, value, iden); break;
 		default : break;
 		}
-//		readAllSignal("控制回路", data);
+		websiteClient.getService().callbackDeviceChange(CtxStore.get(ctx).getId(), 1);
 		String resu = "100001001116";
 		logger.info("遥信变位确定---------" + resu);
 		ctx.writeAndFlush(resu);
@@ -915,7 +949,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 	}
 	
 	/**
-	 * 复用01和00的String对象
+	 * 复用01和00的String对象，01是合位，00是分位
 	 * @param data
 	 * @param beginIndex
 	 * @param endIndex
@@ -924,5 +958,50 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 	private String getStr0Or01(char[] data, int beginIndex, int endIndex) {
 	    return CharUtils.equals(data, beginIndex, endIndex, CODE_01) ? STR_01 : STR_00;
     }
+	
+	/**
+	 * 判断双点遥信位，01是分位，02是合位，03不确定。
+	 * 系统统一判断位，00是分位，01是合位，02不确定。
+	 * @param value
+	 * @return
+	 */
+	private String getDualPointStr(String value) {
+		switch (value) {
+		case "01" : 
+			//	分位
+			return STR_00;
+		case "02" :
+			//	合位
+			return STR_01;
+		case "03" : 
+			return STR_02;
+		default : return STR_02;
+		}
+	}
+	
+	/**
+	 * 判断双点遥信是否为合位，是则报警
+	 * @param ctx
+	 * @param value
+	 * @param iden
+	 */
+	private void hitchJudgement(ChannelHandlerContext ctx, String value, String iden) {
+		if (getDualPointStr(value).equals(STR_02)) {
+			createHitchEvent(CtxStore.get(ctx).getId(), HitchConst.getHitchReason(iden)); 
+		}
+	}
+	
+	private void createHitchEvent(String switchId, String hitchEventDesc) {
+		HighVoltageHitchEvent event = new HighVoltageHitchEvent();
+		event.setHitchTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
+//		event.setHitchPhase(null);
+		event.setHitchReason(hitchEventDesc);
+//		event.setChangeType(0);
+//		event.setSolveWay("分闸");
+		event.setId(UUIDUtil.getUUID());
+		event.setSwitchId(switchId);
+		// event.setSolvePeople();
+		hitchEventService.insert(event);
+	}
 	
 }

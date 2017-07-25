@@ -65,6 +65,9 @@ public class WebsiteServiceClient implements InitializingBean, ApplicationContex
 
     public static class ExtendedService {
     	
+    	/**
+    	 * 改设备活跃状态
+    	 */
         public void callbackCtxChange() {
             for(WebsiteService websiteService : websiteList) {
                 websiteService.callbackCtxChange(
@@ -72,6 +75,11 @@ public class WebsiteServiceClient implements InitializingBean, ApplicationContex
             }
         }
 
+        /**
+         * 改电流、电压、遥信值状态
+         * @param switchId
+         * @param type
+         */
         public void callbackDeviceChange(String switchId, Integer type) {
             for(WebsiteService websiteService : websiteList) {
                 websiteService.callbackDeviceChange(switchId, type);

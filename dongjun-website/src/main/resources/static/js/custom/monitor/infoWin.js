@@ -174,7 +174,7 @@ var infoWindow = function() {
 										+ '<table class="table table-bordered table-condensed">'
 										+ '<tbody>'
 										+ '<tr>'
-										+ '<td></td><td>电压</td><td></td><td>电流</td>'
+										+ '<td></td><td>电压(kV)</td><td></td><td>电流(A)</td>'
 										+ '<td>过流I段保护</td>'
 										+ '<td id="guo_liu_yi_duan"></td>'
 										+ '</tr>'
@@ -255,7 +255,7 @@ var infoWindow = function() {
 									+ "<table class='table table-bordered table-condensed'>"
 									+ "<tbody>"
 									+ "<tr>"
-									+ "<td></td><td>电压</td><td></td><td>电流</td>"
+									+ "<td></td><td>电压(kV)</td><td></td><td>电流(A)</td>"
 									+ "<td>过流I段保护</td>"
 									+ "<td id='guo_liu_yi_duan'></td>"
 									+ "</tr>"
