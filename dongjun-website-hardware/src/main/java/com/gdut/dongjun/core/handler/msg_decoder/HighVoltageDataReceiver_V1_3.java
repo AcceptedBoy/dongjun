@@ -31,11 +31,8 @@ import com.gdut.dongjun.core.CtxStore;
 import com.gdut.dongjun.core.HighVoltageCtxStore;
 import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.core.device_message_engine.impl.HighVoltageSwitchMessageEngine;
-<<<<<<< HEAD
 import com.gdut.dongjun.core.handler.DataMonitorService;
-=======
 import com.gdut.dongjun.core.handler.HitchConst;
->>>>>>> new_system
 import com.gdut.dongjun.core.server.impl.HighVoltageServer;
 import com.gdut.dongjun.domain.HighVoltageStatus;
 import com.gdut.dongjun.domain.po.HighVoltageCurrent;

@@ -8,7 +8,7 @@ public class CommonSwitch {
 
     private static boolean production = false;
 
-    private static boolean centerService = true;
+    private static boolean centerService = false;
 
     /**
      * 是否需要中央服务

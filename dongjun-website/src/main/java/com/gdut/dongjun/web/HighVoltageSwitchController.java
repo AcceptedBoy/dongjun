@@ -266,7 +266,7 @@ public class HighVoltageSwitchController {
 			
 			switchService.updateByPrimaryKey(switch1);
 		} catch (Exception e) {
-			
+			e.printStackTrace();
 			logger.error("修改开关失败！");
 			return null;
 		}
