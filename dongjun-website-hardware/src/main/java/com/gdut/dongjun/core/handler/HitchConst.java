@@ -28,11 +28,11 @@ public class HitchConst {
 		case "26" : 
 			return "过流三段";
 		case "27" : 
-			return "零序一段";
+			return "零序过流一段";
 		case "28" : 
-			return "零序二段";
+			return "零序过流二段";
 		case "29" : 
-			return "零序三段";
+			return "零序过流三段";
 		case "37" : 
 			return "快速分闸";
 		case "3b" : 

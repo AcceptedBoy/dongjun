@@ -497,9 +497,24 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 			s.setGuo_liu_yi_duan(getStr0Or01(data, 30 + 35 * 2, 30 + 36 * 2));
 			s.setGuo_liu_er_duan(getStr0Or01(data, 30 + 36 * 2, 30 + 37 * 2));
 			s.setGuo_liu_san_duan(getStr0Or01(data, 30 + 37 * 2, 30 + 38 * 2));
+			if (STR_01.equals(s.getGuo_liu_yi_duan()) ||
+					STR_01.equals(s.getGuo_liu_er_duan())  ||
+					STR_01.equals(s.getGuo_liu_san_duan())) {
+				createHitchEvent(id, "过流");
+			}
 
-			s.setLing_xu_guo_liu_(getStr0Or01(data, 30 + 38 * 2, 30 + 39 * 2));
-			//TODO
+			String ling_xu_yi_duan = getStr0Or01(data, 30 + 38 * 2, 30 + 39 * 2);
+			String ling_xu_er_duan = getStr0Or01(data, 30 + 39 * 2, 30 + 40 * 2);
+			String ling_xu_san_duan = getStr0Or01(data, 30 + 40 * 2, 30 + 41 * 2);
+			if (STR_01.equals(ling_xu_yi_duan) ||
+					STR_01.equals(ling_xu_er_duan)  ||
+					STR_01.equals(ling_xu_san_duan)) {
+				createHitchEvent(id, "零序过流");
+				s.setLing_xu_guo_liu_(STR_01);
+			} else {
+				s.setLing_xu_guo_liu_(STR_00);
+			}
+			
 			if (CharUtils.equals(data, 40, 42, CODE_01) || CharUtils.equals(data, 42, 44, CODE_01)
 					|| CharUtils.equals(data, 44, 46, CODE_01)) {
 				s.setChong_he_zha(STR_01);
@@ -521,14 +536,11 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 				HighVoltageHitchEvent event = new HighVoltageHitchEvent();
 
 				event.setHitchTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
-//				event.setHitchPhase("A");
-//				event.setHitchReason(hitchEventDesc == null ? "未知报警" : hitchEventDesc);
 				event.setHitchReason("全遥信记录状态变化");
 				event.setChangeType(0);
 				event.setSolveWay("分闸");
 				event.setId(UUIDUtil.getUUID());
 				event.setSwitchId(id);
-				// event.setSolvePeople();
 				hitchEventService.insert(event);
 
 				logger.info("-----------跳闸成功");
@@ -539,8 +551,6 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 				HighVoltageHitchEvent event = new HighVoltageHitchEvent();
 
 				event.setHitchTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
-				event.setHitchPhase("A");
-//				event.setHitchReason(hitchEventDesc == null ? "未知报警" : hitchEventDesc);
 				event.setHitchReason("全遥信记录状态变化");
 				event.setChangeType(1);
 				event.setSolveWay("合闸");
@@ -554,11 +564,28 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 			s.setJiao_liu_shi_dian(getStr0Or01(data, 76, 78));
 
 			s.setShou_dong_he_zha(getStr0Or01(data, 30 + 20 * 2, 30 + 21 * 2));
+			if (STR_01.equals(s.getShou_dong_he_zha())) {
+				createHitchEvent(id, "手动合闸");
+			}
 			s.setShou_dong_fen_zha(getStr0Or01(data, 30 + 21 * 2, 30 + 22 * 2));
-
+			if (STR_01.equals(s.getShou_dong_fen_zha())) {
+				createHitchEvent(id, "手动分闸");
+			}
 			s.setYao_kong_he_zha(getStr0Or01(data, 30 + 31 * 2, 30 + 32 * 2));
+			if (STR_01.equals(s.getYao_kong_he_zha())) {
+				createHitchEvent(id, "遥控器合闸");
+			}
 			s.setYao_kong_fen_zha(getStr0Or01(data, 30 + 32 * 2, 30 + 33 * 2));
+			if (STR_01.equals(s.getYao_kong_fen_zha())) {
+				createHitchEvent(id, "遥控器分闸");
+			}
 			s.setYao_kong_fu_gui(getStr0Or01(data, 30 + 33 * 2, 30 + 34 * 2));
+			if (STR_01.equals(getStr0Or01(data, 30 + 54 * 2, 30 + 55 * 2))) {
+				createHitchEvent(id, "快速分闸");
+			}
+			if (STR_01.equals(getStr0Or01(data, 30 + 58 * 2, 30 + 59 * 2))) {
+				createHitchEvent(id, "超温跳闸");
+			}
 
 			logger.info("状态变为-----------" + new_status);
 			websiteClient.getService().callbackDeviceChange(id, 1);
@@ -994,13 +1021,9 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 	private void createHitchEvent(String switchId, String hitchEventDesc) {
 		HighVoltageHitchEvent event = new HighVoltageHitchEvent();
 		event.setHitchTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
-//		event.setHitchPhase(null);
 		event.setHitchReason(hitchEventDesc);
-//		event.setChangeType(0);
-//		event.setSolveWay("分闸");
 		event.setId(UUIDUtil.getUUID());
 		event.setSwitchId(switchId);
-		// event.setSolvePeople();
 		hitchEventService.insert(event);
 	}
 	

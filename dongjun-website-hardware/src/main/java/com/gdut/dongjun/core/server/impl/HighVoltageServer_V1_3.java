@@ -65,7 +65,7 @@ public class HighVoltageServer_V1_3 extends NetServer implements InitializingBea
 							gprs.getCtx().writeAndFlush(msg);
 							if (null != gprs.getId()) {
 								HighVoltageStatus s = ctxStore.getStatusbyId(gprs.getId());
-								if (null == s || null == s.getStatus()) {
+								if (null == s || null == s.getStatus() || "02".equals(s.getStatus())) {
 									//	设备已连接但未获取状态，进行全域总召
 									gprs.getCtx().writeAndFlush(ut.anonTotalCall());
 								}
@@ -121,14 +121,6 @@ public class HighVoltageServer_V1_3 extends NetServer implements InitializingBea
 		gprs.getCtx().writeAndFlush(msg);// 读取电压
 		return msg;
 	}
-
-	/*public static void main(String[] args) {
-		String msg = new HighVoltageDeviceCommandUtil()
-				.readVoltageAndCurrent("0400",
-						HighCommandControlCode.READ_VOLTAGE_CURRENT
-								.toString());
-		System.out.println(msg);
-	}*/
 
 	@Override
 	protected void timedCVReadTask() {
