@@ -3,11 +3,14 @@ var dealSwitch = function() {
 		getVolacc: function(type) {
 			var volacc
 			switch (type) {
-				case 0:
+				case 0:				// 低压？
 					volacc = 10
 					break
-				case 1:
-				case 2:
+				case 1:				// 高压
+					// volacc = 100 	// 原本为100，现改为1000
+					volacc = 1000
+					break
+				case 2:				// 管控
 					volacc = 100
 					break
 			}
@@ -16,8 +19,9 @@ var dealSwitch = function() {
 		getCuracc: function(type) {
 			var curacc
 			switch (type) {
-				case 1:
-					curacc = 100
+				case 1:					// 高压
+//					curacc = 100
+					curacc = 1
 					break
 				case 0:
 				case 2:

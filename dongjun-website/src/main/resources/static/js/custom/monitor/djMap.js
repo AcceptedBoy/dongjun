@@ -34,9 +34,18 @@ djMap.Model = function(){
 		low_voltage: '../../ico/voltage-outLine_low.jpg',					// 低压开关的图标
 		high_voltage: '../../ico/voltage-outLine_high.jpg',				// 高压开关的图标
 		control_measure: '../../ico/control_measure_switch.jpg',	// 低压开关的图标
+		pending: '../../ico/pending.jpg',							// 已连接但是暂时无法获取状态的图标
 		old_icon: null																											// BMap.icon 对象，储存上一个图标
 	}
-
+	
+	var status = {
+		'default': '-1',							// 离线
+		'open':  '00',							// 分闸
+		'close': '01',							// 合闸
+		'alarm': '02',							// 报警
+		'pending': '99'							// 已连接但无数据 （后端返回status为null）
+	}
+	
 	// polyline的颜色，待用
 	var lineColor = {
 		all: ['#2B0BB4', '#389510', '#F2611D', '#0E8CB3', '#A34545', '#CA0CBE', '#DFE21A'],
@@ -444,6 +453,9 @@ djMap.View = function(_map) {
 						marker.node = node
 						marker.open = node.open
 					}
+				} else {
+					// 以下是临时加需求 盲改代码
+					marker.status = '99'
 				}
 
 				// set icon to marker
@@ -470,8 +482,15 @@ djMap.View = function(_map) {
 							break
 					}
 					if(iconName != '') {
-						iconName = (marker.status == '00') ? model.getIcon('open_'+iconName) :
-											(marker.status == '01') ? model.getIcon('close_'+iconName) : model.getIcon(iconName+'_voltage')
+						// iconName = (marker.status == '00') ? model.getIcon('open_'+iconName) :
+						// 					(marker.status == '01') ? model.getIcon('close_'+iconName) : model.getIcon(iconName+'_voltage')
+						// 以下是临时加需求 盲改代码 晚上2点
+						switch(marker.status) {
+							case '00': iconName = model.getIcon('open_'+iconName);break;
+							case '01': iconName = model.getIcon('close_'+iconName);break;
+							case '99': iconName = model.getIcon('pending');break;
+							default	 : iconName = model.getIcon(iconName+'_voltage');break;
+						}
 					} else {
 						iconName = model.getIcon('control_measure')
 					}
@@ -594,7 +613,9 @@ djMap.Control = function(_map) {
 						var pos = oldIds.indexOf(item.id)
 						if(pos == -1) {	// add
 							// console.log('fresh—add')
-							node.status = item.status
+							// 临时修改状态判断，后端状态可能为null，为null时我们给他个‘99’作为标识，下同
+							// model层里 status变量记录相关信息，应该使用它（现在没有时间大改）
+							node.status = item.status ? item.status : '99'
 							node.open = item.open
 							newMarker[item.id] = view.addMarkerByNode(node)[0]
 							// newNodeList.push(node)
@@ -603,7 +624,7 @@ djMap.Control = function(_map) {
 							// console.log(markers[item.id].status, item.status)
 							if(markers[item.id].status != item.status) {	// update old marker
 								// console.log('fresh-update')
-								markers[item.id].status = item.status
+								markers[item.id].status = item.status ? item.status : '99'
 								markers[item.id].open = item.open
 								view.setMarkerIcon(markers[item.id])
 							}
@@ -628,7 +649,7 @@ djMap.Control = function(_map) {
 				nodeData.forEach(function(item) {
 					var node = zTree.getNodesByParamFuzzy('id', item.id)[0]
 					if(!!node) {
-						node.status = item.status
+						node.status = item.status ? item.status : '99'
 						node.open = item.open
 						newMarker[item.id] = view.addMarkerByNode(node)[0]
 						// newNodeList.push(node)
@@ -676,7 +697,11 @@ djMap.Control = function(_map) {
 								}
 								break
 							case '02': 	// 报警
-						  	infoWindow.alarm_handle_modal(marker); 	// pop up a handle window
+						  		infoWindow.alarm_handle_modal(marker); 	// pop up a handle window
+								break
+							// 以下是临时加需求 盲改代码
+							case '99': // 已连接但是没数据
+								infoWindow.click_high_voltage_switch_pending(marker);
 								break
 						}
 					}

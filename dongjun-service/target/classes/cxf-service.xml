@@ -9,6 +9,7 @@
 
     <jaxrs:server address="/common">
         <jaxrs:serviceBeans>
+<<<<<<< HEAD
             <bean class="com.gdut.dongjun.cxf.impl.CommonServiceImpl" />
         </jaxrs:serviceBeans>
 <!--         <jaxrs:inInterceptors> -->
@@ -17,6 +18,16 @@
 <!--         <jaxrs:outInterceptors> -->
 <!--             <bean class="org.apache.cxf.interceptor.LoggingOutInterceptor"></bean> -->
 <!--         </jaxrs:outInterceptors> -->
+=======
+            <bean class="com.symon.cxf.impl.CommonServiceImpl" />
+        </jaxrs:serviceBeans>
+        <jaxrs:inInterceptors>
+            <bean class="org.apache.cxf.interceptor.LoggingInInterceptor"></bean>
+        </jaxrs:inInterceptors>
+        <jaxrs:outInterceptors>
+            <bean class="org.apache.cxf.interceptor.LoggingOutInterceptor"></bean>
+        </jaxrs:outInterceptors>
+>>>>>>> new_system
         <jaxrs:providers>
             <ref bean="jsonProvider" />
         </jaxrs:providers>

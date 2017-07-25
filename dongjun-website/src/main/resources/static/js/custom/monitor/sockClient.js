@@ -9,7 +9,7 @@ var monitorSet = function() {
 			stompClient = Stomp.over(socket);
 			stompClient.connect({}, function(frame) {
 				stompClient.subscribe("/topic/get_active_switch_status", function(message) {
-					// console.log('/topic/get_active_switch_status', JSON.parse(message.body))
+					console.log('/topic/get_active_switch_status', JSON.parse(message.body))
 					djMap.Control.freshActiveSwitch(JSON.parse(message.body))
 				});
 				stompClient.subscribe('/user/queue/read_voltage', function(message) {
@@ -21,7 +21,7 @@ var monitorSet = function() {
 					infoWindow.actualUpdateCur(message)
 				});
 				stompClient.subscribe('/user/queue/read_hv_status', function(message) {
-					// console.log('/user/queue/read_hv_status', JSON.parse(message.body))
+					 console.log('/user/queue/read_hv_status', JSON.parse(message.body))
 					infoWindow.actualUpdateHvStatus(message)
 				});
 			});

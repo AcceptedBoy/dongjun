@@ -1,12 +1,7 @@
 package com.gdut.dongjun.service.webservice.server.impl;
 
-import com.gdut.dongjun.domain.HighVoltageStatus;
-import com.gdut.dongjun.domain.po.User;
-import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
-import com.gdut.dongjun.service.common.DeviceBinding;
-import com.gdut.dongjun.service.device.DeviceCommonService;
-import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
-import com.gdut.dongjun.service.webservice.server.WebsiteService;
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +9,14 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import java.util.List;
+import com.gdut.dongjun.domain.HighVoltageStatus;
+import com.gdut.dongjun.domain.po.User;
+import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
+import com.gdut.dongjun.service.common.DeviceBinding;
+import com.gdut.dongjun.service.device.DeviceCommonService;
+import com.gdut.dongjun.service.device.current.HighVoltageCurrentService;
+import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
+import com.gdut.dongjun.service.webservice.server.WebsiteService;
 
 /**
  */
@@ -23,14 +25,14 @@ public class WebsiteServiceImpl implements WebsiteService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(WebsiteServiceImpl.class);
 
-	@Autowired
-	private SimpMessagingTemplate template;
-
-	@Autowired
-	private DeviceCommonService deviceCommonService;
-
-	@Autowired
-	private HardwareServiceClient hardwareClient;
+    @Autowired
+    private SimpMessagingTemplate template;
+    @Autowired
+    private DeviceCommonService deviceCommonService;
+    @Autowired
+    private HardwareServiceClient hardwareClient;
+    @Autowired
+    private HighVoltageCurrentService currentService;
 
 	@Autowired
 	public WebsiteServiceImpl(SimpMessagingTemplate messagingTemplate) {
@@ -43,15 +45,15 @@ public class WebsiteServiceImpl implements WebsiteService {
 		this.template.convertAndSend("/topic/get_active_switch_status", data);
 	}
 
-	@Override
-	public void callbackDeviceChange(String switchId, Integer type) {
-		LOG.info("设备状态发生变化" + switchId + "    type为" + type);
-		List<User> userList = DeviceBinding.getListenUser(switchId);
-		if (!CollectionUtils.isEmpty(userList)) {
-			for (User user : userList) {
-
-				template.convertAndSendToUser(user.getName(), "/queue/read_current",
-						deviceCommonService.getCurrentService(Integer.valueOf(type)).readCurrent(switchId));
+    @Override
+    public void callbackDeviceChange(String switchId, Integer type) {
+    	LOG.info("设备状态发生变化" + switchId + "    type为" + type);
+        List<User> userList = DeviceBinding.getListenUser(switchId);
+        if(!CollectionUtils.isEmpty(userList)) {
+            for(User user : userList) {
+            	List<Integer> list = deviceCommonService.getCurrentService(Integer.valueOf(type)).readCurrent(switchId);
+                template.convertAndSendToUser(user.getName(), "/queue/read_current",
+                		currentService.getRealCurrent(switchId, list));
 
 				template.convertAndSendToUser(user.getName(), "/queue/read_voltage",
 						deviceCommonService.getVoltageService(Integer.valueOf(type)).getVoltage(switchId));

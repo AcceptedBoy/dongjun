@@ -3,6 +3,9 @@ package com.gdut.dongjun.domain;
 import java.io.Serializable;
 
 /**   
+ * 这个类不同于{@code SwitchGPRS}，一旦建立之后就一直在{@code HighVoltageCtxStore}中。
+ * {@code SwitchGPRS}指明当前连接的情况，{@code HighVoltageStatus}指明设备上线后的情况。
+ * 所以不能拿这个类来判断设备是否上线。
  * @author	Sherlock-lee
  * @date	2016年1月15日 下午11:20:25
  * @see 	TODO
@@ -40,6 +43,26 @@ public class HighVoltageStatus implements Serializable {
 	private String yao_kong_fu_gui;
 	private String yao_kong_he_zha;
 	private String yao_kong_fen_zha;
+	
+	private transient static String STR_02 = "02";
+	
+	public HighVoltageStatus() {
+		this.guo_liu_yi_duan =  STR_02;
+		this.guo_liu_er_duan =  STR_02;
+		this.guo_liu_san_duan =  STR_02;
+		this.ling_xu_guo_liu_ =  STR_02;
+		this.chong_he_zha =  STR_02;
+		this.pt1_you_ya =  STR_02;
+		this.pt1_guo_ya =  STR_02;
+		this.pt2_guo_ya =  STR_02;
+		this.pt2_you_ya =  STR_02;
+		this.jiao_liu_shi_dian =  STR_02;
+		this.shou_dong_fen_zha =  STR_02;
+		this.shou_dong_fen_zha =  STR_02;
+		this.yao_kong_fen_zha =  STR_02;
+		this.yao_kong_he_zha =  STR_02;
+		this.yao_kong_fen_zha =  STR_02;
+	}
 	
 	public String getId() {
 		return id;

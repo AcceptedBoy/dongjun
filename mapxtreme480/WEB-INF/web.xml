@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE web-app
+	PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+	"http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app>
+	<display-name>MapXtreme Java Edition 4.8</display-name>
+	<description>MapInfo MapXtreme Java edition Map Server version 4.8</description>
+
+	<!-- core MapXtreme Java servlet -->
+	<servlet>
+		<servlet-name>
+			mapxtreme
+		</servlet-name>
+		<servlet-class>
+			com.mapinfo.mapxtreme.MapXtremeServlet
+		</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<!-- internal servlets which are called by MapXtremeServlet -->
+	<!-- these servlets should not be called directly!          -->
+	<servlet>
+		<servlet-name>
+			mxtj_image
+		</servlet-name>
+		<servlet-class>
+			com.mapinfo.mapxtreme.ImageHandlerServlet
+		</servlet-class>
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+	<servlet>
+		<servlet-name>
+			mxtj_metadata
+		</servlet-name>
+		<servlet-class>
+			com.mapinfo.mapxtreme.MetadataHandlerServlet
+		</servlet-class>
+		<load-on-startup>3</load-on-startup>
+	</servlet>
+	<servlet>
+		<servlet-name>
+			mxtj_vector
+		</servlet-name>
+		<servlet-class>
+			com.mapinfo.mapxtreme.VectorHandlerServlet
+		</servlet-class>
+		<load-on-startup>4</load-on-startup>
+	</servlet>
+
+	<!-- MapXtreme Java Manager servlet -->
+	<servlet>
+		<servlet-name>
+			manager
+		</servlet-name>
+		<servlet-class>
+			com.mapinfo.mjm.MJMServlet
+		</servlet-class>
+		<load-on-startup>5</load-on-startup>
+	</servlet>
+
+	<!-- Named Resources servlet -->
+	<servlet>
+		<servlet-name>
+			namedresource
+		</servlet-name>
+		<servlet-class>
+			com.mapinfo.jndi.namedres.NamedResourceServlet
+		</servlet-class>
+	</servlet>
+
+	<!-- CoordTransform servlet -->
+	<servlet>
+		<servlet-name>
+			coordtransform
+		</servlet-name>
+		<servlet-class>
+			com.mapinfo.coordsys.io.CoordTransformServlet
+		</servlet-class>
+	</servlet>
+
+	<!-- servlet URL mappings -->
+	<!-- mapxtreme -->
+	<servlet-mapping>
+		<servlet-name>
+			mapxtreme
+		</servlet-name>
+		<url-pattern>
+			/servlet/mapxtreme
+		</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>
+			mapxtreme
+		</servlet-name>
+		<url-pattern>
+			/mapxtreme
+		</url-pattern>
+	</servlet-mapping>
+
+	<!-- namedresource -->
+	<servlet-mapping>
+		<servlet-name>
+			namedresource
+		</servlet-name>
+		<url-pattern>
+			/servlet/namedresource
+		</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>
+			namedresource
+		</servlet-name>
+		<url-pattern>
+			/namedresource
+		</url-pattern>
+	</servlet-mapping>
+
+	<!-- coordtransform -->
+	<servlet-mapping>
+		<servlet-name>
+			coordtransform
+		</servlet-name>
+		<url-pattern>
+			/servlet/coordtransform
+		</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>
+			coordtransform
+		</servlet-name>
+		<url-pattern>
+			/coordtransform
+		</url-pattern>
+	</servlet-mapping>
+
+	<!-- manager -->
+	<servlet-mapping>
+		<servlet-name>
+			manager
+		</servlet-name>
+		<url-pattern>
+			/servlet/manager
+		</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>
+			manager
+		</servlet-name>
+		<url-pattern>
+			/manager
+		</url-pattern>
+	</servlet-mapping>
+	
+</web-app>

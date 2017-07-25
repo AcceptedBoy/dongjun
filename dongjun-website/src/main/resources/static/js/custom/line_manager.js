@@ -4,7 +4,7 @@ $(document).ready(function() {
 	 * 初始化列表
 	 */
 	//initial_table("switch_list");
-	reloadDataTable('003')
+	// reloadDataTable('003')
 	$("#add_switch_btn").click(addSwitch);
 	$(".edit_switch_btn").click(editSwitch);
 	$(".del_switch_btn").click(delSwitch);
@@ -89,6 +89,9 @@ function loadSubstationSet() {
 			}
 			$(".substations").append(options);
 			$("#inputLineId").append(options);
+			if(data.data.length) {
+				reloadDataTable(data.data[0].id)
+			}
 		}
 	})
 }

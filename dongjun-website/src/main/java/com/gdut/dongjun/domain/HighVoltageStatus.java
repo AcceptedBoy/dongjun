@@ -40,6 +40,24 @@ public class HighVoltageStatus implements Serializable {
 	private String yao_kong_fu_gui;
 	private String yao_kong_he_zha;
 	private String yao_kong_fen_zha;
+	private transient static String STR_02 = "02";
+	public HighVoltageStatus() {
+		this.chong_he_zha = STR_02;
+		this.guo_liu_er_duan = STR_02;
+		this.guo_liu_san_duan = STR_02;
+		this.guo_liu_yi_duan = STR_02;
+		this.jiao_liu_shi_dian = STR_02;
+		this.ling_xu_guo_liu_ = STR_02;
+		this.pt1_guo_ya = STR_02;
+		this.pt1_you_ya = STR_02;
+		this.pt2_guo_ya = STR_02;
+		this.pt2_you_ya = STR_02;
+		this.yao_kong_fen_zha = STR_02;
+		this.yao_kong_fu_gui = STR_02;
+		this.yao_kong_he_zha = STR_02;
+		this.shou_dong_fen_zha = STR_02;
+		this.shou_dong_he_zha = STR_02;
+	}
 	
 	public String getId() {
 		return id;
