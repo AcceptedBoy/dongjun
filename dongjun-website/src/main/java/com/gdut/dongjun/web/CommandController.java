@@ -652,8 +652,8 @@ public class CommandController {
 	 */
 	@RequestMapping("/send_text")
 	@ResponseBody
-	public void sendText(String switchId, String text, HttpSession session) {
-		hardwareClient.getService().sendText(switchId, text, 0);
+	public boolean sendText(String switchId, String text, HttpSession session) {
+		return hardwareClient.getService().sendText(switchId, text, 0);
 	}
 	
 	/**
@@ -664,8 +664,14 @@ public class CommandController {
 	 */
 	@RequestMapping("/send_total_call")
 	@ResponseBody
-	public void sendTotalCall(String switchId, HttpSession session) {
-		hardwareClient.getService().sendText(switchId, null, 1);
+	public boolean sendTotalCall(String switchId, HttpSession session) {
+		return hardwareClient.getService().sendText(switchId, null, 1);
+	}
+	
+	@RequestMapping("/send_total_call_anon")
+	@ResponseBody
+	public boolean sendTotalCallAnon(String switchId, HttpSession session) {
+		return hardwareClient.getService().sendText(switchId, null, 2);
 	}
 	
 
