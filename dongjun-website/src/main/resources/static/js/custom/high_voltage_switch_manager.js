@@ -38,7 +38,8 @@ $(document).ready(function() {
 				"simNumber" : $("#editSim").val(),
 				"inlineIndex" : $("#editinlineIndex").val(),
 				"deviceNumber":$("#editDeviceNumber").val(),
-				'onlineTime': $('#inLineTime').val()
+				'onlineTime': $('#inLineTime').val(),
+				"current_ratio": $('#editCurrentRatio').val()
 			},
 			success : function(data) {
 
@@ -66,7 +67,8 @@ $(document).ready(function() {
 				"latitude" : $("#inputLatitude").val(),
 				"simNumber" : $("#inputSim").val(),
 				"inlineIndex" : $("#inlineIndex").val(),
-				"deviceNumber":$("#inputDeviceNumber").val()
+				"deviceNumber":$("#inputDeviceNumber").val(),
+				"current_ratio": $('#addCurrentRatio').val()
 			},
 			success : function(data) {
 
@@ -97,7 +99,6 @@ var myState = 'high'
 * @throws
  */
 function reloadDataTable(lineId){
-
 	$('#switch_list').DataTable( {
 		"destroy": true,// destroy之后才能重新加载
 		"ajax": "high_voltage_switch_list_by_line_id.action?lineId="+lineId,
@@ -116,6 +117,7 @@ function reloadDataTable(lineId){
 	        { "data": "latitude" },
 	        { "data": "simNumber" },
 	        { "data": "inlineIndex" },
+	        { "data": "currentRatio" },
 	        { "data": "onlineTime"},
 	        { "data": null},
             { "data": null},// 设置默认值 null，表示列不会获得数据源对象的信息,否则默认值会被覆盖掉
@@ -196,7 +198,7 @@ function addSwitch() {
 	if($(".lines").val() == null){
 
 		$("#inputLineId").val(
-				$(".edit_switch_btn").parent("td").prevAll()[7].innerHTML);
+				$(".edit_switch_btn").parent("td").prevAll()[8].innerHTML);
 	}else{
 		$("#inputLineId").val($(".lines").val());
 	}
@@ -208,6 +210,7 @@ function addSwitch() {
 	$("#inputShowName").val("");
 	$("#inputSim").val("");
 	$("#inlineIndex").val("");
+	$('#addCurrentRatio').val("")
 }
 
 /**
@@ -222,17 +225,18 @@ function editSwitch() {
 
 	var column = $(this).parent("td").prevAll();
 	console.log(column);
-	$("#editDeviceNumber").val(column[11].innerHTML);
-	$("#editName").val(column[10].innerHTML);
-	$("#editShowName").val(column[9].innerHTML);
-	$("#editId").val(column[8].innerHTML);
-	$("#editLineId").val(column[7].innerHTML);
-	$("#editAddress").val(column[6].innerHTML);
-	$("#editLongitude").val(column[5].innerHTML);
-	$("#editLatitude").val(column[4].innerHTML);
+	$("#editDeviceNumber").val(column[12].innerHTML);
+	$("#editName").val(column[11].innerHTML);
+	$("#editShowName").val(column[10].innerHTML);
+	$("#editId").val(column[9].innerHTML);
+	$("#editLineId").val(column[8].innerHTML);
+	$("#editAddress").val(column[7].innerHTML);
+	$("#editLongitude").val(column[6].innerHTML);
+	$("#editLatitude").val(column[5].innerHTML);
 	$('#inLineTime').val(column[1].innerHTML);
-	$("#editSim").val(column[3].innerHTML);
-	$("#editinlineIndex").val(column[2].innerHTML);
+	$("#editSim").val(column[4].innerHTML);
+	$("#editinlineIndex").val(column[3].innerHTML);
+	$("#editCurrentRatio").val(column[2].innerHTML);
 }
 
 
@@ -253,7 +257,7 @@ function delSwitch() {
 			url : "del_high_voltage_switch",
 			async : false,
 			data : {
-				"switchId" : column[9].innerHTML,
+				"switchId" : column[10].innerHTML,
 			},
 			success : function(data) {
 
@@ -276,8 +280,8 @@ function delSwitch() {
  */
 function enterMap() {
 
-	var longitude = $(this).parent("td").prevAll()[4].innerHTML;
-	var latitude = $(this).parent("td").prevAll()[3].innerHTML;
+	var longitude = $(this).parent("td").prevAll()[5].innerHTML;
+	var latitude = $(this).parent("td").prevAll()[4].innerHTML;
 	localStorage.setItem('longitude', longitude);
 	localStorage.setItem('latitude', latitude);
 	location.href = "index";
@@ -291,7 +295,7 @@ function locateSwitch() {
 		url : "edit_location",
 		async : false,
 		data : {
-			"switchId" : column[10].innerHTML,
+			"switchId" : column[11].innerHTML,
 			"type" : 1,
 			"scale": 12
 		},
@@ -310,10 +314,10 @@ function handleClick(e) {
 	var column = $(this).parent("td").prevAll()
 	if(localStorage) {
 		var switchConfig = {
-			switchId: column[11].innerHTML,
-			showName: column[12].innerHTML,
-			switchName: column[13].innerHTML,
-			switchNum: column[14].innerHTML
+			switchId: column[12].innerHTML,
+			showName: column[13].innerHTML,
+			switchName: column[14].innerHTML,
+			switchNum: column[15].innerHTML
 		}
 		var localData = JSON.stringify(switchConfig)
 		localStorage.setItem('switchConfig', localData)
