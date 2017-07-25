@@ -36,6 +36,8 @@ public class AvailableHighVoltageSwitch {
     private String showName;
 
     private String onlineTime;
+    
+    private Float currentRatio;
 
     //包含有三种情况：未验证，已验证，已过期
     private String isAvailable;
@@ -65,6 +67,7 @@ public class AvailableHighVoltageSwitch {
         availableHighVoltageSwitch.setOnlineTime(highVoltageSwitch.getOnlineTime());
         availableHighVoltageSwitch.setShowName(highVoltageSwitch.getShowName());
         availableHighVoltageSwitch.setSimNumber(highVoltageSwitch.getSimNumber());
+        availableHighVoltageSwitch.setCurrentRatio(highVoltageSwitch.getCurrentRatio());
         return availableHighVoltageSwitch;
     }
 
@@ -163,4 +166,12 @@ public class AvailableHighVoltageSwitch {
     public void setIsAvailable(String isAvailable) {
         this.isAvailable = isAvailable;
     }
+
+	public Float getCurrentRatio() {
+		return currentRatio;
+	}
+
+	public void setCurrentRatio(Float currentRatio) {
+		this.currentRatio = currentRatio;
+	}
 }

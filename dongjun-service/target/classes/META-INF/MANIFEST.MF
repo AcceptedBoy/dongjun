@@ -2,12 +2,8 @@ Manifest-Version: 1.0
 Implementation-Vendor: Pivotal Software, Inc.
 Implementation-Title: dongjun-service
 Implementation-Version: 0.0.1-SNAPSHOT
-<<<<<<< HEAD
 Implementation-Vendor-Id: com.gdut
-=======
-Implementation-Vendor-Id: com.symon
->>>>>>> new_system
 Build-Jdk: 1.7.0_79
-Built-By: Gordan_Deng
+Built-By: Ronk
 Created-By: Maven Integration for Eclipse
 
