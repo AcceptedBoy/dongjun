@@ -113,7 +113,7 @@ public interface HardwareService {
 	
     @POST
     @Path("/send_text")
-    @Consumes({MediaType.APPLICATION_JSON})
+//    @Consumes({MediaType.APPLICATION_JSON})
     public boolean sendText(@FormParam("switchId") String switchId, 
     		@FormParam("text") String text, @FormParam("type") Integer type);
     

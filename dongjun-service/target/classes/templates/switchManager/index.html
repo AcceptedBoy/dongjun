@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<title></title>
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<!-- Le styles -->
+		<link rel="stylesheet" type="text/css" href="../../static/css/mdl/material.min.custom.css">
+		<link rel="stylesheet" type="text/css" href="../../static/css/font-awesome-4.7.0/css/font-awesome.min.css">
+		<!-- <link rel="stylesheet" type="text/css" href="../../static/css/dataTable/dataTables.material.min.css"> -->
+		<link rel="stylesheet" type="text/css" href="../../static/css/cus/stylesheets/global.css">
+		<link rel="stylesheet" type="text/css" href="../../static/css/cus/stylesheets/frame.css">
+		<!-- jq -->
+		<script type="text/javascript" src="../../static/js/lib/jq/jquery-3.2.1.min.js"></script>
+		<!-- mock -->
+		<script type="text/javascript" src="../../static/js/lib/mock-min.js"></script>
+		<script type="text/javascript" src="../../static/js/customs/mockData.js"></script>
+		<!-- dataTable -->
+		<link rel="stylesheet" type="text/css" href="../../static/css/dataTable/jquery.dataTables.min.css">
+	</head>
+	<body>
+		<!-- app content -->
+		<div id="app">
+			<div id="dj-nav" class="mdl-layout mdl-js-layout mdl-layout--fixed-header dj-nav">
+				<!-- 头部导航 -->
+			  <header class="mdl-layout__header dj-nav-header">
+			    <div class="mdl-layout__header-row">
+			      <!-- Title -->
+			      <h2 class="mdl-layout-title dj-nav-title">
+			      	<img class="dj-nav-logo" src="../../static/img/logo/logo1.png">
+			      	东君后台管理系统
+			      </h2>
+			      <!-- Add spacer, to align navigation to the right -->
+			      <div class="mdl-layout-spacer"></div>
+			      <!-- Navigation. We hide it in small screens. -->
+			      <nav class="mdl-navigation">
+			        <a class="dj-nav-link" href="../companyManager/">
+			        	<button class="mdl-button mdl-js-button mdl-js-ripple-effect">
+			        		公司管理
+								</button>
+			        </a>
+			        <a class="dj-nav-link active">
+			        	<button class="mdl-button mdl-js-button mdl-js-ripple-effect" disabled>
+			        		设备管理
+								</button>
+			        </a>
+			      </nav>
+			    </div>
+			  </header>
+			  <!-- 内容 -->
+			  <main class="mdl-layout__content">
+			    <div class="page-content" id="content-container">
+				    <!-- 主要内容区 -->
+				    <!-- 选择下拉框 -->
+				    <div class="mdl-grid">
+							<div class="mdl-grid mdl-cell mdl-cell--9-col" style="margin-left: -8px;">
+								<div class="mdl-cell mdl-cell--4-col">
+									<label>
+										公司：
+										<select class="auto-size">
+											<option value="">3</option>
+											<option value="">3</option>
+											<option value="">3</option>
+											<option value="">3</option>
+										</select>
+									</label>
+								</div>
+								<div class="mdl-cell mdl-cell--4-col">
+									<label>
+										配电站：
+										<select class="auto-size">
+											<option value="">3</option>
+											<option value="">3</option>
+											<option value="">3</option>
+											<option value="">3</option>
+										</select>
+									</label>
+								</div>
+								<div class="mdl-cell mdl-cell--4-col">
+									<label>
+										线路：
+										<select class="auto-size">
+											<option value="">3</option>
+											<option value="">3</option>
+											<option value="">3</option>
+											<option value="">3</option>
+										</select>
+									</label>
+								</div>
+							</div>
+
+				    </div>
+						<!-- 表格部分 -->
+						<div class="dj-row">
+							  <table id="switch_list" class=" mdl-data-table table table-bordered table-striped table-hover table-condensed success">
+							    <thead>
+							      <td>设备名称</td>
+							      <td>设备序号</td>
+							      <td>截止时间</td>
+							      <td></td>
+							    </thead>
+							  </table>
+						</div>
+			    </div>
+			  </main>
+			</div>
+		</div>
+		<!-- footer -->
+		<footer id="dj-footer" class="dj-footer">
+		</footer>
+	</body>
+
+	<!-- material -->
+	<script src="../../static/js/lib/dataTables/jquery.dataTables.min.js"></script>
+	<script src="../../static/js/lib/mdl/material.min.js"></script>
+	<script src="../../static/js/lib/dataTables/dataTables.material.min.js"></script>
+	<!-- dongjun -->
+	<script type="text/javascript" src="../../static/js/lib/dongjun.js"></script>
+	<script>
+		var table = $('#switch_list').DataTable({
+			'ajax': {
+	      'url': `${localhost}/switch/list`,
+	      'type': 'POST',
+	      'dataSrc': function(data) {
+	        return typeof data === 'string' ? JSON.parse(data).text : data.text
+        }
+	     },
+	    'columns': [
+	      { 'data': 'name' },
+	      { 'data': 'address' },
+	      { 'data': 'expireTime' },
+	      {
+	        data: 'available',
+	        orderable: false,
+	        width: '80px',
+	        render: function(data, type, row) {
+	        	let status = data ? 'checked' : ''
+	        	let msg = data ? '有效' : '请启用'
+	          return `<label class="mdl-switch mdl-js-switch mdl-js-ripple-effect" for="switch-${row.id}">
+										  <input type="checkbox" id="switch-${row.id}" class="mdl-switch__input" ${status}>
+										  <span class="mdl-switch__label">${msg}</span>
+										</label>`
+	        }
+	      },
+	    ],
+	    'language': {
+	      'paginate': {
+	        'next': '下一页',
+	        'previous': '上一页'
+	      },
+	      'emptyTable': '找不到相关数据',
+	      'zeroRecords': '找不到相关数据',
+	      'loadingRecords': '正在加载数据...'
+	    },
+	    drawCallback: function () {
+	    	componentHandler.upgradeDom()
+	    },
+	    'initComplete': function() {
+	    }
+	  })
+	</script>
+</html>

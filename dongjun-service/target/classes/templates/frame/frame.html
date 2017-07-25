@@ -1,0 +1,64 @@
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header dj-nav">
+  <header class="mdl-layout__header dj-nav-header">
+    <div class="mdl-layout__header-row">
+      <!-- Title -->
+      <h2 class="mdl-layout-title dj-nav-title">
+      	<img class="dj-nav-logo" src="../../static/img/logo/logo1.png">
+      	东君后台管理系统
+      </h2>
+      <!-- Add spacer, to align navigation to the right -->
+      <div class="mdl-layout-spacer"></div>
+      <!-- Navigation. We hide it in small screens. -->
+      <nav class="mdl-navigation mdl-layout--large-screen-only">
+				<button class="mdl-button mdl-js-button mdl-js-ripple-effect">
+        	<a class="dj-nav-link" href="">Link</a>
+				</button>
+        <a class="dj-nav-link" href="">
+        	<button class="mdl-button mdl-js-button mdl-js-ripple-effect">
+        		Link
+					</button>
+        </a>
+
+				<button class="mdl-button mdl-js-button mdl-js-ripple-effect">
+        	<a class="dj-nav-link" href="">Link</a>
+				</button>
+				<button class="mdl-button mdl-js-button mdl-js-ripple-effect">
+        	<a class="dj-nav-link" href="">Link</a>
+				</button>
+      </nav>
+    </div>
+  </header>
+  <main class="mdl-layout__content">
+    <div class="page-content" id="content-container">
+    <!-- 主要内容区 -->
+
+    <button class="mdl-button mdl-js-button mdl-button--fab mdl-js-ripple-effect mdl-button--colored" id="login">
+        登
+      </button>
+    <h1>123</h1>
+    <h1>123</h1>
+    <h1>123</h1>
+    <h1>123</h1>
+    <h1>123</h1>
+    <h1>123</h1>
+    <h1>123</h1>
+    <h1>123</h1>
+    <h1>123</h1>
+    <h1>123</h1>
+    <h1>123</h1>
+    <h1>123</h1>
+    <h1>123</h1>
+    <h1>123</h1>
+    <h1>123</h1>
+    </div>
+  </main>
+</div>
+
+<script>
+  var button = document.createElement('button');
+  var textNode = document.createTextNode('Click Me!');
+  button.appendChild(textNode);
+  button.className = 'mdl-button mdl-js-button mdl-js-ripple-effect';
+  componentHandler.upgradeElement(button);
+  document.getElementById('content-container').appendChild(button);
+</script>

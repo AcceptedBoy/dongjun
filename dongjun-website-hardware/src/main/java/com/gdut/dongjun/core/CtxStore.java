@@ -1,25 +1,21 @@
 package com.gdut.dongjun.core;
 
-import com.gdut.dongjun.domain.HighVoltageStatus;
-import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
-import com.gdut.dongjun.service.webservice.client.WebsiteServiceClient;
-import com.gdut.dongjun.service.webservice.server.HardwareService;
-import io.netty.channel.ChannelHandlerContext;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.context.support.FileSystemXmlApplicationContext;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
+import com.gdut.dongjun.service.ChangingSwitchExpireTask;
+import com.gdut.dongjun.service.ScheduledTaskExecutor;
+import com.gdut.dongjun.service.webservice.client.WebsiteServiceClient;
+
+import io.netty.channel.ChannelHandlerContext;
 
 /**
  * @Title: ClientList.java
@@ -36,12 +32,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class CtxStore implements InitializingBean, ApplicationContextAware {
 	
 	private static Logger logger = Logger.getLogger(CtxStore.class);
-
 	protected static WebsiteServiceClient websiteServiceClient;
-
 	private ApplicationContext applicationContext;
-	
 	protected static List<SwitchGPRS> ctxlist = new CopyOnWriteArrayList<>();
+	private static Map<String, ChangingSwitchStatus> changingSwitchMap = new ConcurrentHashMap<>();
 	
 	protected CtxStore() {
 		
@@ -169,7 +163,9 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 		
 		if(ctxlist != null) {
 			for(SwitchGPRS gprs : ctxlist) {
-				if(gprs != null && address.equals(gprs.getAddress())) {
+				if(null != gprs 
+						&& null != gprs.getAddress() 
+						&& address.equals(gprs.getAddress())) {
 					return gprs;
 				}
 			}
@@ -422,4 +418,53 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 			return false;
 		}
 	}
+	
+	public static void addChangingSwitch(String address, Integer type) {
+		removeChangingSwitch(address);
+		ChangingSwitchStatus s = new ChangingSwitchStatus(address, type);
+		changingSwitchMap.put(address, s);
+		ScheduledTaskExecutor.submit(s.getTask());
+	}
+	
+	public static Integer selectChangingSwitchStatus(String address) {
+		ChangingSwitchStatus s = changingSwitchMap.get(address);
+		if (null != s) {
+			return s.getType();
+		}
+		return null;
+	}
+	
+	public static void removeChangingSwitch(String address) {
+		ChangingSwitchStatus s = changingSwitchMap.get(address);
+		if (null != s) {
+			s.getTask().cancel();
+		}
+		changingSwitchMap.remove(address);
+	}
+}
+
+class ChangingSwitchStatus {
+	
+	private Integer type;
+	private ChangingSwitchExpireTask task;
+	
+	public ChangingSwitchStatus(String address, Integer type) {
+		this.type = type;
+		this.setTask(address);
+	}
+	
+	public Integer getType() {
+		return type;
+	}
+	public void setType(Integer type) {
+		this.type = type;
+	}
+	public ChangingSwitchExpireTask getTask() {
+		return task;
+	}
+	public void setTask(String address) {
+		this.task = new ChangingSwitchExpireTask(address);
+	}
+	
+	
 }

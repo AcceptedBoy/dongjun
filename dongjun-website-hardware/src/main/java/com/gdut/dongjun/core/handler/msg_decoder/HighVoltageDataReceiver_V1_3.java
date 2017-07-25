@@ -15,6 +15,7 @@
  */
 package com.gdut.dongjun.core.handler.msg_decoder;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -185,6 +186,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 					pointIndex = begin;
 				} else {
 					//目标分割点非报文分割点
+					pointIndex = pos;
 					continue;
 				}
 			} else {
@@ -287,11 +289,11 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 			return ;
 		}
 		// 未续费的设备的报文不接受
-		SwitchGPRS gprs = CtxStore.get(ctx);
-		if (!hvCtxStore.isAddrAvailable(gprs.getAddress())) {
-			logger.info("未续费的设备报文：" + String.valueOf(data));
-			return;
-		}
+//		SwitchGPRS gprs = CtxStore.get(ctx);
+//		if (!hvCtxStore.isAddrAvailable(gprs.getAddress())) {
+//			logger.info("未续费的设备报文：" + String.valueOf(data));
+//			return;
+//		}
 		
 		logger.info("处理报文：" + String.valueOf(data));
 		
@@ -352,7 +354,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 			 */
 			logger.info("接收心跳报文：" + String.valueOf(data));
 			SwitchGPRS gprs1 = CtxStore.get(ctx);
-			if (null == gprs || null == gprs.getAddress() || "".equals(gprs.getAddress())) {
+			if (null == gprs1 || null == gprs1.getAddress() || "".equals(gprs1.getAddress())) {
 				// 如果设备还没有留下地址就发送全域总召
 				HighVoltageDeviceCommandUtil ut = new HighVoltageDeviceCommandUtil();
 				ctx.writeAndFlush(ut.anonTotalCall());
@@ -504,7 +506,6 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 
 			HighVoltageStatus s = hvCtxStore.getStatusbyId(id);
 			SwitchGPRS gprs = CtxStore.get(id);
-
 			if (s == null) {
 
 				s = new HighVoltageStatus();
@@ -519,6 +520,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 					STR_01.equals(s.getGuo_liu_er_duan())  ||
 					STR_01.equals(s.getGuo_liu_san_duan())) {
 				createHitchEvent(id, "过流");
+//				hitchReason.append("过流 ");
 			}
 
 			String ling_xu_yi_duan = getStr0Or01(data, 30 + 38 * 2, 30 + 39 * 2);
@@ -528,6 +530,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 					STR_01.equals(ling_xu_er_duan)  ||
 					STR_01.equals(ling_xu_san_duan)) {
 				createHitchEvent(id, "零序过流");
+//				hitchReason.append("零序过流 ");
 				s.setLing_xu_guo_liu_(STR_01);
 			} else {
 				s.setLing_xu_guo_liu_(STR_00);
@@ -545,6 +548,38 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 
 			s.setPt1_guo_ya(getStr0Or01(data, 30 + 6 * 2, 30 + 7 * 2));
 			s.setPt2_guo_ya(getStr0Or01(data, 30 + 10 * 2, 30 + 11 * 2));
+			
+
+			s.setShou_dong_he_zha(getStr0Or01(data, 30 + 20 * 2, 30 + 21 * 2));
+			if (STR_01.equals(s.getShou_dong_he_zha())) {
+				createHitchEvent(id, "手动合闸");
+//				hitchReason.append("手动合闸 ");
+			}
+			s.setShou_dong_fen_zha(getStr0Or01(data, 30 + 21 * 2, 30 + 22 * 2));
+			if (STR_01.equals(s.getShou_dong_fen_zha())) {
+				createHitchEvent(id, "手动分闸");
+//				hitchReason.append("手动分闸 ");
+			}
+			s.setYao_kong_he_zha(getStr0Or01(data, 30 + 31 * 2, 30 + 32 * 2));
+			if (STR_01.equals(s.getYao_kong_he_zha())) {
+				createHitchEvent(id, "遥控器合闸");
+//				hitchReason.append("遥控器合闸 ");
+			}
+			s.setYao_kong_fen_zha(getStr0Or01(data, 30 + 32 * 2, 30 + 33 * 2));
+			if (STR_01.equals(s.getYao_kong_fen_zha())) {
+				createHitchEvent(id, "遥控器分闸");
+//				hitchReason.append("遥控器分闸 ");
+			}
+			s.setYao_kong_fu_gui(getStr0Or01(data, 30 + 33 * 2, 30 + 34 * 2));
+			if (STR_01.equals(getStr0Or01(data, 30 + 54 * 2, 30 + 55 * 2))) {
+				createHitchEvent(id, "快速分闸");
+//				hitchReason.append("快速分闸 ");
+			}
+			if (STR_01.equals(getStr0Or01(data, 30 + 58 * 2, 30 + 59 * 2))) {
+				createHitchEvent(id, "超温跳闸");
+//				hitchReason.append("超温跳闸 ");
+			}
+			
 			//这里和原来的版本不一样
 			String new_status = getStr0Or01(data, 30, 32);
 			if ("01".equals(s.getStatus()) && "00".equals(new_status)) {
@@ -554,14 +589,20 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 				HighVoltageHitchEvent event = new HighVoltageHitchEvent();
 
 				event.setHitchTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
-				event.setHitchReason("全遥信记录状态变化");
+				Integer code = CtxStore.selectChangingSwitchStatus(address);
+				if (null != code && 0 == code) {
+					event.setHitchReason("人工分闸");
+					CtxStore.removeChangingSwitch(address);
+				} else {
+					event.setHitchReason("非人工分闸");
+				}
 				event.setChangeType(0);
 				event.setSolveWay("分闸");
 				event.setId(UUIDUtil.getUUID());
 				event.setSwitchId(id);
 				hitchEventService.insert(event);
 
-				logger.info("-----------跳闸成功");
+				logger.info(address + "-----------跳闸成功");
 			} else if ("01".equals(new_status) && "00".equals(s.getStatus())) {
 
 				gprs.setOpen(false);
@@ -569,44 +610,26 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 				HighVoltageHitchEvent event = new HighVoltageHitchEvent();
 
 				event.setHitchTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
-				event.setHitchReason("全遥信记录状态变化");
+				Integer code = CtxStore.selectChangingSwitchStatus(address);
+				if (null != code && 1 == code) {
+					event.setHitchReason("人工合闸");
+					CtxStore.removeChangingSwitch(address);
+				} else {
+					event.setHitchReason("非人工合闸");
+				}
 				event.setChangeType(1);
 				event.setSolveWay("合闸");
 				event.setId(UUIDUtil.getUUID());
 				event.setSwitchId(id);
 				hitchEventService.insert(event);
-				logger.info("-----------合闸成功");
+				logger.info(address + "-----------合闸成功");
 			}
 			s.setStatus(new_status);
 			// TODO
-			s.setJiao_liu_shi_dian(getStr0Or01(data, 76, 78));
-
-			s.setShou_dong_he_zha(getStr0Or01(data, 30 + 20 * 2, 30 + 21 * 2));
-			if (STR_01.equals(s.getShou_dong_he_zha())) {
-				createHitchEvent(id, "手动合闸");
-			}
-			s.setShou_dong_fen_zha(getStr0Or01(data, 30 + 21 * 2, 30 + 22 * 2));
-			if (STR_01.equals(s.getShou_dong_fen_zha())) {
-				createHitchEvent(id, "手动分闸");
-			}
-			s.setYao_kong_he_zha(getStr0Or01(data, 30 + 31 * 2, 30 + 32 * 2));
-			if (STR_01.equals(s.getYao_kong_he_zha())) {
-				createHitchEvent(id, "遥控器合闸");
-			}
-			s.setYao_kong_fen_zha(getStr0Or01(data, 30 + 32 * 2, 30 + 33 * 2));
-			if (STR_01.equals(s.getYao_kong_fen_zha())) {
-				createHitchEvent(id, "遥控器分闸");
-			}
-			s.setYao_kong_fu_gui(getStr0Or01(data, 30 + 33 * 2, 30 + 34 * 2));
-			if (STR_01.equals(getStr0Or01(data, 30 + 54 * 2, 30 + 55 * 2))) {
-				createHitchEvent(id, "快速分闸");
-			}
-			if (STR_01.equals(getStr0Or01(data, 30 + 58 * 2, 30 + 59 * 2))) {
-				createHitchEvent(id, "超温跳闸");
-			}
-
+			s.setJiao_liu_shi_dian(STR_00);
 			logger.info("状态变为-----------" + new_status);
 			websiteClient.getService().callbackDeviceChange(id, 1);
+			websiteClient.getService().callbackCtxChange();
 		} else {
 			logger.error("there is an error in catching hitch event!");
 		}
@@ -682,6 +705,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 		logger.info("遥信变位：" + String.valueOf(data));
 		String iden = String.valueOf(CharUtils.subChars(data, 2 * 13, 2));
 		String value = String.valueOf(CharUtils.subChars(data, 2 * 15, 2));
+		String address = String.valueOf(CharUtils.subChars(data, 2 * 5, 4));
 		HighVoltageStatus s = hvCtxStore.getStatusbyId(CtxStore.get(ctx).getId());
 		if (s == null) {
 			s = new HighVoltageStatus();
@@ -691,7 +715,17 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 		switch (iden) {
 		case "01" :
 			//合闸分闸判断位，设备变色
-			s.setStatus(getDualPointStr(value)); websiteClient.getService().callbackCtxChange(); break;
+			s.setStatus(getDualPointStr(value));
+			Integer code = CtxStore.selectChangingSwitchStatus(address);
+			if (null != code && code == Integer.parseInt(s.getStatus())) {
+				if (code == 0) {
+					createHitchEvent(s.getId(), "人工分闸");
+				} else if (code == 1) {
+					createHitchEvent(s.getId(), "人工合闸");
+				}
+				CtxStore.removeChangingSwitch(address);
+			}
+			websiteClient.getService().callbackCtxChange(); break;
 		case "04" : 
 			// PT1有压
 			s.setPt1_you_ya(getDualPointStr(value)); break;

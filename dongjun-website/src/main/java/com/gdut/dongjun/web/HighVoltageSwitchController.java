@@ -1,14 +1,15 @@
 package com.gdut.dongjun.web;
 
-import com.gdut.dongjun.domain.po.HighVoltageSwitch;
-import com.gdut.dongjun.domain.vo.AvailableHighVoltageSwitch;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
-import com.gdut.dongjun.service.common.CommonSwitch;
-import com.gdut.dongjun.service.device.HighVoltageSwitchService;
-import com.gdut.dongjun.service.webservice.client.CommonServiceClient;
-import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
-import com.gdut.dongjun.service.webservice.client.po.SwitchGPRS;
-import com.gdut.dongjun.util.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,15 +21,20 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.validation.Valid;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import com.gdut.dongjun.domain.po.HighVoltageSwitch;
+import com.gdut.dongjun.domain.vo.AvailableHighVoltageSwitch;
+import com.gdut.dongjun.service.common.CommonSwitch;
+import com.gdut.dongjun.service.device.HighVoltageSwitchService;
+import com.gdut.dongjun.service.device.current.impl.HighVoltageCurrentServiceImpl;
+import com.gdut.dongjun.service.webservice.client.CommonServiceClient;
+import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
+import com.gdut.dongjun.service.webservice.client.po.SwitchGPRS;
+import com.gdut.dongjun.util.ClassLoaderUtil;
+import com.gdut.dongjun.util.DownloadAndUploadUtil;
+import com.gdut.dongjun.util.MapUtil;
+import com.gdut.dongjun.util.MyBatisMapUtil;
+import com.gdut.dongjun.util.TimeUtil;
+import com.gdut.dongjun.util.UUIDUtil;
 
 @Controller
 @RequestMapping("/dongjun")
@@ -36,15 +42,14 @@ public class HighVoltageSwitchController {
 
 	@Autowired
 	private HighVoltageSwitchService switchService;
-
 	@Autowired
 	private HardwareServiceClient hardwareClient;
-
 	@Autowired
 	private CommonServiceClient centorServiceClient;
-
 	@Autowired
 	private CommonSwitch commonSwitch;
+	@Autowired
+	private HighVoltageCurrentServiceImpl currentService;
 	
 	private static final Logger logger = Logger.getLogger(HighVoltageHitchEventController.class);
 
@@ -253,17 +258,21 @@ public class HighVoltageSwitchController {
 	 */
 	@RequestMapping("/edit_high_voltage_switch")
 	@ResponseBody
-	public Object editSwitch(@Valid HighVoltageSwitch switch1,
+	public Object editSwitch(@Valid HighVoltageSwitch switch1, 
+			@RequestParam("current_ratio") Float currentRatio, 
 			Model model, RedirectAttributes redirectAttributes) {
-
+		
+		switch1.setCurrentRatio(currentRatio);
 		// @RequestParam(required = true)
 		// 进不来
 		if (switch1.getId().equals("")) {
 			switch1.setId(UUIDUtil.getUUID());
 		}
-		
+		if (null == switch1.getCurrentRatio()) {
+			switch1.setCurrentRatio(new Float(120));
+		}
+		currentService.setCurrentRatio(switch1.getId(), switch1.getCurrentRatio());
 		try {
-			
 			switchService.updateByPrimaryKey(switch1);
 		} catch (Exception e) {
 			e.printStackTrace();
