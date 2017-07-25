@@ -258,9 +258,11 @@ public class HighVoltageSwitchController {
 	 */
 	@RequestMapping("/edit_high_voltage_switch")
 	@ResponseBody
-	public Object editSwitch(@Valid HighVoltageSwitch switch1,
+	public Object editSwitch(@Valid HighVoltageSwitch switch1, 
+			@RequestParam("current_ratio") Float currentRatio, 
 			Model model, RedirectAttributes redirectAttributes) {
-
+		
+		switch1.setCurrentRatio(currentRatio);
 		// @RequestParam(required = true)
 		// 进不来
 		if (switch1.getId().equals("")) {

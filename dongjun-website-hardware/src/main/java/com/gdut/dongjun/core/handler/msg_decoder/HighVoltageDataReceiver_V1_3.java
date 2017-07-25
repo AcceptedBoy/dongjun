@@ -506,7 +506,6 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 
 			HighVoltageStatus s = hvCtxStore.getStatusbyId(id);
 			SwitchGPRS gprs = CtxStore.get(id);
-			List<String> hitchReason = new ArrayList<>();
 			if (s == null) {
 
 				s = new HighVoltageStatus();
@@ -628,11 +627,9 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 			s.setStatus(new_status);
 			// TODO
 			s.setJiao_liu_shi_dian(STR_00);
-			if (hitchReason.toString().length() != 0) {
-				createHitchEvent(id, hitchReason.toString());
-			}
 			logger.info("状态变为-----------" + new_status);
 			websiteClient.getService().callbackDeviceChange(id, 1);
+			websiteClient.getService().callbackCtxChange();
 		} else {
 			logger.error("there is an error in catching hitch event!");
 		}

@@ -103,17 +103,3 @@ public class ScheduledTaskExecutor implements InitializingBean {
 	
 }
 
-class NumTask extends ScheduledTask {
-
-	int i;
-	public NumTask(Integer executeTime, int i) {
-		super(executeTime);
-		this.i = i;
-	}
-
-	@Override
-	public void run() {
-		System.out.println(i);
-	}
-	
-}

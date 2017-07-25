@@ -435,7 +435,10 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 	}
 	
 	public static void removeChangingSwitch(String address) {
-		changingSwitchMap.get(address).getTask().cancel();
+		ChangingSwitchStatus s = changingSwitchMap.get(address);
+		if (null != s) {
+			s.getTask().cancel();
+		}
 		changingSwitchMap.remove(address);
 	}
 }
