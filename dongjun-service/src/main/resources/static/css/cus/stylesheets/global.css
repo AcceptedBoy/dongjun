@@ -1,50 +1,136 @@
-/*
-Error: Invalid GBK character "\xE5"
-        on line 5 of E:/dongjun/dongjun_rilegou_all/dongjun/dongjun-service/src/main/resources/static/css/cus/sass/global.scss
+@charset "UTF-8";
+/* line 4, ../sass/global.scss */
+html, body, div, span,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, .cus-font {
+  color: #3C3C3C;
+  font-family: STXihei, "华文细黑", "Microsoft YaHei", "微软雅黑";
+  font-weight: lighter;
+}
 
-1: @import "variables", "mixin";
-2: 
-3: %font-base {
-4: 	color: color(font);
-5: 	font-family: STXihei, "华文细黑", "Microsoft YaHei", "微软雅黑";
-6: 	font-weight: lighter;
-7: }
-8: 
-9: %span {
-10: 	display: inline-block;
+/* line 10, ../sass/global.scss */
+.dj-span1, .dj-span2, .dj-span3, .dj-span4, .dj-span5, .dj-span6, .dj-span7, .dj-span8, .dj-span9, .dj-span10, .dj-span11, .dj-span12 {
+  display: inline-block;
+}
 
-Backtrace:
-E:/dongjun/dongjun_rilegou_all/dongjun/dongjun-service/src/main/resources/static/css/cus/sass/global.scss:5
-C:/Ruby23-x64/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/util.rb:1300:in `rescue in block in find_encoding_error'
-C:/Ruby23-x64/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/util.rb:1297:in `block in find_encoding_error'
-C:/Ruby23-x64/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/util.rb:1296:in `each'
-C:/Ruby23-x64/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/util.rb:1296:in `each_with_index'
-C:/Ruby23-x64/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/util.rb:1296:in `find_encoding_error'
-C:/Ruby23-x64/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/util.rb:911:in `rescue in check_sass_encoding'
-C:/Ruby23-x64/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/util.rb:907:in `check_sass_encoding'
-C:/Ruby23-x64/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/engine.rb:436:in `check_encoding!'
-C:/Ruby23-x64/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/engine.rb:392:in `_to_tree'
-C:/Ruby23-x64/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/engine.rb:281:in `render'
-C:/Ruby23-x64/lib/ruby/gems/2.3.0/gems/compass-import-once-1.0.5/lib/compass/import-once/engine.rb:17:in `block in render'
-C:/Ruby23-x64/lib/ruby/gems/2.3.0/gems/compass-import-once-1.0.5/lib/compass/import-once/engine.rb:29:in `with_import_scope'
-C:/Ruby23-x64/lib/ruby/gems/2.3.0/gems/compass-import-once-1.0.5/lib/compass/import-once/engine.rb:16:in `render'
-C:/Ruby23-x64/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/plugin/compiler.rb:494:in `update_stylesheet'
-C:/Ruby23-x64/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/plugin/compiler.rb:215:in `block in update_stylesheets'
-C:/Ruby23-x64/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/plugin/compiler.rb:209:in `each'
-C:/Ruby23-x64/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/plugin/compiler.rb:209:in `update_stylesheets'
-C:/Ruby23-x64/lib/ruby/gems/2.3.0/gems/sass-3.4.22/lib/sass/plugin/compiler.rb:294:in `watch'
-C:/Ruby23-x64/lib/ruby/gems/2.3.0/gems/compass-1.0.3/lib/compass/sass_compiler.rb:46:in `watch!'
-C:/Ruby23-x64/lib/ruby/gems/2.3.0/gems/compass-1.0.3/lib/compass/commands/watch_project.rb:41:in `perform'
-C:/Ruby23-x64/lib/ruby/gems/2.3.0/gems/compass-1.0.3/lib/compass/commands/base.rb:18:in `execute'
-C:/Ruby23-x64/lib/ruby/gems/2.3.0/gems/compass-1.0.3/lib/compass/commands/project_base.rb:19:in `execute'
-C:/Ruby23-x64/lib/ruby/gems/2.3.0/gems/compass-1.0.3/lib/compass/exec/sub_command_ui.rb:43:in `perform!'
-C:/Ruby23-x64/lib/ruby/gems/2.3.0/gems/compass-1.0.3/lib/compass/exec/sub_command_ui.rb:15:in `run!'
-C:/Ruby23-x64/lib/ruby/gems/2.3.0/gems/compass-1.0.3/bin/compass:30:in `block in <top (required)>'
-C:/Ruby23-x64/lib/ruby/gems/2.3.0/gems/compass-1.0.3/bin/compass:44:in `<top (required)>'
-C:/Ruby23-x64/bin/compass:22:in `load'
-C:/Ruby23-x64/bin/compass:22:in `<main>'
-*/
-body:before {
-  white-space: pre;
-  font-family: monospace;
-  content: "Error: Invalid GBK character \"\xE5\"\A         on line 5 of E:/dongjun/dongjun_rilegou_all/dongjun/dongjun-service/src/main/resources/static/css/cus/sass/global.scss\A \A 1: @import \"variables\", \"mixin\";\A 2: \A 3: %font-base {\A 4: 	color: color(font);\A 5: 	font-family: STXihei, \"华文细黑\", \"Microsoft YaHei\", \"微软雅黑\";\A 6: 	font-weight: lighter;\A 7: }\A 8: \A 9: %span {\A 10: 	display: inline-block;"; }
+/* line 36, ../sass/global.scss */
+body {
+  background-color: #fafafa;
+}
+
+/* line 40, ../sass/global.scss */
+.hide {
+  display: none;
+}
+
+/* line 44, ../sass/global.scss */
+.dj-footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 30px;
+  background-color: #646464;
+  z-index: 9999;
+}
+
+/* line 53, ../sass/global.scss */
+select {
+  min-width: 150px;
+  padding: 5px 8px;
+  border: 1px solid #ededed;
+  box-sizing: border-box;
+  outline: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  -ms-appearance: none;
+  appearance: none;
+  box-shadow: none;
+  background: white;
+  background-image: none;
+  color: #3C3C3C;
+}
+/* line 68, ../sass/global.scss */
+select.auto-size {
+  width: 80%;
+}
+
+/* line 73, ../sass/global.scss */
+select::-ms-expand {
+  display: none;
+}
+
+/* line 2, ../sass/_mixin.scss */
+.dj-row {
+  position: relative;
+  box-sizing: border-box;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+/* line 2, ../sass/_mixin.scss */
+.dj-span1 {
+  width: 8.2%;
+}
+/* line 2, ../sass/_mixin.scss */
+.dj-span2 {
+  width: 16.4%;
+}
+/* line 2, ../sass/_mixin.scss */
+.dj-span3 {
+  width: 24.6%;
+}
+/* line 2, ../sass/_mixin.scss */
+.dj-span4 {
+  width: 32.8%;
+}
+/* line 2, ../sass/_mixin.scss */
+.dj-span5 {
+  width: 41%;
+}
+/* line 2, ../sass/_mixin.scss */
+.dj-span6 {
+  width: 49.2%;
+}
+/* line 2, ../sass/_mixin.scss */
+.dj-span7 {
+  width: 57.4%;
+}
+/* line 2, ../sass/_mixin.scss */
+.dj-span8 {
+  width: 65.6%;
+}
+/* line 2, ../sass/_mixin.scss */
+.dj-span9 {
+  width: 73.8%;
+}
+/* line 2, ../sass/_mixin.scss */
+.dj-span10 {
+  width: 82%;
+}
+/* line 2, ../sass/_mixin.scss */
+.dj-span11 {
+  width: 90.2%;
+}
+/* line 2, ../sass/_mixin.scss */
+.dj-span12 {
+  width: 98.4%;
+}
+
+/* line 93, ../sass/global.scss */
+.mdl-data-table td {
+  text-align: center;
+}
+
+/* line 97, ../sass/global.scss */
+i.fa {
+  color: inherit;
+}
