@@ -372,7 +372,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 		//如果设备在被监视，通过回调函数把报文传回website系统。
 		String address = CtxStore.get(ctx).getAddress();
 		if (monitorService.isMonitored(address)) {
-			websiteClient.getService().callbackTextArrived(address, String.valueOf(data));
+			websiteClient.getService().callbackTextArrived(CtxStore.getIdbyAddress(address), String.valueOf(data));
 		}
 	}
 
