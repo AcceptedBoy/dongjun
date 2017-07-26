@@ -61,7 +61,7 @@
 }
 
 .chat-item {
-  margin: 15px;
+  margin: 5px 15px 15px 15px;
   font-size: 1.2em;
 }
 
@@ -75,6 +75,7 @@
   height: 25px;
   padding: 0px;
   margin-right: 10px;
+  margin-left: -25px;
   font-size: 2em;
   position: relative;
   top: 5px;

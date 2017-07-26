@@ -1,4 +1,10 @@
 (function() {
+  Notification.start({
+    limit: {
+      num: 100
+    }
+  })
+	
   var api = {
     read: '/dongjun/read_text',
     send: '/dongjun/send_text',
@@ -32,9 +38,16 @@
     $('.showName').text(showName)
   }
 
+  // 生成时间戳
+  function generateTime() {
+	var t = new Date()
+	return t.toLocaleDateString() + ' - ' + t.toLocaleTimeString()
+  }
+  
   // 给监控窗口加入一条聊天
 	function addItem(title, content) {
-		$('.chat-board').append(`<div class="chat-item"><b>${title}：</b>${content}</div>`)
+		var t = generateTime()
+		$('.chat-board').append(`<div style="margin: 0; padding:0 15px; font-size: .9em">${t}</div><div class="chat-item"><b>${title}：</b>${content}</div>`)
 	}
 
   // 在页面载入时通知后台这台设备开始接受推送
@@ -55,6 +68,21 @@
         switchId: switchId
       }
     })
+  }
+  
+  function tip(reason, type) {
+	Notification.notify('simple', {
+	  simple: {
+	    title: 'title',
+	    description: 'reason'
+	  },
+	  data: {
+		title: '错误',
+		reason: reason,
+	  },
+	  timeout: 2000,
+	  type: type
+	})
   }
 
   // 开始socket的连接
@@ -86,18 +114,21 @@
             $('.send-content').val('')
           } else {
         	// 错误处理
+        	tip('设备已离线', 'danger')
           }
         }
       })
+    } else {
+      tip('请输入有意义的值')
     }
   })
 
-  $('.send-content').keyup(function (e) {
+  $('.send-content').keydown(function (e) {
     var event = e || window.e
-    event.preventDefault()
     var msg = $('.send-content').val()
     if(event.keyCode == 13) {
-      if(msg) {
+    	event.preventDefault()
+    	if(msg) {
         $.ajax({
           url: api.send,
           type: 'POST',
@@ -111,9 +142,12 @@
               $('.send-content').val('')
             } else {
             	// 错误处理
+            	tip('设备已离线', 'danger')
             }
           }
         })
+      } else {
+    	tip('请输入有意义的值')
       }
     }
   })
@@ -130,7 +164,7 @@
 	    			addItem('发送', '总召')
 	    		} else {
 	    			// 错误处理
-	    			console.log('warn')
+	    			tip('设备已离线', 'danger')
 	    		}
 	    	}
 	    })
