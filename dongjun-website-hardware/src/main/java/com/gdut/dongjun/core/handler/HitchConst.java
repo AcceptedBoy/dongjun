@@ -21,6 +21,14 @@ public class HitchConst {
 			return "遥控器合闸";
 		case "19" : 
 			return "遥控器分闸";
+		case "1a" : 
+			return "遥控器复归";
+		case "20" : 
+			return "遥控合闸";
+		case "21" : 
+			return "遥控分闸";
+		case "22" : 
+			return "遥控复归";
 		case "24" : 
 			return "过流一段";
 		case "25" : 
