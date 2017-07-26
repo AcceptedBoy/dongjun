@@ -553,31 +553,34 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 			s.setShou_dong_he_zha(getStr0Or01(data, 30 + 20 * 2, 30 + 21 * 2));
 			if (STR_01.equals(s.getShou_dong_he_zha())) {
 				createHitchEvent(id, "手动合闸");
-//				hitchReason.append("手动合闸 ");
 			}
 			s.setShou_dong_fen_zha(getStr0Or01(data, 30 + 21 * 2, 30 + 22 * 2));
 			if (STR_01.equals(s.getShou_dong_fen_zha())) {
 				createHitchEvent(id, "手动分闸");
-//				hitchReason.append("手动分闸 ");
+			}
+			if (STR_01.equals(getStr0Or01(data, 30 + 23 * 2, 30 + 24 * 2))) {
+				createHitchEvent(id, "遥控器合闸");
+			}
+			if (STR_01.equals(getStr0Or01(data, 30 + 24 * 2, 30 + 25 * 2))) {
+				createHitchEvent(id, "遥控器分闸");
 			}
 			s.setYao_kong_he_zha(getStr0Or01(data, 30 + 31 * 2, 30 + 32 * 2));
 			if (STR_01.equals(s.getYao_kong_he_zha())) {
-				createHitchEvent(id, "遥控器合闸");
-//				hitchReason.append("遥控器合闸 ");
+				createHitchEvent(id, "遥控合闸");
 			}
 			s.setYao_kong_fen_zha(getStr0Or01(data, 30 + 32 * 2, 30 + 33 * 2));
 			if (STR_01.equals(s.getYao_kong_fen_zha())) {
-				createHitchEvent(id, "遥控器分闸");
-//				hitchReason.append("遥控器分闸 ");
+				createHitchEvent(id, "遥控分闸");
 			}
 			s.setYao_kong_fu_gui(getStr0Or01(data, 30 + 33 * 2, 30 + 34 * 2));
+			if (STR_01.equals(s.getYao_kong_fu_gui())) {
+				createHitchEvent(id, "遥控复归");
+			}
 			if (STR_01.equals(getStr0Or01(data, 30 + 54 * 2, 30 + 55 * 2))) {
 				createHitchEvent(id, "快速分闸");
-//				hitchReason.append("快速分闸 ");
 			}
 			if (STR_01.equals(getStr0Or01(data, 30 + 58 * 2, 30 + 59 * 2))) {
 				createHitchEvent(id, "超温跳闸");
-//				hitchReason.append("超温跳闸 ");
 			}
 			
 			//这里和原来的版本不一样
@@ -753,8 +756,17 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 			// 遥控器分闸
 			hitchJudgement(ctx, value, iden); break;
 		case "1a" : 
-			//	遥控复归
+			//	遥控器复归
 			s.setYao_kong_fu_gui(getDualPointStr(value));  break;
+		case "20" : 
+			// 遥控合闸
+			hitchJudgement(ctx, value, iden); break;
+		case "21" : 
+			// 遥控分闸
+			hitchJudgement(ctx, value, iden); break;
+		case "22" : 
+			// 遥控复归
+			hitchJudgement(ctx, value, iden); break;
 		case "24" : 
 			//	过流一段
 			s.setGuo_liu_yi_duan(getDualPointStr(value)); 
@@ -1079,4 +1091,10 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 		hitchEventService.insert(event);
 	}
 	
+//	public static void main(String[] args) {
+//		
+//		String a = "68535368f46c0001c814016c000100010000000000000000000000000000000000000000000001010101010000000000000001000000000000000000000100000000000000000000000000000000000000000000000000b316";
+//		String b = a.substring(30, a.length()-4);
+//		System.out.println(b.substring(35 * 2, 35 * 2 + 12));
+//	}
 }

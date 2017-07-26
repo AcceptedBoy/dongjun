@@ -44,5 +44,5 @@ public interface WebsiteService {
     @POST
     @Path("/callback_text_arrived")
     @Consumes({MediaType.APPLICATION_JSON})
-    public void callbackTextArrived(@FormParam("switchId")String switchId, @FormParam("switchId")String text);
+    public void callbackTextArrived(@FormParam("switchId")String switchId, @FormParam("text")String text);
 }
