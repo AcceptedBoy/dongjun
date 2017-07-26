@@ -53,7 +53,6 @@ public class DeviceBinding {
     	} else {
     		users.add(user);
     	}
-
     }
     
     public static void unbindingMonitor(User user, String switchId) {

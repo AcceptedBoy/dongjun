@@ -2,13 +2,12 @@
   var api = {
     read: '/dongjun/read_text',
     send: '/dongjun/send_text',
+    totalCall: '/dongjun/send_total_call',
     stop: '/dongjun/stop_read_text',
-    queue: '/queue/read_text',
+    queue: '/user/queue/read_text',
     infor: ''
   }
 
-  var socket = new SockJS('/portfolio')
-  var stompClient = Stomp.over(socket)
   var switchId = ''
   var switchName = ''
   var switchNum = 0
@@ -59,9 +58,14 @@
   }
 
   // 开始socket的连接
+  var socket = new SockJS('/portfolio')
+  var stompClient = Stomp.over(socket)
   stompClient.connect({}, function (frame) {
     stompClient.subscribe(api.queue, function(msg) {
-      addItem('接收', JSON.parse(msg))
+    	console.log(msg)
+    	if(msg) {
+    		addItem('接收', msg.body)
+    	}
     })
   })
 
@@ -77,9 +81,11 @@
           switchId: switchId
         },
         success: function(res) {
-          if(res.success) {
+          if(res) {
             addItem('发送', msg)
             $('.send-content').val('')
+          } else {
+        	// 错误处理
           }
         }
       })
@@ -100,15 +106,35 @@
             switchId: switchId
           },
           success: function(res) {
-            if(res.success) {
+            if(res) {
               addItem('发送', msg)
               $('.send-content').val('')
+            } else {
+            	// 错误处理
             }
           }
         })
       }
     }
   })
+  
+    $('#sendAll').click(function (e) {
+	    $.ajax({
+	    	url: api.totalCall,
+	    	data: {
+	    		switchId: switchId
+	    	},
+	    	type: 'POST',
+	    	success: function(res) {
+	    		if(res) {
+	    			addItem('发送', '总召')
+	    		} else {
+	    			// 错误处理
+	    			console.log('warn')
+	    		}
+	    	}
+	    })
+	  })
 
   $('.return').click(function (e) {
     location.href = "/dongjun/high_voltage_switch_manager"
@@ -116,10 +142,6 @@
 
   $('.return-font').click(function (e) {
     location.href = "/dongjun/high_voltage_switch_manager"
-  })
-
-  $('#sendAll').click(function (e) {
-    console.log('总召')
   })
 
   // 加载好页面后告诉后台开始订阅
