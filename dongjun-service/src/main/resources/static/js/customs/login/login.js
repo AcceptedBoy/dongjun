@@ -15,7 +15,7 @@
 	function login() {
 		$.ajax({
 			type : 'POST',
-			url : '/dongjun/login',
+			url : '/dongjun/login_form',
 			data : {
 				'name' : $('#login-name').val(),
 				'password' : $('#login-pw').val()

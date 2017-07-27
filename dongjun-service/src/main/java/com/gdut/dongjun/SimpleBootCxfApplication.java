@@ -60,7 +60,7 @@ public class SimpleBootCxfApplication {
         ds.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/elecon_service?useUnicode=true&amp;charaterEncoding=utf-8&" +
                 "zeroDateTimeBehavior=convertToNull");
         ds.setUser("root");
-        ds.setPassword("759486");//elecon
+        ds.setPassword("roor");//elecon
         try {
             ds.setDriverClass("com.mysql.jdbc.Driver");
         } catch (PropertyVetoException e) {
@@ -200,6 +200,7 @@ public class SimpleBootCxfApplication {
 	private Map<String, String> createFilterChainMap() {
 		Map<String, String> map = new LinkedHashMap<>();
 		map.put("/dongjun/elecon/*", "anon");
+		map.put("/dongjun/login_form", "anon");
 		map.put("/dongjun/admin/**", "roles[super_admin]");
 		map.put("/dongjun/**", "authc");
 		return map;

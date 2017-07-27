@@ -36,7 +36,7 @@ public class UserController {
 	private static Logger logger = Logger.getLogger(UserController.class);
 
 	@ResponseBody
-	@RequestMapping("/login")
+	@RequestMapping("/login_form")
 	public String login(String name, String password, HttpSession session) {
 
 		//这一步扔到ApplicationContext吧
