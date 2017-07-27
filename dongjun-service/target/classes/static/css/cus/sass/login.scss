@@ -24,6 +24,10 @@ $pre: "login";
 				height: 40%;
 				background: url('../../../img/logo/loginbg1.jpg') 100% / cover;
 				transition: .5s;
+
+				&:hover {
+					transform: scale(1.03);
+				}
 			}
 		}
 
