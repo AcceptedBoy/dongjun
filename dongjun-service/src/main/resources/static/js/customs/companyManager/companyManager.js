@@ -1,7 +1,7 @@
 var table = $('#company_list').DataTable({
 		'ajax': {
-		  'url': `${localhost}/company/list`,
-		  // 'url': '/dongjun/company/list',
+		  // 'url': `${localhost}/company/list`,
+		  'url': '/dongjun/company/list',
 		  'type': 'POST',
 		  'dataSrc': function(data) {
 		    return typeof data === 'string' ? JSON.parse(data).text : data.text
