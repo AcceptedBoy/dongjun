@@ -32,6 +32,8 @@ public class HighVoltageCurrentServiceImpl extends CurrentServiceImpl<HighVoltag
 		HighVoltageCurrentService, InitializingBean {
 	
 	private Map<String, Float> currentRatioMap = new HashMap<>();
+	//	电流遥测值存在原始系数10
+	private int naturalRatio = 10;
 
 	@Autowired
 	private HighVoltageCurrentMapper currentMapper;
@@ -152,7 +154,7 @@ public class HighVoltageCurrentServiceImpl extends CurrentServiceImpl<HighVoltag
 	@Override
 	public Float getRealCurrent(String switchId, Integer value) {
 		Float ratio = currentRatioMap.get(switchId);
-		return value / ratio;
+		return value / ratio / naturalRatio;
 	}
 	
 	/**

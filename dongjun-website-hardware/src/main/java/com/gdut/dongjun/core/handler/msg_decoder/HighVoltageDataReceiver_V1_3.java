@@ -15,7 +15,6 @@
  */
 package com.gdut.dongjun.core.handler.msg_decoder;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -253,11 +252,14 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 			AttributeKey<Integer> key = AttributeKey.valueOf("isRegisted");
 			Attribute<Integer> attr = ctx.attr(key);
 			attr.set(null);
+			// 记录最后上线时间
 			if (gprs.getId() != null) {
 				HighVoltageSwitch hvSwitch = switchService.selectByPrimaryKey(gprs.getId());
 				hvSwitch.setOnlineTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
 				switchService.updateByPrimaryKey(hvSwitch);
 			}
+			// 清空状态
+			hvCtxStore.removeStatusById(gprs.getId());
 		}
 	}
 
@@ -1096,5 +1098,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 //		String a = "68535368f46c0001c814016c000100010000000000000000000000000000000000000000000001010101010000000000000001000000000000000000000100000000000000000000000000000000000000000000000000b316";
 //		String b = a.substring(30, a.length()-4);
 //		System.out.println(b.substring(35 * 2, 35 * 2 + 12));
+//		String a =	 	Integer.parseInt(LowVoltageDeviceCommandUtil.reverseStringBy2("3c0000"), 16) + "";
+//		System.out.println(a);
 //	}
 }

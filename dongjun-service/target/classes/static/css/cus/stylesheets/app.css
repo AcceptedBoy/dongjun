@@ -3,6 +3,7 @@
  * In this file you should write your main styles. (or centralize your imports)
  * Import this file using the following HTML or equivalent:
  * <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css" /> */
+/* line 4, ../sass/global.scss */
 html, body, div, span,
 h1, h2, h3, h4, h5, h6, p, blockquote, pre,
 a, abbr, acronym, address, big, cite,
@@ -18,25 +19,35 @@ menu, nav, output, ruby, section, summary,
 time, mark, .cus-font {
   color: #3C3C3C;
   font-family: STXihei, "华文细黑", "Microsoft YaHei", "微软雅黑";
-  font-weight: lighter; }
+  font-weight: lighter;
+}
 
+/* line 10, ../sass/global.scss */
 .dj-span1, .dj-span2, .dj-span3, .dj-span4, .dj-span5, .dj-span6, .dj-span7, .dj-span8, .dj-span9, .dj-span10, .dj-span11, .dj-span12 {
-  display: inline-block; }
+  display: inline-block;
+}
 
+/* line 36, ../sass/global.scss */
 body {
-  background-color: #fafafa; }
+  background-color: #fafafa;
+}
 
+/* line 40, ../sass/global.scss */
 .hide {
-  display: none; }
+  display: none;
+}
 
+/* line 44, ../sass/global.scss */
 .dj-footer {
   position: fixed;
   bottom: 0;
   width: 100%;
   height: 30px;
   background-color: #646464;
-  z-index: 9999; }
+  z-index: 9999;
+}
 
+/* line 53, ../sass/global.scss */
 select {
   min-width: 150px;
   padding: 5px 8px;
@@ -50,47 +61,80 @@ select {
   box-shadow: none;
   background: white;
   background-image: none;
-  color: #3C3C3C; }
-  select.auto-size {
-    width: 80%; }
+  color: #3C3C3C;
+}
+/* line 68, ../sass/global.scss */
+select.auto-size {
+  width: 80%;
+}
 
+/* line 73, ../sass/global.scss */
 select::-ms-expand {
-  display: none; }
+  display: none;
+}
 
+/* line 2, ../sass/_mixin.scss */
 .dj-row {
   position: relative;
   box-sizing: border-box;
   margin-top: 5px;
-  margin-bottom: 5px; }
+  margin-bottom: 5px;
+}
+/* line 2, ../sass/_mixin.scss */
 .dj-span1 {
-  width: 8.2%; }
+  width: 8.2%;
+}
+/* line 2, ../sass/_mixin.scss */
 .dj-span2 {
-  width: 16.4%; }
+  width: 16.4%;
+}
+/* line 2, ../sass/_mixin.scss */
 .dj-span3 {
-  width: 24.6%; }
+  width: 24.6%;
+}
+/* line 2, ../sass/_mixin.scss */
 .dj-span4 {
-  width: 32.8%; }
+  width: 32.8%;
+}
+/* line 2, ../sass/_mixin.scss */
 .dj-span5 {
-  width: 41%; }
+  width: 41%;
+}
+/* line 2, ../sass/_mixin.scss */
 .dj-span6 {
-  width: 49.2%; }
+  width: 49.2%;
+}
+/* line 2, ../sass/_mixin.scss */
 .dj-span7 {
-  width: 57.4%; }
+  width: 57.4%;
+}
+/* line 2, ../sass/_mixin.scss */
 .dj-span8 {
-  width: 65.6%; }
+  width: 65.6%;
+}
+/* line 2, ../sass/_mixin.scss */
 .dj-span9 {
-  width: 73.8%; }
+  width: 73.8%;
+}
+/* line 2, ../sass/_mixin.scss */
 .dj-span10 {
-  width: 82%; }
+  width: 82%;
+}
+/* line 2, ../sass/_mixin.scss */
 .dj-span11 {
-  width: 90.2%; }
+  width: 90.2%;
+}
+/* line 2, ../sass/_mixin.scss */
 .dj-span12 {
-  width: 98.4%; }
+  width: 98.4%;
+}
 
+/* line 93, ../sass/global.scss */
 .mdl-data-table td {
-  text-align: center; }
+  text-align: center;
+}
 
+/* line 97, ../sass/global.scss */
 i.fa {
-  color: inherit; }
-
-/*# sourceMappingURL=app.css.map */
+  color: inherit;
+}

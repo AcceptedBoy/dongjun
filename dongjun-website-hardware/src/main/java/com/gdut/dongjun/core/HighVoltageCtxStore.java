@@ -114,4 +114,19 @@ public class HighVoltageCtxStore extends CtxStore {
 		availableAddrList.addAll(addrs);
 	}
 
+	public void removeStatus(HighVoltageStatus s) {
+		hstalist.remove(s);
+		websiteServiceClient.getService().callbackDeviceChange(s.getId(), 1);
+	}
+	
+	public void removeStatusById(String id) {
+		for (HighVoltageStatus s : hstalist) {
+			if (null != s.getId() && id.equals(s.getId())) {
+				hstalist.remove(s);	
+				websiteServiceClient.getService().callbackDeviceChange(s.getId(), 1);
+				break;
+			}
+		}
+	}
+	
 }
