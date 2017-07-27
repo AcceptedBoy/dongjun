@@ -61,3 +61,33 @@
     width: 100%;
     height: 95%;
 }
+
+.ztree li span.button.IconTem_ico_docu, .ztree li span.button.IconTem_ico_open, .ztree li span.button.IconTem_ico_close {
+	background: url(../../img/tem.png) no-repeat;
+	background-size: cover;
+}
+
+
+.ztree li span.button.IconTemperature_ico_docu, .ztree li span.button.IconTemperature_ico_open, .ztree li span.button.IconTemperature_ico_close {
+	background: url(../../img/temperature.png) no-repeat;
+	background-size: cover;
+}
+
+.tableTitle {
+	position: absolute; 
+	left: 50%; 
+	top: -3%;
+	transform: translateX(-60%);
+	z-index: 1;
+	line-height: 65px;
+}
+
+.normalTle {
+	display: inline-block;
+	line-height: 65px;
+}
+
+.excelBtn {
+	display: inline-block;
+	margin: 10px 0px 15px 10px;
+}

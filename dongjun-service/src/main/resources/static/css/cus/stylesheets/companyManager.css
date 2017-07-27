@@ -1,0 +1,34 @@
+.add-company {
+	z-index: 10;
+	position: absolute;
+	left: 300px;
+}
+
+.form-item {
+	display: block;
+	margin-left: 15%; 
+}
+
+.area-item {
+	display: block;
+	margin-left: 15%;
+}
+
+.warn-tip {
+	border-bottom: 1px solid red;
+}
+
+.form-tips {
+	position: absolute;
+	bottom: 30px;
+	left: 220px;
+}
+
+input {
+	outline: none;
+}
+
+/* 强行独门秘籍 */
+.mdl-button[disabled] {
+	color: white!important;
+}
