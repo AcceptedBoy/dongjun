@@ -8,7 +8,7 @@
   margin-left: -250px;
   margin-top: -200px;
   opacity: 1;
-  tansition: opacity 1s;
+  transition: opacity 1s;
 }
 /* line 19, ../sass/login.scss */
 .login-card {
@@ -18,15 +18,16 @@
 /* line 2, ../sass/_mixin.scss */
 .login-card-title {
   height: 40%;
-  background: url("../../../img/logo/loginbg1.jpg") 70%/cover;
+  background: url("../../../img/logo/loginbg1.jpg") 100%/cover;
+  transition: .5s;
 }
 
-/* line 29, ../sass/login.scss */
+/* line 30, ../sass/login.scss */
 .login-logo {
   width: 50px;
 }
 
-/* line 33, ../sass/login.scss */
+/* line 34, ../sass/login.scss */
 .login-form {
   background-color: #fafafa;
 }
@@ -38,7 +39,7 @@
   margin-left: 125px;
 }
 
-/* line 47, ../sass/login.scss */
+/* line 48, ../sass/login.scss */
 .login-action {
   text-align: center;
 }

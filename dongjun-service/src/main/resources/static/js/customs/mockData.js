@@ -27,9 +27,9 @@ Mock.mock(`${localhost}/switch/list`, function(op) {
 		data.latitude = Random.float(0, 180, 2, 2)
 		data.simNumber = Random.integer(100, 200)
 		data.inlineIndex = data.id
-		data.onlineTime = Random.date('MM-dd')
+		data.onlineTime = Random.date('yyyy-MM-dd')
 		data.available = Random.boolean()
-		data.expireTime = Random.date('MM-dd')
+		data.expireTime = Random.date('yyyy-MM-dd')
 		var num = Random.integer(1, 10)
 		var status = num >= 8 ? '-1' : num >= 5 ? '00' : '01'
 		data.status = status
@@ -40,3 +40,68 @@ Mock.mock(`${localhost}/switch/list`, function(op) {
 	}
 })
 
+Mock.mock(`${localhost}/company/list`, function(op) {
+	console.log(`请求数据: ${op.body}`)
+	console.log(`请求类型: ${op.type}`)
+	var datas = [];
+	for(var i = 0; i < 40; i++) {
+		var data = {}
+		var name = Random.name()
+		data.name = name
+		data.description = name
+		data.id = 'id' + i
+		data.phone = Random.integer(1, 11)
+		data.address = Random.city()
+		data.chief = Random.date('MM-dd')
+		data.available = Random.boolean()
+		data.ipAddr = Random.date('MM-dd')
+		datas.push(data)
+	}
+	return {
+		text: datas
+	}
+})
+
+Mock.mock(`${localhost}/dongjun/substation/list`, function(op) {
+	console.log(`请求数据: ${op.body}`)
+	console.log(`请求类型: ${op.type}`)
+	var datas = [];
+	for(var i = 0; i < 20; i++) {
+		var data = {}
+		var name = Random.name()
+		data.name = name
+		data.description = name
+		data.id = 'id' + i
+		data.phone = Random.integer(1, 11)
+		data.address = Random.city()
+		data.chief = Random.date('MM-dd')
+		data.available = Random.boolean()
+		data.ipAddr = Random.date('MM-dd')
+		datas.push(data)
+	}
+	return {
+		text: datas
+	}
+})
+
+Mock.mock(`${localhost}/dongjun/line/list`, function(op) {
+	console.log(`请求数据: ${op.body}`)
+	console.log(`请求类型: ${op.type}`)
+	var datas = [];
+	for(var i = 0; i < 20; i++) {
+		var data = {}
+		var name = Random.name()
+		data.name = name
+		data.description = name
+		data.id = 'id' + i
+		data.phone = Random.integer(1, 11)
+		data.address = Random.city()
+		data.chief = Random.date('MM-dd')
+		data.available = Random.boolean()
+		data.ipAddr = Random.date('MM-dd')
+		datas.push(data)
+	}
+	return {
+		text: datas
+	}
+})
