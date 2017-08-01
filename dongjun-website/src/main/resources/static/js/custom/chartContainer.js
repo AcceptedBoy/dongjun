@@ -112,13 +112,13 @@ Chart.prototype.clearChart = function() {
 	 * @return {[type]}          [description]
 	 */
 Chart.prototype.handleClick = function(event, treeId, treeNode) {
-		var bgtime = $('#begin_search_date').val()
-  var endtime = $('#end_search_date').val()
-		chartNodes.setData({
-    id: treeNode.id,
-    name: treeNode.name
-  })
-		this.showChart(treeNode.id, treeNode.name, bgtime, endtime)
+	var bgtime = $('#begin_search_date').val()
+	var endtime = $('#end_search_date').val()
+	chartNodes.setData({
+	    id: treeNode.id,
+	    name: treeNode.name
+	  })
+	this.showChart(treeNode.id, treeNode.name, bgtime, endtime)
 }
 
 	/**
@@ -161,7 +161,7 @@ Chart.prototype.createTable = function() {
 }
 
 Chart.prototype.setExcel = function(id, bgtime, endtime) {
-  $('.' + this._excelBtn).attr('href', this._excelUrl + '?' + 'monitorId=' + id + '&' + 'beginDate=' + bgtime + '&' + 'endDate=' + endtime)
+  $('.' + this._excelBtn).attr('href', this._excelUrl + '?' + 'switchId=' + id + '&' + 'beginDate=' + bgtime + '&' + 'endDate=' + endtime)
 }
 	/**
 	 * [TemChart 温度表格的构造函数]
@@ -212,7 +212,7 @@ TemChart.prototype.showChart = function(id, name, bgtime, endtime) {
       url: '/dongjun/chart/temperature',
       type: 'GET',
       data: {
-        monitorId: id,
+        switchId: id,
         beginDate: bgtime,
         endDate: endtime
       },
@@ -315,19 +315,19 @@ TemChart.prototype.showTable = function() {
 			$.ajax({
 				url: this.url,
 				type: 'GET',
-      data: {
-        monitorId: id,
-        beginDate: bgtime,
-        endDate: endtime
-      },
+				data: {
+					switchId: id,
+					beginDate: bgtime,
+					endDate: endtime
+				},
 				success: function(res) {
 					if(res) {
 						chartView.setChart(res, name)
 						self.changeFormatter(res)
-          self.chart.setOption(res, true)
-          self.setUnit()
-          self.showTable()
-          self.setExcel(id, bgtime, endtime)
+			            self.chart.setOption(res, true)
+			            self.setUnit()
+			            self.showTable()
+			            self.setExcel(id, bgtime, endtime)
 					} else {
 						alert('没有数据')
 						self.clearChart()
@@ -449,45 +449,45 @@ var chartView = function() {
     hideLoading: function(chart) {
     	chart.hideLoading()
     },
-			seekTime: function(dataArr) {
-				var time = ''
-				for(var i = 0; i < dataArr.length; i++) {
-					if(dataArr[i].data) {
-						time = dataArr[i].name
-						break
-					}
-				}
-				return time
-			},
-			setChart: function(op, text) {
-				var self = this
-				op.grid = {
-					bottom: '8%'
-				}
-				op.title = {
-        text: text,
-        x: 'center',
-        backgroundColor: 'white',
-        borderColor: 'black',
-        padding: 13,
-        textStyle: {
-          color: 'black',
-          fontSize: 23
-        }
-      },
-				op.tooltip.formatter = function(data) {
-					var time = self.seekTime(data)
-					var html = time
-					data.forEach(function(item) {
-						html += '<br/>' + item.seriesName + ' : ' + item.data
-					})
-					return html
-				}
-				op.tooltip.padding = 10
-				op.legend.orient = 'vertical'
-      op.legend.x = 'right'
-      op.legend.y = '25'
+	seekTime: function(dataArr) {
+		var time = ''
+		for(var i = 0; i < dataArr.length; i++) {
+			if(dataArr[i].data) {
+				time = dataArr[i].name
+				break
 			}
+		}
+		return time
+	},
+	setChart: function(op, text) {
+		var self = this
+		op.grid = {
+			bottom: '8%'
+		}
+		op.title = {
+			text: text,
+			x: 'center',
+	        backgroundColor: 'white',
+	        borderColor: 'black',
+	        padding: 13,
+	        textStyle: {
+	          color: 'black',
+	          fontSize: 23
+	        }
+	      },
+		op.tooltip.formatter = function(data) {
+			var time = self.seekTime(data)
+			var html = time
+			data.forEach(function(item) {
+				html += '<br/>' + item.seriesName + ' : ' + item.data
+			})
+			return html
+		}
+		op.tooltip.padding = 10
+		op.legend.orient = 'vertical'
+	    op.legend.x = 'right'
+	    op.legend.y = '25'
+	}
   };
 }();
 
@@ -589,7 +589,7 @@ var chartManager = function() {
 	  xFormatter: '温度/°C',
 	  excelUrl: '/dongjun/chart/excel/temperature',
 	  excelBtn: 'tex',
-	  isActive: true,
+	  isActive: false,
 	  idConfig: {
 			tabId: 'showTExcal',
 			tableId: 'excalChartT',
@@ -604,13 +604,13 @@ var chartManager = function() {
 	  xFormatter: '电压/V',
 	  excelUrl: '/dongjun/chart/excel/voltage',
 	  excelBtn: 'vex',
-	  isActive: false,
+	  isActive: true,
 	  idConfig: {
 			tabId: 'showVExcal',
 			tableId: 'excalChartV',
 			chartTabId: 'showVchart'
 		}
-  }, '/dongjun/chart/electronic_voltage')
+  }, '/dongjun/chart/high_voltage_voltage')
 
   var currentChart = new EleChart({
 	  chart: 'current',
@@ -625,7 +625,7 @@ var chartManager = function() {
 			tableId: 'excalChartC',
 			chartTabId: 'showCchart'
 		}
-  }, '/dongjun/chart/electronic_current')
+  }, '/dongjun/chart/high_voltage_current')
 
   var powerChart = new EleChart({
 	  chart: 'power',
@@ -640,7 +640,7 @@ var chartManager = function() {
 			tableId: 'excalChartP',
 			chartTabId: 'showPchart'
 		}
-  }, '/dongjun/chart/electronic_power')
+  }, '')
 
   // 给excel按钮加点击事件
   /* $('.tex').click(function() {
@@ -751,6 +751,9 @@ var chartManager = function() {
       var minute = timer.getMinutes()
       minute = minute >= 10 ? minute : '0'+minute
       if(Number(hour) >= 12) {
+    	if(today < 10) {
+    	  today = '0' + today
+    	}
         var lastHour = Number(hour) - 12
         lastHour = lastHour>=10 ? lastHour : '0'+lastHour
         chartView.setTime({
