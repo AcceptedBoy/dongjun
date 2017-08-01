@@ -92,6 +92,7 @@
 			},
 			// 对做记号的数组项进行对应的修改
 			changeRes: function(res) {
+				var zTree = $.fn.zTree.getZTreeObj("treeDemo");
 				var real = []
 				var spNode
 				for(var i = 0; i < res.length; i++) {
@@ -149,9 +150,9 @@
 						url : "/dongjun/switch_tree",// 数据源
 						// url: 'http://127.0.0.1:8080/templates/manager/loadTree',
 						autoParam : [ "id", "name=n", "level=lv" ],
-						/*otherParam : {
+						otherParam : {
 						 	"type" : zTreeNodeType,// 0低压 1高压 2管测
-						},*/
+						},
 						dataFilter : treeSet.data_filter,// 添加节点名称过滤器
 					},
 					callback: {
@@ -177,7 +178,7 @@
 				chartManager.newHandleClick(event, treeId, treeNode)
 			},
 			init: function() {
-				$.fn.zTree.init($("#treeDemo"), this.setTree(0));
+				$.fn.zTree.init($("#treeDemo"), this.setTree(1));
 
 				$("#searchNode").click(function() {
 					treeSet.zTreeSearch($("#search_node_key").val());
