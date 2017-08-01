@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import com.gdut.dongjun.domain.dao.HighVoltageCurrentMapper;
 import com.gdut.dongjun.domain.po.HighVoltageCurrent;
 import com.gdut.dongjun.domain.po.HighVoltageSwitch;
+import com.gdut.dongjun.domain.po.HighVoltageVoltage;
 import com.gdut.dongjun.service.device.HighVoltageSwitchService;
 import com.gdut.dongjun.service.device.current.HighVoltageCurrentService;
 import com.gdut.dongjun.util.MapUtil;
@@ -75,28 +76,28 @@ public class HighVoltageCurrentServiceImpl extends CurrentServiceImpl<HighVoltag
 	/* (non-Javadoc)
 	 * @see com.gdut.dongjun.service.HighVoltageCurrentService#selectByTime(java.lang.String, java.lang.String)
 	 */
-	@Override
-	public List<Object> selectByTime(String switchId, String beginDate,
-			String endDate) {
-
-		/*Map<String, Object> result = new HashMap<String, Object>();
-		Map<String, Object> xx = MapUtil.warp("switchId", switchId);
-		xx.put("phase", "A");
-		xx.put("beginDate", beginDate);
-		xx.put("endDate", endDate);
-		result.put("A", currentMapper.selectByTime(xx));
-		xx.remove("phase");
-		xx.put("phase", "B");
-		result.put("B", currentMapper.selectByTime(xx));
-		xx.remove("phase");
-		xx.put("phase", "C");
-		result.put("C", currentMapper.selectByTime(xx));
-		return result;*/
-		Map<String, Object> xx = MapUtil.warp("switchId", switchId);
-		xx.put("beginDate", beginDate);
-		xx.put("endDate", endDate);
-		return currentMapper.selectByTime(xx);
-	}
+//	@Override
+//	public List<Object> selectByTime(String switchId, String beginDate,
+//			String endDate) {
+//
+//		/*Map<String, Object> result = new HashMap<String, Object>();
+//		Map<String, Object> xx = MapUtil.warp("switchId", switchId);
+//		xx.put("phase", "A");
+//		xx.put("beginDate", beginDate);
+//		xx.put("endDate", endDate);
+//		result.put("A", currentMapper.selectByTime(xx));
+//		xx.remove("phase");
+//		xx.put("phase", "B");
+//		result.put("B", currentMapper.selectByTime(xx));
+//		xx.remove("phase");
+//		xx.put("phase", "C");
+//		result.put("C", currentMapper.selectByTime(xx));
+//		return result;*/
+//		Map<String, Object> xx = MapUtil.warp("switchId", switchId);
+//		xx.put("beginDate", beginDate);
+//		xx.put("endDate", endDate);
+//		return currentMapper.selectByTime(xx);
+//	}
 
 	/* (non-Javadoc)
 	 * @see com.gdut.dongjun.service.HighVoltageCurrentService#getRecentlyCurrent()
@@ -167,5 +168,13 @@ public class HighVoltageCurrentServiceImpl extends CurrentServiceImpl<HighVoltag
 		currentRatioMap.put(switchId, ratio);
 	}
 
-
+	@Override
+	public List<HighVoltageCurrent> selectByTime(String switchId, String beginDate, String endDate, String phase) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("beginDate", beginDate);
+		map.put("endDate", endDate);
+		map.put("switchId", switchId);
+		map.put("phase", phase);
+		return currentMapper.selectByTime(map);
+	}
 }

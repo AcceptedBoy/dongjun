@@ -30,7 +30,7 @@ SinglePrimaryKeyBaseDAOImpl<HighVoltageCurrent> implements HighVoltageCurrentMap
 	}
 
 	@Override
-	public List<Object> selectByTime(Map<String, Object> xx) {
+	public List<HighVoltageCurrent> selectByTime(Map<String, Object> xx) {
 		// TODO Auto-generated method stub
 		return template.selectList(getNamespace("selectByTime"), xx);
 	}
