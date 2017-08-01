@@ -45,6 +45,7 @@ public class HighVoltageVoltageServiceImpl extends DeviceVoltageServiceImpl<High
 		return result;
 	}
 
+	@Deprecated
 	@Override
 	public List<Object> selectByTime(String switchId, String beginDate,
 			String endDate) {
@@ -62,8 +63,8 @@ public class HighVoltageVoltageServiceImpl extends DeviceVoltageServiceImpl<High
 		xx.remove("phase");
 		xx.put("phase", "C");
 		result.put("C", voltageMapper.selectByTime(xx));*/
-		return voltageMapper.selectByTime(xx);
-		
+//		return voltageMapper.selectByTime(xx);
+		return null;
 	}
 
 	@Override
@@ -110,5 +111,15 @@ public class HighVoltageVoltageServiceImpl extends DeviceVoltageServiceImpl<High
 			result.add(0); //0
 		}
 		return result;
+	}
+
+	@Override
+	public List<HighVoltageVoltage> selectByTime(String switchId, String beginDate, String endDate, String phase) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("beginDate", beginDate);
+		map.put("endDate", endDate);
+		map.put("switchId", switchId);
+		map.put("phase", phase);
+		return voltageMapper.selectByTime(map);
 	}
 }

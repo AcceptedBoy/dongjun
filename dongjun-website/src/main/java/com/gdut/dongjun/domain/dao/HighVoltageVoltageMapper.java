@@ -39,7 +39,7 @@ public interface HighVoltageVoltageMapper extends
 	 * @return Object
 	 * @throws
 	 */
-	public List<Object> selectByTime(Map<String, Object> xx);
+	public List<HighVoltageVoltage> selectByTime(Map<String, Object> xx);
 
 	/**
 	 * 

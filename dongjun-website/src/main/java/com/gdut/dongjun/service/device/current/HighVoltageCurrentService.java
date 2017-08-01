@@ -29,20 +29,6 @@ public interface HighVoltageCurrentService extends
 
 	/**
 	 * 
-	 * @Title: selectByTime
-	 * @Description: TODO
-	 * @param @param switchId
-	 * @param @param date
-	 * @param @param string
-	 * @param @return
-	 * @return Map<String,Object>
-	 * @throws
-	 */
-	public List<Object> selectByTime(String switchId, String date,
-                                     String string);
-
-	/**
-	 * 
 	 * @Title: getRecentlyHitchEvent
 	 * @Description: TODO
 	 * @param @param switchId
@@ -54,4 +40,19 @@ public interface HighVoltageCurrentService extends
 	public List<Float> getRealCurrent(String switchId, List<Integer> list);
 	
 	public Float getRealCurrent(String switchId, Integer list); 
+	
+	/**
+	 * @param string2 
+	 * 
+	 * @Title: selectByTime
+	 * @Description: TODO
+	 * @param @param switchId
+	 * @param @param date
+	 * @param @param string
+	 * @param @return
+	 * @return Map<String,Object>
+	 * @throws
+	 */
+	public List<HighVoltageCurrent> selectByTime(String switchId, String beginDate,
+                                     String endDate, String phase);
 }

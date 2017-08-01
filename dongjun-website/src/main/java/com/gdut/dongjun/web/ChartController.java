@@ -5,8 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.gdut.dongjun.service.device.current.HighVoltageCurrentService;
-import com.gdut.dongjun.service.device.voltage.HighVoltageVoltageService;
+import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,11 +13,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.gdut.dongjun.domain.vo.ChartData;
+import com.gdut.dongjun.domain.vo.HighVoltageCurrentChartData;
+import com.gdut.dongjun.domain.vo.HighVoltageVoltageChartData;
 import com.gdut.dongjun.domain.vo.SwitchTableData;
 import com.gdut.dongjun.service.device.current.ControlMearsureCurrentService;
-import com.gdut.dongjun.service.device.voltage.ControlMearsureVoltageService;
-
+import com.gdut.dongjun.service.device.current.HighVoltageCurrentService;
 import com.gdut.dongjun.service.device.current.LowVoltageCurrentService;
+import com.gdut.dongjun.service.device.voltage.ControlMearsureVoltageService;
+import com.gdut.dongjun.service.device.voltage.HighVoltageVoltageService;
 import com.gdut.dongjun.service.device.voltage.LowVoltageVoltageService;
 import com.gdut.dongjun.util.MapUtil;
 
@@ -107,110 +109,160 @@ public class ChartController {
 	 * @throws IllegalArgumentException 
 	 * @throws InstantiationException 
 	 */
-	@RequestMapping("/select_chart_by_switch_id")
+//	@RequestMapping("/select_chart_by_switch_id")
+//	@ResponseBody
+//	public Object selectChartBySwitchId(
+//			@RequestParam(required = true) String switchId,
+//			@RequestParam(required = true) int type,
+//			@RequestParam(required = true) int cov, 
+//			String beginDate,
+//			String endDate) throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, InstantiationException {
+//
+//		if (beginDate == null || beginDate.equals("")) {// 使用当前日期
+//			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");// 设置日期格式
+//			beginDate = df.format(new Date());
+//		}
+//		if (endDate == null || endDate.equals("")) {// 使用当前日期下一天的日期
+//			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");// 设置日期格式
+//			
+//			Date date = new Date();
+//			long time = (date.getTime() / 1000) + 60 * 60 * 24;//秒  
+//            date.setTime(time * 1000);//毫秒 
+//			endDate = df.format(date);
+//		}
+//
+//		/*if (type == null) {
+//			type = "0";
+//		}*/
+//		ChartData data = new ChartData();
+//		switch (type) {
+//		case 0:
+//			if(cov == 0) {
+//				/*map.put("current",
+//						);*/
+//				return data.getJsonChart(currentService.selectByTime(switchId, beginDate, endDate));
+//			} else {
+//				/*map.put("voltage",
+//						voltageService.selectByTime(switchId, beginDate, endDate));*/
+//				return data.getJsonChart(voltageService.selectByTime(switchId, beginDate, endDate));
+//			}
+//		case 1:
+//			if(cov == 0) {
+//				/*map.put("current",
+//						currentService2.selectByTime(switchId, beginDate, endDate));*/
+//				return data.getJsonChart(currentService2.selectByTime(switchId, beginDate, endDate));
+//			} else {
+//				/*map.put("voltage",
+//						*/
+//				return data.getJsonChart(voltageService2.selectByTime(switchId, beginDate, endDate));
+//			}
+//		case 2:
+//			if(cov == 0) {
+//				/*map.put("current",
+//						currentService3.selectByTime(switchId, beginDate, endDate));*/
+//				return data.getJsonChart(currentService3.selectByTime(switchId, beginDate, endDate));
+//			} else {
+//				/*map.put("voltage",
+//						voltageService3.selectByTime(switchId, beginDate, endDate));*/
+//				return data.getJsonChart(voltageService3.selectByTime(switchId, beginDate, endDate));
+//			}
+//		default:
+//			return "";
+//		}
+//	}
+	
+//	@RequestMapping("/select_table_by_id")
+//	@ResponseBody
+//	public Object selectTableById(@RequestParam(required = true) String switchId,
+//			@RequestParam(required = true) int type,
+//			@RequestParam(required = true) int cov, String beginDate,
+//			String endDate) {
+//		
+//		if (beginDate == null || beginDate == "") {// 使用当前日期
+//			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");// 设置日期格式
+//			beginDate = df.format(new Date());
+//		}
+//		if (endDate == null || endDate == "") {// 使用当前日期下一天的日期
+//			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");// 设置日期格式
+//			
+//			Date date = new Date();
+//			long time = (date.getTime() / 1000) + 60 * 60 * 24;//秒  
+//            date.setTime(time * 1000);//毫秒 
+//			endDate = df.format(date);
+//		}
+//		
+//		SwitchTableData data = new SwitchTableData();
+//		switch (type) {
+//		case 0:
+//			if(cov == 0) {
+//				return MapUtil.warp("data", data.getJsonTable(currentService.selectByTime(switchId, beginDate, endDate)));
+//			} else {
+//				return MapUtil.warp("data", data.getJsonTable(voltageService.selectByTime(switchId, beginDate, endDate)));
+//			}
+//		case 1:
+//			if(cov == 0) {
+//				return MapUtil.warp("data", data.getJsonTable(currentService2.selectByTime(switchId, beginDate, endDate)));
+//			} else {
+//				return MapUtil.warp("data", data.getJsonTable(voltageService2.selectByTime(switchId, beginDate, endDate)));
+//			}
+//		case 2:
+//			if(cov == 0) {
+//				return MapUtil.warp("data", data.getJsonTable(currentService3.selectByTime(switchId, beginDate, endDate)));
+//			} else {
+//				return MapUtil.warp("data", data.getJsonTable(voltageService3.selectByTime(switchId, beginDate, endDate)));
+//			}
+//		default:
+//			return "";
+//		}
+//	}
+	
+	/**
+	 * 返回功率
+	 * @param id
+	 * @param beginDate
+	 * @param endDate
+	 * @param sensorAddress
+	 * @return
+	 */
+	@RequiresAuthentication
+	@RequestMapping("/chart/high_voltage_voltage")
 	@ResponseBody
-	public Object selectChartBySwitchId(
-			@RequestParam(required = true) String switchId,
-			@RequestParam(required = true) int type,
-			@RequestParam(required = true) int cov, 
-			String beginDate,
-			String endDate) throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, InstantiationException {
-
-		if (beginDate == null || beginDate.equals("")) {// 使用当前日期
-			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");// 设置日期格式
-			beginDate = df.format(new Date());
-		}
-		if (endDate == null || endDate.equals("")) {// 使用当前日期下一天的日期
-			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");// 设置日期格式
-			
-			Date date = new Date();
-			long time = (date.getTime() / 1000) + 60 * 60 * 24;//秒  
-            date.setTime(time * 1000);//毫秒 
-			endDate = df.format(date);
-		}
-
-		/*if (type == null) {
-			type = "0";
-		}*/
-		ChartData data = new ChartData();
-		switch (type) {
-		case 0:
-			if(cov == 0) {
-				/*map.put("current",
-						);*/
-				return data.getJsonChart(currentService.selectByTime(switchId, beginDate, endDate));
-			} else {
-				/*map.put("voltage",
-						voltageService.selectByTime(switchId, beginDate, endDate));*/
-				return data.getJsonChart(voltageService.selectByTime(switchId, beginDate, endDate));
-			}
-		case 1:
-			if(cov == 0) {
-				/*map.put("current",
-						currentService2.selectByTime(switchId, beginDate, endDate));*/
-				return data.getJsonChart(currentService2.selectByTime(switchId, beginDate, endDate));
-			} else {
-				/*map.put("voltage",
-						*/
-				return data.getJsonChart(voltageService2.selectByTime(switchId, beginDate, endDate));
-			}
-		case 2:
-			if(cov == 0) {
-				/*map.put("current",
-						currentService3.selectByTime(switchId, beginDate, endDate));*/
-				return data.getJsonChart(currentService3.selectByTime(switchId, beginDate, endDate));
-			} else {
-				/*map.put("voltage",
-						voltageService3.selectByTime(switchId, beginDate, endDate));*/
-				return data.getJsonChart(voltageService3.selectByTime(switchId, beginDate, endDate));
-			}
-		default:
-			return "";
-		}
+	public ChartData getElectronicPowerJsonChart(
+			@RequestParam(required = true) String switchId, 
+			@RequestParam(required = true) String beginDate, 
+			@RequestParam(required = true) String endDate) {
+		Map<String, Object> measureMap = new HashMap<String, Object>();
+		measureMap.put("AB相", 
+				voltageService2.selectByTime(switchId, beginDate, endDate, "A"));
+		measureMap.put("BC相",
+				voltageService2.selectByTime(switchId, beginDate, endDate, "B"));
+		HighVoltageVoltageChartData chartData = new HighVoltageVoltageChartData();
+		return chartData.getJsonChart(measureMap);
 	}
 	
-	@RequestMapping("/select_table_by_id")
+	/**
+	 * 返回电流
+	 * @param id
+	 * @param beginDate
+	 * @param endDate
+	 * @param sensorAddress
+	 * @return
+	 */
+	@RequiresAuthentication
+	@RequestMapping("/chart/high_voltage_current")
 	@ResponseBody
-	public Object selectTableById(@RequestParam(required = true) String switchId,
-			@RequestParam(required = true) int type,
-			@RequestParam(required = true) int cov, String beginDate,
-			String endDate) {
-		
-		if (beginDate == null || beginDate == "") {// 使用当前日期
-			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");// 设置日期格式
-			beginDate = df.format(new Date());
-		}
-		if (endDate == null || endDate == "") {// 使用当前日期下一天的日期
-			SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");// 设置日期格式
-			
-			Date date = new Date();
-			long time = (date.getTime() / 1000) + 60 * 60 * 24;//秒  
-            date.setTime(time * 1000);//毫秒 
-			endDate = df.format(date);
-		}
-		
-		SwitchTableData data = new SwitchTableData();
-		switch (type) {
-		case 0:
-			if(cov == 0) {
-				return MapUtil.warp("data", data.getJsonTable(currentService.selectByTime(switchId, beginDate, endDate)));
-			} else {
-				return MapUtil.warp("data", data.getJsonTable(voltageService.selectByTime(switchId, beginDate, endDate)));
-			}
-		case 1:
-			if(cov == 0) {
-				return MapUtil.warp("data", data.getJsonTable(currentService2.selectByTime(switchId, beginDate, endDate)));
-			} else {
-				return MapUtil.warp("data", data.getJsonTable(voltageService2.selectByTime(switchId, beginDate, endDate)));
-			}
-		case 2:
-			if(cov == 0) {
-				return MapUtil.warp("data", data.getJsonTable(currentService3.selectByTime(switchId, beginDate, endDate)));
-			} else {
-				return MapUtil.warp("data", data.getJsonTable(voltageService3.selectByTime(switchId, beginDate, endDate)));
-			}
-		default:
-			return "";
-		}
+	public ChartData getElectronicCurrentJsonChart(
+			@RequestParam(required = true) String switchId, 
+			@RequestParam(required = true) String beginDate, 
+			@RequestParam(required = true) String endDate) {
+		Map<String, Object> measureMap = new HashMap<String, Object>();
+		measureMap.put("A相", 
+				currentService2.selectByTime(switchId, beginDate, endDate, "A"));
+		measureMap.put("B相",
+				currentService2.selectByTime(switchId, beginDate, endDate, "B"));
+		measureMap.put("C相",
+				currentService2.selectByTime(switchId, beginDate, endDate, "C"));
+		HighVoltageCurrentChartData chartData = new HighVoltageCurrentChartData();
+		return chartData.getJsonChart(measureMap);
 	}
 }

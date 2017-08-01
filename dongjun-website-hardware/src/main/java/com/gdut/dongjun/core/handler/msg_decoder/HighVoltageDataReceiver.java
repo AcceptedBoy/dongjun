@@ -88,6 +88,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 
 	private static final String STR_00 = "00".intern();
 	private static final String STR_01 = "01".intern();
+	private static final String STR_02 = "02".intern();
 
 	private static final Logger logger = LoggerFactory.getLogger(HighVoltageDataReceiver.class);
 
@@ -558,6 +559,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 
 			logger.info("状态变为-----------" + new_status);
 			websiteClient.getService().callbackDeviceChange(id, 1);
+			websiteClient.getService().callbackCtxChange();
 		} else {
 			logger.error("there is an error in catching hitch event!");
 		}
@@ -595,6 +597,9 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 				getMessageAddress(CharUtils.newString(data, i + 4, i + 8), CharUtils.newString(data, 22, 26),
 						CharUtils.newString(data, i + 8, i + 14));
 			}
+			String address = CharUtils.newString(data, 10, 14);
+			String id = CtxStore.getIdbyAddress(address);
+			websiteClient.getService().callbackDeviceChange(id, 1);
 			return;
 		}
 		// 全遥测
@@ -681,11 +686,12 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 				|| hvCtxStore.getStatusbyId(CtxStore.getIdbyAddress(address)) == null) {
 			return;
 		}
-		if (value.equals("02")) {
-			value = STR_01;
-		} else {
-			value = STR_00;
-		}
+		value = getDualPointStr(value);
+//		if (value.equals("02")) {
+//			value = STR_01;
+//		} else {
+//			value = STR_00;
+//		}
 		HighVoltageStatus hvs = hvCtxStore.getStatusbyId(CtxStore.getIdbyAddress(address));
 		switch (code) {
 		case "0000":
@@ -906,6 +912,25 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			c1.setPhase(phase);
 			currentService.insert(c1);
 			historyCurrentService.insert(c1.changeToHistory());
+		}
+	}
+	
+	/**
+	 * 双点遥信值变单点遥信值
+	 * @param value
+	 * @return
+	 */
+	private String getDualPointStr(String value) {
+		switch (value) {
+		case "01" : 
+			//	分位
+			return STR_00;
+		case "02" :
+			//	合位
+			return STR_01;
+		case "03" : 
+			return STR_02;
+		default : return STR_02;
 		}
 	}
 

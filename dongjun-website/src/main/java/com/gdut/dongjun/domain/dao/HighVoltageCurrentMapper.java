@@ -40,7 +40,7 @@ public interface HighVoltageCurrentMapper extends
 	 * @return Object
 	 * @throws
 	 */
-	public List<Object> selectByTime(Map<String, Object> xx);
+	public List<HighVoltageCurrent> selectByTime(Map<String, Object> xx);
 
 	/**
 	 * 
@@ -51,4 +51,5 @@ public interface HighVoltageCurrentMapper extends
 	 * @throws
 	 */
 	public List<HighVoltageCurrent> getRecentlyCurrent(HighVoltageCurrent hc);
+
 }

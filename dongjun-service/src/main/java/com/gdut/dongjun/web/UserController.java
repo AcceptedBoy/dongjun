@@ -37,8 +37,7 @@ public class UserController {
 
 	@ResponseBody
 	@RequestMapping("/login_form")
-	public String login(String name, String password, HttpSession session) {
-
+	public String loginForm(String name, String password, HttpSession session) {
 		//这一步扔到ApplicationContext吧
 		SecurityUtils.setSecurityManager(manager);
 		Subject currentUser = SecurityUtils.getSubject();
