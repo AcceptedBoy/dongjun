@@ -59,6 +59,12 @@ public class IndexController {
 	public String forwardSwitchPower() {
 		return "switchPower";
 	}
+	
+	@RequestMapping("/chart")
+	public String forwardChart() {
+		return "chart";
+	}
+
 
 	/**
 	 * 

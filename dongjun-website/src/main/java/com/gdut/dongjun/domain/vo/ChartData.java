@@ -1,48 +1,35 @@
 package com.gdut.dongjun.domain.vo;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.gdut.dongjun.util.GenericUtil;
-import com.gdut.dongjun.util.TimeUtil;
+public abstract class ChartData {
 
-/**
- *@Author link xiaoMian <972192420@qq.com>
- *@ClassName ChartDataFormat.java
- *@Time 2016年3月2日下午3:34:56
- *@Description 将前端所需要的json返回
- *@Version 1.0 Topview
- */
-public class ChartData {
+	protected Map<String, Object> title = new HashMap<>(1);
 
-	private Map<String, Object> title = new HashMap<>(1);
-	
-	private Map<String, Object> tooltip = new HashMap<>(1);
-	
-	private Map<String, Object> legend = new HashMap<>();
-	 
-	private Map<String, Object> toolbox = new HashMap<>(1);
-	
-	private Map<String, Object> grid = new HashMap<>();
-	
-	private List<XAxis> xAxis = new ArrayList<>();
-	
-	private List<YAxis> yAxis = new ArrayList<>();
-	
-	private List<ChaseData> series = new ArrayList<>();
-	
+	protected Map<String, Object> tooltip = new HashMap<>(1);
+
+	protected Map<String, Object> legend = new HashMap<>();
+
+	protected Map<String, Object> toolbox = new HashMap<>(1);
+
+	protected Map<String, Object> grid = new HashMap<>();
+
+	protected List<XAxis> xAxis = new ArrayList<>();
+
+	protected List<YAxis> yAxis = new ArrayList<>();
+
+	protected List<ChaseData> series = new ArrayList<>();
+
+	protected List<Date> timeList = new ArrayList<Date>();
+
 	public ChartData() {
-		
 		title.put("text", "");
 		tooltip.put("trigger", "axis");
 		List<String> data = new ArrayList<>();
-		data.add("A相"); 
-		data.add("B相");
-		data.add("C相");
 		legend.put("data", data);
 		Map<String, Object> feature = new HashMap<>(1);
 		feature.put("saveAsImage", new HashMap<>());
@@ -53,49 +40,17 @@ public class ChartData {
 		grid.put("containLabel", true);
 		xAxis.add(new XAxis());
 		yAxis.add(new YAxis());
-		series.add(new ChaseData("A相"));
-		series.add(new ChaseData("B相"));
-		series.add(new ChaseData("C相"));
-	}
-	
-	public <T> ChartData getJsonChart(List<T> data) throws IllegalArgumentException, IllegalAccessException, NoSuchFieldException, SecurityException, InstantiationException {
-		
-		ChartData chartData = new ChartData();
-		List<ChaseData> list = chartData.getSeries();
-		List<Float> chaseA = list.get(0).getData();
-		List<Float> chaseB = list.get(1).getData();
-		List<Float> chaseC = list.get(2).getData();
-		List<String> xData = new ArrayList<>();
-		Object chase;
-		
-		for(T o : data) {
-			
-			chase = GenericUtil.getPrivateObjectValue(o, "phase");
-			
-			if(chase == null) {
-				return null;
-			}
-			switch(chase.toString().charAt(0)) {
-			case 'A' : chaseA.add(getFloatValue(
-					GenericUtil.getPrivatyIntegerValue(o, "value")));break;
-			case 'B' : chaseB.add(getFloatValue(
-					GenericUtil.getPrivatyIntegerValue(o, "value")));break;
-			case 'C' : chaseC.add(getFloatValue(
-					GenericUtil.getPrivatyIntegerValue(o, "value")));break;
-			}
-			String aTime = TimeUtil.timeFormat((Date)GenericUtil.getPrivateObjectValue(o, "time"));
-			xData.add(aTime.replace(" ", " \n "));
-		}
-		chartData.getxAxis().get(0).setData(xData);
-		return chartData;
-	}
-	
-	private float getFloatValue(Integer value) {
-		
-		BigDecimal decimal = new BigDecimal(value);
-		return decimal.divide(new BigDecimal(100)).floatValue();
 	}
 
+	public abstract ChartData doGetJsonChart(Object obj);
+
+	public ChartData getJsonChart(Object data) {
+		return doGetJsonChart(data);
+	}
+
+	/*
+	 * getter and setter
+	 */
 	public List<XAxis> getxAxis() {
 		return xAxis;
 	}
@@ -159,13 +114,24 @@ public class ChartData {
 	public void setLegend(Map<String, Object> legend) {
 		this.legend = legend;
 	}
-	
-	class XAxis {
-		
+
+	public List<Date> getTimeList() {
+		return timeList;
+	}
+
+	public void setTimeList(List<Date> timeList) {
+		this.timeList = timeList;
+	}
+
+	/*
+	 * 内部类
+	 */
+	public class XAxis {
+
 		private String type = "category";
-		
+
 		private boolean boundaryGap = false;
-		
+
 		private List<String> data = new ArrayList<>();
 
 		public String getType() {
@@ -192,38 +158,38 @@ public class ChartData {
 			this.data = data;
 		}
 	}
-	
-	class YAxis {
-		
+
+	public class YAxis {
+
 		private String type = "value";
-		
+
 		public void setType(String type) {
 			this.type = type;
 		}
-		
+
 		public String getType() {
 			return type;
 		}
 	}
-	
+
 	public class ChaseData {
-		
+
 		private String name;
-		
+
 		private String type = "line";
-		
-		private String stack = "容量";
-		
-		private Map<String, Object> areaStyle = new HashMap<>(1);
-		
+
+//		private String stack = "容量";
+
+//		private Map<String, Object> areaStyle = new HashMap<>(1);
+
 		private List<Float> data = new ArrayList<>();
-		
+
 		public ChaseData() {
-			areaStyle.put("normal", new HashMap<>());
+//			areaStyle.put("normal", new HashMap<>());
 		}
-		
+
 		public ChaseData(String name) {
-			areaStyle.put("normal", new HashMap<>());
+//			areaStyle.put("normal", new HashMap<>());
 			this.name = name;
 		}
 
@@ -243,21 +209,13 @@ public class ChartData {
 			this.type = type;
 		}
 
-		public String getStack() {
-			return stack;
-		}
-
-		public void setStack(String stack) {
-			this.stack = stack;
-		}
-
-		public Map<String, Object> getAreaStyle() {
-			return areaStyle;
-		}
-
-		public void setAreaStyle(Map<String, Object> areaStyle) {
-			this.areaStyle = areaStyle;
-		}
+//		public Map<String, Object> getAreaStyle() {
+//			return areaStyle;
+//		}
+	//
+//		public void setAreaStyle(Map<String, Object> areaStyle) {
+//			this.areaStyle = areaStyle;
+//		}
 
 		public List<Float> getData() {
 			return data;

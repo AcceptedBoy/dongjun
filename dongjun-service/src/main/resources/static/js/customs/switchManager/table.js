@@ -32,12 +32,11 @@
 	    return target;
 	  };
 	}
-
 	var api = {
-		company: localhost + '/company/list',
-		substation: localhost + '/dongjun/substation/list',
-		line: localhost + '/dongjun/line/list',
-		switch: localhost + '/switch/list',
+		company: '/dongjun/company/list',
+		substation: '/dongjun/substation/list',
+		line: '/dongjun/line/list',
+		switch: '/dongjun/switch/list',
 		editSwitch: '/dongjun/switch/edit_date',
 		disSwitch: '/dongjun/switch/disabled'
 	}
@@ -86,7 +85,7 @@
 			        render: function(available, type, row) {
 			        	var renderMsg
 			        	if (available) {
-			        		renderMsg = '<button class="mdl-button mdl-js-button mdl-button--accent">' +
+			        		renderMsg = '<button class="mdl-button mdl-js-button mdl-button--accent" data-fnc="delete" data-id="'+row.id+'">' +
 			        								'点击停用</button>'
 			        	} else {
 			        		renderMsg = '<button class="mdl-button mdl-js-button" disabled>已停用</button>'
@@ -121,6 +120,8 @@
 	                })
 	              	switchModal.setId(id).setModalForm('editTime', data).show()
 	                return
+	              case 'delete':
+	              	switchModal.setId(target.data('id')).show('disableSwitch')
 	            }
 	          })
 			    }
@@ -230,6 +231,9 @@
 	    	$('#saveEditTime').click(function() {
 	    		self.saveEndDate()
 	    	})
+	    	$('#saveDisableSwitch').click(function() {
+	    		self.disSwitch()
+	    	})
 	    },
 	    show: function (name, cb) {
 	    	if (!name) {
@@ -240,6 +244,23 @@
 		    	modal[name].modal()
 		    	if (cb) cb()
 	    	}
+	    },
+	    disSwitch: function () {
+	    	var id = store.curId
+	    	$.ajax({
+	    		type: 'POST',
+	    		url: api.disSwitch,
+	    		data: {
+	    			switchId: id
+	    		},
+	    		success: function () {
+	    			Msg.notify('停用成功，正在刷新列表')
+	    			switchTable.redraw(store.curId)
+	    		},
+	    		error: function () {
+	    			Msg.notify('停用失败')
+	    		}
+	    	})
 	    }
 		}
 	}()

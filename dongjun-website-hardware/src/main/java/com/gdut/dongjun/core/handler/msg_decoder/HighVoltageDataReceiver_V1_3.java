@@ -15,7 +15,6 @@
  */
 package com.gdut.dongjun.core.handler.msg_decoder;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -253,11 +252,14 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 			AttributeKey<Integer> key = AttributeKey.valueOf("isRegisted");
 			Attribute<Integer> attr = ctx.attr(key);
 			attr.set(null);
+			// 记录最后上线时间
 			if (gprs.getId() != null) {
 				HighVoltageSwitch hvSwitch = switchService.selectByPrimaryKey(gprs.getId());
 				hvSwitch.setOnlineTime(TimeUtil.timeFormat(new Date(), "yyyy-MM-dd HH:mm:ss"));
 				switchService.updateByPrimaryKey(hvSwitch);
 			}
+			// 清空状态
+			hvCtxStore.removeStatusById(gprs.getId());
 		}
 	}
 
@@ -701,6 +703,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 	 * 遥信值的归一值初始获取，遥信值变化时会分两个流程，第一个流程先发一次，若有收到回复，再发一次，整个流程才算结束。
 	 * 由于两个流程都带有遥信值，现在第一个流程的遥信值，但考虑安全性，以后取第二个，因为有时间戳
 	 * 双点遥信10是合位，01是分位，11是不确定。
+	 * TODO 先设置一个标志位，如果有过流一段发生，而且监测到断路器变为分位（一般来回变化），就报警
 	 * @param ctx
 	 * @param data
 	 */
@@ -1092,9 +1095,17 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 	}
 	
 //	public static void main(String[] args) {
-//		
-//		String a = "68535368f46c0001c814016c000100010000000000000000000000000000000000000000000001010101010000000000000001000000000000000000000100000000000000000000000000000000000000000000000000b316";
-//		String b = a.substring(30, a.length()-4);
-//		System.out.println(b.substring(35 * 2, 35 * 2 + 12));
+//		String a = "685d5d68f36800031c030168001b00021b00021800020100022400020100011c00021b00021800020100022400020100011c00022f00021b00021800020100022400020100011c00021b00021900021b00021800020100021c00022700020100016f16";
+////		String b = a.substring(30, a.length()-4);
+//		String b = a.substring(26, a.length()-4);
+////		System.out.println(b);
+////		System.out.println(b.substring(35 * 2, 35 * 2 + 12));
+//////		String a =	 	Integer.parseInt(LowVoltageDeviceCommandUtil.reverseStringBy2("3c0000"), 16) + "";
+//////		System.out.println(a);
+//		int i = b.length() / 6;
+//		for (int c = 0; c < i; c++) {
+//			System.out.println(b.substring(c * 6, c * 6 + 4));
+//			System.out.println(b.substring(c * 6 + 4, c * 6 + 6));
+//		}
 //	}
 }

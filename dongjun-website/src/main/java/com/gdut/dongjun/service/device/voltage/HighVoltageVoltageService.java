@@ -1,9 +1,9 @@
 package com.gdut.dongjun.service.device.voltage;
 
-import com.gdut.dongjun.domain.po.HighVoltageVoltage;
-
 import java.util.List;
 import java.util.Map;
+
+import com.gdut.dongjun.domain.po.HighVoltageVoltage;
 
 /**
  * 
@@ -48,5 +48,20 @@ public interface HighVoltageVoltageService extends DeviceVoltageService<HighVolt
 	 * @throws
 	 */
 	public List<HighVoltageVoltage> getRecentlyVoltage(String switchId, String phase);
+	
+	/**
+	 * @param string2 
+	 * 
+	 * @Title: selectByTime
+	 * @Description: TODO
+	 * @param @param switchId
+	 * @param @param date
+	 * @param @param string
+	 * @param @return
+	 * @return Map<String,Object>
+	 * @throws
+	 */
+	public List<HighVoltageVoltage> selectByTime(String switchId, String beginDate,
+                                     String endDate, String phase);
 
 }

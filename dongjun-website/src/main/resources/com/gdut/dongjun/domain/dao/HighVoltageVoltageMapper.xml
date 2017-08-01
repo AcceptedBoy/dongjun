@@ -55,12 +55,19 @@
 		union -->
 
         <!-- 只取关键的字段 -->
-		select time, phase, value from
+        <!-- 数据库已经优化好，不会有Using filesort -->
+		<!--  select time, phase, value from
 		history_high_voltage_voltage where
 		switch_id = #{switchId}
 		and
 		time between #{beginDate} and #{endDate}
-		order By time Asc <!-- 数据库已经优化好，不会有Using filesort -->
+		order By time Asc -->
+		select * from
+		history_high_voltage_voltage
+		where switch_id = #{switchId}
+		and phase = #{phase}
+		and time between #{beginDate} and #{endDate}
+		order By time Asc
 	</select>
 
 	<select id="getRecentlyVoltage" resultMap="BaseResultMap">
