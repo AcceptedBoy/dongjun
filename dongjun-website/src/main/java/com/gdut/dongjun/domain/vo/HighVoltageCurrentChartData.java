@@ -16,6 +16,8 @@ import com.gdut.dongjun.util.TimeUtil;
 
 public class HighVoltageCurrentChartData extends ChartData {
 	
+	private static int naturalRatio = 10;
+	
 	public HighVoltageCurrentChartData() {
 		super();
 	}
@@ -76,7 +78,7 @@ public class HighVoltageCurrentChartData extends ChartData {
 					break;
 				}
 				if (flag == 1 && i_time.getTime() == j_time.getTime()) {
-					chartValue.add(measureList.get(count).getValue().floatValue());
+					chartValue.add(measureList.get(count).getValue().floatValue() / naturalRatio);
 					if (j.hasNext()) {
 						j_time = ((HighVoltageCurrent) j.next()).getTime();
 					} else {

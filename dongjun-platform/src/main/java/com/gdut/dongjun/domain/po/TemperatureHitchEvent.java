@@ -1,6 +1,6 @@
 package com.gdut.dongjun.domain.po;
 
-public class TemperatureHitchEvent extends AbstractBean {
+public class TemperatureHitchEvent extends CommonBean {
 
 	private String id;
 	

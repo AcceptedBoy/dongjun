@@ -1,7 +1,5 @@
 package com.gdut.dongjun.web;
 
-import java.util.List;
-
 import javax.annotation.Resource;
 import javax.servlet.http.HttpSession;
 
@@ -15,13 +13,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 
-import com.gdut.dongjun.domain.po.Company;
 import com.gdut.dongjun.domain.po.User;
-import com.gdut.dongjun.service.CompanyService;
 import com.gdut.dongjun.service.ZTreeNodeService;
 import com.gdut.dongjun.service.cache.CacheService;
-import com.gdut.dongjun.service.common.CommonSwitch;
-import com.gdut.dongjun.service.webservice.client.CentorServiceClient;
 import com.gdut.dongjun.util.EncoderUtil;
 import com.gdut.dongjun.util.VoiceFixUtil;
 
@@ -38,17 +32,17 @@ public class IndexController implements InitializingBean {
 	@Autowired
 	private ZTreeNodeService zTreeNodeService;
 
-	@Autowired
-	private CommonSwitch commonSwitch;
+//	@Autowired
+//	private CommonSwitch commonSwitch;
 
-	@Autowired
-	private CentorServiceClient centorServiceClient;
+//	@Autowired
+//	private CentorServiceClient centorServiceClient;
 	
 	@Resource(name="EhCacheService")
 	private CacheService ehCacheService;
 	
-	@Autowired
-	private CompanyService companyService;
+//	@Autowired
+//	private CompanyService companyService;
 
 	/**
 	 * 
@@ -127,11 +121,11 @@ public class IndexController implements InitializingBean {
 
 		User user = (User) session.getAttribute("currentUser");
 		if (user != null && user.getCompanyId() != null) {
-			if(commonSwitch.canService()) {
-
-				return centorServiceClient.getService()
-						.getSwitchTree(user.getCompanyId(), type);
-			}	//中介者
+//			if(commonSwitch.canService()) {
+//
+//				return centorServiceClient.getService()
+//						.getSwitchTree(user.getCompanyId(), type);
+//			}	//中介者
 			//TODO 以后这个方法会变成中介者系统返回值
 			return zTreeNodeService.getSwitchTree(user.getId());
 		} else {

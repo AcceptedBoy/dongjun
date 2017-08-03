@@ -5,11 +5,11 @@ import org.springframework.stereotype.Service;
 
 import com.gdut.dongjun.domain.dao.ElectronicModuleMapper;
 import com.gdut.dongjun.domain.po.ElectronicModule;
-import com.gdut.dongjun.service.base.impl.EnhancedServiceImpl;
+import com.gdut.dongjun.service.base.impl.DelTagHolderServiceImpl;
 import com.gdut.dongjun.service.device.ElectronicModuleService;
 
 @Service
-public class ElectronicModuleServiceImpl extends EnhancedServiceImpl<ElectronicModule> 
+public class ElectronicModuleServiceImpl extends DelTagHolderServiceImpl<ElectronicModule> 
 implements ElectronicModuleService {
 
 	@Autowired

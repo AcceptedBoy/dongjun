@@ -7,10 +7,10 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.gdut.dongjun.domain.dao.base.SinglePrimaryKeyBaseMapper;
-import com.gdut.dongjun.domain.po.AbstractBean;
+import com.gdut.dongjun.domain.po.CommonBean;
 import com.gdut.dongjun.service.base.EnhancedService;
 
-public abstract class EnhancedServiceImpl<T extends AbstractBean> implements EnhancedService<T> {
+public abstract class EnhancedServiceImpl<T extends CommonBean> implements EnhancedService<T> {
 	
 	@Autowired
 	protected SinglePrimaryKeyBaseMapper<T> baseMapper;
@@ -26,7 +26,7 @@ public abstract class EnhancedServiceImpl<T extends AbstractBean> implements Enh
 
 	@Override
 	public int insert(T record) {
-		AbstractBean bean = (AbstractBean)record;
+		CommonBean bean = (CommonBean)record;
 		bean.setGmtCreate(new Date());
 		bean.setGmtModified(new Date());
 		return baseMapper.insert(record);
@@ -34,7 +34,7 @@ public abstract class EnhancedServiceImpl<T extends AbstractBean> implements Enh
 
 	@Override
 	public int insertSelective(T record) {
-		AbstractBean bean = (AbstractBean)record;
+		CommonBean bean = (CommonBean)record;
 		bean.setGmtModified(new Date());
 		return baseMapper.insertSelective(record);
 	}
@@ -60,11 +60,11 @@ public abstract class EnhancedServiceImpl<T extends AbstractBean> implements Enh
 	public int updateByPrimaryKey(T record) {
 		
 		if (isExist(record)) {
-			AbstractBean bean = (AbstractBean)record;
+			CommonBean bean = (CommonBean)record;
 			bean.setGmtModified(new Date());
 			return baseMapper.updateByPrimaryKey(record);
 		} else {
-			AbstractBean bean = (AbstractBean)record;
+			CommonBean bean = (CommonBean)record;
 			bean.setGmtCreate(new Date());
 			bean.setGmtModified(new Date());
 			return baseMapper.insert(record);
@@ -75,11 +75,11 @@ public abstract class EnhancedServiceImpl<T extends AbstractBean> implements Enh
 	public int updateByPrimaryKeySelective(T record) {
 		
 		if (isExist(record)) {
-			AbstractBean bean = (AbstractBean)record;
+			CommonBean bean = (CommonBean)record;
 			bean.setGmtModified(new Date());
 			return baseMapper.updateByPrimaryKeySelective(record);
 		} else {
-			AbstractBean bean = (AbstractBean)record;
+			CommonBean bean = (CommonBean)record;
 			bean.setGmtCreate(new Date());
 			bean.setGmtModified(new Date());
 			return baseMapper.insert(record);

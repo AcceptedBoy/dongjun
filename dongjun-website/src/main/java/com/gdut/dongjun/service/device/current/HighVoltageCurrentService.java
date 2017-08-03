@@ -37,8 +37,20 @@ public interface HighVoltageCurrentService extends
 	 */
 	public List<HighVoltageCurrent> getRecentlyCurrent(String switchId, String phase);
 	
+	/**
+	 * 现在只返回电流一次值
+	 * @param switchId
+	 * @param list
+	 * @return
+	 */
 	public List<Float> getRealCurrent(String switchId, List<Integer> list);
 	
+	/**
+	 * 现在只返回电流一次值
+	 * @param switchId
+	 * @param list
+	 * @return
+	 */
 	public Float getRealCurrent(String switchId, Integer list); 
 	
 	/**

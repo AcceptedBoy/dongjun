@@ -58,10 +58,9 @@ public class ModuleHitchEventController {
 		dto.setName(getModuleName(event.getType(), event.getModuleId()));
 		dto.setGmtCreate(event.getGmtCreate());
 		dto.setGmtModified(event.getGmtModified());
-		dto.setGroupId(event.getGroupId());
+		dto.setCompanyId(event.getCompanyId());
 		dto.setHitchReason(event.getHitchReason());
 		dto.setHitchTime(TimeUtil.timeFormat(event.getHitchTime()));
-		dto.setMonitorId(event.getMonitorId());
 		dto.setModuleId(event.getModuleId());
 		dto.setType(event.getType());
 		return dto;

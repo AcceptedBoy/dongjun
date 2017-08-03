@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 
 import com.gdut.dongjun.domain.dao.CompanyMapper;
-import com.gdut.dongjun.domain.dao.base.impl.SinglePrimaryKeyBaseDAOImpl;
+import com.gdut.dongjun.domain.dao.base.impl.DelTagHolderDAOImpl;
 import com.gdut.dongjun.domain.po.Company;
 
 /**
@@ -16,7 +16,7 @@ import com.gdut.dongjun.domain.po.Company;
  * @since 1.0
  */
 @Repository
-public class CompanyDAOImpl extends SinglePrimaryKeyBaseDAOImpl<Company> implements CompanyMapper {
+public class CompanyDAOImpl extends DelTagHolderDAOImpl<Company> implements CompanyMapper {
 
 	@Override
 	public List<Company> fuzzySearch(String name) {

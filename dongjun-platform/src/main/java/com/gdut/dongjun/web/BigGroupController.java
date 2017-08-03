@@ -1,5 +1,6 @@
 package com.gdut.dongjun.web;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,11 +20,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.gdut.dongjun.domain.model.ResponseMessage;
 import com.gdut.dongjun.domain.po.BigGroup;
-import com.gdut.dongjun.domain.po.PlatformGroup;
-import com.gdut.dongjun.domain.po.TemperatureMeasureHitchEvent;
+import com.gdut.dongjun.domain.po.BigGroupMapping;
+import com.gdut.dongjun.domain.po.Company;
+import com.gdut.dongjun.service.BigGroupMappingService;
 import com.gdut.dongjun.service.BigGroupService;
-import com.gdut.dongjun.service.PlatformGroupService;
-import com.gdut.dongjun.service.device.event.TemperatureMeasureHitchEventService;
+import com.gdut.dongjun.service.CompanyService;
 import com.gdut.dongjun.util.MapUtil;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.UUIDUtil;
@@ -38,7 +39,9 @@ public class BigGroupController {
 	@Autowired
 	private BigGroupService groupService;
 	@Autowired
-	private PlatformGroupService platformGroupService;
+	private BigGroupMappingService groupMappingService;
+	@Autowired
+	private CompanyService companyService;
 	
 	public BigGroupController() {
 		
@@ -49,12 +52,25 @@ public class BigGroupController {
      * @param groupId
      * @return
      */
+//	@RequiresAuthentication
+//    @RequestMapping("/platformgroup_list")
+//    @ResponseBody
+//    public ResponseMessage deviceList(@RequestParam(required = true) Integer groupId) {
+//        return ResponseMessage.info(platformGroupService.selectByParameters(
+//                MyBatisMapUtil.warp("group_id", groupId)));
+//    }
+	
 	@RequiresAuthentication
-    @RequestMapping("/platformgroup_list")
+    @RequestMapping("/company_list")
     @ResponseBody
-    public ResponseMessage deviceList(@RequestParam(required = true) Integer groupId) {
-        return ResponseMessage.info(platformGroupService.selectByParameters(
-                MyBatisMapUtil.warp("group_id", groupId)));
+    public ResponseMessage deviceList(@RequestParam(required = true) String groupId) {
+		List<BigGroupMapping> mappings = 
+				groupMappingService.selectByParameters(MyBatisMapUtil.warp("group_id", groupId));
+		List<Company> list = new ArrayList<>();
+		for (BigGroupMapping m : mappings) {
+			list.add(companyService.selectByPrimaryKeyNoDel(m.getCompanyId()));
+		}
+        return ResponseMessage.success(list);
     }
 	
 	/**
@@ -63,10 +79,14 @@ public class BigGroupController {
 	 * @param group
 	 * @return
 	 */
-	@RequiresPermissions(value = "big_group_admin:edit")
+//	@RequiresPermissions(value = "big_group_admin:edit")
+	@RequiresAuthentication
 	@RequestMapping("/add")
 	@ResponseBody
 	public ResponseMessage addGroup(HttpSession session, BigGroup group) {
+		if (null == group.getId() || "".equals(group.getId())) {
+			group.setId(UUIDUtil.getUUID());
+		}
 		group.setIsDefault(0); // 添加的都不是默认的
 		if (groupService.insert(group) != 0) {
 			return ResponseMessage.success("添加成功");
@@ -83,29 +103,19 @@ public class BigGroupController {
 	 * @param groupId
 	 * @return
 	 */
-	@RequiresPermissions(value = "big_group_admin:delete")
+//	@RequiresPermissions(value = "big_group_admin:delete")
+	@RequiresAuthentication
 	@RequestMapping("/delete")
 	@ResponseBody
-	public ResponseMessage deleteGroup(HttpSession session, @NotNull Integer id) {
+	public ResponseMessage deleteGroup(HttpSession session, @NotNull String id) {
 
-		Map<String, Object> param = new HashMap<>();
-		param.put("is_default", 1);
-		List<BigGroup> list = groupService.selectByParameters(param);
-		if (CollectionUtils.isEmpty(list)) {
-			return ResponseMessage.danger("系统错误");
-		} else {
-			List<PlatformGroup> platformGroupList = platformGroupService
-					.selectByParameters(MyBatisMapUtil.warp("group_id", id));
-			for (PlatformGroup platformGroup : platformGroupList) {
-				platformGroup.setGroupId(list.get(0).getId());
-				platformGroupService.updateByPrimaryKey(platformGroup);
-			}
+		List<BigGroupMapping> mappings = 
+				groupMappingService.selectByParameters(MyBatisMapUtil.warp("group_id", id));
+		if (null != mappings && mappings.size() > 0) {
+			return ResponseMessage.warning("删除失败，该分组下仍有公司信息"); 
 		}
-		if (groupService.deleteByPrimaryKey(id + "")) {
-			return ResponseMessage.success("删除成功");
-		} else {
-			return ResponseMessage.danger("系统错误");
-		}
+		groupMappingService.deleteByParameters(MyBatisMapUtil.warp("group_id", id));
+		return ResponseMessage.success("删除成功");
 	}
 
 	/**
@@ -118,9 +128,13 @@ public class BigGroupController {
 	@RequestMapping("/update")
 	@ResponseBody
 	public ResponseMessage updateGroup(BigGroup group) {
-		group.setIsDefault(0);
-		groupService.updateByPrimaryKeySelective(group);
-		return ResponseMessage.success("操作成功");
+		if (null != group && null != group.getId()
+				&& null != groupService.selectByPrimaryKey(group.getId())) {
+			group.setIsDefault(0);
+			groupService.updateByPrimaryKeySelective(group);
+			return ResponseMessage.success("操作成功");
+		}
+		return ResponseMessage.warning("操作失败");
 	}
 	
 	/**
@@ -146,6 +160,35 @@ public class BigGroupController {
 		map.put("data", list);
 		map.put("recordsFiltered", size);
 		return map;
+	}
+	
+	@RequiresAuthentication
+	@RequestMapping("/group_mapping/edit")
+	@ResponseBody
+	public ResponseMessage addGourpMapping(
+			@RequestParam(required=true) String groupId,
+			@RequestParam(required=true) String companyId) {
+		if (null == groupService.selectByPrimaryKey(groupId) ||
+				null == companyService.selectByPrimaryKeyNoDel(companyId)) {
+			return ResponseMessage.warning("操作失败");
+		}
+		BigGroupMapping m = new BigGroupMapping();
+		m.setId(UUIDUtil.getUUID());
+		m.setCompanyId(companyId);
+		m.setGroupId(groupId);
+		groupMappingService.insert(m);
+		return ResponseMessage.success("操作成功"); 
+	}
+	
+	@RequiresAuthentication
+	@RequestMapping("/group_mapping/del")
+	@ResponseBody
+	public ResponseMessage delGourpMapping(@RequestParam(required=true) String companyId) {
+		if (0 == groupMappingService.deleteByParameters(MyBatisMapUtil.warp("company_id", companyId))) {
+			return ResponseMessage.warning("操作失败"); 
+		}
+		return ResponseMessage.success("操作成功"); 
+
 	}
 
 	

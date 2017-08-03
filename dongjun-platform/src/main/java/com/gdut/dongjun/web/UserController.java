@@ -9,7 +9,6 @@ import javax.jms.JMSException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.httpclient.HttpStatus;
 import org.apache.log4j.Logger;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
@@ -21,15 +20,14 @@ import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -39,15 +37,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.gdut.dongjun.domain.dto.HitchEventDTO;
 import com.gdut.dongjun.domain.model.ErrorInfo;
 import com.gdut.dongjun.domain.model.ResponseMessage;
-import com.gdut.dongjun.domain.po.Company;
 import com.gdut.dongjun.domain.po.PersistentHitchMessage;
-import com.gdut.dongjun.domain.po.PlatformGroup;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.po.authc.Role;
 import com.gdut.dongjun.domain.po.authc.UserRole;
 import com.gdut.dongjun.service.CompanyService;
 import com.gdut.dongjun.service.PersistentHitchMessageService;
-import com.gdut.dongjun.service.PlatformGroupService;
 import com.gdut.dongjun.service.RemoteEventService;
 import com.gdut.dongjun.service.UserDeviceMappingService;
 import com.gdut.dongjun.service.UserLogService;
@@ -78,8 +73,6 @@ public class UserController {
 	private UserRoleService urService;
 	@Autowired
 	private CompanyService companyService;
-	@Autowired
-	private PlatformGroupService pgService;
 	@Autowired
 	private PersistentHitchMessageService messageService;
 	@Autowired
@@ -163,9 +156,7 @@ public class UserController {
 				private HitchEventVO warpIntoVO(PersistentHitchMessage message) {
 					HitchEventDTO dto = new HitchEventDTO();
 					dto.setId(message.getHitchId());
-					dto.setGroupId(user.getCompanyId());
-					dto.setMonitorId(message.getMonitorId());
-					dto.setGroupId(message.getGroupId());
+					dto.setCompanyId(message.getCompanyId());
 					dto.setType(message.getType());
 					return hitchEventService.wrapHitchVO(dto);
 				}
@@ -281,51 +272,51 @@ public class UserController {
 		binder.setFieldDefaultPrefix("user.");
 	}
 
-	@RequestMapping(value = "/dongjun/elecon/company_registry", method = RequestMethod.POST)
-	@ResponseBody
-	@Transactional
-	public ResponseMessage edit(
-			@ModelAttribute("company") Company com, BindingResult result1,  
-			@ModelAttribute("user") User user, BindingResult result2) {
-		// 注册用户并赋予公司管理员角色
-		List<Role> roles = roleService.selectByParameters(null);
-		
-		PlatformGroup pg = new PlatformGroup();
-		pg.setId(UUIDUtil.getUUID());
-		pg.setGroupId("default"); // 默认组别
-		byte num = 0;
-		pg.setIsDefault(num);
-		pg.setName(com.getName());
-		pg.setCompanyId(com.getId());
-		pg.setType(num);
-		user.setCompanyId(pg.getId());
-		user.setId(UUIDUtil.getUUID());
-		//注册公司
-		com.setId(UUIDUtil.getUUID());
-		com.setMainStaffId(user.getId());
-		pg.setCompanyId(com.getId());
-
-		if (userService.updateByPrimaryKey(user) == 1) {
-			UserRole ur = new UserRole();
-			for (Role role : roles) {
-				if (PLATFORM_ADMIN.equals(role.getRole())) {
-					ur.setRoleId(role.getId());
-					break;
-				}
-			}
-			ur.setUserId(user.getId());
-			urService.insert(ur);
-		} else {
-			logger.warn("Exception : 注册用户失败");
-		}
-		if (0 == pgService.updateByPrimaryKey(pg)) {
-			return ResponseMessage.danger("操作失败");
-		}
-		if (companyService.updateByPrimaryKey(com) == 0) {
-			return ResponseMessage.danger("操作失败");
-		}
-		return ResponseMessage.success("操作成功");
-	}
+//	@RequestMapping(value = "/dongjun/elecon/company_registry", method = RequestMethod.POST)
+//	@ResponseBody
+//	@Transactional
+//	public ResponseMessage edit(
+//			@ModelAttribute("company") Company com, BindingResult result1,  
+//			@ModelAttribute("user") User user, BindingResult result2) {
+//		// 注册用户并赋予公司管理员角色
+//		List<Role> roles = roleService.selectByParameters(null);
+//		
+//		PlatformGroup pg = new PlatformGroup();
+//		pg.setId(UUIDUtil.getUUID());
+//		pg.setGroupId("default"); // 默认组别
+//		byte num = 0;
+//		pg.setIsDefault(num);
+//		pg.setName(com.getName());
+//		pg.setCompanyId(com.getId());
+//		pg.setType(num);
+//		user.setCompanyId(pg.getId());
+//		user.setId(UUIDUtil.getUUID());
+//		//注册公司
+//		com.setId(UUIDUtil.getUUID());
+//		com.setMainStaffId(user.getId());
+//		pg.setCompanyId(com.getId());
+//
+//		if (userService.updateByPrimaryKey(user) == 1) {
+//			UserRole ur = new UserRole();
+//			for (Role role : roles) {
+//				if (PLATFORM_ADMIN.equals(role.getRole())) {
+//					ur.setRoleId(role.getId());
+//					break;
+//				}
+//			}
+//			ur.setUserId(user.getId());
+//			urService.insert(ur);
+//		} else {
+//			logger.warn("Exception : 注册用户失败");
+//		}
+//		if (0 == pgService.updateByPrimaryKey(pg)) {
+//			return ResponseMessage.danger("操作失败");
+//		}
+//		if (companyService.updateByPrimaryKey(com) == 0) {
+//			return ResponseMessage.danger("操作失败");
+//		}
+//		return ResponseMessage.success("操作成功");
+//	}
 
 	@RequiresAuthentication
 	@RequestMapping("/dongjun/user/information")
@@ -378,7 +369,7 @@ public class UserController {
 	@RequestMapping(value = "/dongjun/elecon/fuzzy_search", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseMessage doFuzzySearch(String name) {
-		return ResponseMessage.success(pgService.fuzzySearch(name));
+		return ResponseMessage.success(companyService.fuzzySearch(name));
 	}
 
 }

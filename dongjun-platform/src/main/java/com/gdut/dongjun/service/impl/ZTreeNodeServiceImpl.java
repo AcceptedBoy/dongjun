@@ -1,5 +1,6 @@
 package com.gdut.dongjun.service.impl;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -13,18 +14,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.gdut.dongjun.domain.po.BigGroup;
-import com.gdut.dongjun.domain.po.DataMonitor;
+import com.gdut.dongjun.domain.po.Company;
 import com.gdut.dongjun.domain.po.DeviceGroup;
 import com.gdut.dongjun.domain.po.DeviceGroupMapping;
-import com.gdut.dongjun.domain.po.PlatformGroup;
 import com.gdut.dongjun.domain.po.User;
+import com.gdut.dongjun.service.CompanyService;
 import com.gdut.dongjun.service.DeviceGroupMappingService;
 import com.gdut.dongjun.service.DeviceGroupService;
-import com.gdut.dongjun.service.PlatformGroupService;
 import com.gdut.dongjun.service.UserDeviceMappingService;
 import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.ZTreeNodeService;
-import com.gdut.dongjun.service.device.DataMonitorService;
+import com.gdut.dongjun.service.device.ElectronicModuleService;
+import com.gdut.dongjun.service.device.TemperatureModuleService;
 import com.gdut.dongjun.service.device.TemperatureSensorService;
 import com.gdut.dongjun.service.manager.UserHolder;
 import com.gdut.dongjun.util.MyBatisMapUtil;
@@ -41,21 +42,21 @@ import com.gdut.dongjun.util.MyBatisMapUtil;
 public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 
 	@Autowired
-	private PlatformGroupService platformGroupService;
-	@Autowired
 	private DeviceGroupMappingService mappingService;
 	@Autowired
 	private DeviceGroupService deviceGroupService;
 	@Autowired
 	private TemperatureSensorService sensorService;
 	@Autowired
-	private PlatformGroupService pgService;
-	@Autowired
 	private UserDeviceMappingService userMappingService;
 	@Autowired
 	private UserService userService;
 	@Autowired
-	private DataMonitorService monitorService;
+	private CompanyService companyService;
+	@Autowired
+	private ElectronicModuleService elecModuleService;
+	@Autowired
+	private TemperatureModuleService temModuleService;
 
 	/**
 	 * 返回用户的设备树。 这个方法是根据书上改写的，理论上线程安全。 value保存的相当于一个执行任务，Future运算完成之后只会返回同一个结果。
@@ -123,9 +124,8 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 	 */
 	@Override
 	public List<ZTreeNode> getSwitchTree() {
-		// List<BigGroup> groupList = groupService.selectByParameters(null);
-		// return getAllSwitchTree(groupList);
-		return null;
+		List<Company> cList = companyService.selectByParametersNoDel(null);
+		return wrap(cList, null, null);
 	}
 
 	/**
@@ -137,11 +137,13 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 
 	public List<ZTreeNode> getSwitchTree(String userId) {
 		User user = userService.selectByPrimaryKey(userId);
-		List<PlatformGroup> pgList = pgService.selectByParameters(MyBatisMapUtil.warp("id", user.getCompanyId()));
-		return wrap(pgList, null, userId);
+//		List<PlatformGroup> pgList = pgService.selectByParameters(MyBatisMapUtil.warp("id", user.getCompanyId()));
+		List<Company> c = new ArrayList<>();
+		c.add(companyService.selectByPrimaryKey(user.getCompanyId()));
+		return wrap(c, null, userId);
 	}
 
-	private List<ZTreeNode> wrap(List<PlatformGroup> pgList, String parentName, String userId) {
+	private List<ZTreeNode> wrap(List<Company> pgList, String parentName, String userId) {
 		List<ZTreeNode> pgNodes = new LinkedList<ZTreeNode>();
 		for (int j = 0; j < pgList.size(); j++) {
 			ZTreeNode n2 = new ZTreeNode();
@@ -154,33 +156,33 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 				List<ZTreeNode> dgNodes = new LinkedList<ZTreeNode>();
 
 				List<DeviceGroup> dgList = deviceGroupService
-						.selectByParameters(MyBatisMapUtil.warp("platform_group_id", pgList.get(j).getId()));
+						.selectByParameters(MyBatisMapUtil.warp("company_id", pgList.get(j).getId()));
 
 				List<String> ids = userMappingService.selectMonitorIdByUserId(userId);
 				for (DeviceGroup dg : dgList) {
 					dgNodes.add(getDeviceGroupNode(pgList.get(j), dg, ids));
 				}
 
-				List<DataMonitor> monitors = monitorService
-						.selectByParameters(MyBatisMapUtil.warp("group_id", pgList.get(j).getId()));
-				Subject sub = SecurityUtils.getSubject();
-				boolean isAdm = false;
-				if (sub.hasRole("platform_group_admin")) {
-					isAdm = true;
-				}
-				for (int k = 0; k < monitors.size(); k++) {
-					if (isAdm || ids.contains(monitors.get(k).getId())) {
-						ZTreeNode n3 = new ZTreeNode();
-						if (monitors.get(k) != null) {
-
-							n3.setId(monitors.get(k).getId());
-							n3.setName(monitors.get(k).getName());
-							n3.setParentName(pgList.get(j).getName());
-							n3.setPlatformGroupId(monitors.get(k).getGroupId());
-						}
-						dgNodes.add(n3);
-					}
-				}
+//				List<DataMonitor> monitors = monitorService
+//						.selectByParameters(MyBatisMapUtil.warp("group_id", pgList.get(j).getId()));
+//				Subject sub = SecurityUtils.getSubject();
+//				boolean isAdm = false;
+//				if (sub.hasRole("company_admin")) {
+//					isAdm = true;
+//				}
+//				for (int k = 0; k < monitors.size(); k++) {
+//					if (isAdm || ids.contains(monitors.get(k).getId())) {
+//						ZTreeNode n3 = new ZTreeNode();
+//						if (monitors.get(k) != null) {
+//
+//							n3.setId(monitors.get(k).getId());
+//							n3.setName(monitors.get(k).getName());
+//							n3.setParentName(pgList.get(j).getName());
+//							n3.setPlatformGroupId(monitors.get(k).getGroupId());
+//						}
+//						dgNodes.add(n3);
+//					}
+//				}
 				if (dgNodes != null && dgNodes.size() != 0) {
 					n2.setChildren(dgNodes);
 				}
@@ -192,29 +194,29 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 		return pgNodes;
 	}
 
-	public List<ZTreeNode> getAllSwitchTree(List<BigGroup> groupList) {
-		List<ZTreeNode> nodes = new LinkedList<ZTreeNode>();
-		for (int i = 0; i < groupList.size(); i++) {
-			ZTreeNode n1 = new ZTreeNode();
-			if (groupList.get(i) != null) {
-				n1.setId(groupList.get(i).getId() + "");
-				n1.setName(groupList.get(i).getName());
-				n1.setParentName(null);
-				List<PlatformGroup> pgList = platformGroupService
-						.selectByParameters(MyBatisMapUtil.warp("group_id", groupList.get(i).getId()));
-				List<ZTreeNode> pgNodes = wrap(pgList, groupList.get(i).getName(), null);
-				if (pgNodes != null && !pgNodes.isEmpty()) {
-					n1.setChildren(pgNodes);
-				}
-			}
-			if (n1 != null && n1.getChildren() != null && !n1.getChildren().isEmpty()) {
-				nodes.add(n1);
-			}
-		}
-		return nodes;
-	}
+//	public List<ZTreeNode> getAllSwitchTree(List<BigGroup> groupList) {
+//		List<ZTreeNode> nodes = new LinkedList<ZTreeNode>();
+//		for (int i = 0; i < groupList.size(); i++) {
+//			ZTreeNode n1 = new ZTreeNode();
+//			if (groupList.get(i) != null) {
+//				n1.setId(groupList.get(i).getId() + "");
+//				n1.setName(groupList.get(i).getName());
+//				n1.setParentName(null);
+//				List<PlatformGroup> pgList = platformGroupService
+//						.selectByParameters(MyBatisMapUtil.warp("group_id", groupList.get(i).getId()));
+//				List<ZTreeNode> pgNodes = wrap(pgList, groupList.get(i).getName(), null);
+//				if (pgNodes != null && !pgNodes.isEmpty()) {
+//					n1.setChildren(pgNodes);
+//				}
+//			}
+//			if (n1 != null && n1.getChildren() != null && !n1.getChildren().isEmpty()) {
+//				nodes.add(n1);
+//			}
+//		}
+//		return nodes;
+//	}
 
-	private ZTreeNode getDeviceGroupNode(PlatformGroup group, DeviceGroup dg, List<String> ids) {
+	private ZTreeNode getDeviceGroupNode(Company group, DeviceGroup dg, List<String> ids) {
 		List<ZTreeNode> list = new LinkedList<ZTreeNode>();
 		ZTreeNode dgNode = new ZTreeNode();
 		dgNode.setId(dg.getId() + "");
@@ -225,22 +227,32 @@ public class ZTreeNodeServiceImpl implements ZTreeNodeService {
 				.selectByParameters(MyBatisMapUtil.warp("device_group_id", dg.getId()));
 		Subject subject = SecurityUtils.getSubject();
 		boolean isAdm = false;
-		if (subject.hasRole("platform_group_admin")) {
+		if (subject.hasRole("company_admin")) {
 			isAdm = true;
 		}
 		for (DeviceGroupMapping mapping : mappingList) {
-			if (isAdm || ids.contains(mapping.getDeviceId())) {
+			if (isAdm || (null != ids || ids.contains(mapping.getModuleId()))) {
 				ZTreeNode node4 = new ZTreeNode();
-				DataMonitor monitor = monitorService.selectByPrimaryKey(mapping.getDeviceId());
-				node4.setId(monitor.getId());
-				node4.setName(monitor.getName());
-				node4.setPlatformGroupId(group.getId());
+//				DataMonitor monitor = monitorService.selectByPrimaryKey(mapping.getDeviceId());
+				node4.setName(getDeviceName(mapping.getModuleId(), mapping.getType()));
+				node4.setId(mapping.getModuleId());
+				node4.setCompanyId(group.getId());
 				node4.setOpen(true);
 				list.add(node4);
 			}
 		}
 		dgNode.setChildren(list);
 		return dgNode;
+	}
+	
+	private String getDeviceName(String deviceId, int type) {
+		switch (type) {
+		case 0 : return null;
+		case 1 : return elecModuleService.selectByPrimaryKey(deviceId).getName();
+		case 2 : return null;
+		case 3 :	return temModuleService.selectByPrimaryKey(deviceId).getName();
+		default : return null;
+		}
 	}
 
 }

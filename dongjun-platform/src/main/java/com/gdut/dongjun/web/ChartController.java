@@ -16,8 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.gdut.dongjun.HitchConst;
-import com.gdut.dongjun.domain.po.DataMonitorSubmodule;
 import com.gdut.dongjun.domain.po.ElectronicModule;
 import com.gdut.dongjun.domain.po.TemperatureMeasure;
 import com.gdut.dongjun.domain.po.TemperatureModule;
@@ -27,8 +25,6 @@ import com.gdut.dongjun.domain.vo.chart.ElectronicCurrentChartData;
 import com.gdut.dongjun.domain.vo.chart.ElectronicPowerChartData;
 import com.gdut.dongjun.domain.vo.chart.ElectronicVoltageChartData;
 import com.gdut.dongjun.domain.vo.chart.TemperatureChartData;
-import com.gdut.dongjun.service.device.DataMonitorService;
-import com.gdut.dongjun.service.device.DataMonitorSubmoduleService;
 import com.gdut.dongjun.service.device.ElectronicModuleCurrentService;
 import com.gdut.dongjun.service.device.ElectronicModulePowerService;
 import com.gdut.dongjun.service.device.ElectronicModuleService;
@@ -38,7 +34,6 @@ import com.gdut.dongjun.service.device.TemperatureSensorService;
 import com.gdut.dongjun.service.device.temperature.TemperatureMeasureService;
 import com.gdut.dongjun.util.ClassLoaderUtil;
 import com.gdut.dongjun.util.DownloadAndUploadUtil;
-import com.gdut.dongjun.util.MyBatisMapUtil;
 
 @Controller
 @RequestMapping("/dongjun")
@@ -50,10 +45,6 @@ public class ChartController {
 	private TemperatureSensorService sensorService;
 	@Autowired
 	private TemperatureModuleService temModuleService;
-	@Autowired
-	private DataMonitorService monitorService;
-	@Autowired
-	private DataMonitorSubmoduleService submoduleService;
 	@Autowired
 	private ElectronicModuleCurrentService currentService;
 	@Autowired
@@ -286,22 +277,22 @@ public class ChartController {
 	@RequestMapping("/chart/temperature")
 	@ResponseBody
 	public ChartData getJsonChart(
-			@RequestParam(required = true) String monitorId, 
+			@RequestParam(required = true) String moduleId, 
 			@RequestParam(required = true) String beginDate, 
 			@RequestParam(required = true) String endDate) {
-		List<DataMonitorSubmodule> mappings = submoduleService.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
-		String deviceId = null;
-		for (DataMonitorSubmodule mapping : mappings) {
-			if (3 == mapping.getModuleType()) {
-				deviceId = mapping.getModuleId();
-				break;
-			}
-		}
+//		List<DataMonitorSubmodule> mappings = submoduleService.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
+//		String deviceId = null;
+//		for (DataMonitorSubmodule mapping : mappings) {
+//			if (3 == mapping.getModuleType()) {
+//				deviceId = mapping.getModuleId();
+//				break;
+//			}
+//		}
 		TemperatureChartData chartData = new TemperatureChartData();
 		Map<String, Object> measureMap = new HashMap<String, Object>();
-		List<TemperatureSensor> sensors = sensorService.selectAllType(deviceId);
+		List<TemperatureSensor> sensors = sensorService.selectAllType(moduleId);
 		for (TemperatureSensor sensor : sensors) {
-			List<TemperatureMeasure> measures = temMeasureService.selectByTime(deviceId, sensor.getTag(), beginDate, endDate);
+			List<TemperatureMeasure> measures = temMeasureService.selectByTime(moduleId, sensor.getTag(), beginDate, endDate);
 			measureMap.put(changeType(sensor.getType()), measures);
 		}
 		return chartData.getJsonChart(measureMap);
@@ -331,24 +322,24 @@ public class ChartController {
 	@RequestMapping("/chart/electronic_current")
 	@ResponseBody
 	public ChartData getElectronicCurrentJsonChart(
-			@RequestParam(required = true) String monitorId, 
+			@RequestParam(required = true) String moduleId, 
 			@RequestParam(required = true) String beginDate, 
 			@RequestParam(required = true) String endDate) {
-		List<DataMonitorSubmodule> mappings = submoduleService.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
-		String deviceId = null;
-		for (DataMonitorSubmodule mapping : mappings) {
-			if (HitchConst.MODULE_ELECTRICITY == mapping.getModuleType()) {
-				deviceId = mapping.getModuleId();
-				break;
-			}
-		}
+//		List<DataMonitorSubmodule> mappings = submoduleService.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
+//		String deviceId = null;
+//		for (DataMonitorSubmodule mapping : mappings) {
+//			if (HitchConst.MODULE_ELECTRICITY == mapping.getModuleType()) {
+//				deviceId = mapping.getModuleId();
+//				break;
+//			}
+//		}
 		Map<String, Object> measureMap = new HashMap<String, Object>();
 		measureMap.put("A相", 
-				currentService.selectByTime(deviceId, beginDate, endDate, "A"));
+				currentService.selectByTime(moduleId, beginDate, endDate, "A"));
 		measureMap.put("B相",
-				currentService.selectByTime(deviceId, beginDate, endDate, "B"));
+				currentService.selectByTime(moduleId, beginDate, endDate, "B"));
 		measureMap.put("C相",
-				currentService.selectByTime(deviceId, beginDate, endDate, "C"));
+				currentService.selectByTime(moduleId, beginDate, endDate, "C"));
 		ElectronicCurrentChartData chartData = new ElectronicCurrentChartData();
 		return chartData.getJsonChart(measureMap);
 	}
@@ -365,24 +356,24 @@ public class ChartController {
 	@RequestMapping("/chart/electronic_voltage")
 	@ResponseBody
 	public ChartData getElectronicVoltageJsonChart(
-			@RequestParam(required = true) String monitorId, 
+			@RequestParam(required = true) String moduleId, 
 			@RequestParam(required = true) String beginDate, 
 			@RequestParam(required = true) String endDate) {
-		List<DataMonitorSubmodule> mappings = submoduleService.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
-		String deviceId = null;
-		for (DataMonitorSubmodule mapping : mappings) {
-			if (HitchConst.MODULE_ELECTRICITY == mapping.getModuleType()) {
-				deviceId = mapping.getModuleId();
-				break;
-			}
-		}
+//		List<DataMonitorSubmodule> mappings = submoduleService.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
+//		String deviceId = null;
+//		for (DataMonitorSubmodule mapping : mappings) {
+//			if (HitchConst.MODULE_ELECTRICITY == mapping.getModuleType()) {
+//				deviceId = mapping.getModuleId();
+//				break;
+//			}
+//		}
 		Map<String, Object> measureMap = new HashMap<String, Object>();
 		measureMap.put("A相", 
-				voltageService.selectByTime(deviceId, beginDate, endDate, "A"));
+				voltageService.selectByTime(moduleId, beginDate, endDate, "A"));
 		measureMap.put("B相",
-				voltageService.selectByTime(deviceId, beginDate, endDate, "B"));
+				voltageService.selectByTime(moduleId, beginDate, endDate, "B"));
 		measureMap.put("C相",
-				voltageService.selectByTime(deviceId, beginDate, endDate, "C"));
+				voltageService.selectByTime(moduleId, beginDate, endDate, "C"));
 		ElectronicVoltageChartData chartData = new ElectronicVoltageChartData();
 		return chartData.getJsonChart(measureMap);
 	}
@@ -399,26 +390,26 @@ public class ChartController {
 	@RequestMapping("/chart/electronic_power")
 	@ResponseBody
 	public ChartData getElectronicPowerJsonChart(
-			@RequestParam(required = true) String monitorId, 
+			@RequestParam(required = true) String moduleId, 
 			@RequestParam(required = true) String beginDate, 
 			@RequestParam(required = true) String endDate) {
-		List<DataMonitorSubmodule> mappings = submoduleService.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
-		String deviceId = null;
-		for (DataMonitorSubmodule mapping : mappings) {
-			if (HitchConst.MODULE_ELECTRICITY == mapping.getModuleType()) {
-				deviceId = mapping.getModuleId();
-				break;
-			}
-		}
+//		List<DataMonitorSubmodule> mappings = submoduleService.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
+//		String deviceId = null;
+//		for (DataMonitorSubmodule mapping : mappings) {
+//			if (HitchConst.MODULE_ELECTRICITY == mapping.getModuleType()) {
+//				deviceId = mapping.getModuleId();
+//				break;
+//			}
+//		}
 		Map<String, Object> measureMap = new HashMap<String, Object>();
 		measureMap.put("A相", 
-				powerService.selectByTime(deviceId, beginDate, endDate, "A"));
+				powerService.selectByTime(moduleId, beginDate, endDate, "A"));
 		measureMap.put("B相",
-				powerService.selectByTime(deviceId, beginDate, endDate, "B"));
+				powerService.selectByTime(moduleId, beginDate, endDate, "B"));
 		measureMap.put("C相",
-				powerService.selectByTime(deviceId, beginDate, endDate, "C"));
+				powerService.selectByTime(moduleId, beginDate, endDate, "C"));
 		measureMap.put("总功率",
-				powerService.selectByTime(deviceId, beginDate, endDate, "D"));
+				powerService.selectByTime(moduleId, beginDate, endDate, "D"));
 		ElectronicPowerChartData chartData = new ElectronicPowerChartData();
 		return chartData.getJsonChart(measureMap);
 	}
@@ -436,28 +427,28 @@ public class ChartController {
 	@RequestMapping("/chart/excel/voltage")
 	@ResponseBody
 	public ResponseEntity<byte[]> downloadVoltageExcel(
-			@RequestParam(required = true) String monitorId, 
+			@RequestParam(required = true) String moduleId, 
 			@RequestParam(required = true) String beginDate, 
 			@RequestParam(required = true) String endDate,
 			HttpServletRequest request) throws IOException {
-		List<DataMonitorSubmodule> mappings = submoduleService.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
-		String deviceId = null;
-		for (DataMonitorSubmodule mapping : mappings) {
-			if (HitchConst.MODULE_ELECTRICITY == mapping.getModuleType()) {
-				deviceId = mapping.getModuleId();
-				break;
-			}
-		}
+//		List<DataMonitorSubmodule> mappings = submoduleService.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
+//		String deviceId = null;
+//		for (DataMonitorSubmodule mapping : mappings) {
+//			if (HitchConst.MODULE_ELECTRICITY == mapping.getModuleType()) {
+//				deviceId = mapping.getModuleId();
+//				break;
+//			}
+//		}
 		Map<String, Object> measureMap = new HashMap<String, Object>();
 		measureMap.put("A相", 
-				voltageService.selectByTime(deviceId, beginDate, endDate, "A"));
+				voltageService.selectByTime(moduleId, beginDate, endDate, "A"));
 		measureMap.put("B相",
-				voltageService.selectByTime(deviceId, beginDate, endDate, "B"));
+				voltageService.selectByTime(moduleId, beginDate, endDate, "B"));
 		measureMap.put("C相",
-				voltageService.selectByTime(deviceId, beginDate, endDate, "C"));
+				voltageService.selectByTime(moduleId, beginDate, endDate, "C"));
 		ElectronicVoltageChartData chartData = new ElectronicVoltageChartData();
 		ChartData d =  chartData.getJsonChart(measureMap);
-		ElectronicModule module = elecModuleService.selectByPrimaryKey(deviceId);
+		ElectronicModule module = elecModuleService.selectByPrimaryKey(moduleId);
 		//文件名称
 		String fileName = module.getName() + "-" + module.getDeviceNumber() + "-" + "电压";
 		//处理文件目录
@@ -488,30 +479,30 @@ public class ChartController {
 	@RequestMapping("/chart/excel/current")
 	@ResponseBody
 	public ResponseEntity<byte[]> downloadCurrentExcel(
-			@RequestParam(required = true) String monitorId, 
+			@RequestParam(required = true) String moduleId, 
 			@RequestParam(required = true) String beginDate, 
 			@RequestParam(required = true) String endDate,
 			HttpServletRequest request) throws IOException {
-		List<DataMonitorSubmodule> mappings = submoduleService.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
-		String deviceId = null;
-		for (DataMonitorSubmodule mapping : mappings) {
-			if (HitchConst.MODULE_ELECTRICITY == mapping.getModuleType()) {
-				deviceId = mapping.getModuleId();
-				break;
-			}
-		}
+//		List<DataMonitorSubmodule> mappings = submoduleService.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
+//		String deviceId = null;
+//		for (DataMonitorSubmodule mapping : mappings) {
+//			if (HitchConst.MODULE_ELECTRICITY == mapping.getModuleType()) {
+//				deviceId = mapping.getModuleId();
+//				break;
+//			}
+//		}
 		Map<String, Object> measureMap = new HashMap<String, Object>();
 		measureMap.put("A相", 
-				currentService.selectByTime(deviceId, beginDate, endDate, "A"));
+				currentService.selectByTime(moduleId, beginDate, endDate, "A"));
 		measureMap.put("B相",
-				currentService.selectByTime(deviceId, beginDate, endDate, "B"));
+				currentService.selectByTime(moduleId, beginDate, endDate, "B"));
 		measureMap.put("C相",
-				currentService.selectByTime(deviceId, beginDate, endDate, "C"));
+				currentService.selectByTime(moduleId, beginDate, endDate, "C"));
 		measureMap.put("总功率",
-				currentService.selectByTime(deviceId, beginDate, endDate, "D"));
+				currentService.selectByTime(moduleId, beginDate, endDate, "D"));
 		ElectronicCurrentChartData chartData = new ElectronicCurrentChartData();
 		ChartData d =  chartData.getJsonChart(measureMap);
-		ElectronicModule module = elecModuleService.selectByPrimaryKey(deviceId);
+		ElectronicModule module = elecModuleService.selectByPrimaryKey(moduleId);
 		//文件名称
 		String fileName = module.getName() + "-" + module.getDeviceNumber() + "-" + "电流";
 		//处理文件目录
@@ -542,30 +533,30 @@ public class ChartController {
 	@RequestMapping("/chart/excel/power")
 	@ResponseBody
 	public ResponseEntity<byte[]> downloadPowerExcel(
-			@RequestParam(required = true) String monitorId, 
+			@RequestParam(required = true) String moduleId, 
 			@RequestParam(required = true) String beginDate, 
 			@RequestParam(required = true) String endDate,
 			HttpServletRequest request) throws IOException {
-		List<DataMonitorSubmodule> mappings = submoduleService.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
-		String deviceId = null;
-		for (DataMonitorSubmodule mapping : mappings) {
-			if (HitchConst.MODULE_ELECTRICITY == mapping.getModuleType()) {
-				deviceId = mapping.getModuleId();
-				break;
-			}
-		}
+//		List<DataMonitorSubmodule> mappings = submoduleService.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
+//		String deviceId = null;
+//		for (DataMonitorSubmodule mapping : mappings) {
+//			if (HitchConst.MODULE_ELECTRICITY == mapping.getModuleType()) {
+//				deviceId = mapping.getModuleId();
+//				break;
+//			}
+//		}
 		Map<String, Object> measureMap = new HashMap<String, Object>();
 		measureMap.put("A相", 
-				powerService.selectByTime(deviceId, beginDate, endDate, "A"));
+				powerService.selectByTime(moduleId, beginDate, endDate, "A"));
 		measureMap.put("B相",
-				powerService.selectByTime(deviceId, beginDate, endDate, "B"));
+				powerService.selectByTime(moduleId, beginDate, endDate, "B"));
 		measureMap.put("C相",
-				powerService.selectByTime(deviceId, beginDate, endDate, "C"));
+				powerService.selectByTime(moduleId, beginDate, endDate, "C"));
 		measureMap.put("总功率",
-				powerService.selectByTime(deviceId, beginDate, endDate, "D"));
+				powerService.selectByTime(moduleId, beginDate, endDate, "D"));
 		ElectronicPowerChartData chartData = new ElectronicPowerChartData();
 		ChartData d =  chartData.getJsonChart(measureMap);
-		ElectronicModule module = elecModuleService.selectByPrimaryKey(deviceId);
+		ElectronicModule module = elecModuleService.selectByPrimaryKey(moduleId);
 		//文件名称
 		String fileName = module.getName() + "-" + module.getDeviceNumber() + "-" + "功率";
 		//处理文件目录
@@ -595,27 +586,27 @@ public class ChartController {
 	@RequiresAuthentication
 	@RequestMapping("/chart/excel/temperature")
 	public ResponseEntity<byte[]> downloadTemperatureExcel(
-			@RequestParam(required = true) String monitorId, 
+			@RequestParam(required = true) String moduleId, 
 			@RequestParam(required = true) String beginDate, 
 			@RequestParam(required = true) String endDate,
 			HttpServletRequest request) throws IOException {
-		List<DataMonitorSubmodule> mappings = submoduleService.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
-		String deviceId = null;
-		for (DataMonitorSubmodule mapping : mappings) {
-			if (3 == mapping.getModuleType()) {
-				deviceId = mapping.getModuleId();
-				break;
-			}
-		}
+//		List<DataMonitorSubmodule> mappings = submoduleService.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
+//		String deviceId = null;
+//		for (DataMonitorSubmodule mapping : mappings) {
+//			if (3 == mapping.getModuleType()) {
+//				deviceId = mapping.getModuleId();
+//				break;
+//			}
+//		}
 		TemperatureChartData chartData = new TemperatureChartData();
 		Map<String, Object> measureMap = new HashMap<String, Object>();
-		List<TemperatureSensor> sensors = sensorService.selectAllType(deviceId);
+		List<TemperatureSensor> sensors = sensorService.selectAllType(moduleId);
 		for (TemperatureSensor sensor : sensors) {
-			List<TemperatureMeasure> measures = temMeasureService.selectByTime(deviceId, sensor.getTag(), beginDate, endDate);
+			List<TemperatureMeasure> measures = temMeasureService.selectByTime(moduleId, sensor.getTag(), beginDate, endDate);
 			measureMap.put(changeType(sensor.getType()), measures);
 		}
 		ChartData d =  chartData.getJsonChart(measureMap);
-		TemperatureModule module = temModuleService.selectByPrimaryKey(deviceId);
+		TemperatureModule module = temModuleService.selectByPrimaryKey(moduleId);
 		//文件名称
 		String fileName = module.getName() + "-" + module.getDeviceNumber() + "-" + "温度";
 		//处理文件目录

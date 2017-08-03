@@ -117,8 +117,8 @@ public class HighVoltageServer_V1_3 extends NetServer implements InitializingBea
 				.readVoltageAndCurrent(gprs.getAddress(),
 						HighCommandControlCode.READ_VOLTAGE_CURRENT
 								.toString());
+		gprs.getCtx().writeAndFlush(msg);
 		logger.info("总召激活地址：" + gprs.getAddress() + "---" + msg);
-		gprs.getCtx().writeAndFlush(msg);// 读取电压
 		return msg;
 	}
 

@@ -40,6 +40,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
+import com.gdut.dongjun.service.common.CommonSwitch;
 import com.mchange.v2.c3p0.ComboPooledDataSource;
 
 import net.sf.ehcache.CacheManager;
@@ -68,9 +69,9 @@ public class Application extends SpringBootServletInitializer {
 	public DataSource dataSource() {
 
 		ComboPooledDataSource ds = new ComboPooledDataSource();
-		ds.setJdbcUrl("jdbc:mysql://120.24.12.171:3306/elecon_platform?useUnicode=true&amp;charaterEncoding=utf-8&zeroDateTimeBehavior=convertToNull");
-		ds.setUser("topview");
-		ds.setPassword("topview+624");//elecon
+		ds.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/elecon_platform?useUnicode=true&amp;charaterEncoding=utf-8&zeroDateTimeBehavior=convertToNull");
+		ds.setUser("root");
+		ds.setPassword("759486");//elecon
 		try {
 			ds.setDriverClass("com.mysql.jdbc.Driver");
 		} catch (PropertyVetoException e) {

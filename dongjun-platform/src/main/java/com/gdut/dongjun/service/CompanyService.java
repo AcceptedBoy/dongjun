@@ -3,7 +3,7 @@ package com.gdut.dongjun.service;
 import java.util.List;
 
 import com.gdut.dongjun.domain.po.Company;
-import com.gdut.dongjun.service.base.EnhancedService;
+import com.gdut.dongjun.service.base.DelTagHolderService;
 
 /**
  * @Title: UserService.java
@@ -13,7 +13,7 @@ import com.gdut.dongjun.service.base.EnhancedService;
  * @date 2015年7月24日 下午2:34:11
  * @version V1.0
  */
-public interface CompanyService extends EnhancedService<Company>{
+public interface CompanyService extends DelTagHolderService<Company>{
 	
 	static final String UPDATE_POSTFIX = "_is_update";
 	

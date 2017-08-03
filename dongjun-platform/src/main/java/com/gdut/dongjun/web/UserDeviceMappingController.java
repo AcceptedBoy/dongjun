@@ -10,21 +10,17 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.gdut.dongjun.domain.dto.UserDeviceMappingDTO;
 import com.gdut.dongjun.domain.model.ResponseMessage;
-import com.gdut.dongjun.domain.po.DataMonitor;
 import com.gdut.dongjun.domain.po.UserDeviceMapping;
 import com.gdut.dongjun.service.UserDeviceMappingService;
-import com.gdut.dongjun.service.device.DataMonitorService;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.UUIDUtil;
 
-@Controller
-@RequestMapping("/dongjun/user_device_mapping")
+//@Controller
+//@RequestMapping("/dongjun/user_device_mapping")
 public class UserDeviceMappingController {
 
 	@Autowired
 	private UserDeviceMappingService mappingService;
-	@Autowired
-	private DataMonitorService monitorService;
 
 	@ResponseBody
 	@RequestMapping("/edit")
