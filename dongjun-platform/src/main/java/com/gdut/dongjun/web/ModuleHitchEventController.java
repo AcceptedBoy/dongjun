@@ -42,14 +42,25 @@ public class ModuleHitchEventController {
 	
 	@ResponseBody
 	@RequestMapping("/module")
-	public ResponseMessage moduleHitch(HttpSession session) {
-		User user = userService.getCurrentUser(session);
-		List<ModuleHitchEvent> list = moduleHitchService.selectByParameters(MyBatisMapUtil.warp("group_id", user.getCompanyId()));
-		List<ModuleHitchEventVO> dtoList = new ArrayList<ModuleHitchEventVO>();
-		for (ModuleHitchEvent e : list) {
-			dtoList.add(wrap(e));
+	public ResponseMessage moduleHitch(String companyId, String moduleId, HttpSession session) {
+		if (null == moduleId || "".equals(moduleId)) {
+			if (null == companyId || "".equals(companyId)) {
+				companyId = userService.getCurrentUser(session).getCompanyId();
+			}
+			List<ModuleHitchEvent> list = moduleHitchService.selectByParameters(MyBatisMapUtil.warp("company_id", companyId));
+			List<ModuleHitchEventVO> dtoList = new ArrayList<ModuleHitchEventVO>();
+			for (ModuleHitchEvent e : list) {
+				dtoList.add(wrap(e));
+			}
+			return ResponseMessage.success(dtoList);
+		} else {
+			List<ModuleHitchEvent> list = moduleHitchService.selectByParameters(MyBatisMapUtil.warp("module_id", moduleId));
+			List<ModuleHitchEventVO> dtoList = new ArrayList<ModuleHitchEventVO>();
+			for (ModuleHitchEvent e : list) {
+				dtoList.add(wrap(e));
+			}
+			return ResponseMessage.success(dtoList);
 		}
-		return ResponseMessage.success(dtoList);
 	}
 	
 	private ModuleHitchEventVO wrap(ModuleHitchEvent event) {
@@ -75,11 +86,17 @@ public class ModuleHitchEventController {
 
 	@ResponseBody
 	@RequestMapping("/measure/temperature")
-	public ResponseMessage measureHitch(HttpSession session) {
-		User user = userService.getCurrentUser(session);
-		List<TemperatureMeasureHitchEventVO> eventList = measureEventService.selectMeasureHitch(user.getCompanyId());
-		return ResponseMessage.success(eventList);
+	public ResponseMessage measureHitch(String companyId, String moduleId, HttpSession session) {
+		if (null == moduleId || "".equals(moduleId)) {
+			if (null == companyId || "".equals(companyId)) {
+				companyId = userService.getCurrentUser(session).getCompanyId();
+			}
+			List<TemperatureMeasureHitchEventVO> eventList = measureEventService.selectMeasureHitch(companyId);
+			return ResponseMessage.success(eventList);
+		} else {
+			List<TemperatureMeasureHitchEventVO> eventList = measureEventService.selectMeasureHitchByModuleId(moduleId);
+			return ResponseMessage.success(eventList);
+		}
 	}
-	
 	
 }

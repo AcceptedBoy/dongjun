@@ -17,4 +17,9 @@ public class ModuleHitchEventDAOImpl extends SinglePrimaryKeyBaseDAOImpl<ModuleH
 		return template.selectList(getNamespace("selectByType"), map);
 	}
 
+	@Override
+	public List<ModuleHitchEvent> selectByTypeAndModuleId(Map<String, Object> map) {
+		return template.selectList(getNamespace("selectByTypeAndModuleId"), map);
+	}
+
 }

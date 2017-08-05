@@ -7,6 +7,7 @@ import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.gdut.dongjun.domain.model.ResponseMessage;
@@ -29,8 +30,8 @@ public class TemperatureSensorController {
 	@RequiresAuthentication
 	@RequestMapping("/list")
 	@ResponseBody
-	public ResponseMessage getSensorByDeviceId(String deviceId) {
-		List<TemperatureSensor> list = sensorService.selectByParameters(MyBatisMapUtil.warp("device_id", deviceId));
+	public ResponseMessage getSensorByDeviceId(@RequestParam(value="moduleId")String moduleId) {
+		List<TemperatureSensor> list = sensorService.selectByParameters(MyBatisMapUtil.warp("module_id", moduleId));
 		List<TemperatureSensorVO> dtoList = new ArrayList<TemperatureSensorVO>();
 		for (TemperatureSensor s : list) {
 			dtoList.add(TemperatureSensorVO.wrap(s));

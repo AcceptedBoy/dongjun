@@ -25,7 +25,7 @@ import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.UUIDUtil;
 
-@RequestMapping("/dongjun/data_monitor/submodule/temperature")
+@RequestMapping("/dongjun/module/temperature")
 @Controller
 public class TemperatureModuleController {
 
@@ -128,22 +128,14 @@ public class TemperatureModuleController {
 	
 	@ResponseBody
 	@RequestMapping("/list")
-	public ResponseMessage list(@RequestParam(value="moduleId") String moduleId) {
-//		List<DataMonitorSubmodule> subList = submoduleService.selectByParameters(MyBatisMapUtil.warp("data_monitor_id", monitorId));
-//		//TODO
-//		for (DataMonitorSubmodule sub : subList) {
-//			if (sub.getModuleType() == 3) {
-//				List<TemperatureModule> module = moduleService.selectByParameters(MyBatisMapUtil.warp("id", sub.getModuleId()));
-//				if (0 == module.size()) {
-//					return ResponseMessage.warning(null);
-//				}
-//				if (null == module || module.size() > 1) {
-//					return ResponseMessage.warning("操作失败");
-//				}
-//				return ResponseMessage.success(module.get(0));
-//			}
-//		}
-//		return ResponseMessage.warning(null);
+	public ResponseMessage list(String moduleId, String companyId, HttpSession session) {
+		if (null == moduleId || "".equals(moduleId)) {
+			if (null == companyId) {
+				companyId = userService.getCurrentUser(session).getCompanyId();
+			}
+			List<TemperatureModule> list = moduleService.selectByParameters(MyBatisMapUtil.warp("company_id", companyId));
+			return ResponseMessage.success(list); 
+		}
 		TemperatureModule module = moduleService.selectByPrimaryKey(moduleId);
 		if (null != module) {
 			return ResponseMessage.success(module);

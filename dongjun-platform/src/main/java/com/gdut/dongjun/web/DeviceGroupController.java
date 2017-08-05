@@ -165,7 +165,7 @@ public class DeviceGroupController {
 		if (deviceGroupMappingService.deleteByPrimaryKey(id)) {
 			return ResponseMessage.success("操作成功");
 		}
-		return ResponseMessage.danger("操作失败");
+		return ResponseMessage.warning("操作失败");
 	}
 
 	/**

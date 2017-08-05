@@ -32,7 +32,16 @@ public class ModuleHitchEventServiceImpl extends EnhancedServiceImpl<ModuleHitch
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put("pre", pre);
 		map.put("post", post);
-		map.put("groupId", groupId);
+		map.put("companyId", groupId);
 		return mapper.selectByType(map);
+	}
+
+	@Override
+	public List<ModuleHitchEvent> selectByTypeAndModuleId(int pre, int post, String moduleId) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("pre", pre);
+		map.put("post", post);
+		map.put("moduleId", moduleId);
+		return mapper.selectByTypeAndModuleId(map);
 	}
  }

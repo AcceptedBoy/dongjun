@@ -20,6 +20,8 @@ import com.gdut.dongjun.enums.HighCommandControlCode;
 import com.gdut.dongjun.service.HighVoltageSwitchService;
 import com.gdut.dongjun.util.HighVoltageDeviceCommandUtil;
 
+import io.netty.channel.ChannelHandlerContext;
+
 
 /**
  * @author Sherlock-lee
@@ -50,7 +52,7 @@ public class HighVoltageServer_V1_3 extends NetServer implements InitializingBea
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		final HighVoltageDeviceCommandUtil ut = new HighVoltageDeviceCommandUtil();
+		
 		/*
 		 * 心跳线程，每分钟向所有设备发心跳报文，对已连接未获取状态的设备进行总召
 		 */
@@ -67,13 +69,18 @@ public class HighVoltageServer_V1_3 extends NetServer implements InitializingBea
 								HighVoltageStatus s = ctxStore.getStatusbyId(gprs.getId());
 								if (null == s || null == s.getStatus() || "02".equals(s.getStatus())) {
 									//	设备已连接但未获取状态，进行全域总召
-									gprs.getCtx().writeAndFlush(ut.anonTotalCall());
+									String totalCall = new HighVoltageDeviceCommandUtil()
+											.readVoltageAndCurrent(gprs.getAddress(),
+													HighCommandControlCode.READ_VOLTAGE_CURRENT
+															.toString());
+									gprs.getCtx().writeAndFlush(totalCall);
+									logger.info(gprs.getAddress() + "心跳总召");
 								}
 							}
 						}
 					}
 					try {
-						Thread.sleep(1000 * 60 * 5);
+						Thread.sleep(1000 * 60 * 1);
 					} catch (InterruptedException e) {
 						logger.info("心跳线程终止");
 						e.printStackTrace();

@@ -11,4 +11,6 @@ public interface TemperatureMeasureHitchEventService
 
 	List<TemperatureMeasureHitchEventVO> selectMeasureHitch(String companyId);
 
+	List<TemperatureMeasureHitchEventVO> selectMeasureHitchByModuleId(String moduleId);
+
 }

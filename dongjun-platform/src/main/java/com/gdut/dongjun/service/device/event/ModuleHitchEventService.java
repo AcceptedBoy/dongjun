@@ -20,4 +20,13 @@ public interface ModuleHitchEventService extends EnhancedService<ModuleHitchEven
 	 * @return
 	 */
 	List<ModuleHitchEvent> selectByType(int pre, int post, String groupId);
+	
+	/**
+	 * 根据报警类型和报警设备id来搜索报警信息
+	 * @param pre
+	 * @param post
+	 * @param moduleId
+	 * @return
+	 */
+	List<ModuleHitchEvent> selectByTypeAndModuleId(int pre, int post, String moduleId);
 }

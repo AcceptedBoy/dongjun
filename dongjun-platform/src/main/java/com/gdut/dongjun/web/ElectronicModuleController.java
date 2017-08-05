@@ -23,7 +23,7 @@ import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.UUIDUtil;
 
 @Controller
-@RequestMapping("/dongjun/data_monitor/submodule/electronic")
+@RequestMapping("/dongjun/module/electronic")
 public class ElectronicModuleController {
 
 	@Autowired

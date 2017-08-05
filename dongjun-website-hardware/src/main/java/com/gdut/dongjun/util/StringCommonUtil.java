@@ -35,10 +35,16 @@ public class StringCommonUtil extends StringUtils {
 	}
 	
 	public static int getFirstIndexOfEndTag(char[] strChar, int begin, String endTag) {
-
+		if (null == endTag || endTag.length() == 0) {
+			return -1;
+		}
 		char[] endTagChar = endTag.toCharArray();
 		for(int length = strChar.length, i = begin; i < length; i++) {
 			if(strChar[i] == endTagChar[0]) {
+				//	如果结尾剩余的字节数少于endTag的字节数，直接返回-1
+				if (endTagChar.length > strChar.length - i) {
+					return -1;
+				}
 				int limit = endTagChar.length, j = 1;
 				for(; j < limit; j++) {
 					if(strChar[i + j] != endTagChar[j]) {

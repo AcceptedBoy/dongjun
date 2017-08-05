@@ -105,7 +105,7 @@ public class UserController {
 		SecurityUtils.setSecurityManager(manager);
 		Subject currentUser = SecurityUtils.getSubject();
 		UsernamePasswordToken token = new UsernamePasswordToken(name, password);
-		token.setRememberMe(true);	//这个项目好像暂时不需要记住我的功能
+//		token.setRememberMe(true);	//这个项目好像暂时不需要记住我的功能
 
 		Map<String, Object> map = MyBatisMapUtil.warp("name", name);
 		map.put("password", password);

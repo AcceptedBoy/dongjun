@@ -197,4 +197,13 @@
 			</foreach>
 		</if>
 	</delete>
+	
+		<select id="selectByTypeAndModuleId" resultMap="BaseResultMap">
+		select * from module_hitch_event
+		where type <![CDATA[ >= ]]>
+		#{pre, jdbcType=INTEGER}
+		and type <![CDATA[ < ]]>
+		#{post, jdbcType=INTEGER}
+		and module_id = #{moduleId, jdbcType=VARCHAR}
+	</select>
 </mapper>

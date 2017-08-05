@@ -169,7 +169,7 @@
   <select id="selectByParameters" resultMap="BaseResultMap">
 		select *
 		from
-		temperature_measure_hitch_event1
+		temperature_measure_hitch_event
 		where
 		1 = 1
 		<if test="map != null">
@@ -181,7 +181,7 @@
 	</select>
 
 	<delete id="deleteByParameters">
-		delete from temperature_measure_hitch_event1
+		delete from temperature_measure_hitch_event
 		where
 		1 = 1
 		<if test="map != null">

@@ -26,7 +26,7 @@ import com.gdut.dongjun.util.UUIDUtil;
 import com.gdut.dongjun.web.vo.GPRSModuleVO;
 
 @Controller
-@RequestMapping("/dongjun/gprs")
+@RequestMapping("/dongjun/module/gprs")
 public class GPRSModuleController {
 
 	@Autowired
@@ -166,4 +166,13 @@ public class GPRSModuleController {
 		return dtos;
 	}
 
+//	public static void main(String[] args) {
+//		String a = "685d5d68f36800031c030168001b00021b00021800020100022400020100011c00021b00021800020100022400020100011c00022f00021b00021800020100022400020100011c00021b00021900021b00021800020100021c00022700020100016f16";
+//		StringBuilder sb = new StringBuilder();
+//		for (int i = 0; i < a.length(); i=2+i) {
+//			sb.append(a.substring(i, i + 2));
+//			sb.append(" ");
+//		}
+//		System.out.println(sb.toString());
+//	}
 }
