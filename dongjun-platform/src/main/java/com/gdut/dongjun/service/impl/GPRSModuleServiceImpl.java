@@ -6,10 +6,10 @@ import org.springframework.stereotype.Service;
 import com.gdut.dongjun.domain.dao.GPRSModuleMapper;
 import com.gdut.dongjun.domain.po.GPRSModule;
 import com.gdut.dongjun.service.GPRSModuleService;
-import com.gdut.dongjun.service.base.impl.EnhancedServiceImpl;
+import com.gdut.dongjun.service.base.impl.DelTagHolderServiceImpl;
 
 @Service
-public class GPRSModuleServiceImpl extends EnhancedServiceImpl<GPRSModule> implements
+public class GPRSModuleServiceImpl extends DelTagHolderServiceImpl<GPRSModule> implements
 GPRSModuleService {
 
 	@Autowired

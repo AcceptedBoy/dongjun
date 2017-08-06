@@ -21,6 +21,7 @@ public class SwitchGPRS implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private String id;//ID
 	private String address;//地址
+	private boolean isLinked = false;
 	private transient ChannelHandlerContext ctx;//上下文对象，可以用于发送报文
 	
 	/**
@@ -67,6 +68,18 @@ public class SwitchGPRS implements Serializable {
 
 	public void setOpen(boolean isOpen) {
 		this.isOpen = isOpen;
+	}
+
+	public boolean isLinked() {
+		return isLinked;
+	}
+
+	public void setLinked(boolean isLinked) {
+		this.isLinked = isLinked;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
 
 }

@@ -30,7 +30,7 @@ public class TemperatureSensorVO {
 		dto.setName(sensor.getName());
 		dto.setType(sensor.getType());
 		dto.setTag(sensor.getTag());
-		dto.setDeviceId(sensor.getDeviceId());
+		dto.setDeviceId(sensor.getModuleId());
 		switch (sensor.getType()) {
 		case 0 : dto.setTypeName(NO_TYPE); break;
 		case 1 : dto.setTypeName(IN_A); break;

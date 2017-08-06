@@ -23,7 +23,7 @@ public class ZTreeNode {
 	private boolean open = true; // 是否展开节点
 	private List<ZTreeNode> children;// 子节点
 	private String parentName;
-	private String platformGroupId;//小组id
+	private String companyId;//公司id
 	private int type;//类型标志
 	private String address;
 	private String showName;
@@ -50,14 +50,6 @@ public class ZTreeNode {
 
 	public void setOpen(boolean open) {
 		this.open = open;
-	}
-
-	public String getPlatformGroupId() {
-		return platformGroupId;
-	}
-
-	public void setPlatformGroupId(String platformGroupId) {
-		this.platformGroupId = platformGroupId;
 	}
 
 	public List<ZTreeNode> getChildren() {
@@ -98,5 +90,13 @@ public class ZTreeNode {
 	
 	public String getParentName() {
 		return parentName;
+	}
+
+	public String getCompanyId() {
+		return companyId;
+	}
+
+	public void setCompanyId(String companyId) {
+		this.companyId = companyId;
 	}
 }

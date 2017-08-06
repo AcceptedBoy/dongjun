@@ -5,8 +5,8 @@
 		location="D:\\WORKING\\plug-in\\mysql-connector-java-5.1.38\\mysql-connector-java-5.1.38\\mysql-connector-java-5.1.38-bin.jar" />
 	<context id="context1" targetRuntime="MyBatis3">
 		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
-			connectionURL="jdbc:mysql://115.28.7.40:3306/elecon_platform?characterEncoding=utf8&amp;useSSL=true"
-			userId="root" password="topview+624">
+			connectionURL="jdbc:mysql://127.0.0.1:3306/elecon_platform?characterEncoding=utf8&amp;useSSL=true"
+			userId="root" password="759486">
 		</jdbcConnection>
 		<javaModelGenerator targetPackage="com.gdut.dongjun.domain.po"
 			targetProject="D:\\WORKING\\git\\dongjun_dzc\\dongjun-platform" />
@@ -17,10 +17,10 @@
 		<javaClientGenerator targetPackage="com.gdut.dongjun.domain.dao"
 			targetProject="D:\\WORKING\\git\\dongjun_dzc\\dongjun-platform" type="XMLMAPPER" />
 
-<!-- 		<table schema="root" tableName="gprs_module" domainObjectName="GPRSModule" -->
-<!-- 			enableCountByExample="false" enableUpdateByExample="false" -->
-<!-- 			enableDeleteByExample="false" enableSelectByExample="false" -->
-<!-- 			selectByExampleQueryId="false" /> -->
+		<table schema="root" tableName="temperature_measure_hitch_event" domainObjectName="TemperatureMeasureHitchEvent"
+			enableCountByExample="false" enableUpdateByExample="false"
+			enableDeleteByExample="false" enableSelectByExample="false"
+			selectByExampleQueryId="false" />
 
 <!-- 		<table schema="root" tableName="electronic_module" domainObjectName="ElectronicModule" -->
 <!-- 			enableCountByExample="false" enableUpdateByExample="false" -->
@@ -118,20 +118,20 @@
 		<!-- enableUpdateByExample="false" enableDeleteByExample="false" -->
 		<!-- enableSelectByExample="false" selectByExampleQueryId="false" /> -->
 
-		<table schema="root" tableName="electronic_module_current"
-		domainObjectName="ElectronicModuleCurrent" enableCountByExample="false"
-		enableUpdateByExample="false" enableDeleteByExample="false"
-		enableSelectByExample="false" selectByExampleQueryId="false" />
+<!-- 		<table schema="root" tableName="electronic_module_current" -->
+<!-- 		domainObjectName="ElectronicModuleCurrent" enableCountByExample="false" -->
+<!-- 		enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 		enableSelectByExample="false" selectByExampleQueryId="false" /> -->
 
-		<table schema="root" tableName="electronic_module_power"
-		domainObjectName="ElectronicModulePower" enableCountByExample="false"
-		enableUpdateByExample="false" enableDeleteByExample="false"
-		enableSelectByExample="false" selectByExampleQueryId="false" />
+<!-- 		<table schema="root" tableName="electronic_module_power" -->
+<!-- 		domainObjectName="ElectronicModulePower" enableCountByExample="false" -->
+<!-- 		enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 		enableSelectByExample="false" selectByExampleQueryId="false" /> -->
 		
-				<table schema="root" tableName="electronic_module_voltage"
-		domainObjectName="ElectronicModuleVoltage" enableCountByExample="false"
-		enableUpdateByExample="false" enableDeleteByExample="false"
-		enableSelectByExample="false" selectByExampleQueryId="false" />
+<!-- 				<table schema="root" tableName="electronic_module_voltage" -->
+<!-- 		domainObjectName="ElectronicModuleVoltage" enableCountByExample="false" -->
+<!-- 		enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 		enableSelectByExample="false" selectByExampleQueryId="false" /> -->
 		
 <!-- 				<table schema="root" tableName="temperature_measure_hitch_event1" -->
 <!-- 		domainObjectName="TemperatureMeasureHitchEvent" enableCountByExample="false" -->

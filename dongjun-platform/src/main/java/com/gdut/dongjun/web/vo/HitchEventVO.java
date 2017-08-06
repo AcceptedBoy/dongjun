@@ -12,7 +12,7 @@ public class HitchEventVO implements Serializable {
 	
 	protected String name;
 	
-	protected String	groupId;
+	protected String	companyId;
 	//type直接填高压、低压、温度之类的
 	protected String type;
 
@@ -40,14 +40,6 @@ public class HitchEventVO implements Serializable {
 		this.hitchTime = hitchTime;
 	}
 
-	public String getGroupId() {
-		return groupId;
-	}
-
-	public void setGroupId(String groupId) {
-		this.groupId = groupId;
-	}
-
 	public String getType() {
 		return type;
 	}
@@ -55,12 +47,19 @@ public class HitchEventVO implements Serializable {
 	public void setType(String type) {
 		this.type = type;
 	}
-	
-	
+
+	public String getCompanyId() {
+		return companyId;
+	}
+
+	public void setCompanyId(String companyId) {
+		this.companyId = companyId;
+	}
 
 	@Override
 	public String toString() {
-		return "HitchEventDTO [hitchTime=" + hitchTime + ", hitchReason=" + hitchReason + ", name=" + name
-				+ ", groupId=" + groupId + ", type=" + type + "]";
+		return "HitchEventVO [hitchTime=" + hitchTime + ", hitchReason=" + hitchReason + ", name=" + name
+				+ ", companyId=" + companyId + ", type=" + type + "]";
 	}
+
 }

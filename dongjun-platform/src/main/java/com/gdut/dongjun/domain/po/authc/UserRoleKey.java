@@ -1,8 +1,8 @@
 package com.gdut.dongjun.domain.po.authc;
 
-import com.gdut.dongjun.domain.po.AbstractBean;
+import com.gdut.dongjun.domain.po.CommonBean;
 
-public class UserRoleKey extends AbstractBean {
+public class UserRoleKey extends CommonBean {
 	
     public UserRoleKey() {
 		super();

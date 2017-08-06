@@ -253,22 +253,22 @@ public class HighVoltageDeviceCommandUtil extends StringCommonUtil {
 		return address;
 	}
 	
-	/**
-	 * 在不知道设备地址情况下的全域总召
-	 * 用0001地址代替源地址
-	 * @return
-	 */
-	public String anonTotalCall() {
-		return this.readVoltageAndCurrent("0100", HighCommandControlCode.READ_VOLTAGE_CURRENT
-				.toString());
-	}
+//	/**
+//	 * 在不知道设备地址情况下的全域总召
+//	 * 用0001地址代替源地址
+//	 * @return
+//	 */
+//	public String anonTotalCall() {
+//		return this.readVoltageAndCurrent("0100", HighCommandControlCode.READ_VOLTAGE_CURRENT
+//				.toString());
+//	}
 	
 	/**
 	 * 对时
 	 * @param address
 	 * @return
 	 */
-	public String checkTime() {
+	public String checkTime(String addr) {
 		Calendar cal = Calendar.getInstance();
 		String second = Integer.toHexString(cal.get(Calendar.SECOND) * 1000);
 		if (second.length() != 4) {
@@ -292,9 +292,11 @@ public class HighVoltageDeviceCommandUtil extends StringCommonUtil {
 				+ ((minute.length() == 1) ? "0" + minute : minute) + ((hour.length() == 1) ? "0" + hour : hour)
 				+ ((day.length() == 1) ? "0" + day : day) + ((month.length() == 1) ? "0" + month : month)
 				+ ((year.length() == 1) ? "0" + year : year);
-		String msg = "7301006701060101000000" + time;
+		String msg = "73" + addr + "67010601" + addr + "0000" + time;
 		this.setData(msg);
-		return "68121268" + msg + this.check + "16";
+//		return "68121268" + msg + this.check + "16";
+		return "68" + this.dataLength + this.dataLength + "68" + msg
+				+ this.check + "16";
 	}
 	
 }

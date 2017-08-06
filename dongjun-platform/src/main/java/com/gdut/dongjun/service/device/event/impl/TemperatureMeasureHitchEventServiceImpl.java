@@ -11,7 +11,6 @@ import com.gdut.dongjun.domain.po.ModuleHitchEvent;
 import com.gdut.dongjun.domain.po.TemperatureMeasureHitchEvent;
 import com.gdut.dongjun.domain.po.TemperatureModule;
 import com.gdut.dongjun.service.base.impl.EnhancedServiceImpl;
-import com.gdut.dongjun.service.device.DataMonitorService;
 import com.gdut.dongjun.service.device.TemperatureModuleService;
 import com.gdut.dongjun.service.device.event.ModuleHitchEventService;
 import com.gdut.dongjun.service.device.event.TemperatureMeasureHitchEventService;
@@ -26,8 +25,6 @@ public class TemperatureMeasureHitchEventServiceImpl extends EnhancedServiceImpl
 	private TemperatureMeasureHitchEventMapper mapper;
 	@Autowired
 	private ModuleHitchEventService moduleHitchService;
-	@Autowired
-	private DataMonitorService monitorService;
 	@Autowired
 	private TemperatureModuleService moduleService;
 	
@@ -45,9 +42,24 @@ public class TemperatureMeasureHitchEventServiceImpl extends EnhancedServiceImpl
 	public List<TemperatureMeasureHitchEventVO> selectMeasureHitch(String companyId) {
 		//搜索type为301的报警事件
 		List<ModuleHitchEvent> list = moduleHitchService.selectByType(301, 302, companyId);
+		return wrap(list);
+	}
+
+	@Override
+	public List<TemperatureMeasureHitchEventVO> selectMeasureHitchByModuleId(String moduleId) {
+		//搜索type为301的报警事件
+		List<ModuleHitchEvent> list = moduleHitchService.selectByTypeAndModuleId(301, 302, moduleId);
+		return wrap(list);
+	}
+	
+	private List<TemperatureMeasureHitchEventVO> wrap(List<ModuleHitchEvent> list) {
 		List<TemperatureMeasureHitchEventVO> dtoList = new ArrayList<TemperatureMeasureHitchEventVO>();
 		for (ModuleHitchEvent e : list) {
-			TemperatureMeasureHitchEvent event = mapper.selectByParameters(MyBatisMapUtil.warp("hitch_id", e.getId())).get(0);
+			List<TemperatureMeasureHitchEvent> list1 = mapper.selectByParameters(MyBatisMapUtil.warp("hitch_id", e.getId()));
+			if (null == list1 || list1.size() == 0) {
+				continue;
+			}
+			TemperatureMeasureHitchEvent event = list1.get(0);
 			TemperatureMeasureHitchEventVO dto = new TemperatureMeasureHitchEventVO(e, event);
 			TemperatureModule temModule = moduleService.selectByPrimaryKey(e.getModuleId());
 			if (null == temModule) {

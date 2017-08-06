@@ -2,9 +2,9 @@ package com.gdut.dongjun.domain.po.authc;
 
 import java.util.Date;
 
-import com.gdut.dongjun.domain.po.AbstractBean;
+import com.gdut.dongjun.domain.po.CommonBean;
 
-public class RolePermission extends AbstractBean {
+public class RolePermission extends CommonBean {
 	
     public RolePermission() {
 		super();

@@ -18,11 +18,11 @@ import com.gdut.dongjun.domain.dao.TemperatureModuleMapper;
 import com.gdut.dongjun.domain.po.TemperatureModule;
 import com.gdut.dongjun.domain.vo.chart.ChartData;
 import com.gdut.dongjun.domain.vo.chart.ChartData.ChaseData;
-import com.gdut.dongjun.service.base.impl.EnhancedServiceImpl;
+import com.gdut.dongjun.service.base.impl.DelTagHolderServiceImpl;
 import com.gdut.dongjun.service.device.TemperatureModuleService;
 
 @Service
-public class TemperatureModuleServiceImpl extends EnhancedServiceImpl<TemperatureModule> 
+public class TemperatureModuleServiceImpl extends DelTagHolderServiceImpl<TemperatureModule> 
 implements TemperatureModuleService {
 
 	@Autowired

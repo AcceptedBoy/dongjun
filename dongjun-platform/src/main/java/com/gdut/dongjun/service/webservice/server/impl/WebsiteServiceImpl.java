@@ -51,9 +51,9 @@ public class WebsiteServiceImpl implements WebsiteService {
 
 	@Override
 	public void callbackHitchEvent(HitchEventDTO event) {
-		LOG.info("报警信息到达，报警设备为" + event.getMonitorId() + "    报警类型为" + event.getType());
+		LOG.info("报警信息到达，报警设备为" + event.getModuleId() + "    报警类型为" + event.getType());
 		HitchEventVO dto = remoteEventService.wrapHitchVO(event);
-		List<User> userList = userService.selectByParameters(MyBatisMapUtil.warp("company_id", event.getGroupId()));
+		List<User> userList = userService.selectByParameters(MyBatisMapUtil.warp("company_id", event.getCompanyId()));
 		if (!CollectionUtils.isEmpty(userList)) {
 			for (User user : userList) {
 				if (userService.isUserOnline(user.getId())) {
@@ -64,9 +64,10 @@ public class WebsiteServiceImpl implements WebsiteService {
 //					//用户不在线就将消息持久化，等用户上线时再推送
 					PersistentHitchMessage msg = new PersistentHitchMessage();
 					msg.setId(UUIDUtil.getUUID());
-					msg.setGroupId(event.getGroupId());
+//					msg.setGroupId(event.getGroupId());
+					msg.setCompanyId(event.getCompanyId());
 					msg.setHitchId(event.getId());
-					msg.setMonitorId(event.getMonitorId());
+//					msg.setMonitorId(event.getMonitorId());
 					msg.setType(event.getType());
 					msg.setUserId(user.getId());
 					persistentMessageService.updateByPrimaryKey(msg);

@@ -375,18 +375,19 @@ public class HardwareServiceImpl implements HardwareService {
 			// 用户发送总召
 			gprs.getCtx().writeAndFlush(msg);
 			logger.info("用户发送总召：" + msg);
-		} else if (type == 2) {
-			// 总召
-			SwitchGPRS gprs = CtxStore.getByAddress(address);
-			if (null == gprs) {
-				// 设备尚未上线
-				return false;
-			}
-			String msg = new HighVoltageDeviceCommandUtil().anonTotalCall();
-			// 用户发送总召
-			gprs.getCtx().writeAndFlush(msg);
-			logger.info("用户发送总召：" + msg);
-		}
+		} 
+//		else if (type == 2) {
+//			// 总召
+//			SwitchGPRS gprs = CtxStore.getByAddress(address);
+//			if (null == gprs) {
+//				// 设备尚未上线
+//				return false;
+//			}
+//			String msg = new HighVoltageDeviceCommandUtil().anonTotalCall();
+//			// 用户发送总召
+//			gprs.getCtx().writeAndFlush(msg);
+//			logger.info("用户发送总召：" + msg);
+//		}
 		return true;
 	}
 

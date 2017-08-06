@@ -10,4 +10,6 @@ public interface ModuleHitchEventMapper extends SinglePrimaryKeyBaseMapper <Modu
 
 	List<ModuleHitchEvent> selectByType(Map<String, Object> map);
 
+	List<ModuleHitchEvent> selectByTypeAndModuleId(Map<String, Object> map);
+
 }

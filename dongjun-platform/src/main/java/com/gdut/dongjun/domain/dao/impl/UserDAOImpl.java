@@ -3,7 +3,7 @@ package com.gdut.dongjun.domain.dao.impl;
 import org.springframework.stereotype.Repository;
 
 import com.gdut.dongjun.domain.dao.UserMapper;
-import com.gdut.dongjun.domain.dao.base.impl.SinglePrimaryKeyBaseDAOImpl;
+import com.gdut.dongjun.domain.dao.base.impl.DelTagHolderDAOImpl;
 import com.gdut.dongjun.domain.po.User;
 
 /**
@@ -14,6 +14,6 @@ import com.gdut.dongjun.domain.po.User;
  * @since 1.0
  */
 @Repository
-public class UserDAOImpl extends SinglePrimaryKeyBaseDAOImpl<User> implements
+public class UserDAOImpl extends DelTagHolderDAOImpl<User> implements
 		UserMapper {
 }

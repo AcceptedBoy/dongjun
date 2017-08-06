@@ -14,10 +14,10 @@ import com.gdut.dongjun.InfoConst;
 import com.gdut.dongjun.domain.dto.HitchEventDTO;
 import com.gdut.dongjun.domain.po.ModuleHitchEvent;
 import com.gdut.dongjun.domain.po.TemperatureMeasureHitchEvent;
+import com.gdut.dongjun.domain.po.TemperatureModule;
 import com.gdut.dongjun.domain.po.TemperatureSensor;
 import com.gdut.dongjun.service.GPRSModuleService;
 import com.gdut.dongjun.service.RemoteEventService;
-import com.gdut.dongjun.service.device.DataMonitorService;
 import com.gdut.dongjun.service.device.ElectronicModuleService;
 import com.gdut.dongjun.service.device.TemperatureModuleService;
 import com.gdut.dongjun.service.device.TemperatureSensorService;
@@ -50,8 +50,6 @@ public class RemoteEventServiceImpl implements RemoteEventService {
 	@Autowired
 	private ModuleHitchEventService moduleHitchService;
 	@Autowired
-	private DataMonitorService monitorService;
-	@Autowired
 	private TemperatureSensorService sensorService;
 
 	Logger logger = Logger.getLogger(RemoteEventServiceImpl.class);
@@ -72,14 +70,15 @@ public class RemoteEventServiceImpl implements RemoteEventService {
 		}
 		case 301: {
 			// TODO
-			String name = monitorService.selectByPrimaryKey(vo.getMonitorId()).getName();
 			ModuleHitchEvent hitchEvent = moduleHitchService.selectByPrimaryKey(vo.getId());
+			TemperatureModule m = 
+					temModuleService.selectByPrimaryKey(hitchEvent.getModuleId());
 			TemperatureMeasureHitchEvent temEvent = temEventService
 					.selectByParameters(MyBatisMapUtil.warp("hitch_id", hitchEvent.getId())).get(0);
 			TemperatureMeasureHitchEventVO dto = new TemperatureMeasureHitchEventVO(hitchEvent, temEvent);
-			dto.setName(name);
+			dto.setName(m.getName());
 			dto.setType(returnHitchType(vo.getType()));
-			dto.setGroupId(vo.getGroupId());
+			dto.setCompanyId(vo.getCompanyId());
 			Map<String, Object> map = new HashMap<String, Object>();
 			map.put("device_id", hitchEvent.getModuleId());
 			map.put("tag", temEvent.getTag());

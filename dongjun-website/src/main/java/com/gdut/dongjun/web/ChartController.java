@@ -1,8 +1,7 @@
 package com.gdut.dongjun.web;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.shiro.authz.annotation.RequiresAuthentication;
@@ -12,17 +11,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.gdut.dongjun.domain.po.HighVoltageCurrent;
 import com.gdut.dongjun.domain.vo.ChartData;
 import com.gdut.dongjun.domain.vo.HighVoltageCurrentChartData;
 import com.gdut.dongjun.domain.vo.HighVoltageVoltageChartData;
-import com.gdut.dongjun.domain.vo.SwitchTableData;
 import com.gdut.dongjun.service.device.current.ControlMearsureCurrentService;
 import com.gdut.dongjun.service.device.current.HighVoltageCurrentService;
 import com.gdut.dongjun.service.device.current.LowVoltageCurrentService;
 import com.gdut.dongjun.service.device.voltage.ControlMearsureVoltageService;
 import com.gdut.dongjun.service.device.voltage.HighVoltageVoltageService;
 import com.gdut.dongjun.service.device.voltage.LowVoltageVoltageService;
-import com.gdut.dongjun.util.MapUtil;
 
 @Controller
 @RequestMapping("/dongjun")
@@ -265,4 +263,5 @@ public class ChartController {
 		HighVoltageCurrentChartData chartData = new HighVoltageCurrentChartData();
 		return chartData.getJsonChart(measureMap);
 	}
+	
 }
