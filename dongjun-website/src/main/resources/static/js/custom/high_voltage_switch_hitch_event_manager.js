@@ -45,6 +45,8 @@ $(document).ready(function() {
 	            "data": "solveWay"
 	          }
 	        ],
+	        'deferRender': true,
+	        'order': [[ 0, 'desc' ]],
 	        'language': {
 	          'paginate': {
 	            'next': '下一页',
@@ -170,13 +172,15 @@ function loadEventListWithSwitchId(_url, switchId) {
 		}, {
 			"data": "solveWay"
 		}],
-			'language': {
-		    'paginate': {
+		'deferRender': true,
+        'order': [[ 0, 'desc' ]],
+		'language': {
+			'paginate': {
 		      'next': '下一页',
 		      'previous': '上一页'
 		    },
 		    'emptyTable': '找不到相关数据',
 		    'zeroRecords': '找不到相关数据'
-		  },
+		},
 	});
 }

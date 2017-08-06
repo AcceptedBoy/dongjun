@@ -38,6 +38,8 @@ $(document).ready(function() {
 					"data": "behitchCPhaseCurrent"
 				},
 			],
+			'deferRender': true,
+	        'order': [[ 0, 'desc' ]],
 			'language': {
 	            'paginate': {
 	              'next': '下一页',
@@ -100,6 +102,8 @@ function loadEventListWithSwitchId(_url, switchId) {
 				}, {
 					"data" : "behitchCPhaseCurrent"
 				}, ],
+				'deferRender': true,
+		        'order': [[ 0, 'desc' ]],
 				'language': {
 		            'paginate': {
 		              'next': '下一页',
