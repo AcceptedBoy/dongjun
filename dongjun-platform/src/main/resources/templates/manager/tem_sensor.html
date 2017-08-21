@@ -1,0 +1,545 @@
+<!-- 温度设备表格 -->
+<div id="temperature_info_panel">
+  <div style="height: 100%;overflow-y: hidden;position: relative;">
+    <table id="temperature_info_list" class="table table-bordered table-striped table-hover table-condensed success" style="width: 100%">
+      <thead>
+        <td>设备号码</td>
+        <td>名称</td>
+        <td>地址</td>
+        <td>温度上限</td>
+        <td>温度下限</td>
+        <td>修改</td>
+        <!-- <td style="width: 70px">删除</td> -->
+      </thead>
+    </table>
+  </div>
+</div>
+<!-- 温度传感器表格 -->
+<div id="temperature_sensor_panel">
+  <div id="temperature_sensor_panel_table" class="container-fluid well" style="height: 100%;overflow-y: hidden;position: relative;">
+    <h4 class="text-center" id="sensor_list_header">
+      <span id="sensor_list_title">传感器</span>
+    </h4>
+    <hr>
+  </div>
+</div>
+
+<script>
+  ;(function () {
+    DeviceGroup.module({
+      name: 'tem_module',
+      module: function (obs) {
+        var table = null
+        var store = {
+          dom: {
+            title: $('#temperature_info_title'),
+            add: null,
+            back: null
+          },
+          now: {
+            deviceId: '',   // 这是设备的id, 但是获取温度设备时用的字段是moduleId = =
+            moduleId: '',   // 温度模块的id
+          },
+          url: '/dongjun/module/temperature/list',  
+          lastId: ''
+        }
+        return {
+          init: function(setting) {
+            // 注册事件
+            // obs.on('showTemModule', function(agrs) {
+            //   this.show(agrs.id, agrs.name)
+            // }.bind(this))
+            // store.dom = setting.dom
+            // store.url = setting.url
+            this.loadModal()
+          },
+          loadModal: function() {
+            // 引入temModuleModal
+            var div = document.createElement('div')
+            dj.inserCmp('tem_sensor_modal.html', div, function() {
+              $('#temperature_info_panel_modal')[0].appendChild(div)
+
+              // 设置modal
+              // TemModuleModal.setOption({
+              //   url: {
+              //     add: '/dongjun/data_monitor/submodule/temperature/edit',
+              //     edit: '/dongjun/data_monitor/submodule/temperature/edit',
+              //     del: '/dongjun/data_monitor/submodule/temperature/del',
+              //   },
+              //   completeFnc: this.redraw.bind(this)
+              // })
+              obs.emit('init_tem_modal', {
+                url: {
+                  add: '/dongjun/module/temperature/edit',
+                  edit: '/dongjun/module/temperature/edit',
+                  del: '/dongjun/data_monitor/submodule/temperature/del',
+                },
+                completeFnc: this.redraw.bind(this)
+              })
+            }.bind(this))
+          },
+          show: function(data, title) {
+            var id = data.moduleId
+            if(id === store.lastId) {
+              return
+            }
+            store.now.deviceId = store.lastId = id
+            this.draw(data)
+          },
+          draw: function(data) {
+            table = $('#temperature_info_list').DataTable({
+              'searching': false,
+              'ordering':  false,
+              'info': false,
+              'paging': false,
+              'ajax': {
+                'url': store.url,
+                'type': 'POST',
+                'dataSrc': function(json) {
+                  json.text = Object.prototype.toString.call(json.text) == '[object Object]' ? [json.text] : []
+                  return json.text
+                },
+                'data': data
+              },
+              'columns': [
+                { 'data': 'deviceNumber' },
+                { 'data': 'name' },
+                { 'data': 'address' },
+                { 'data': 'maxHitchValue'},
+                { 'data': 'minHitchValue'},
+                {
+                  'data': 'id',
+                  'width': '70px',
+                  'render': function(data) {
+                    return '<a href="#edit_module_modal" role="button" class="btn" data-toggle="modal" data-fnc="edit" data-id="'+ data +'">修改 &raquo;</a>'
+                  }
+                },
+                // {
+                //   'data': 'id',
+                //   'width': '70px',
+                //   'render': function(data) {
+                //     return '<a role="button" class="btn" data-toggle="modal" data-fnc="del" data-id="'+ data +'">删除 &raquo;</a>'
+                //   }
+                // },
+              ],
+              'language': {
+                'emptyTable': '<a data-fnc="add" style="cursor: pointer;">点击添加新的数据</a>',
+                'zeroRecords': '<a data-fnc="add" style="cursor: pointer;">点击添加新的数据</a>',
+                'loadingRecords': '正在加载数据...'
+              },
+              'initComplete': function(setting, json) {
+
+                $(this[0]).click(function(event) {
+                  var target = $(event.target)
+                  var fnc = target.data('fnc')
+                  if(fnc == 'edit') {
+                    var id = target.data('id')
+                    var data = Array.prototype.find.call(table.data(), function(item) {
+                      return item.id == id
+                    })
+                    data.deviceId = store.now.deviceId
+                    obs.emit('edit_tem', data)
+                  } else if(fnc == 'del') {
+                    var id = target.data('id')
+                    obs.emit('del_tem', id)
+                    // TemModuleModal.delTemModule(id)
+                  } else if(fnc == 'add') {
+                    obs.emit('add_tem', store.now.deviceId)
+                    // TemModuleModal.addTemModule(store.now.deviceId)
+                  }
+                })
+              },
+              'drawCallback': function(settings) {
+                var data = this.api().ajax.json()
+
+                if(data) {
+                  // 当前表格温度设备id
+                  var moduleId = data.text[0] ? data.text[0].id : '-1'
+                  store.now.moduleId = moduleId
+                  // panelObserver.fire('showTemSensor', {
+                  //   id: moduleId
+                  // })
+                  obs.emit('showTemSensor', {
+                    id: moduleId
+                  })
+                }
+
+              }
+            })
+            this.draw = this.redraw
+
+            return this
+          },
+          redraw: function(data) {
+            table.ajax.url(store.url)
+            var param
+            if (data.moduleId) {
+              param = data
+            } else {
+              var param = {
+                moduleId: data || store.now.deviceId
+              }
+            }
+            table.settings()[0].ajax.data = param
+            table.ajax.reload()
+            return this
+          }
+        }
+      },
+      on: {
+        showTemModule: function (self, args) {
+          var data = {
+            companyId: DeviceGroup.store('cascader').companyId,
+            moduleId: args.id
+          }
+          self.show(data, args.name)
+        }
+      },
+      hook: {
+        afterActive: function (self, obs) {
+          self.init()
+        }
+      }
+    })
+    
+    /**
+     * 传感器表格
+     * @param {[type]} setting [description]
+     */
+    var SensorTable = function(setting) {
+      this.setting = setting
+      this.rows = []
+      this.el = null
+      this.thead = null
+      this.tbody = null
+      this.id = setting.id
+      this.className = setting.className || ''
+      this.parent = setting.node
+      this.isShow = false
+      this.isEmpty = true
+      this.init()
+    }
+  
+    SensorTable.prototype.init = function() {
+      this.el = document.createElement('table')
+      this.el.className = 'table table-bordered table-striped table-hover table-condensed success ' + this.className
+      // thead
+      this.thead = document.createElement('thead')
+      var ths = ''
+      this.setting.th.forEach(function(th) {
+        ths += '<td>' + th + '</td>'
+      }.bind(this))
+      this.thead.innerHTML = ths
+      console.log(this.thead.innerHTML)
+  
+      this.el.appendChild(this.thead)
+  
+      // tbody
+      this.tbody = document.createElement('tbody')
+      this.el.appendChild(this.tbody)
+      return this
+    }
+  
+    SensorTable.prototype.add = function(child) {
+      if(this.isEmpty) {
+        this.isEmpty = false
+        this.tbody.innerHTML = ''
+      }
+      if(Object.prototype.toString.call(child) === '[object Array]') {
+        var docFrag = document.createDocumentFragment()
+        child.forEach(function(c) {
+          this.rows.push(c)
+          docFrag.appendChild(c.getEl())
+        }.bind(this))
+        this.tbody.appendChild(docFrag)
+      } else {
+        this.rows.push(child)
+        this.tbody.appendChild(child.getEl())
+      }
+      return this
+    }
+  
+    SensorTable.prototype.clear = function() {
+      this.rows = []
+      this.isEmpty = true
+      this.tbody.innerHTML = '<tr class="odd"><td colspan="9" style="text-align: center;"><span>暂无数据</span></td></tr>'
+      return this
+    }
+  
+    SensorTable.prototype.show = function() {
+      if(!this.isShow) {
+        this.parent.appendChild(this.el)
+        this.isShow = true
+      }
+      return this
+    }
+  
+    SensorTable.prototype.getEl = function() {
+      return this.el
+    }
+  
+    /**
+     * 传感器列表的行
+     * @param {[type]} setting [description]
+     */
+    var SensorRow = function(setting) {
+  
+      this.setting = setting
+      this.el = document.createElement('tr')
+      this.editBtn = null
+      this.delBtn = null
+      this.addBtn = null
+      this.init()
+    }
+    SensorRow.prototype.init = function() {
+      var data = this.setting.data
+      // create tds
+      this.setTd(data).setBtn().bindEvent()
+      return this
+    }
+    SensorRow.prototype.setTd = function(data) {
+      this.el.innerHTML = ''
+      this.setting.td.forEach(function(td) {
+        this.el.innerHTML += '<td>' + (data[td] || '无') + '</td>'
+      }.bind(this))
+  
+      return this
+    }
+    SensorRow.prototype.setBtn = function(isAdd) {
+  
+      if(!this.setting.isAdd) {
+        if(!this.editBtn) {
+          this.editBtn = document.createElement('button')
+          this.editBtn.className = 'btn'
+          this.editBtn.innerHTML = '修改'
+          this.delBtn = document.createElement('button')
+          this.delBtn.className = 'btn btn-danger'
+          this.delBtn.innerHTML = '删除'
+        }
+        var editTd = document.createElement('td')
+        editTd.style = 'width: 70px;'
+        editTd.appendChild(this.editBtn)
+        this.el.appendChild(editTd)
+        var delTd = document.createElement('td')
+        delTd.style = 'width: 70px;'
+        delTd.appendChild(this.delBtn)
+        this.el.appendChild(delTd)
+      } else {
+        if(!this.addBtn) {
+          this.addBtn = document.createElement('button')
+          this.addBtn.className = 'btn btn-success'
+          this.addBtn.innerHTML = '添加'
+        }
+        var addTd = document.createElement('td')
+        addTd.style = 'width: 70px;'
+        addTd.setAttribute('colspan', 2)
+        addTd.appendChild(this.addBtn)
+        this.el.appendChild(addTd)
+      }
+      return this
+    }
+    SensorRow.prototype.reset = function(data) {
+      this.setting.isAdd = false
+      this.setting.data = data
+      this.setTd(data).setBtn().bindEvent()
+    }
+    SensorRow.prototype.clear = function() {
+      this.setting.isAdd = true
+      var data = this.setting.data
+      this.setting.data = {
+        type: data.type,
+        typeText: data.typeText
+      }
+      this.setTd(this.setting.data).setBtn().bindEvent()
+    }
+    SensorRow.prototype.bindEvent = function() {
+      var me = this
+      if(me.setting.isAdd) {
+        me.addBtn.onclick = function() {
+          me.setting.add(me.setting.data, me)
+        }
+      } else {
+        me.editBtn.onclick = function() {
+          me.setting.edit(me.setting.data, me)
+        }
+        me.delBtn.onclick = function() {
+          me.setting.del(me.setting.data, me)
+        }
+      }
+    }
+  
+    SensorRow.prototype.getEl = function() {
+      return this.el
+    }
+  
+    DeviceGroup.module({
+      name: 'sensor_table',
+      module: function (obs) {
+        var table = new SensorTable({
+          node: $('#temperature_sensor_panel_table')[0],
+          th: ['传感器类型', '传感器编号', '传感器名称', '', '']
+        })
+        var store = {
+          now: {
+            moduleId: '-1',
+            sensorId: ''
+          },
+          url: {
+            list: '/dongjun/temperature_sensor/list',
+            add: '/dongjun/temperature_sensor/edit',
+            edit: '/dongjun/temperature_sensor/edit',
+            del: '/dongjun/temperature_sensor/del'
+          },
+          availableType: {
+            '0': '无类型'
+          }
+        }
+        var TYPES = ['无类型', '进线A相', '进线B相', '进线C相', '出线A相', '出线B相', '出线C相']
+    
+        var hasSet = false
+        return {
+          init: function(setting) {
+            // panelObserver.regist('showTemSensor', function(agrs) {
+            //   this.show(agrs.deviceId)
+            // }.bind(this))
+            this.loadModal()
+          },
+          loadModal: function() {
+            // 引入temSensorModal
+            var div = document.createElement('div')
+            dj.inserCmp('temperature_sensor_modal.html', div, function() {
+              $('#temperature_sensor_panel_modal')[0].appendChild(div)
+    
+              // 设置modal
+              sensorModal.setOption({
+                url: store.url,
+                // url: {
+                //   add: '/dongjun/temperature_sensor/edit',
+                //   edit: '/dongjun/temperature_sensor/edit',
+                //   del: '/dongjun/temperature_sensor/del',
+                // },
+                completeFnc: this.show.bind(this)
+              })
+    
+            }.bind(this))
+          },
+          getTable: function() {
+            return table
+          },
+          show: function(data) {
+            var me = this
+            if (data && data.moduleId) {
+              store.now.moduleId = data.moduleId 
+            } else {
+              data = {}
+              data.moduleId = store.now.moduleId
+            }
+            if(store.now.moduleId == '-1') {
+              table.clear().show()
+            } else {
+              $.ajax({
+                url: store.url.list,
+                type: 'POST',
+                data: data,
+                success: function(res) {
+                  var data = typeof res == 'string' ? JSON.parse(res).text : res.text
+                  store.availableType = {
+                    '0': '无类型'
+                  }
+                  var tds = me.getTds.call(me, data)
+                  if(hasSet) {
+                    table.clear().add(tds)
+                  } else {
+                    table.add(tds).show()
+                    hasSet = true
+                  }
+                }
+              })
+            }
+          },
+          getTds: function(data) {
+            var me = this
+            // tdArr 用于检测 6 个type的存在
+            var tdArr = [false, false, false, false, false, false]
+            // 无类型数组
+            var noTypeArr = []
+            data.forEach(function(item) {
+              var type = parseInt(item.type)
+              item.typeText = TYPES[type]
+              if(type == 0) {
+                noTypeArr.push(me.SensorRow(item, false))
+              } else {
+                // store.existType.push(type)
+                tdArr[type - 1] = me.SensorRow(item, false)
+              }
+            })
+            // console.log(tdArr)
+            tdArr.forEach(function(item, index) {
+              if(!item) {
+                var type = index + 1
+                var typeText = TYPES[type]
+                store.availableType[type] = typeText
+                tdArr[index] = me.SensorRow({
+                  typeText: typeText,
+                  type: type
+                }, true)
+              }
+            })
+            return tdArr.concat(noTypeArr)
+          },
+          /**
+           * 生成行
+           * @param {[type]}  data  数据
+           *                        {
+           *                          typeText: '',
+           *                          type: '',
+           *                          tag: '',
+           *                          name: '',
+           *                          deviceId: ''
+           *                        }
+           * @param {Boolean} isAdd 当此项不存在数据、 需要增加时为true
+           */
+          SensorRow: function(data, isAdd) {
+            return new SensorRow({
+              data: data,
+              isAdd: isAdd,
+              td: ['typeText', 'tag', 'name'],
+              edit: function(data, row) {
+                // deviceId 是旧的接口的字段，其他接口用的deviceId字段，暂时做这个
+                if (!data.moduleId) {
+                  data.moduleId = data.deviceId
+                }
+                sensorModal.editSensor(data, store.availableType)
+              },
+              del: function(data, row) {
+                if (!data.moduleId) {
+                  data.moduleId = data.deviceId
+                }
+                sensorModal.delSensor(data)
+              },
+              add: function(data, row) {
+                data.moduleId = store.now.moduleId
+                sensorModal.addSensor(data, store.availableType)
+              }
+            })
+          }
+        }
+        
+      },
+      on: {
+        showTemSensor: function (self, args) {
+          self.show({
+            moduleId: args.id
+          })
+        }
+      },
+      hook: {
+        afterActive: function (self) {
+          self.init()
+        }
+      }
+    })
+  }())
+  // sensorTable.init()
+
+</script>

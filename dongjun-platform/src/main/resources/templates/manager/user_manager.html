@@ -27,17 +27,17 @@
 
 <script>
   var userManagerTable = function() {
-    var table = null;
-    var defUrl = '';
+    var table = null
+    var defUrl = ''
     var store = {
       platformId: ''
     }
     return {
       getTable: function(){
-        return table;
+        return table
       },
       init: function(o) {
-        var _self = this;
+        var _self = this
         defUrl = o.url
         store.platformId = o.data.platformId
         $('#add_current_user_btn').on('click', function() {
@@ -119,7 +119,7 @@
         table.ajax.url(defUrl)
         var param = {
           platformId: store.platformId
-        };
+        }
         table.settings()[0].ajax.data = param
         table.ajax.reload()
       }
@@ -139,7 +139,7 @@
   selectManager.setOption({
     url: {
       'group': '/dongjun/group/gruop_list',
-      'company': '/dongjun/platform_group/platform_group_list_by_group_id'
+      'company': '/dongjun/group/company_list'
     },
     node: {
       'group': '.groups',

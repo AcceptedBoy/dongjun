@@ -82,9 +82,9 @@
         now[type] = id
         return this
       },
-      addTemModule: function(monitorId) {
+      addTemModule: function(deviceId) {
         status.isAdd = true
-        this.setId('monitorId', monitorId)
+        this.setId('monitorId', deviceId)
         this.clearForm()
         panel.edit.modal('show')
       },

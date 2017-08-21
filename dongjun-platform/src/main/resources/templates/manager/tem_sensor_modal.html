@@ -1,0 +1,239 @@
+<!-- Add_Switch_Modal -->
+<div id="edit_module_modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal"
+            aria-hidden="true">×</button>
+    <h3>编辑温度数据</h3>
+  </div>
+  <div class="modal-body">
+    <div class="form-horizontal">
+      <div class="control-group">
+        <label class="control-label" for="editTemModuleNumber">设备号码</label>
+        <div class="controls">
+          <input type="text" id="editTemModuleNumber" name="deviceNumber" />
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="editTemModuleName">开关名称</label>
+        <div class="controls">
+          <input type="text" id="editTemModuleName" name="name" />
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="editTemModuleAddress">地址</label>
+        <div class="controls">
+          <input type="text" id="editTemModuleAddress" name="address" />
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="editTemModuleMaxHitchValue">上限</label>
+        <div class="controls">
+          <input type="number" id="editTemModuleMaxHitchValue" name="maxHitchValue" step="0.01"/>
+        </div>
+      </div>
+      <div class="control-group">
+        <label class="control-label" for="editTemModuleMinHitchValue">下限</label>
+        <div class="controls">
+          <input type="number" id="editTemModuleMinHitchValue" name="minHitchValue" step="0.01"/>
+        </div>
+      </div>
+      <div class="control-group">
+          <label class="control-label" for="editTemModuleGprsId">GPRS id</label>
+          <div class="controls">
+            <input type="text" id="editTemModuleGprsId" name="gprsId"/>
+          </div>
+        </div>
+      <div class="modal-footer">
+        <button class="btn" data-dismiss="modal" aria-hidden="true">取消</button>
+        <button class="btn btn-primary" aria-hidden="true" id="edit_tem_confirm_btn">确定</button>
+      </div>
+    </div>
+  </div>
+</div>
+  
+  
+<script>
+  ;(function () {
+    DeviceGroup.module({
+      name: 'tem_modal',
+      module: function (obs, mStore) {
+        var urls = {};
+        var completeFnc = null;
+        var now = {
+          companyId: '',          // 公司的id
+          deviceGroupId: '',      // 设备组别id
+          deviceId: '',           // 设备id
+          moduleId: '',           // 温度设备自己id = =
+        }
+        var status = {
+          isAdd: true
+        }
+        var panel = {
+          edit: $('#edit_module_modal')
+        }
+        var $dom = {
+          edit_confirm: $('#edit_tem_confirm_btn')
+        }
+        return {
+          /**
+           * 配置
+           * @param {[type]} o [description]
+           */
+          init: function(o) {
+            completeFnc = o.completeFnc
+            urls = o.url
+            this.__listen()
+          },
+          __listen: function () {
+            $dom.edit_confirm.click(this.save.bind(this))
+          },
+          /**
+           * 设置当前传感器所属温度设备的id
+           * @param {[type]} moduleId [description]
+           */
+          setId: function(type, id) {
+            now[type] = id
+            return this
+          },
+          addTemModule: function(deviceId) {
+            status.isAdd = true
+            this.setId('deviceId', deviceId)
+            this.clearForm()
+            panel.edit.modal('show')
+          },
+          /**
+           * 清空表单内容
+           * @return {[type]} [description]
+           */
+          clearForm: function () {
+            var inputs = panel.edit.find('input')
+            for (var i = inputs.length - 1; i >= 0; i--) {
+              var input = inputs[i]
+              input.value = ''
+            }
+          },
+    
+          /**
+           * 保存修改
+           * @return {[type]}        [description]
+           */
+          save: function () {
+            var curModal = panel.edit
+            var inputs = curModal.find('input')
+            var data = {}
+    
+            // 依次检查input是否为空，并放入data中
+            for (var i = inputs.length - 1; i >= 0; i--) {
+              var input = inputs[i]
+              if(!$.trim(input.value)) {
+                input.focus()
+                alert('您还有选项暂未填写')
+                return
+              }
+              data[input.name] = input.value
+            }
+    
+            data.companyId = mStore.cascader.companyId
+            data.deviceGroupId = mStore.cascader.deviceGroupId
+    
+            // 如果不是增加设备，则需要添加当前设备的id作为参数
+            if(!status.isAdd) {
+              console.log(now)
+              data['id'] = now.moduleId
+            }
+    
+            $.ajax({
+              type : 'POST',
+              url : status.isAdd ? urls.add : urls.edit,
+              async : false,
+              data : data,
+              success : function(data) {
+                if(data.success) {
+                  if(data.type == 'WARNING') {
+                    alert(data.text)
+                  } else {
+                    if (status.isAdd) {
+                      obs.emit('tableDraw', {})
+                    } else {
+                      completeFnc()
+                    }
+                    // completeFnc()
+                    alert('操作成功')
+                    curModal.modal('hide')
+                  }
+                } else {
+                  alert('失败')
+                }
+              }
+            })
+          },
+          /**
+           * 修改设备信息，填充表单内容
+           * @param  {[type]} data 设备的相关数据
+           * @return {[type]}      [description]
+           */
+          editTemModule: function(data) {
+            status.isAdd = false
+            this.setId('moduleId', data.id).setId('deviceId', data.deviceId)
+            var inputs = panel.edit.find('input')
+            Array.prototype.forEach.call(inputs, function(item) {
+              item.value = data[item.name]
+            })
+          },
+          /**
+           * 删除设备，设置当前id
+           * @param  {[type]} id [description]
+           * @return {[type]}          [description]
+           */
+          delTemModule: function(id) {
+            this.setId('moduleId', id)
+            var delModal = Popup.Confirm({
+              title: '警告',
+              text: '您确定要删除吗？请慎重考虑',
+              cancelText: '关闭',
+              successText: '删除',
+              success: this.sureDel.bind(this)
+            })
+          },
+          /**
+           * 确定删除
+           * @return {[type]} [description]
+           */
+          sureDel: function() {
+            $.ajax({
+              type: 'post',
+              url: urls.del,
+              data: {
+                'id': now.moduleId
+              },
+              success: function(data) {
+                if(data.success) {
+                  completeFnc()
+                } else {
+                  alert('操作失败')
+                }
+              },
+              error: function() {
+                alert('操作失败')
+              }
+            })
+          }
+        }
+      },
+      on: {
+        init_tem_modal: function (self, opts) {
+          self.init(opts)
+        },
+        add_tem: function (self, deviceId) {
+          self.addTemModule(deviceId)
+        },
+        edit_tem: function (self, moduleData) {
+          self.editTemModule(moduleData)
+        },
+        del_tem: function (self, id) {
+          self.delTemModule(id)
+        }
+      }
+    })
+  }())
+</script>

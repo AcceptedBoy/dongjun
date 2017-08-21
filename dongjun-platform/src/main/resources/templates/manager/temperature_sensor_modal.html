@@ -43,7 +43,7 @@
     var urls = {};
     var completeFnc = null;
     var now = {
-      deviceId: '',   // 温度设备id
+      moduleId: '',   // 温度设备id
       sensorId: '',    // 传感器id
       sensorType: -1
     }
@@ -70,6 +70,7 @@
           edit: o.url.edit,
           del: o.url.del,
         }
+        console.log(urls)
       },
       setNow: function(key, value) {
         now[key] = value
@@ -77,7 +78,7 @@
       },
       addSensor: function(data, availableType) {
         status.isAdd = true
-        this.setNow('deviceId', data.deviceId)
+        this.setNow('moduleId', data.moduleId)
             .setNow('sensorType', data.type)
             .fillFormData(data)
             .setSelect(availableType)
@@ -126,7 +127,7 @@
         aType[data.type] = data.typeText
         console.log(availableType)
         this.setNow('sensorId', data.id)
-            .setNow('deviceId', data.deviceId)
+            .setNow('moduleId', data.moduleId)
             .setNow('sensorType', data.type)
             .fillFormData(data)
             .setSelect(aType)
@@ -165,7 +166,7 @@
         var params = {
           'name' : data.name,
           'tag' : tag,
-          'deviceId' : now.deviceId,
+          'moduleId' : now.moduleId,
           'type': now.sensorType
         }
 
@@ -197,14 +198,14 @@
        */
       delSensor: function(data) {
         this.setNow('sensorId', data.id)
-            .setNow('deviceId', data.deviceId)
+            .setNow('moduleId', data.moduleId)
             .setNow('sensorType', data.type)
         var delModal = Popup.Confirm({
           title: '警告',
           text: '您确定要删除吗？请慎重考虑',
           cancelText: '关闭',
           confirmText: '删除',
-          confirm: this.sureDel.bind(this)
+          success: this.sureDel.bind(this)
         })
       },
 
