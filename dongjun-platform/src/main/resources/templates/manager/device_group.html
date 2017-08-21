@@ -1,0 +1,669 @@
+<div id="device_list_panel" class="well">
+  <div class="form-inline">
+    <div class="form-group span8" id="group_company_select">
+    </div>
+    <div class="form-group span4" id="group_ctrl">
+    </div>
+    <h4 class="text-center hide" style="margin: 0" id="detail_bar">
+      <span id="detail_bar_title"></span>
+      <div id="detail_bar_back" class="notice-container" style="float: left; cursor: pointer;">
+        <div class="cursor-notice">
+          <i class="fa fa-arrow-left" aria-hidden="true" style="vertical-align: middle"></i>
+        </div>
+        <div class="cursor-notice-borad-right" style="position: absolute">返回</div>
+      </div>
+    </h4>
+  </div>
+</div>
+ 
+<div id="modules_panel" style="margin-top:10px; clear: both"> <!-- boostrap 有关span*的类都有float属性，自行clear -->
+  <div class="container-fluid well" style="height: 100%;overflow-y: hidden;position: relative;padding: 5px 10px">
+    <div id="tables_containers">
+      <div id="device_container">
+        <table id="device_list" class="table table-bordered table-striped table-hover table-condensed success">
+          <thead>
+            <td>设备名称</td>
+            <td>设备类别</td>
+            <td>修改</td>
+            <td>删除</td>
+          </thead>
+        </table>
+        
+      </div>
+      <div id="groups_container" class="hide">
+        <table 
+          id="groups_list"
+          class="table table-bordered table-striped table-hover table-condensed success"
+          style="width: 100%">
+          <thead>
+            <td>设备组别名称</td>
+            <td>修改</td>
+            <td>删除</td>
+          </thead>
+        </table>
+        
+      </div>
+      <div id="temperature_senor" class="hide"></div>
+      <div id="electronic_module" class="hide"></div>
+    </div>
+  </div>
+</div>
+
+<div id="modal_container">
+  <div id="device_modal_container"></div>
+  <div id="device_group_modal_container"></div>
+  <div id="temperature_sensor_panel_modal"></div>
+  <div id="electronic_module_panel_modal"></div>
+  <div id="temperature_info_panel_modal"></div>
+</div>
+
+<script>
+  DeviceGroup.store('device', {
+    api: {
+      list: '/dongjun/device_group/list_device',      // 设备组别对应下的设备
+      del: '/dongjun/device_group/del_device'         // 删除设备
+    },
+    $dom: {
+      container: $('#device_container'),
+      table: $('#device_list')
+    }
+  })
+
+  DeviceGroup.store('group', {
+    active: false,
+    api: {
+      list: '/dongjun/device_group/list',       // 设备组别
+      edit: '/dongjun/device_group/edit',       // 编辑设备组别
+      del: '/dongjun/device_group/del'          // 删除设备组别
+    },
+    $dom: {
+      container: $('#groups_container'),
+      table: $('#groups_list')
+    },
+    list: []
+  })
+
+  DeviceGroup.store('cascader', {
+    groupId: '',
+    companyId: '',
+    deviceGroupId: ''
+  })
+
+  DeviceGroup.store('modalContainer', {
+    device: $('#device_modal_container'),
+    group: $('#device_group_modal_container'),
+    tem: $('temperature_info_panel_modal'),
+    tem_sensor: $('#temperature_sensor_panel_modal'),
+    ele: $('#electronic_module_panel_modal')
+  })
+  
+  // 顶部操作模块 
+  ;(function () {
+    var topCtrl = new Moduler()
+
+    // 接口
+    topCtrl.store('api', {
+      group: '/dongjun/group/gruop_list',             // 大组
+      company: '/dongjun/group/company_list',         // 公司
+      device_group: '/dongjun/device_group/list'      // 设备组别
+    })
+
+    // 多级联动下拉框
+    topCtrl.add({
+      name: 'cascader',
+      module: function (observer, store) {
+        var node = document.querySelector('#group_company_select')
+        var $node = $(node)
+        // 多级联动下拉框
+        var cas = new Cascader({
+          id: 'device',
+          node: node,
+          items: [{
+            url: store.api.group,
+            label: '大组',
+            dataSrc: 'data',
+            class: 'span4',
+          }, {
+            url: store.api.company,
+            label: '公司',
+            dataSrc: 'text',
+            class: 'span4',
+            param: 'groupId',
+            cb: function (id) {
+              DeviceGroup.store('cascader', {  // 公司Id
+                companyId: id
+              })
+            }
+          }, {
+            url: store.api.device_group,
+            label: '组别',
+            param: 'companyId',
+            dataSrc: 'text',
+            class: 'span4',
+            cb: function (value, groups) {
+              value = value || -1
+              DeviceGroup.store('group', {  // 保存设备组别列表，用于 设备组别表格 的数据渲染
+                list: groups
+              })
+              DeviceGroup.store('cascader', {  // 组别Id
+                deviceGroupId: value
+              })
+              observer.emit('tableDraw', {  // 绘制设备表格
+                id: value
+              }).emit('draw_groups')        // 绘制设备组别表格
+            }
+          }]
+        })
+        return {
+          cascader: cas,
+          hide: function () {
+            $node.hide()
+          },
+          show: function () {
+            $node.show()
+          },
+          reload: function (index, data) {
+            cas.run(index, data)
+          }
+        }
+      },
+      on: {
+        /**
+         * 进入设备详情页，隐藏此组件
+         **/
+        enter_device_detail: function (self) {
+          self.hide()
+        },
+        /**
+         * 返回管理表格界面
+         **/
+        back_manager_table: function (self) {
+          self.show()
+        },
+        reload_cas: function (self, args) {
+          self.reload(args.index, args.data)
+        }
+      }
+    })
+
+    // 操作按钮组
+    topCtrl.add({
+      name: 'group_btns',
+      module: function (observer) {
+        var panel = document.querySelector('#group_ctrl')
+        var $node = $(panel)
+        var btn = {
+          group_manager: '#group_manager_btn',
+          add_device_btn: '#add_device_btn'
+        }
+        
+        // 按钮的功能事件
+        var events = {
+          /**
+           * 进入管理界面
+           **/
+          group_manage: function (target) {
+            // 更改按钮
+            target.html('返回设备管理').data('fnc', 'device_manage')
+            $('#add_device_btn').data('fnc', 'add_group').html('添加组别')
+            observer.emit('enter_groups')
+          },
+          /**
+           * 进入设备管理
+           **/
+          device_manage: function (target) {
+            observer.emit('enter_device')
+            target.html('组别管理').data('fnc', 'group_manage')
+            $('#add_device_btn').data('fnc', 'add_device').html('增加设备')
+          },
+          add_device: function () {
+            console.log('加设备')
+            observer.emit('add_device')
+          },
+          add_group: function () {
+            console.log('加组别')
+            observer.emit('add_device_group')
+          },
+        }
+        panel.onclick = function (e) {
+          var ev = e || window.event
+          var target = $(ev.target)
+          var fnc = target.data('fnc')
+          events[fnc] && events[fnc](target)
+        }
+
+        var group_btn = '<a class="btn btn-primary" id="group_manager_btn" data-fnc="group_manage">组别管理</a>'
+        var add_device_btn = '<a class="btn btn-primary" id="add_device_btn" data-fnc="add_device" style="margin-left: 5px">增加设备</a>'
+        panel.innerHTML = group_btn + add_device_btn
+        return {
+          dom: panel,
+          show: function () {
+            $node.show()
+          },
+          hide: function () {
+            $node.hide()
+          }
+        }
+      },
+      on: {
+        back_manager_table: function (self) {
+          self.show()
+        },
+        enter_device_detail: function (self) {
+          self.hide()
+        }
+      }
+    })
+
+    // 设备详情界面的顶栏
+    topCtrl.add({
+      name: 'title',
+      module: function (obs) {
+        var bar = $('#detail_bar')
+        var title = bar.find('#detail_bar_title')
+        var backBtn = bar.find('#detail_bar_back')
+        backBtn.on('click', function () {
+          obs.emit('back_manager_table')
+             .emit('enter_device')
+        })
+        return {
+          show: function (data) {
+            title.html(data.title)
+            bar.show()
+          },
+          hide: function () {
+            bar.hide()
+          }
+        }
+      },
+      on: {
+        enter_device_detail: function (self, args) {
+          self.show({
+            title: args.typeText + ' - ' + args.name
+          })
+        },
+        back_manager_table: function (self) {
+          self.hide()
+        }
+      }
+    })
+
+    // 加入顶部操作模块
+    DeviceGroup.add({
+      name: 'topCtrl',
+      module: topCtrl,
+      on: {
+        // 触发该模块下的事件
+        enter_device_detail: function (self, args) {
+          self.emit('enter_device_detail', args)
+        },
+        reload_cas: function (self, args) {
+          self.emit('reload_cas', args)
+        }
+      }
+    })
+  }())
+
+  // 表格部分
+  ;(function () {
+
+    // 表格切换控制
+    DeviceGroup.add({
+      name: 'panel_ctrl',
+      module: function (obs, store) {
+        var hasLoad = {
+          temperature: false,
+          electronic: false
+        }
+        var panels = {
+          device: store.device.$dom.container,
+          groups: store.group.$dom.container,
+          temperature: $('#temperature_senor'),
+          electronic: $('#electronic_module')
+        }
+        var current = {
+          dom: panels.device,
+          name: 'device'
+        }
+        var template = {
+          temperature: 'tem_sensor.html',
+          GPRS: 'GPRS_module.html',
+          electronic: 'electronic_device.html'
+        }
+        function __updateCurrent (panelName) {
+          current.dom = panels[panelName]
+          current.name = panelName
+        }
+        return {
+          show: function (name, fnc) {
+            if(name === current.name) {
+              return
+            }
+            panels[name].show(200)
+            current.dom.hide(200)
+            __updateCurrent(name)
+            fnc && fnc()
+          },
+          load: function (name, cb) {
+            if(!template[name] || hasLoad[name]) {
+              return
+            }
+            dj.inserCmp(template[name], panels[name][0], function () {
+              hasLoad[name] = true
+              cb && cb()
+            })
+            return this
+          }
+        }
+      },
+      on: {
+        enter_groups: function (self, args, emit) {
+          self.show('groups', function() {
+            emit('active_groupTable', args)
+          })
+        },
+        enter_device: function (self, args, emit) {
+          self.show('device', function () {
+            emit('disable_groupTable')
+          })
+        },
+        enter_tem: function (self, args, emit) {
+          self.show('temperature', function () {
+            emit('showTemModule', args)
+          })
+        },
+        enter_ele: function (self, args, emit) {
+          self.show('electronic')
+          emit('show_electronic', args)
+        }
+      },
+      hook: {
+        afterActive: function (self) {
+          self.load('temperature').load('electronic')
+        }
+      }
+    })
+    
+    // 设备表格
+    DeviceGroup.add({
+      name: 'device_table',
+      module: function (obs, store) {
+        var table = null
+        var defUrl = store.device.api.list
+        var hasInit = false
+        var TYPES = ['低压', '电能表', '管控', '温度设备']
+        var params = {
+          id: -1
+        }
+        var cache = {
+          id: -1,
+          list: {}      // 缓存列表还没做
+        }
+        return {
+          getTable: function(){
+            return table
+          },
+          isInit: function () {
+            return hasInit
+          },
+          draw: function(params) {
+            var _self = this
+            if (params.id) {
+              this.__cacheId(params.id)
+            } else {
+              params.id = cache.id
+            }
+            table = store.device.$dom.table.DataTable({
+              ajax: {
+                url: defUrl,
+                type: 'POST',
+                dataSrc: function(data) {
+                  return data.text.filter(function(item) {
+                    return item
+                  })
+                },
+                data: params
+              },
+              columns: [
+                { data: 'name' },
+                { 
+                  data: 'type',
+                  render: function (type) {
+                    return TYPES[type]
+                  }
+                },
+                {
+                  data: 'deviceId',
+                  orderable: false,
+                  width: '100px',
+                  render: function(data, type, row) {
+                    return '<a role="button" class="btn" data-fnc="enter_detail" data-type="'+ row.type +'" data-name="'+ row.name +'"  data-id="'+ data +'">查看/修改</a>'
+                  }
+                },
+                {
+                  data: 'id',
+                  orderable: false,
+                  width: '50px',
+                  render: function(data) {
+                    return '<a role="button" class="btn btn-danger" data-fnc="del" data-id="'+data+'">删除</a>'
+                  }
+                },
+              ],
+              language: {
+                paginate: {
+                  next: '下一页',
+                  previous: '上一页'
+                },
+                emptyTable: '找不到相关数据',
+                zeroRecords: '找不到相关数据',
+                loadingRecords: '正在加载数据...'
+              },
+              initComplete: function() {
+                // 事件
+                var actions = {
+                  // 进入设备详情
+                  enter_detail: function (target) {
+                    var deviceType = target.data('type')
+                    var data = {
+                      id: target.data('id'),        // 设备id
+                      name: target.data('name'),    // 设备名称
+                      typeText: TYPES[deviceType]   // 设备类型
+                    }
+                    // 更改顶部显示
+                    obs.emit('enter_device_detail', data)
+                    // 根据设备类型来选择进入相应的面板
+                    switch (deviceType) {
+                      case 0: 
+                        // 低压
+                        break
+                      case 1:
+                        // 电能表
+                        obs.emit('enter_ele', data)
+                        break
+                      case 2:
+                        // 
+                        break
+                      case 3:
+                        // 温度
+                        obs.emit('enter_tem', data)
+                        break
+                    }
+                  },
+                  // 删除
+                  del: function (target) {
+                    obs.emit('del_device', target.data('id'))  
+                  }
+                }
+                // 监听 通过data-fnc判断功能
+                $(this[0]).click(function(event) {
+                  var target = $(event.target)
+                  var fnc = target.data('fnc')
+                  actions[fnc] && actions[fnc](target)
+                })
+              }
+            })
+            hasInit = true
+            this.draw = this.redraw
+          },
+          redraw: function(params) {
+            if (params.id) {
+              this.__cacheId(params.id)
+            } else {
+              params.id = cache.id
+            }
+            if(params.id == -1){
+              table.clear().draw()
+              return
+            }
+            // post
+            table.ajax.url(defUrl)
+            table.settings()[0].ajax.data = params
+            table.ajax.reload()
+          },
+          __cacheId: function (id) {
+            cache.id = id
+          }
+        }
+      },
+      on: {
+        /**
+         * 表格绘制
+         * @param self 本模块
+         * @param args { 
+         *                id: xx
+         *             }
+         **/
+        tableDraw: function (self, args) {
+          self.draw(args)
+        }
+      },
+      hook: {
+        afterActive: function (self, obs, store) {
+          dj.inserCmp('device_modal.html', store.modalContainer.device[0])
+        }
+      }
+    })
+
+    // 设备组别表格
+    DeviceGroup.add({
+      name: 'group_table',
+      module: function (obs, store) {
+        var table = null
+        var defUrl = store.group.api.list
+        var data = store.group.list || []
+        var hasInit = false
+        var active = false
+        var params = {
+          companyId: -1
+        }
+        return {
+          getTable: function(){
+            return table
+          },
+          isActive: function () {
+            return active
+          },
+          __active: function () {
+            active = true
+            return this
+          },
+          __disable: function () {
+            active = false
+            return this
+          },
+          isInit: function () {
+            return hasInit
+          },
+          draw: function(paramsObj) {
+            var _self = this
+            table = store.group.$dom.table.DataTable({
+              data: store.group.list,
+              columns: [
+                { data: 'name' },
+                {
+                  data: 'id',
+                  width: '100px',
+                  orderable: false,
+                  render: function(data, type, row) {
+                    return '<a role="button" class="btn" data-fnc="edit_group" data-id="'+ data +'">修改</a>'
+                  }
+                },
+                {
+                  data: 'id',
+                  orderable: false,
+                  width: '50px',
+                  render: function(data) {
+                    return '<a role="button" class="btn btn-danger" data-toggle="modal" data-fnc="del_group" data-id="'+data+'">删除</a>'
+                  }
+                },
+              ],
+              language: {
+                paginate: {
+                  next: '下一页',
+                  previous: '上一页'
+                },
+                emptyTable: '找不到相关数据',
+                zeroRecords: '找不到相关数据',
+                loadingRecords: '正在加载数据...'
+              },
+              initComplete: function() {
+                var actions = {
+                  edit_group: function (target) {
+                    var id = target.data('id')
+                    var data = Array.prototype.find.call(table.data(), function(item) {
+                      return item.id == id
+                    })
+                    obs.emit('edit_device_group', data)
+                  },
+                  del_group: function (target) {
+                    obs.emit('del_device_group', target.data('id'))
+                  }
+                }
+                $(this[0]).click(function(event) {
+                  var target = $(event.target)
+                  var fnc = target.data('fnc')
+                  actions[fnc] && actions[fnc](target)
+                })
+              }
+            })
+            hasInit = true
+            this.draw = this.redraw
+          },
+          redraw: function(paramsObj) {
+            // if(paramsObj.id == -1){
+            //   table.clear().draw()
+            //   return
+            // }
+            // post
+            // table.ajax.url(defUrl)
+            // table.settings()[0].ajax.data = paramsObj
+            // table.ajax.reload()
+            table.clear()
+            table.rows.add(store.group.list).draw()
+          }
+        }
+      },
+      on: {
+        draw_groups: function (self, args) {
+          // if (self.isActive()) {
+          //   self.draw()
+          // }
+          self.isActive() && self.draw()
+        },
+        active_groupTable: function (self) {
+          self.__active().draw()
+        },
+        disable_groupTable: function (self) {
+          self.__disable()
+        }
+      },
+      hook: {
+        afterActive: function (self, obs, store) {
+          dj.inserCmp('device_group_modal.html', store.modalContainer.group[0])
+        }
+      }
+    })
+    
+  }())
+
+</script>

@@ -1,0 +1,97 @@
+<div id="device_type_modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" style="display: none;">
+  <div class="modal-header">
+    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+    <h3>请选择设备类型</h3>
+  </div>
+  <div class="modal-body">
+    <div class="bigBtn frontBtn" id="add_tem_device">
+      <div class="center">
+        <i class="fa fa-bar-chart" aria-hidden="true"></i>
+        温度设备
+      </div>
+    </div>
+    <div class="bigBtn" id="add_ele_device">
+      <div class="center">
+        <i class="fa fa-tachometer" aria-hidden="true"></i>
+        电能表
+      </div>
+    </div>
+  </div>
+</div>
+  
+<script>
+  ;(function() {
+    DeviceGroup.module({
+      name: 'device_modal',
+      module: function (obs, mStore) {
+        var $dom = {
+          add_tem_btn: $('#add_tem_device'),
+          add_ele_btn: $('#add_ele_device')
+        }
+        var modals = {
+          types: $('#device_type_modal')
+        }
+        return {
+          init: function () {
+            // 增加温度设备
+            $dom.add_tem_btn.on('click', function () {
+              obs.emit('add_tem')
+              modals.types.modal('hide')
+            })
+            // 增加电能表设备
+            $dom.add_ele_btn.on('click', function () {
+              obs.emit('add_ele')
+              modals.types.modal('hide')
+            })
+          },
+          chooseType: function () {
+            modals.types.modal('show')
+          },
+          del: function (id) {
+            Popup.Confirm({
+              title: '警告',
+              text: '您确定要删除吗？请慎重考虑',
+              cancelText: '关闭',
+              successText: '删除',
+              success: this.__delete.bind(this, id)
+            })
+          },
+          __delete: function (id) {
+            $.ajax({
+              type: 'POST',
+              url: mStore.device.api.del,
+              data: {
+                deviceGroupMappingId: id
+              },
+              success: function (res) {
+                if(res.success) {
+                  if(res.type != 'SUCCESS') {
+                    alert(res.text)
+                  } else {
+                    obs.emit('tableDraw', {})
+                    alert('操作成功')
+                  }
+                } else {
+                  alert('失败 ')
+                }
+              }
+            })
+          }
+        }
+      },
+      on: {
+        add_device: function (self, args) {
+          self.chooseType()
+        },
+        del_device: function (self, id) {
+          self.del(id)
+        }
+      },
+      hook: {
+        afterActive: function (self) {
+          self.init()
+        }
+      }
+    })
+  }())
+</script>
