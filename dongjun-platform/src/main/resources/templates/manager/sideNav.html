@@ -84,17 +84,25 @@
       href: 'line_manager',
       text: '公司管理',
       superAdmin: true
-    }, {
-      type: 'item',
-      href: 'equipment_manager',
-      text: '组别管理'
-    }, {
+    }, 
+    // {
+    //   type: 'item',
+    //   href: 'equipment_manager',
+    //   text: '组别管理'
+    // }, 
+    {
       type: 'header',
       text: '设备管理'
-    }, {
+    }, 
+    // {
+    //   type: 'item',
+    //   href: 'data_monitor',
+    //   text: '数据监控'
+    // }, 
+    {
       type: 'item',
-      href: 'data_monitor',
-      text: '数据监控'
+      href: 'device_group',
+      text: '设备分组'
     }, {
       type: 'header',
       text: '用户管理',
@@ -140,8 +148,8 @@
         document.getElementsByTagName('head')[0].appendChild(link)
       }
     }()
-    // 根据地址高亮左边栏按钮, 默认'data_monitor'
-    $('a[href*=#' + (location.href.split('#')[1] || 'data_monitor')+']').addClass('btn-success')
+    // 根据地址高亮左边栏按钮, 默认'device_group'
+    $('a[href*=#' + (location.href.split('#')[1] || 'device_group')+']').addClass('btn-success')
 
     // 点击时改变高亮按钮
     var navLinks = $('#sideNav').find('a')
@@ -152,12 +160,13 @@
 
     var router = new dj.Router()
     router.start({
-      '': loadDataMonitor,
+      '': loadDeviceGroup,
       'substation_manager': substationLoad,
       'line_manager': lineLoad,
-      'data_monitor': loadDataMonitor,
+      // 'data_monitor': loadDataMonitor,
       'equipment_manager': loadEquip,
-      'user_manager': loadUserManager
+      'user_manager': loadUserManager,
+      'device_group': loadDeviceGroup
       // 'GPRS_manager': loadGPRSManager
     })
 
@@ -237,6 +246,7 @@
         })
       })
     }
+
     function loadGPRSManager() {
       // dj.jsLoad('/js/manager/selectManager.js', function() {
         dj.inserCmp('GPRS_manager.html', $('.container')[0], function() {
@@ -251,6 +261,26 @@
       dj.jsLoad('/js/manager/selectManager.js', function() {
         dj.inserCmp('user_manager_modal.html', $('.managerModal')[0], function() {
           dj.inserCmp('user_manager.html', $('.container')[0])
+        })
+      })
+    }
+
+    function loadUserManager() {
+      dj.jsLoad('/js/manager/selectManager.js', function() {
+        dj.inserCmp('user_manager_modal.html', $('.managerModal')[0], function() {
+          dj.inserCmp('user_manager.html', $('.container')[0])
+        })
+      })
+    }
+
+    function loadDeviceGroup () {
+      dj.jsLoad('/js/public/Moduler.js', function () {
+        window.DeviceGroup = new Moduler()
+        loadLink('/css/equipment_manager.css')
+        dj.jsLoad('/js/public/cascader.js', function() {
+          dj.inserCmp('device_group.html', $('.container')[0], function () {
+            window.DeviceGroup.init()
+          })
         })
       })
     }

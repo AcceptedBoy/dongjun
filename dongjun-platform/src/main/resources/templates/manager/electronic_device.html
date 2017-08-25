@@ -1,0 +1,157 @@
+<div class="" style="height: 100%;overflow-y: hidden;position: relative;">
+	<div class="form-inline">
+		<div class="form-group" id="control-btns">
+		</div>
+	</div>
+	<table id="electronic_list" class="table table-bordered table-striped table-hover table-condensed success" style="width: 100%">
+		<thead>
+			<td>设备名称</td>
+			<td>设备号码</td>
+      <td>地址</td>
+      <td>GPRS Id</td>
+			<td>修改</td>
+			<!-- <td>删除</td> -->
+		</thead>
+	</table>
+</div>
+
+<script>
+
+  ;(function () {
+    DeviceGroup.module({
+      name: 'electronic_table',
+      module: function (obs) {
+        var table = null
+        var defUrl = '/dongjun/module/electronic/list'
+        var moduleId = ''
+        return {
+          getTable: function(){
+            return table
+          },
+          init: function(o) {
+            var me = this
+            dj.inserCmp('electronic_device_modal.html', $('#electronic_module_panel_modal')[0], function() {
+              // 设置modal
+              obs.emit('init_ele_modal', {
+                url: {
+                  add: '/dongjun/module/electronic/edit',
+                  edit: '/dongjun/module/electronic/edit',
+                  del: '/dongjun/data_monitor/submodule/electronic/del'
+                },
+                complete: me.redraw.bind(me)
+              })
+            })
+          },
+          setMonitorId: function(id) {
+            moduleId = id
+            return this
+          },
+          draw: function(id) {
+            var me = this
+            table = $('#electronic_list').DataTable({
+              'searching': false,
+              'ordering':  false,
+              'info': false,
+              'paging': false,
+              'ajax': {
+                'url': defUrl,
+                'type': 'POST',
+                'dataSrc': function (json) {
+                  json.text = Object.prototype.toString.call(json.text) == '[object Object]' ? [json.text] : []
+                  return json.text
+                },
+                'data': {
+                  'moduleId': moduleId
+                }
+              },
+              'columns': [
+                { 'data': 'name' },
+                {
+                  'data': 'deviceNumber'
+                },
+                {
+                  'data': 'address',
+                  'orderable': false
+                },
+                {
+                  'data': 'gprsId',
+                  'orderable': false
+                },
+                {
+                  data: 'id',
+                  width: '50px',
+                  orderable: false,
+                  render: function(data, type, row) {
+                    return '<a href="#edit_electronic_modal" role="button" class="btn" data-toggle="modal" data-fnc="edit"  data-id="'+data+'">修改</a>'
+                  }
+                },
+                /* {
+                  data: 'id',
+                  orderable: false,
+                  width: '50px',
+                  render: function(data) {
+                    return '<a role="button" class="btn btn-danger" data-toggle="modal" data-fnc="del" data-id="' + data + '">删除</a>'
+                  }
+                } */
+              ],
+              'language': {
+                'paginate': {
+                  'next': '下一页',
+                  'previous': '上一页'
+                },
+                'emptyTable': '<a data-fnc="add" style="cursor: pointer">添加设备</a>',
+                'zeroRecords': '<a data-fnc="add" style="cursor: pointer">添加设备</a>',
+                'loadingRecords': '正在加载数据...'
+              },
+              'initComplete': function() {
+                var actions = {
+                  edit: function (id) {
+                    var data = Array.prototype.find.call(table.data(), function(item) {
+                      return item.id == id
+                    })
+                    obs.emit('edit_ele', data)
+                  },
+                  add: function (id) {
+                    obs.emit('add_ele', id)
+                  },
+                  del: function (id) {
+                    obs.emit('del_ele', id)
+                  }
+                }
+                $(this[0]).click(function(event) {
+                  var target = $(event.target)
+                  var fnc = target.data('fnc')
+                  var id = target.data('id')
+                  actions[fnc] && actions[fnc](id)
+                })
+              }
+            })
+            this.draw = this.redraw
+            return this
+          },
+          redraw: function(id) {
+            table.ajax.url(defUrl)
+            var param = {
+              moduleId: id || moduleId
+            }
+            table.settings()[0].ajax.data = param
+            table.ajax.reload()
+          },
+        }
+      },
+      on: {
+        show_electronic: function (self, args) {
+          self.setMonitorId(args.id).draw()
+        }
+      },
+      hook: {
+        afterActive: function (self) {
+          self.init()
+        }
+      }
+    })
+
+  }())
+  
+
+</script>

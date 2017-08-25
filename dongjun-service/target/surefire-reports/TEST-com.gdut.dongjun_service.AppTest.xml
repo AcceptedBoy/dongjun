@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.gdut.dongjun_service.AppTest" time="0.002" tests="1" errors="0" skipped="0" failures="0">
+<testsuite name="com.gdut.dongjun_service.AppTest" time="0.004" tests="1" errors="0" skipped="0" failures="0">
   <properties>
     <property name="java.runtime.name" value="Java(TM) SE Runtime Environment"/>
     <property name="sun.boot.library.path" value="C:\Program Files\Java\jdk1.7.0_79\jre\bin"/>
@@ -26,9 +26,9 @@
     <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
     <property name="user.variant" value=""/>
     <property name="os.name" value="Windows 8.1"/>
-    <property name="classworlds.conf" value="D:\WORKING\.metadata\.plugins\org.eclipse.m2e.launching\launches\m2conf5275489673043949577.tmp"/>
+    <property name="classworlds.conf" value="D:\WORKING\.metadata\.plugins\org.eclipse.m2e.launching\launches\m2conf4547149667228916735.tmp"/>
     <property name="sun.jnu.encoding" value="GBK"/>
-    <property name="java.library.path" value="C:\Program Files\Java\jdk1.7.0_79\bin;C:\Windows\Sun\Java\bin;C:\Windows\system32;C:\Windows;C:/Program Files/Java/jdk1.7.0_79/bin/../jre/bin/server;C:/Program Files/Java/jdk1.7.0_79/bin/../jre/bin;C:/Program Files/Java/jdk1.7.0_79/bin/../jre/lib/amd64;C:\Program Files\Java\jdk1.7.0_79\bin;C:\ProgramData\Oracle\Java\javapath;D:\MyWorld\nexus-2.13.0-01-bundle\nexus-2.13.0-01\bin;D:\Learning\apache-tomcat-7.0.69-windows-x64\apache-tomcat-7.0.69\lib;D:\Learning\apache-tomcat-7.0.69-windows-x64\apache-tomcat-7.0.69\bin;C:\Program Files\Java\jdk1.7.0_79\bin;C:\Program Files (x86)\Intel\iCLS Client\;C:\Program Files\Intel\iCLS Client\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files (x86)\IDM Computer Solutions\UltraEdit;D:\MyWorld\apache-maven-3.3.9\bin;C:\Program Files\SlikSvn\bin;D:\Java\phptools\php-5.6.25-Win32-VC11-x64;D:\Java\phptools\php-5.6.25-Win32-VC11-x64\ext;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\windows\system32;C:\windows;C:\windows\System32\Wbem;D:\TOOL\FME\;D:\TOOL\eclipse-jee-mars-2-win32-x86_64\eclipse-jee-mars-2-win32-x86_64;;."/>
+    <property name="java.library.path" value="C:\Program Files\Java\jdk1.7.0_79\bin;C:\Windows\Sun\Java\bin;C:\Windows\system32;C:\Windows;C:/Program Files/Java/jdk1.7.0_79/bin/../jre/bin/server;C:/Program Files/Java/jdk1.7.0_79/bin/../jre/bin;C:/Program Files/Java/jdk1.7.0_79/bin/../jre/lib/amd64;C:\Program Files\Java\jdk1.7.0_79\bin;C:\ProgramData\Oracle\Java\javapath;D:\MyWorld\nexus-2.13.0-01-bundle\nexus-2.13.0-01\bin;D:\Learning\apache-tomcat-7.0.69-windows-x64\apache-tomcat-7.0.69\lib;D:\Learning\apache-tomcat-7.0.69-windows-x64\apache-tomcat-7.0.69\bin;C:\Program Files\Java\jdk1.7.0_79\bin;C:\Program Files (x86)\Intel\iCLS Client\;C:\Program Files\Intel\iCLS Client\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files (x86)\IDM Computer Solutions\UltraEdit;D:\MyWorld\apache-maven-3.3.9\bin;C:\Program Files\SlikSvn\bin;D:\Java\phptools\php-5.6.25-Win32-VC11-x64;D:\Java\phptools\php-5.6.25-Win32-VC11-x64\ext;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\windows\system32;C:\windows;C:\windows\System32\Wbem;D:\TOOL\FME\;D:\TOOL\TortoiseSVN\bin;D:\TOOL\eclipse-jee-mars-2-win32-x86_64\eclipse-jee-mars-2-win32-x86_64;;."/>
     <property name="java.specification.name" value="Java Platform API Specification"/>
     <property name="java.class.version" value="51.0"/>
     <property name="sun.management.compiler" value="HotSpot 64-Bit Tiered Compilers"/>
@@ -43,7 +43,7 @@
     <property name="java.vm.specification.version" value="1.7"/>
     <property name="sun.arch.data.model" value="64"/>
     <property name="java.home" value="C:\Program Files\Java\jdk1.7.0_79\jre"/>
-    <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher -B -s D:\WORKING\maven\settings.xml install"/>
+    <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher -B -s D:\WORKING\maven\settings.xml package"/>
     <property name="java.specification.vendor" value="Oracle Corporation"/>
     <property name="user.language" value="zh"/>
     <property name="awt.toolkit" value="sun.awt.windows.WToolkit"/>
@@ -60,5 +60,5 @@
     <property name="sun.desktop" value="windows"/>
     <property name="sun.cpu.isalist" value="amd64"/>
   </properties>
-  <testcase name="testApp" classname="com.gdut.dongjun_service.AppTest" time="0.002"/>
+  <testcase name="testApp" classname="com.gdut.dongjun_service.AppTest" time="0.004"/>
 </testsuite>

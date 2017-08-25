@@ -70,7 +70,7 @@ var selectManager = function() {
 				},
 				success: function(data) {
 					if(data) {
-						data = data.data
+						data = data.data || data.text
 						var opts = ''
 						if(data.length == 0) {
 							opts = '<option>当前没有数据</option>'
