@@ -24,6 +24,7 @@ import io.netty.util.AttributeKey;
  * @author Gordan_Deng
  * @date 2017年3月24日
  */
+@Deprecated
 public class SeparatedTextDecoder extends ByteToMessageDecoder {
 
 	// 字节68转为10进制之后的数字

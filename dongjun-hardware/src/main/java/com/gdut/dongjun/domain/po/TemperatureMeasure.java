@@ -2,9 +2,7 @@ package com.gdut.dongjun.domain.po;
 
 import java.util.Date;
 
-import com.gdut.dongjun.domain.po.abstractmodel.AbstractBean;
-
-public class TemperatureMeasure extends AbstractBean {
+public class TemperatureMeasure extends CommonBean {
 	
     public TemperatureMeasure() {
 		super();

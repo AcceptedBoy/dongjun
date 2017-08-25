@@ -1,47 +1,140 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE generatorConfiguration PUBLIC
-		"-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
-		"http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
 <generatorConfiguration>
 	<classPathEntry
 		location="D:\\WORKING\\plug-in\\mysql-connector-java-5.1.38\\mysql-connector-java-5.1.38\\mysql-connector-java-5.1.38-bin.jar" />
-	<!-- 配置环境 -->
 	<context id="context1" targetRuntime="MyBatis3">
-		<!-- 数据库连接 -->
 		<jdbcConnection driverClass="com.mysql.jdbc.Driver"
-			connectionURL="jdbc:mysql://115.28.7.40:3306/elecon_platform" userId="root"
-			password="topview+624">
+			connectionURL="jdbc:mysql://127.0.0.1:3306/elecon_platform?characterEncoding=utf8&amp;useSSL=true"
+			userId="root" password="759486">
 		</jdbcConnection>
-		<!-- 生成模型的包名和位置 -->
 		<javaModelGenerator targetPackage="com.gdut.dongjun.domain.po"
 			targetProject="D:\\WORKING\\git\\dongjun_dzc\\dongjun-hardware" />
-		<!-- 生成的映射文件包名和位置 -->
-		<sqlMapGenerator targetPackage="com.gdut.dongjun.domain.xml"
+
+		<sqlMapGenerator targetPackage="com.gdut.dongjun.domain.dao"
 			targetProject="D:\\WORKING\\git\\dongjun_dzc\\dongjun-hardware" />
-		<!-- 生成DAO的包名和位置 -->
+
 		<javaClientGenerator targetPackage="com.gdut.dongjun.domain.dao"
 			targetProject="D:\\WORKING\\git\\dongjun_dzc\\dongjun-hardware" type="XMLMAPPER" />
 
-<!-- 		<table schema="root" tableName="temperature_module" -->
-<!-- 			domainObjectName="TemperatureModule" enableCountByExample="false" -->
-<!-- 			enableUpdateByExample="false" enableDeleteByExample="false" -->
-<!-- 			enableSelectByExample="false" selectByExampleQueryId="false" /> -->
-<!-- 					<table schema="root" tableName="module_hitch_event" -->
-<!-- 			domainObjectName="ModuleHitchEvent" enableCountByExample="false" -->
-<!-- 			enableUpdateByExample="false" enableDeleteByExample="false" -->
-<!-- 			enableSelectByExample="false" selectByExampleQueryId="false" /> -->
-<!-- 		<table schema="root" tableName="module_hitch_event" -->
-<!-- 			domainObjectName="ModuleHitchEvent" enableCountByExample="false" -->
-<!-- 			enableUpdateByExample="false" enableDeleteByExample="false" -->
-<!-- 			enableSelectByExample="false" selectByExampleQueryId="false" /> -->
-<!-- 		<table schema="root" tableName="temperature_measure_hitch_event1" -->
-<!-- 			domainObjectName="TemperatureMeasureHitchEvent" enableCountByExample="false" -->
-<!-- 			enableUpdateByExample="false" enableDeleteByExample="false" -->
-<!-- 			enableSelectByExample="false" selectByExampleQueryId="false" /> -->
-		<table schema="root" tableName="module_info_event"
-			domainObjectName="ModuleInfoEvent" enableCountByExample="false"
+		<table schema="root" tableName="electronic_module" domainObjectName="ElectronicModule"
+			enableCountByExample="false" enableUpdateByExample="false"
+			enableDeleteByExample="false" enableSelectByExample="false"
+			selectByExampleQueryId="false" />
+
+		<table schema="root" tableName="gprs_module" domainObjectName="GPRSModule"
+			enableCountByExample="false" enableUpdateByExample="false"
+			enableDeleteByExample="false" enableSelectByExample="false"
+			selectByExampleQueryId="false" />
+
+		<table schema="root" tableName="module_hitch_event"
+			domainObjectName="ModuleHitchEvent" enableCountByExample="false"
 			enableUpdateByExample="false" enableDeleteByExample="false"
 			enableSelectByExample="false" selectByExampleQueryId="false" />
+
+		<table schema="root" tableName="module_info_event" domainObjectName="ModuleInfoEvent"
+			enableCountByExample="false" enableUpdateByExample="false"
+			enableDeleteByExample="false" enableSelectByExample="false"
+			selectByExampleQueryId="false" />
+
+		<table schema="root" tableName="temperature_module"
+			domainObjectName="TemperatureModule" enableCountByExample="false"
+			enableUpdateByExample="false" enableDeleteByExample="false"
+			enableSelectByExample="false" selectByExampleQueryId="false" />
+		<table schema="root" tableName="temperature_sensor" domainObjectName="TemperatureSensor"
+			enableCountByExample="false" enableUpdateByExample="false"
+			enableDeleteByExample="false" enableSelectByExample="false"
+			selectByExampleQueryId="false" />
+<!-- 		<table schema="root" tableName="permission" domainObjectName="Permission" -->
+<!-- 			enableCountByExample="false" enableUpdateByExample="false" -->
+<!-- 			enableDeleteByExample="false" enableSelectByExample="false" -->
+<!-- 			selectByExampleQueryId="false" /> -->
+<!-- 		<table schema="root" tableName="persistent_hitch_message" -->
+<!-- 			domainObjectName="PersistentHitchMessage" enableCountByExample="false" -->
+<!-- 			enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 			enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+<!-- 		<table schema="root" tableName="platform_group" -->
+<!-- 			domainObjectName="PlatformGroup" enableCountByExample="false" -->
+<!-- 			enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 			enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+
+<!-- 		<table schema="root" tableName="protocol_port" domainObjectName="ProtocolPort" -->
+<!-- 			enableCountByExample="false" enableUpdateByExample="false" -->
+<!-- 			enableDeleteByExample="false" enableSelectByExample="false" -->
+<!-- 			selectByExampleQueryId="false" /> -->
+<!-- 		<table schema="root" tableName="repair_record" domainObjectName="RepairRecord" -->
+<!-- 			enableCountByExample="false" enableUpdateByExample="false" -->
+<!-- 			enableDeleteByExample="false" enableSelectByExample="false" -->
+<!-- 			selectByExampleQueryId="false" /> -->
+<!-- 		<table schema="root" tableName="role" domainObjectName="Role" -->
+<!-- 			enableCountByExample="false" enableUpdateByExample="false" -->
+<!-- 			enableDeleteByExample="false" enableSelectByExample="false" -->
+<!-- 			selectByExampleQueryId="false" /> -->
+<!-- 		<table schema="root" tableName="role_permission" -->
+<!-- 			domainObjectName="RolePermission" enableCountByExample="false" -->
+<!-- 			enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 			enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+<!-- 		<table schema="root" tableName="temperature_measure" -->
+<!-- 			domainObjectName="TemperatureMeasure" enableCountByExample="false" -->
+<!-- 			enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 			enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+<!-- 		<table schema="root" tableName="temperature_measure_history" -->
+<!-- 			domainObjectName="TemperatureMeasureHistory" enableCountByExample="false" -->
+<!-- 			enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 			enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+<!-- 		<table schema="root" tableName="temperature_sensor" -->
+<!-- 			domainObjectName="TemperatureSensor" enableCountByExample="false" -->
+<!-- 			enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 			enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+<!-- 		<table schema="root" tableName="user" domainObjectName="User" -->
+<!-- 			enableCountByExample="false" enableUpdateByExample="false" -->
+<!-- 			enableDeleteByExample="false" enableSelectByExample="false" -->
+<!-- 			selectByExampleQueryId="false" /> -->
+<!-- 		<table schema="root" tableName="user_device_mapping" -->
+<!-- 			domainObjectName="UserDeviceMapping" enableCountByExample="false" -->
+<!-- 			enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 			enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+<!-- 		<table schema="root" tableName="user_log" domainObjectName="UserLog" -->
+<!-- 			enableCountByExample="false" enableUpdateByExample="false" -->
+<!-- 			enableDeleteByExample="false" enableSelectByExample="false" -->
+<!-- 			selectByExampleQueryId="false" /> -->
+<!-- 		<table schema="root" tableName="user_role" domainObjectName="UserRole" -->
+<!-- 			enableCountByExample="false" enableUpdateByExample="false" -->
+<!-- 			enableDeleteByExample="false" enableSelectByExample="false" -->
+<!-- 			selectByExampleQueryId="false" /> -->
+
+		<!-- <table schema="root" tableName="persistent_hitch_message" -->
+		<!-- domainObjectName="PersistentHitchMessage" enableCountByExample="false" -->
+		<!-- enableUpdateByExample="false" enableDeleteByExample="false" -->
+		<!-- enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+
+		<!-- <table schema="root" tableName="data_monitor_submodule" -->
+		<!-- domainObjectName="DataMonitorSubmodule" enableCountByExample="false" -->
+		<!-- enableUpdateByExample="false" enableDeleteByExample="false" -->
+		<!-- enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+
+<!-- 		<table schema="root" tableName="electronic_module_current" -->
+<!-- 		domainObjectName="ElectronicModuleCurrent" enableCountByExample="false" -->
+<!-- 		enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 		enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+
+<!-- 		<table schema="root" tableName="electronic_module_power" -->
+<!-- 		domainObjectName="ElectronicModulePower" enableCountByExample="false" -->
+<!-- 		enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 		enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+		
+<!-- 				<table schema="root" tableName="electronic_module_voltage" -->
+<!-- 		domainObjectName="ElectronicModuleVoltage" enableCountByExample="false" -->
+<!-- 		enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 		enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+		
+<!-- 				<table schema="root" tableName="temperature_measure_hitch_event1" -->
+<!-- 		domainObjectName="TemperatureMeasureHitchEvent" enableCountByExample="false" -->
+<!-- 		enableUpdateByExample="false" enableDeleteByExample="false" -->
+<!-- 		enableSelectByExample="false" selectByExampleQueryId="false" /> -->
+
+
+
 	</context>
 </generatorConfiguration>
 

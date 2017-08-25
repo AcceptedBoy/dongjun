@@ -2,9 +2,7 @@ package com.gdut.dongjun.domain.po;
 
 import java.util.Date;
 
-import com.gdut.dongjun.domain.po.abstractmodel.AbstractBean;
-
-public class PersistentHitchMessage extends AbstractBean {
+public class PersistentHitchMessage extends CommonBean {
 	
     public PersistentHitchMessage() {
 		super();

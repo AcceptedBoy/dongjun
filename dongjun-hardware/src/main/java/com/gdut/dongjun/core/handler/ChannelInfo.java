@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPipeline;
@@ -27,47 +28,47 @@ public class ChannelInfo implements Serializable {
 
 	private static final long serialVersionUID = -3246597730301962347L;
 
-	private String monitorId; // 数据监控id
-	private String groupId; // 所属公司id
-	private String moduleId; // 子模块id
+	private String companyId; // 所属公司id
+	private String moduleId; // 设备id
 	private String address; // 子模块真实地址
 	private String decimalAddress; // 子模块的十进制地址
-	private transient List<Class<?>> handlerClassList; // 现在ChannelPipeline拥有的ChannelHandler的Class
-	private transient List<ChannelHandlerContext> ctxList;
+//	private transient List<Class<?>> handlerClassList; // 现在ChannelPipeline拥有的ChannelHandler的Class
+//	private transient List<ChannelHandlerContext> ctxList;
+	private transient ChannelHandlerContext ctx;
 
-	public ChannelInfo(String moduleId, String monitorId, String groupId, String decimalAddress,
-			ChannelHandlerContext ctx) {
-		this(ctx);
-		this.moduleId = moduleId;
-		this.monitorId = monitorId;
-		this.groupId = groupId;
-		this.decimalAddress = decimalAddress;
-	}
+//	public ChannelInfo(String moduleId, String monitorId, String groupId, String decimalAddress,
+//			ChannelHandlerContext ctx) {
+//		this(ctx);
+//		this.moduleId = moduleId;
+//		this.companyId = companyId;
+//		this.decimalAddress = decimalAddress;
+//	}
 
 	public ChannelInfo(ChannelHandlerContext ctx) {
 		super();
-		this.handlerClassList = new ArrayList<Class<?>>();
-		checkHandler(ctx.pipeline());
-		ctxList = new ArrayList<ChannelHandlerContext>();
-		ctxList.add(ctx);
+//		this.handlerClassList = new ArrayList<Class<?>>();
+//		checkHandler(ctx.pipeline());
+//		ctxList = new ArrayList<ChannelHandlerContext>();
+//		ctxList.add(ctx);
+		this.ctx = ctx;
 	}
 
 	public ChannelInfo() {
 		super();
 	}
 
-	private void checkHandler(ChannelPipeline pipeline) {
-		// ChannelHandler head = pipeline.firstContext().handler();
-		// ChannelHandler tail = pipeline.lastContext().handler();
-		Iterator<Entry<String, ChannelHandler>> i = pipeline.iterator();
-		while (i.hasNext()) {
-			Entry<String, ChannelHandler> entry = (Entry<String, ChannelHandler>) i.next();
-			ChannelHandler handler = entry.getValue();
-			// if (handler != head || handler != tail) {
-			handlerClassList.add(handler.getClass());
-			// }
-		}
-	}
+//	private void checkHandler(ChannelPipeline pipeline) {
+//		// ChannelHandler head = pipeline.firstContext().handler();
+//		// ChannelHandler tail = pipeline.lastContext().handler();
+//		Iterator<Entry<String, ChannelHandler>> i = pipeline.iterator();
+//		while (i.hasNext()) {
+//			Entry<String, ChannelHandler> entry = (Entry<String, ChannelHandler>) i.next();
+//			ChannelHandler handler = entry.getValue();
+//			// if (handler != head || handler != tail) {
+//			handlerClassList.add(handler.getClass());
+//			// }
+//		}
+//	}
 
 	public String getModuleId() {
 		return moduleId;
@@ -75,14 +76,6 @@ public class ChannelInfo implements Serializable {
 
 	public void setModuleId(String moduleId) {
 		this.moduleId = moduleId;
-	}
-
-	public String getMonitorId() {
-		return monitorId;
-	}
-
-	public void setMonitorId(String monitorId) {
-		this.monitorId = monitorId;
 	}
 
 	public String getAddress() {
@@ -93,30 +86,6 @@ public class ChannelInfo implements Serializable {
 		this.address = address;
 	}
 
-	public List<Class<?>> getHandlerClassList() {
-		return handlerClassList;
-	}
-
-	public void setHandlerClassList(List<Class<?>> handlerClassList) {
-		this.handlerClassList = handlerClassList;
-	}
-
-	public List<ChannelHandlerContext> getCtxList() {
-		return ctxList;
-	}
-
-	public void setCtxList(List<ChannelHandlerContext> ctxList) {
-		this.ctxList = ctxList;
-	}
-
-	public String getGroupId() {
-		return groupId;
-	}
-
-	public void setGroupId(String groupId) {
-		this.groupId = groupId;
-	}
-
 	public String getDecimalAddress() {
 		return decimalAddress;
 	}
@@ -125,10 +94,21 @@ public class ChannelInfo implements Serializable {
 		this.decimalAddress = decimalAddress;
 	}
 
-	@Override
-	public String toString() {
-		return "ChannelInfo [monitorId=" + monitorId + ", groupId=" + groupId + ", moduleId=" + moduleId + ", address="
-				+ address + ", decimalAddress=" + decimalAddress + "]";
+	public String getCompanyId() {
+		return companyId;
 	}
+
+	public void setCompanyId(String companyId) {
+		this.companyId = companyId;
+	}
+
+	public ChannelHandlerContext getCtx() {
+		return ctx;
+	}
+
+	public void setCtx(ChannelHandlerContext ctx) {
+		this.ctx = ctx;
+	}
+
 
 }

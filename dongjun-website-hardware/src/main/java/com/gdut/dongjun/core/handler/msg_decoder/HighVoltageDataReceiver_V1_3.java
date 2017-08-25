@@ -217,25 +217,25 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 		}
 	}
 	
-	/**
-	 * 得到报文分割点
-	 * @param data
-	 * @param begin
-	 * @return
-	 */
-	private int getSeparatedPoint(char[] data, Integer begin) {
-		int index = StringCommonUtil.getFirstIndexOfEndTag(data, begin, "16");
-		if (index != -1) {
-			if (isSeparatedPoint(data, index)) {
-				return index;
-			} else {
-				//目标分割点非报文分割点
-				begin = index;
-				return -2;
-			}
-		}
-		return -1;
-	}
+//	/**
+//	 * 得到报文分割点
+//	 * @param data
+//	 * @param begin
+//	 * @return
+//	 */
+//	private int getSeparatedPoint(char[] data, Integer begin) {
+//		int index = StringCommonUtil.getFirstIndexOfEndTag(data, begin, "16");
+//		if (index != -1) {
+//			if (isSeparatedPoint(data, index)) {
+//				return index;
+//			} else {
+//				//目标分割点非报文分割点
+//				begin = index;
+//				return -2;
+//			}
+//		}
+//		return -1;
+//	}
 
 	/**
 	 * 检查index是否是报文分割点
