@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>test</title>
+</head>
+<body>
+	<script src="/js/websocket/sockjs.min.js" ></script>
+	<script src="/js/websocket/storm.js" ></script>
+	<script>
+		var socket = new SockJS("/portfolio");
+		stompClient = Stomp.over(socket);
+		stompClient.connect({}, function(frame) {
+			stompClient.subscribe('/topic/switch_event', function (message) {
+				console.log('/topic/switch_event', message)
+				var voice = 'data:audio/mp3;base64,' + message.body
+				new Audio(voice).play()
+			})
+		});
+		// console.log(stompClient)
+	</script>
+</body>
+</html>

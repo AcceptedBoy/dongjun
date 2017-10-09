@@ -7,22 +7,10 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.gdut.dongjun.core.CtxStore;
-import com.gdut.dongjun.core.ElectronicCtxStore;
 import com.gdut.dongjun.core.GPRSCtxStore;
 import com.gdut.dongjun.core.HitchConst;
-import com.gdut.dongjun.core.TemperatureCtxStore;
-import com.gdut.dongjun.core.handler.ChannelInfo;
 import com.gdut.dongjun.core.handler.GPRSParseStrategy;
-import com.gdut.dongjun.domain.po.DataMonitorSubmodule;
-import com.gdut.dongjun.domain.po.ElectronicModule;
-import com.gdut.dongjun.domain.po.TemperatureModule;
-import com.gdut.dongjun.service.DataMonitorSubmoduleService;
-import com.gdut.dongjun.service.ElectronicModuleService;
-import com.gdut.dongjun.service.GPRSModuleService;
-import com.gdut.dongjun.service.TemperatureModuleService;
 import com.gdut.dongjun.util.CharUtils;
-import com.gdut.dongjun.util.MyBatisMapUtil;
 
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;

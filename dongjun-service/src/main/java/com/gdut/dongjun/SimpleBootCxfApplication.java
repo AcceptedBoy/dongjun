@@ -58,9 +58,9 @@ public class SimpleBootCxfApplication {
 
         ComboPooledDataSource ds = new ComboPooledDataSource();
         ds.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/elecon_service?useUnicode=true&amp;charaterEncoding=utf-8&" +
-                "zeroDateTimeBehavior=convertToNull");
+                "zeroDateTimeBehavior=convertToNull&amp;useSSL=true");
         ds.setUser("root");
-        ds.setPassword("roor");//elecon
+        ds.setPassword("759486");//elecon
         try {
             ds.setDriverClass("com.mysql.jdbc.Driver");
         } catch (PropertyVetoException e) {

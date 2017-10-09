@@ -79,6 +79,7 @@ public class CenterCallServiceClient implements InitializingBean {
 		}
 
 		public void initCall() {
+			//	这里需要做一个验证服务器是否可用的判断
 			for (CenterServiceConnection service : serviceList) {
 				service.getWebsiteService().initCall();
 			}
@@ -95,6 +96,11 @@ public class CenterCallServiceClient implements InitializingBean {
 		private String ipAddr;
 		private CenterCallHardwareService hardwareService;
 		private CenterCallWebsiteService websiteService;
+		private boolean available;
+		
+		public CenterServiceConnection() {
+			this.available = false;
+		}
 
 		public String getIpAddr() {
 			return ipAddr;
@@ -119,6 +125,15 @@ public class CenterCallServiceClient implements InitializingBean {
 		public void setWebsiteService(CenterCallWebsiteService websiteService) {
 			this.websiteService = websiteService;
 		}
+
+		public boolean isAvailable() {
+			return available;
+		}
+
+		public void setAvailable(boolean available) {
+			this.available = available;
+		}
+
 	}
 
 }

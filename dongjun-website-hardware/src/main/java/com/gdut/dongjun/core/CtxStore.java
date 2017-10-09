@@ -35,6 +35,8 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 	protected static WebsiteServiceClient websiteServiceClient;
 	private ApplicationContext applicationContext;
 	protected static List<SwitchGPRS> ctxlist = new CopyOnWriteArrayList<>();
+	//	这个是存储用户正在执行合分闸操作的设备的map，用户执行合分闸操作就会往这map添加数据，在这期间如果
+	//	系统接收到该设备的合分闸报文，就会产生一个“人工合/分闸”的事件
 	private static Map<String, ChangingSwitchStatus> changingSwitchMap = new ConcurrentHashMap<>();
 	
 	protected CtxStore() {
@@ -242,17 +244,19 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 		if (logger.isDebugEnabled()) {
 			logger.debug("remove(SwitchGPRS) - start");
 		}
-
+		String id = null;
 		if (ctxlist != null) {
 
 			for (SwitchGPRS gprs : ctxlist) {
 
 				if (gprs != null && ctx.equals(gprs.getCtx())) {
-
+					id = gprs.getId();
 					ctxlist.remove(gprs);	
+					break;
 				}
 			}
 			websiteServiceClient.getService().callbackCtxChange();// TODO trueChange();
+			websiteServiceClient.getService().callbackCtxChangeForVoice(id, 3);
 		} else {
 			logger.info("ctxlist is empty, no gprs has bean remove!");
 		}
@@ -404,9 +408,11 @@ public abstract class CtxStore implements InitializingBean, ApplicationContextAw
 				list.remove(i);
 			}
 		}
-		websiteServiceClient.getService().callbackCtxChange(); // TODO trueChange();
+		websiteServiceClient.getService().callbackCtxChange();
+		websiteServiceClient.getService().callbackCtxChangeForVoice(id, 3); // TODO trueChange();
 	}
 
+	@Deprecated
 	public static boolean changeOpen(String switchId) {
 		
 		SwitchGPRS gprs = get(switchId);

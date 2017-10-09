@@ -15,13 +15,13 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>1.3.3.RELEASE</version>
-		<relativePath/>
+		<relativePath />
 	</parent>
-	
+
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.7</java.version>
-		<cxf.version>3.1.6</cxf.version>
+		<cxf.version>3.1.7</cxf.version>
 	</properties>
 
 	<dependencies>
@@ -63,10 +63,10 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-beans</artifactId>
 		</dependency>
-<!-- 		<dependency> -->
-<!-- 			<groupId>org.springframework</groupId> -->
-<!-- 			<artifactId>spring-context-support</artifactId> -->
-<!-- 		</dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>org.springframework</groupId> -->
+		<!-- <artifactId>spring-context-support</artifactId> -->
+		<!-- </dependency> -->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
@@ -104,8 +104,8 @@
 			<artifactId>mysql-connector-java</artifactId>
 		</dependency>
 
-		
-	<!-- Apache CXF -->
+
+		<!-- Apache CXF -->
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-rt-frontend-jaxws</artifactId>
@@ -119,37 +119,30 @@
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-rt-frontend-jaxrs</artifactId>
-			<version>3.1.7</version>
+			<version>${cxf.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-rs-client</artifactId>
+			<version>${cxf.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-jaxrs</artifactId>
 			<version>1.9.13</version>
 		</dependency>
-		<dependency>
-			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-rt-rs-client</artifactId>
-			<version>RELEASE</version>
-		</dependency>
 
 
-        <!--<dependency>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-rt-rs-extension-providers</artifactId>
-            <version>3.1.5</version>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.jettison</groupId>
-            <artifactId>jettison</artifactId>
-            <version>1.3.7</version>
-        </dependency>-->
+		<!--<dependency> <groupId>org.apache.cxf</groupId> <artifactId>cxf-rt-rs-extension-providers</artifactId> 
+			<version>3.1.5</version> </dependency> <dependency> <groupId>org.codehaus.jettison</groupId> 
+			<artifactId>jettison</artifactId> <version>1.3.7</version> </dependency> -->
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<!-- shiro -->
 		<!-- shrio core -->
 		<dependency>
@@ -194,7 +187,7 @@
 		</dependency>
 		<!-- shiro end -->
 	</dependencies>
-	
+
 	<build>
 		<plugins>
 			<plugin>
@@ -213,6 +206,6 @@
 			</plugin>
 		</plugins>
 	</build>
-	
+
 
 </project>

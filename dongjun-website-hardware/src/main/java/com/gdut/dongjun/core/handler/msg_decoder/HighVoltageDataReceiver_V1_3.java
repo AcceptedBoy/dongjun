@@ -654,6 +654,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 				hitchEventService.insert(event);
 
 				logger.info(address + "-----------跳闸成功");
+				websiteClient.getService().callbackCtxChangeForVoice(id, 0);
 			} else if ("01".equals(new_status) && "00".equals(s.getStatus())) {
 
 				gprs.setOpen(false);
@@ -674,6 +675,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 				event.setSwitchId(id);
 				hitchEventService.insert(event);
 				logger.info(address + "-----------合闸成功");
+				websiteClient.getService().callbackCtxChangeForVoice(id, 1);
 			}
 			s.setStatus(new_status);
 			// TODO
@@ -681,6 +683,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 			logger.info("状态变为-----------" + new_status);
 			websiteClient.getService().callbackDeviceChange(id, 1);
 			websiteClient.getService().callbackCtxChange();
+			
 		} else {
 			logger.error("there is an error in catching hitch event!");
 		}
@@ -781,7 +784,8 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 				}
 				CtxStore.removeChangingSwitch(address);
 			}
-			websiteClient.getService().callbackCtxChange(); break;
+			websiteClient.getService().callbackCtxChange();
+			websiteClient.getService().callbackCtxChangeForVoice(s.getId(), code); break;
 		case "04" : 
 			// PT1有压
 			s.setPt1_you_ya(getDualPointStr(value)); break;
@@ -989,6 +993,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 				logger.info("高压设备1.3 " + address + "上线");
 				//	设备上线变黄色
 				websiteClient.getService().callbackCtxChange();
+				websiteClient.getService().callbackCtxChangeForVoice(id, 2);
 			} else {
 				logger.info("this device is not registered!!");
 			}

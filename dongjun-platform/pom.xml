@@ -16,7 +16,7 @@
 		<version>1.2.5.RELEASE</version>
 	</parent>
 
-	<!-- 控制统一的版本号 -->
+	<!-- 控制统一spring的版本号 -->
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
@@ -338,6 +338,7 @@
 	<build>
 		<plugins>
 			<plugin>
+			<!-- 执行mvn package后生成jar包 -->
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>

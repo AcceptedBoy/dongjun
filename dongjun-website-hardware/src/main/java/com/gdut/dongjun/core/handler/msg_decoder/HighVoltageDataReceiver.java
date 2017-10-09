@@ -239,7 +239,9 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 
 		SwitchGPRS gprs = CtxStore.get(ctx);
-		logger.info("高压设备 " + gprs.getAddress() + "下线");
+		if (null != gprs.getAddress()) {
+			logger.info("高压设备 " + gprs.getAddress() + "下线");
+		}
 		if (gprs != null) {
 			CtxStore.remove(ctx);// 从Store中移除这个context
 			if (gprs.getId() != null) {
@@ -271,14 +273,15 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			}
 		} else if (CharUtils.startWith(data, EB_UP) || CharUtils.startWith(data, EB_DOWN)) {
 			getOnlineAddress(ctx, data);
-			return ;
+			return;
 		}
 		// 未续费的设备的报文不接受
 		SwitchGPRS gprs = CtxStore.get(ctx);
-		if (!hvCtxStore.isAddrAvailable(gprs.getAddress())) {
-			logger.info("未续费的设备报文：" + String.valueOf(data));
-			return;
-		}
+		// TODO 未开启的功能
+		// if (!hvCtxStore.isAddrAvailable(gprs.getAddress())) {
+		// logger.info("未续费的设备报文：" + String.valueOf(data));
+		// return;
+		// }
 
 		logger.info("处理报文：" + String.valueOf(data));
 		char[] infoIdenCode = ArrayUtils.subarray(data, 14, 16);
@@ -329,10 +332,10 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			 * 遥信总召所有值获取
 			 */
 			readAllSignal(data);
-		} else if (CharUtils.equals(infoIdenCode, CODE_68)) { 
+		} else if (CharUtils.equals(infoIdenCode, CODE_68)) {
 			/*
-			 * 设备心跳报文  68 0D 0D 68 F4 01 00 68 01 07 01 01 00 00 00 AA 55 66 16
-			 */	
+			 * 设备心跳报文 68 0D 0D 68 F4 01 00 68 01 07 01 01 00 00 00 AA 55 66 16
+			 */
 			logger.info("回复心跳报文" + String.valueOf(data));
 		} else {
 			logger.error("接收到的非法数据--------------------" + String.valueOf(data));
@@ -434,15 +437,15 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	 * 因为下面的方法是当接收到预执行命令才去调用方法的，通过报文返回的数据来判断是否要去发出执行命令，
 	 * 所以是不会被执行的。如果到时发现了重大的问题，就对发送命令的方法进行重写吧！这个类在这里
 	 * 
-	 * @update：意思是@see标注的两个方法已经同时发送预置命令和执行命令，不按协议来的。之后可以改成@see的方法只发送预置命令，
-	 * 在这个方法接收到预置命令返回报文，再发送执行报文。
+	 * @update：意思是@see标注的两个方法已经同时发送预置命令和执行命令，不按协议来的。
+	 * 之后可以改成@see的方法只发送预置命令， 在这个方法接收到预置命令返回报文，再发送执行报文。
 	 * 
-	 * 																							@see
-	 *                                                                                             HighVoltageSwitchMessageEngine
-	 *                                                                                             #
-	 *                                                                                             generateCloseSwitchMessage
-	 *                                                                                             (
-	 *                                                                                             String)
+	 * 																	@see
+	 *                                                                    HighVoltageSwitchMessageEngine
+	 *                                                                    #
+	 *                                                                    generateCloseSwitchMessage
+	 *                                                                    (
+	 *                                                                    String)
 	 * @see HighVoltageSwitchMessageEngine#generateOpenSwitchMessage(String)
 	 */
 	private void whetherOperateSwitch(char[] data) {
@@ -530,6 +533,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 				hitchEventService.insert(event);
 
 				logger.info("-----------跳闸成功");
+				websiteClient.getService().callbackCtxChangeForVoice(id, 0);
 			} else if ("01".equals(new_status) && "00".equals(s.getStatus())) {
 
 				gprs.setOpen(false);
@@ -545,6 +549,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 				event.setSwitchId(id);
 				hitchEventService.insert(event);
 				logger.info("-----------合闸成功");
+				websiteClient.getService().callbackCtxChangeForVoice(id, 1);
 			}
 			s.setStatus(new_status);
 
@@ -560,6 +565,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			logger.info("状态变为-----------" + new_status);
 			websiteClient.getService().callbackDeviceChange(id, 1);
 			websiteClient.getService().callbackCtxChange();
+
 		} else {
 			logger.error("there is an error in catching hitch event!");
 		}
@@ -653,18 +659,18 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 
 		logger.info("接收遥信初步变位事件---------" + String.valueOf(data));
 
-
-//		logger.info("遥信变位：" + String.valueOf(data));
-//		//在这里更改遥信值
-//		String iden = String.valueOf(CharUtils.subChars(data, 2 * 13, 2));
-//		String value = String.valueOf(CharUtils.subChars(data, 2 * 15, 2));
-//		HighVoltageStatus s = hvCtxStore.getStatusbyId(CtxStore.get(ctx).getId());
-//		switch (iden) {
-//		case "01" :
-//			//合闸分闸判断位
-//			s.setStatus(value); break;
-//		default : break;
-//		}
+		// logger.info("遥信变位：" + String.valueOf(data));
+		// //在这里更改遥信值
+		// String iden = String.valueOf(CharUtils.subChars(data, 2 * 13, 2));
+		// String value = String.valueOf(CharUtils.subChars(data, 2 * 15, 2));
+		// HighVoltageStatus s =
+		// hvCtxStore.getStatusbyId(CtxStore.get(ctx).getId());
+		// switch (iden) {
+		// case "01" :
+		// //合闸分闸判断位
+		// s.setStatus(value); break;
+		// default : break;
+		// }
 
 		String resu = new HighVoltageDeviceCommandUtil().confirmChangeAffair(CharUtils.newString(data, 10, 14));
 		logger.info("发送遥信变位确定---------" + resu);
@@ -687,11 +693,11 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			return;
 		}
 		value = getDualPointStr(value);
-//		if (value.equals("02")) {
-//			value = STR_01;
-//		} else {
-//			value = STR_00;
-//		}
+		// if (value.equals("02")) {
+		// value = STR_01;
+		// } else {
+		// value = STR_00;
+		// }
 		HighVoltageStatus hvs = hvCtxStore.getStatusbyId(CtxStore.getIdbyAddress(address));
 		switch (code) {
 		case "0000":
@@ -818,10 +824,11 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 					ctx.channel().writeAndFlush(CharUtils.newString(data).intern()); // intern的操作会从字符串池中查看有没有字符串跟data的字符串相符，有则返回它的引用
 				}
 				HighVoltageServer.totalCall(id);
-				if (CtxStore.get(id) != null) {
-					CtxStore.remove(id);
-					CtxStore.add(gprs);
-				}
+//				 if (CtxStore.get(id) != null) {
+//					 CtxStore.remove(id);
+//					 CtxStore.add(gprs);
+//				 }
+				websiteClient.getService().callbackCtxChangeForVoice(id, 2);
 			} else {
 				logger.info("this device is not registered!!");
 			}
@@ -914,23 +921,25 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			historyCurrentService.insert(c1.changeToHistory());
 		}
 	}
-	
+
 	/**
 	 * 双点遥信值变单点遥信值
+	 * 
 	 * @param value
 	 * @return
 	 */
 	private String getDualPointStr(String value) {
 		switch (value) {
-		case "01" : 
-			//	分位
+		case "01":
+			// 分位
 			return STR_00;
-		case "02" :
-			//	合位
+		case "02":
+			// 合位
 			return STR_01;
-		case "03" : 
+		case "03":
 			return STR_02;
-		default : return STR_02;
+		default:
+			return STR_02;
 		}
 	}
 
