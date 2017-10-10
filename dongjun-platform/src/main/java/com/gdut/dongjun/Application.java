@@ -65,8 +65,7 @@ public class Application extends SpringBootServletInitializer {
 	/**
 	 * 数据库c3p0连接池
 	 */
-	@Bean
-	public DataSource dataSource() {
+	private DataSource dataSource() {
 
 		ComboPooledDataSource ds = new ComboPooledDataSource();
 		ds.setJdbcUrl("jdbc:mysql://115.28.7.40:3306/elecon_platform1?useUnicode=true&amp;charaterEncoding=utf-8&zeroDateTimeBehavior=convertToNull");
@@ -88,8 +87,8 @@ public class Application extends SpringBootServletInitializer {
 	/**
 	 * SqlSessionFactoryBean管理mapper文件
 	 */
-	@Bean
-	public SqlSessionFactoryBean sessionFactory() {
+//	@Bean
+	private SqlSessionFactoryBean sessionFactory() {
 
 		SqlSessionFactoryBean sFactoryBean = new SqlSessionFactoryBean();
 		sFactoryBean.setDataSource(dataSource());

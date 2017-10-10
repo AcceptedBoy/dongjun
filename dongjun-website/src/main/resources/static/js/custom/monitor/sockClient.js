@@ -9,20 +9,25 @@ var monitorSet = function() {
 			stompClient = Stomp.over(socket);
 			stompClient.connect({}, function(frame) {
 				stompClient.subscribe("/topic/get_active_switch_status", function(message) {
-					console.log('/topic/get_active_switch_status', JSON.parse(message.body))
+//					console.log('/topic/get_active_switch_status', JSON.parse(message.body))
 					djMap.Control.freshActiveSwitch(JSON.parse(message.body))
 				});
 				stompClient.subscribe('/user/queue/read_voltage', function(message) {
-					// console.log('/user/queue/read_voltage', JSON.parse(message.body))
+//					console.log('/user/queue/read_voltage', JSON.parse(message.body))
 					infoWindow.actualUpdateVol(message)
 				});
 				stompClient.subscribe('/user/queue/read_current', function(message) {
-					// console.log('/user/queue/read_current', JSON.parse(message.body))
+//					console.log('/user/queue/read_current', JSON.parse(message.body))
 					infoWindow.actualUpdateCur(message)
 				});
 				stompClient.subscribe('/user/queue/read_hv_status', function(message) {
-					 console.log('/user/queue/read_hv_status', JSON.parse(message.body))
+//					 console.log('/user/queue/read_hv_status', JSON.parse(message.body))
 					infoWindow.actualUpdateHvStatus(message)
+				});
+				stompClient.subscribe('/topic/switch_event', function (message) {
+					console.log('/topic/switch_event', message)
+					var voice = 'data:audio/mp3;base64,' + message.body
+					new Audio(voice).play()
 				});
 			});
 		},

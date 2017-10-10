@@ -16,8 +16,8 @@ import com.gdut.dongjun.service.webservice.client.po.HighVoltageSwitchDTO;
 /**
  * TODO 部分功能未测试
  */
-@Aspect
-@Component
+//@Aspect
+//@Component
 public class CentorAspect {
 
     @Autowired

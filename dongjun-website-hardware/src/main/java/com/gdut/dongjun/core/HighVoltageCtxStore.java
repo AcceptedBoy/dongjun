@@ -95,7 +95,7 @@ public class HighVoltageCtxStore extends CtxStore {
 		}
 
 		hstalist.add(ctx);
-		websiteServiceClient.getService().callbackCtxChange();// TODO trueChange();
+//		websiteServiceClient.getService().callbackCtxChange(null, 2);// TODO trueChange();
 		
 		if (logger.isDebugEnabled()) {
 			logger.debug("add(SwitchGPRS) - end");

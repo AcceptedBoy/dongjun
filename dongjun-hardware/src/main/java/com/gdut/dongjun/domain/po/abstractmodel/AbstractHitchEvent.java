@@ -1,11 +1,13 @@
 package com.gdut.dongjun.domain.po.abstractmodel;
 
+import com.gdut.dongjun.domain.po.CommonBean;
+
 /**
  * TODO
  * @author Gordan_Deng
  * @date 2017年3月8日
  */
-public abstract class AbstractHitchEvent extends AbstractBean {
+public abstract class AbstractHitchEvent extends CommonBean {
 
 	protected String id;
 

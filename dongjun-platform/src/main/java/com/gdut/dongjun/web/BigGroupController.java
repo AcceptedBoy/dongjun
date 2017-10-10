@@ -73,6 +73,13 @@ public class BigGroupController {
         return ResponseMessage.success(list);
     }
 	
+	@RequiresAuthentication
+    @RequestMapping("/list")
+    @ResponseBody
+    public ResponseMessage list() {
+		return ResponseMessage.success(groupService.selectByParameters(null));
+    }
+	
 	/**
 	 * 添加一个分组
 	 * 

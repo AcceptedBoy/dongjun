@@ -1,21 +1,40 @@
 package com.gdut.dongjun.web;
 
-import java.awt.Color;
+import java.io.IOException;
+import java.io.PrintWriter;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.codec.binary.Base64;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageHeaders;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.gdut.dongjun.util.VoiceFixUtil;
 
 @Controller
-@RequestMapping("/test")
 public class TestController {
 	
 	public static String urlOfMapXtremeServlet = "http://localhost:8080/mapxtreme480/servlet/mapxtreme";
 	public static int maxZoom = 943781;
 	public static int minZoom = 500;
+	
+	/**
+	 * 嗅探应用是否可用的接口
+	 * @param response
+	 * @throws IOException
+	 */
+	@RequestMapping("/testAvailable")
+	public void testAvailable(HttpServletResponse response) throws IOException {
+		PrintWriter w = response.getWriter();
+		w.write("OK");
+		w.flush();
+		return ;
+	}
 	
 
 //	@RequestMapping("/electronic_map_info")
@@ -43,8 +62,30 @@ public class TestController {
 //		so.close();
 //		
 //		req.getSession().setAttribute("mapjtab", mapj);
-//		// 输出地图
+//		// 输出地
 //		resp.getOutputStream().flush();
 //		resp.getOutputStream().close();
 //	}
+	
+//	@Autowired
+//	private SimpMessagingTemplate template;
+//	@RequestMapping("/ttt")
+//	@ResponseBody
+//	public String get() throws IOException {
+//		byte[] array = VoiceFixUtil.request1("测试设备啦啦啦");
+//		byte[] encodeBase64 = Base64.encodeBase64(array); 
+//		this.template.convertAndSend("/topic/switch_event", 
+//				new String(encodeBase64));
+//		return "OK";
+//	}
+//	
+//	@RequestMapping("/ttt1")
+//	@ResponseBody
+//	public String ttt1() throws IOException {
+//		byte[] array = VoiceFixUtil.request1("测试设备啦啦啦");
+//		byte[] encodeBase64 = Base64.encodeBase64(array); 
+//		this.template.convertAndSend("/topic/switch_event", "asdasd");
+//		return "OK";
+//	}
+	
 }

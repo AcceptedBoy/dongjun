@@ -30,7 +30,7 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 @ImportResource("classpath:hardware-service.xml")
 public class Application extends SpringBootServletInitializer {
 	
-	@Autowired 
+	@Autowired
     private ApplicationContext applicationContext;
 	
 	@Override
@@ -76,9 +76,12 @@ public class Application extends SpringBootServletInitializer {
 	public DataSource dataSource() {
 
 		com.mchange.v2.c3p0.ComboPooledDataSource ds = new ComboPooledDataSource();
+//		ds.setJdbcUrl("jdbc:mysql://120.24.12.171:3306/elecon?useUnicode=true&amp;charaterEncoding=utf-8&zeroDateTimeBehavior=convertToNull");
+//		ds.setUser("topview");
+//		ds.setPassword("topview+624");//elecon
 		ds.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/elecon?useUnicode=true&amp;charaterEncoding=utf-8&zeroDateTimeBehavior=convertToNull");
 		ds.setUser("root");
-		ds.setPassword("root");//elecon
+		ds.setPassword("759486");//elecon
 		try {
 			ds.setDriverClass("com.mysql.jdbc.Driver");
 		} catch (PropertyVetoException e) {

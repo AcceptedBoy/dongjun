@@ -27,5 +27,8 @@
 			<attribute name="maven.pomderived" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="D:/WORKING/git/dongjun_dzc/dongjun-website/src/main/resources/lib/json-20160810.jar"/>
+	<classpathentry kind="lib" path="D:/WORKING/git/dongjun_dzc/dongjun-website/src/main/resources/lib/aip-core-1.3.8.jar"/>
+	<classpathentry kind="lib" path="D:/WORKING/git/dongjun_dzc/dongjun-website/src/main/resources/lib/speech_sdk-1.0.1.jar"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

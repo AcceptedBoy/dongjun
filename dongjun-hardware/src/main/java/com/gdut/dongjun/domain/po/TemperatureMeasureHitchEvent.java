@@ -3,9 +3,7 @@ package com.gdut.dongjun.domain.po;
 import java.math.BigDecimal;
 import java.util.Date;
 
-import com.gdut.dongjun.domain.po.abstractmodel.AbstractBean;
-
-public class TemperatureMeasureHitchEvent extends AbstractBean {
+public class TemperatureMeasureHitchEvent extends CommonBean {
 
 	private String id;
 	

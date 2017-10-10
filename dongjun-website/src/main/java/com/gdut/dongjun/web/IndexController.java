@@ -1,13 +1,16 @@
 package com.gdut.dongjun.web;
 
-import com.gdut.dongjun.domain.po.User;
-import com.gdut.dongjun.service.ZTreeNodeService;
-import com.gdut.dongjun.service.common.CommonSwitch;
-import com.gdut.dongjun.service.webservice.client.CommonServiceClient;
-import com.gdut.dongjun.util.EncoderUtil;
-import com.gdut.dongjun.util.VoiceFixUtil;
+import java.io.File;
+import java.io.IOException;
 
+import javax.servlet.http.HttpSession;
+
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,7 +19,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.servlet.http.HttpSession;
+import com.gdut.dongjun.domain.po.User;
+import com.gdut.dongjun.service.ZTreeNodeService;
+import com.gdut.dongjun.service.common.CommonSwitch;
+import com.gdut.dongjun.service.webservice.client.CommonServiceClient;
+import com.gdut.dongjun.util.VoiceFixUtil;
 
 @Controller
 @RequestMapping("/dongjun")
@@ -64,7 +71,6 @@ public class IndexController {
 	public String forwardChart() {
 		return "chart";
 	}
-
 
 	/**
 	 * 
@@ -154,13 +160,12 @@ public class IndexController {
 		return "switch_detail";
 	}
 
-	@RequestMapping("get_voice_of_event")
-	@ResponseBody
-	public String getVoiceOfEvent(@RequestParam(required=false) String name) {
-		
-		String httpUrl = "http://apis.baidu.com/apistore/baidutts/tts";
-		String httpArg = "text=" + EncoderUtil.getUrlEncode
-				("开关" + name + "已经报警，请及时处理") +"&ctp=1&per=0";
-		return VoiceFixUtil.request(httpUrl, httpArg);
+	@RequestMapping("/get_voice_of_control")
+	public ResponseEntity<byte[]> getVoiceOfEvent(@RequestParam(required=false) String name) throws IOException {
+		byte[] a = VoiceFixUtil.request1(name);
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentDispositionFormData("attachment", "testAudio.mp3");
+		headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+		return new ResponseEntity<byte[]>(a, headers, HttpStatus.OK);
 	}
 }
