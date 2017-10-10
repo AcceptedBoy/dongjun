@@ -42,5 +42,10 @@
 	}
 
 	$('#login-btn').click(login)
-
+	document.onkeydown = function (e) {
+		var ev = e || window.event
+		if (ev.keyCode === 13) {
+			login()
+		}
+	}
 })()

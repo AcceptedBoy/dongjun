@@ -204,7 +204,7 @@
 	    saveEndDate: function () {
 	    	var date = $('#expireTimeInput').val()
 	    	if (!$.trim(date)) {
-	    		Msg.notify('选个好日子呀')
+	    		Msg.notify('请选择日期')
 	    		return
 	    	}
 	    	// get data

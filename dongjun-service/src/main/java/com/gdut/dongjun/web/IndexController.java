@@ -16,6 +16,11 @@ public class IndexController {
 		return "login";
 	}
 	
+	@RequestMapping("/dongjun/companyManger")
+	public String companyManger() {
+		return "companyManager";
+	}
+	
 	@RequestMapping("/testAvailable")
 	public void testAvailable(HttpServletResponse response) throws IOException {
 		PrintWriter w = response.getWriter();
