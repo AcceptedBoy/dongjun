@@ -1,5 +1,20 @@
 var monitorSet = function() {
 	var stompClient
+	var isAlarming = false
+	var audioList = []
+	function next () {
+//		if (newSrc) audioList.push(newSrc)
+		if (isAlarming && !audioList.length) {
+			isAlarming = false
+			return
+		} else {
+			isAlarming = true
+		}
+		var src = audioList.shift()
+		var ad =  new Audio('data:audio/mp3;base64,' + src)
+		ad.onended = next
+		ad.play()
+	}
 	return {
 		getClient: function(){
 			return stompClient
@@ -25,9 +40,13 @@ var monitorSet = function() {
 					infoWindow.actualUpdateHvStatus(message)
 				});
 				stompClient.subscribe('/topic/switch_event', function (message) {
-					console.log('/topic/switch_event', message)
-					var voice = 'data:audio/mp3;base64,' + message.body
-					new Audio(voice).play()
+//					console.log('/topic/switch_event', message)
+//					var voice = 'data:audio/mp3;base64,' + message.body
+//					new Audio(voice).play()
+					audioList.push(message.body)
+					if (!isAlarming) {
+						next()
+					}
 				});
 			});
 		},
