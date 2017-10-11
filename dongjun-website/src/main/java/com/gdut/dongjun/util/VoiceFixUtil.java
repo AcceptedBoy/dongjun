@@ -1,18 +1,22 @@
 package com.gdut.dongjun.util;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.HashMap;
 
 import org.json.JSONObject;
+
+import com.baidu.aip.speech.AipSpeech;
+import com.baidu.aip.speech.TtsResponse;
 
 /**
  * @Author link xiaoMian <972192420@qq.com>
@@ -20,6 +24,8 @@ import org.json.JSONObject;
  * @Time 2016年3月3日下午9:25:32
  * @Description TODO
  * @Version 1.0 Topview
+ * 
+ * @update 2017.10.11 Gordan_Deng 用百度封装好的服务，由于该服务暂时用我的个人账号，以后需要改动。
  */
 public class VoiceFixUtil {
 
@@ -27,7 +33,9 @@ public class VoiceFixUtil {
 	private static final String apiKey = "zTlDPueNBgUzDN2Vbt0Bj96z";
 	private static final String secretKey = "Gr5yfWuFhKYd8ldPGCo3wDCCmZWNtqe2";
 	private static final String cuid = "9098792";
+	private static final AipSpeech speechClient = new AipSpeech(cuid, apiKey, secretKey); 
 
+	@Deprecated
 	public static String request(String httpUrl, String httpArg) {
 		BufferedReader reader = null;
 		String result = null;
@@ -56,6 +64,13 @@ public class VoiceFixUtil {
 		return result;
 	}
 
+	/**
+	 * 在线语音服务，不用restful api sdk，直接调用接口，存在语音不完整的问题
+	 * @param text
+	 * @return
+	 * @throws IOException
+	 */
+	@Deprecated
 	public static byte[] request1(String text) throws IOException {
 		String baiduUrl = "http://tsn.baidu.com/text2audio?lan=zh&cuid=9098792&ctp=1&tok=" + getToken() + "&tex="
 				+ getUTF8XMLString(text);
@@ -65,20 +80,17 @@ public class VoiceFixUtil {
 		connection.setRequestProperty("User-Agent", "Mozilla/4.0 (compatible; MSIE 5.0; Windows NT; DigExt)");
 		connection.connect();
 		InputStream is = connection.getInputStream();
-//		File f = new File("D:\\audio-" + UUIDUtil.getUUID() + ".mp3");
-//		OutputStream output = new FileOutputStream(f);
-//
-//		byte[] buffer = new byte[8192];
-//		int byteReads = 0;
-//		while ((byteReads = is.read(buffer, 0, 8192)) != -1) {
-//			output.write(buffer, 0, byteReads);
-//		}
 		byte[] array = new byte[is.available()];
 		is.read(array);
 		is.close();
 		return array;
 	}
 
+	/**
+	 * 获取百度token
+	 * @return
+	 * @throws IOException
+	 */
 	private static String getToken() throws IOException {
 		String getTokenURL = "https://openapi.baidu.com/oauth/2.0/token?grant_type=client_credentials" + "&client_id="
 				+ apiKey + "&client_secret=" + secretKey;
@@ -101,6 +113,11 @@ public class VoiceFixUtil {
 		return token;
 	}
 
+	/**
+	 * 文本转UTF8编码
+	 * @param xml
+	 * @return
+	 */
 	public static String getUTF8XMLString(String xml) {
 		// A StringBuffer Object
 		StringBuffer sb = new StringBuffer();
@@ -114,6 +131,22 @@ public class VoiceFixUtil {
 			e.printStackTrace();
 		}
 		return xmlUTF8;
+	}
+	
+	/**
+	 * 百度语音服务，使用restful api sdk，比{@code request1()}稳定 </br>
+	 * 接口描述 <a>http://yuyin.baidu.com/docs/tts/193</a>
+	 * @param text
+	 * @return
+	 */
+	public static byte[] request2(String text) {
+		HashMap<String, String> options = new HashMap<>();
+		options.put("spd", "5");
+	    options.put("pit", "5");
+	    options.put("per", "4");
+		TtsResponse res = speechClient.synthesis(text, "zh", 1, null);
+		byte[] data = res.getData();
+		return data;
 	}
 
 }

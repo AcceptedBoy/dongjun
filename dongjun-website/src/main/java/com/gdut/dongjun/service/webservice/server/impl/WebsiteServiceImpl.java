@@ -1,5 +1,9 @@
 package com.gdut.dongjun.service.webservice.server.impl;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
@@ -14,14 +18,12 @@ import org.springframework.util.CollectionUtils;
 import com.gdut.dongjun.domain.HighVoltageStatus;
 import com.gdut.dongjun.domain.po.User;
 import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
-import com.gdut.dongjun.service.UserService;
 import com.gdut.dongjun.service.common.DeviceBinding;
 import com.gdut.dongjun.service.device.DeviceCommonService;
 import com.gdut.dongjun.service.device.HighVoltageSwitchService;
 import com.gdut.dongjun.service.device.current.HighVoltageCurrentService;
 import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
 import com.gdut.dongjun.service.webservice.server.WebsiteService;
-import com.gdut.dongjun.util.MyBatisMapUtil;
 import com.gdut.dongjun.util.VoiceFixUtil;
 
 /**
@@ -94,18 +96,15 @@ public class WebsiteServiceImpl implements WebsiteService {
 		String name = switchService.selectByPrimaryKey(id).getName();
 		// String name = "测试设备";
 		byte[] array = null;
-		try {
-			if (type == 0) {
-				array = VoiceFixUtil.request1(name + "执行分闸");
-			} else if (type == 1) {
-				array = VoiceFixUtil.request1(name + "执行合闸");
-			} else if (type == 2) {
-//				array = VoiceFixUtil.request1(name + "上线");
-				return ;	//暂时设置上线没有语音提示
-			} else if (type == 3) {
-				array = VoiceFixUtil.request1(name + "下线");
-			}
-		} catch (IOException e) {
+		if (type == 0) {
+			array = VoiceFixUtil.request2(name + "执行分闸");
+		} else if (type == 1) {
+			array = VoiceFixUtil.request2(name + "执行合闸");
+		} else if (type == 2) {
+			// array = VoiceFixUtil.request2(name + "上线");
+			return; // 暂时设置上线没有语音提示
+		} else if (type == 3) {
+			array = VoiceFixUtil.request2(name + "下线");
 		}
 		byte[] encodeBase64 = Base64.encodeBase64(array);
 		this.template.convertAndSend("/topic/switch_event", new String(encodeBase64));
