@@ -142,6 +142,10 @@ var util = {
 		console.log(id)
 		alert('删除公司，同时会删除该公司旗下的配电站、线路、设备，确定要删除吗？')
 		cAjax.delCompany(id)
+	},
+	// 增加关闭窗口方法
+	hideModal: function() {
+		$('#company-modal').modal('hide')
 	}
 }
 
@@ -168,7 +172,7 @@ var cAjax = function() {
 			id = thisId
 		},
 		save: function(data) {
-			if(!type == 'add') {
+			if(type !== 'add') {
 				data.id = id
 			}
 			$.ajax({
@@ -176,6 +180,7 @@ var cAjax = function() {
 				data: data,
 				success: function(res) {
 					redraw()
+					util.hideModal()
 				}
 			})
 		},
