@@ -237,7 +237,7 @@ public class TemperatureParseStrategy extends ParseStrategy implements Initializ
 			logger.info("解析温度全遥测-------" + CharUtils.newString(data));
 			String[] buffer = new String[16];
 			for (int i = 0; i < 16; i++) {
-				buffer[i] = CharUtils.newString(data, 52 + 6 * i, 52 + 6 * i + 4);
+				buffer[i] = CharUtils.newString(data, 58 + 6 * i, 58 + 6 * i + 4);
 			}
 			doSaveMeasure(buffer, moduleId, ctx);
 			StringBuilder sb = new StringBuilder();
