@@ -117,6 +117,7 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 	private DataMonitorService monitorService;
 
 	private static final Logger logger = LoggerFactory.getLogger(HighVoltageDataReceiver_V1_3.class);
+	private static final Logger textLogger = LoggerFactory.getLogger("TextLogger");
 
 	public HighVoltageDataReceiver_V1_3() {
 		super();
@@ -145,11 +146,12 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 		// if (data.length() == 190) {
 		// hitchEventDesc = getHitchReason(data.substring(140, 160));
 		// }
+		//	记录报文到单独的文件中
+		textLogger.info(message);
 		if (handleRegis(ctx, data)) {
 			return ;
 		}
 		handleSeparatedText(ctx, data, hitchEventDesc);
-//		handleIdenCode(ctx, data, hitchEventDesc);
 	}
 	
 	private boolean handleRegis(ChannelHandlerContext ctx, char[] data) {
@@ -217,26 +219,6 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 		}
 	}
 	
-//	/**
-//	 * 得到报文分割点
-//	 * @param data
-//	 * @param begin
-//	 * @return
-//	 */
-//	private int getSeparatedPoint(char[] data, Integer begin) {
-//		int index = StringCommonUtil.getFirstIndexOfEndTag(data, begin, "16");
-//		if (index != -1) {
-//			if (isSeparatedPoint(data, index)) {
-//				return index;
-//			} else {
-//				//目标分割点非报文分割点
-//				begin = index;
-//				return -2;
-//			}
-//		}
-//		return -1;
-//	}
-
 	/**
 	 * 检查index是否是报文分割点
 	 * @param data
@@ -272,10 +254,6 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 		if (gprs != null) {
 			// 从Store中移除这个context
 			CtxStore.remove(ctx);
-//			// 清空Attribute
-//			AttributeKey<Integer> key = AttributeKey.valueOf("isRegisted");
-//			Attribute<Integer> attr = ctx.attr(key);
-//			attr.set(null);
 			// 记录最后上线时间
 			if (gprs.getId() != null) {
 				HighVoltageSwitch hvSwitch = switchService.selectByPrimaryKey(gprs.getId());
@@ -1152,18 +1130,4 @@ public class HighVoltageDataReceiver_V1_3 extends ChannelInboundHandlerAdapter {
 		hitchEventService.insert(event);
 	}
 	
-//	public static void main(String[] args) {
-//		String a = "685d5d68f36800031c030168001b00021b00021800020100022400020100011c00021b00021800020100022400020100011c00022f00021b00021800020100022400020100011c00021b00021900021b00021800020100021c00022700020100016f16";
-////		String b = a.substring(30, a.length()-4);
-//		String b = a.substring(26, a.length()-4);
-////		System.out.println(b);
-////		System.out.println(b.substring(35 * 2, 35 * 2 + 12));
-//////		String a =	 	Integer.parseInt(LowVoltageDeviceCommandUtil.reverseStringBy2("3c0000"), 16) + "";
-//////		System.out.println(a);
-//		int i = b.length() / 6;
-//		for (int c = 0; c < i; c++) {
-//			System.out.println(b.substring(c * 6, c * 6 + 4));
-//			System.out.println(b.substring(c * 6 + 4, c * 6 + 6));
-//		}
-//	}
 }

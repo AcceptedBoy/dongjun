@@ -16,6 +16,7 @@ import com.gdut.dongjun.service.HighVoltageSwitchService;
 import com.gdut.dongjun.service.LineService;
 import com.gdut.dongjun.service.SubstationService;
 import com.gdut.dongjun.util.MyBatisMapUtil;
+import com.gdut.dongjun.util.UUIDUtil;
 import com.gdut.dongjun.web.vo.ResponseMessage;
 
 @Controller
@@ -42,10 +43,34 @@ public class CompanyController {
 	@ResponseBody
 	@RequestMapping("/company/edit")
 	public ResponseMessage edit(Company c) {
-		if (0 != companyService.updateByPrimaryKey(c)) {
-			return ResponseMessage.success("success");
+		if (null == c) {
+			return ResponseMessage.warning("缺乏参数");
 		}
-		return ResponseMessage.warning("fail");
+		if (!isIpAddrAvailable(c.getIpAddr())) {
+			return ResponseMessage.warning("ip地址不规范"); 
+		}
+		//	新增
+		if (null == c.getId()) {
+			String ipAddr = c.getIpAddr();
+			List<Company> list = companyService.selectByParameters(MyBatisMapUtil.warp("ip_addr", ipAddr));
+			if (null == list || list.size() == 0) {
+				c.setId(UUIDUtil.getUUID());
+				companyService.insert(c);
+			} else {
+				return ResponseMessage.warning("ip地址已被占用");  
+			}
+		}
+		//	更新
+		else {
+			String ipAddr = c.getIpAddr();
+			List<Company> list = companyService.selectByParameters(MyBatisMapUtil.warp("ip_addr", ipAddr));
+			if (null == list || list.size() == 0 || list.get(0).getId().equals(c.getId())) {
+				companyService.updateByPrimaryKey(c);
+			} else {
+				return ResponseMessage.warning("ip地址已被占用");  
+			}
+		}
+		return ResponseMessage.warning("操作成功");  
 	}
 	
 	@RequiresAuthentication
@@ -86,6 +111,12 @@ public class CompanyController {
 		return ResponseMessage.success(switchService.selectByParameters(MyBatisMapUtil.warp("line_id", lineId)));
 	}
 	
+	private static boolean isIpAddrAvailable(String ip) {
+		if (null == ip) {
+			return false;
+		}
+		return ip.matches("((25[0-5]|2[0-4]\\d|((1\\d{2})|([1-9]?\\d)))\\.){3}(25[0-5]|2[0-4]\\d|((1\\d{2})|([1-9]?\\d)))");
+	}
 	
 	
 	

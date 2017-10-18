@@ -9,9 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.gdut.dongjun.core.CtxStore;
+import com.gdut.dongjun.core.HighVoltageCtxStore;
 import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.core.initializer.ServerInitializer;
 import com.gdut.dongjun.core.server.NetServer;
+import com.gdut.dongjun.domain.HighVoltageStatus;
 import com.gdut.dongjun.domain.po.HighVoltageSwitch;
 import com.gdut.dongjun.enums.HighCommandControlCode;
 import com.gdut.dongjun.service.HighVoltageSwitchService;
@@ -31,6 +33,8 @@ public class HighVoltageServer extends NetServer {
 	private ServerInitializer initializer;
 	@Autowired
 	private HighVoltageSwitchService highVoltageSwitchService;
+	@Autowired
+	private HighVoltageCtxStore ctxStore;
 
 	private static final Logger logger = Logger
 			.getLogger(HighVoltageServer.class);
@@ -56,7 +60,8 @@ public class HighVoltageServer extends NetServer {
 				}
 			}
 		}
-
+		//	打印所有设备的信息
+		printSwitchStatus();
 	}
 	
 	/**
@@ -75,22 +80,28 @@ public class HighVoltageServer extends NetServer {
 				.readVoltageAndCurrent(gprs.getAddress(),
 						HighCommandControlCode.READ_VOLTAGE_CURRENT
 								.toString());
-		logger.info("总召激活地址：" + gprs.getAddress() + "---" + msg);
 		gprs.getCtx().writeAndFlush(msg);// 读取电压
+		logger.info("总召激活地址：" + gprs.getAddress() + "---" + msg);
 		return msg;
 	}
-
-	/*public static void main(String[] args) {
-		String msg = new HighVoltageDeviceCommandUtil()
-				.readVoltageAndCurrent("0400",
-						HighCommandControlCode.READ_VOLTAGE_CURRENT
-								.toString());
-		System.out.println(msg);
-	}*/
 
 	@Override
 	protected void timedCVReadTask() {
 		
 	}	
+	
+	private void printSwitchStatus() {
+		List<HighVoltageStatus> list = ctxStore.getHighVoltageStatus();
+		StringBuilder sb = new StringBuilder();
+		sb.append("打印设备状态\n");
+		for (HighVoltageStatus s : list) {
+			if (null != s.getId()) {
+				String address = CtxStore.get(s.getId()).getAddress();
+				sb.append(address + "---" + ((null == s.getStatus()) ? "null" : s.getStatus()) + "\n");
+			}
+		}
+		sb.append("结束打印设备状态");
+		logger.info(sb.toString());
+	}
 	
 }

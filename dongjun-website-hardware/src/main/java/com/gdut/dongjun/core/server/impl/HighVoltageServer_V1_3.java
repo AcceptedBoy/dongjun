@@ -35,7 +35,7 @@ public class HighVoltageServer_V1_3 extends NetServer implements InitializingBea
 	@Resource(name = "HighVoltageServerInitializer_V1_3")
 	private ServerInitializer initializer;
 	@Autowired
-	private HighVoltageSwitchService lowVoltageSwitchService;
+	private HighVoltageSwitchService highVoltageSwitchService;
 	@Autowired
 	private HighVoltageCtxStore ctxStore;
 
@@ -92,19 +92,19 @@ public class HighVoltageServer_V1_3 extends NetServer implements InitializingBea
 	
 	@Override
 	protected void hitchEventSpy() {
-
-		List<HighVoltageSwitch> switchs = lowVoltageSwitchService
-				.selectByParameters(null);
-
-		if (switchs != null) {
-			for (HighVoltageSwitch s : switchs) {
-				if (s.getId() != null) {
-					if (CtxStore.isReady(s.getId())) {
-						totalCall(s);
-					}
-				}
-			}
-		}
+		//	总召任务由HighVoltageServer完成
+//		List<HighVoltageSwitch> switchs = highVoltageSwitchService
+//				.selectByParameters(null);
+//
+//		if (switchs != null) {
+//			for (HighVoltageSwitch s : switchs) {
+//				if (s.getId() != null) {
+//					if (CtxStore.isReady(s.getId())) {
+//						totalCall(s);
+//					}
+//				}
+//			}
+//		}
 
 	}
 	
@@ -125,7 +125,7 @@ public class HighVoltageServer_V1_3 extends NetServer implements InitializingBea
 						HighCommandControlCode.READ_VOLTAGE_CURRENT
 								.toString());
 		gprs.getCtx().writeAndFlush(msg);
-		logger.info("总召激活地址：" + gprs.getAddress() + "---" + msg);
+		logger.info("v1.3总召激活地址：" + gprs.getAddress() + "---" + msg);
 		return msg;
 	}
 
