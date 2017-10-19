@@ -62,7 +62,7 @@ public class Application extends SpringBootServletInitializer {
 		ComboPooledDataSource ds = new ComboPooledDataSource();
 		ds.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/elecon?useUnicode=true&amp;charaterEncoding=utf-8&zeroDateTimeBehavior=convertToNull");
 		ds.setUser("root");
-		ds.setPassword("759486");//elecon
+		ds.setPassword("root");//elecon
 //		ds.setJdbcUrl("jdbc:mysql://120.24.12.171:3306/elecon?useUnicode=true&amp;charaterEncoding=utf-8&zeroDateTimeBehavior=convertToNull");
 //		ds.setUser("topview");
 //		ds.setPassword("topview+624");//elecon

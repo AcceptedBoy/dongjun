@@ -607,6 +607,9 @@ djMap.Control = function(_map) {
 
 			if(oldIds.length != 0){	// 原本有活动开关情况
 				nodeData.forEach(function(item) {
+					if (!item.id) {
+						return
+					}
 					var node = zTree.getNodesByParamFuzzy('id', item.id)[0]
 					// console.log(node)
 					if(node) {
@@ -647,6 +650,9 @@ djMap.Control = function(_map) {
 
 			} else {	// 原本无活动开关情况
 				nodeData.forEach(function(item) {
+					if (!item.id) {
+						return
+					}
 					var node = zTree.getNodesByParamFuzzy('id', item.id)[0]
 					if(!!node) {
 						node.status = item.status ? item.status : '99'
