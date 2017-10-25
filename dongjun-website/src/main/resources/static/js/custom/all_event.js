@@ -4,6 +4,8 @@ $('#all_event').DataTable({
 		url: 'get_all_high_event_by_time'
 	},
 	'columns' : [ {
+    'data': 'switchName'
+  }, {
 		'data' : "hitchTime"
 	}, {
 		'data' : "hitchReason"
@@ -17,5 +19,15 @@ $('#all_event').DataTable({
 		'data': "solveTime"
 	}, {
 		'data': "solveWay"
-	}]
+  }],
+  'deferRender': true,
+  'order': [[ 1, 'desc' ]],
+  'language': {
+    'paginate': {
+      'next': '下一页',
+      'previous': '上一页'
+    },
+    'emptyTable': '找不到相关数据',
+    'zeroRecords': '找不到相关数据'
+  },
 })
