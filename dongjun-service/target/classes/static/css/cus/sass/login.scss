@@ -1,0 +1,56 @@
+@import "mixin", "variables";
+
+$w: 500px;
+$h: 400px;
+$pre: "login";
+
+.#{$pre}-container {
+	width: $w;
+	height: $h;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	margin-left: -($w / 2);
+	margin-top: -($h / 2);
+	opacity: 1;
+	transition: opacity 1s;
+
+	@at-root {
+		.#{$pre}-card {
+			width: 100%;
+			height: 100%;
+			
+			@include root(title) {
+				height: 40%;
+				background: url('../../../img/logo/loginbg1.jpg') 100% / cover;
+				transition: .5s;
+
+				&:hover {
+					transform: scale(1.03);
+				}
+			}
+		}
+
+		.#{$pre}-logo {
+			width: 50px;
+		}
+
+		.#{$pre}-form {
+			// height: 70%;
+			background-color: color(bgc);
+
+			@include root(container) {
+				width: $w / 2;
+				margin: {
+					bottom: 20px;
+					top: 20px;
+					left: $w / 4;
+				}
+			}
+		}
+
+		.#{$pre}-action {
+			text-align: center;
+		}
+	}
+}

@@ -134,7 +134,8 @@ public class DataMonitorController {
 		Subject subject = SecurityUtils.getSubject();
 		if (subject.hasRole("platform_group_admin")) {
 			return ResponseMessage.success(
-					monitorService.selectByParameters(MyBatisMapUtil.warp("group_id", platformGroupId))
+//					monitorService.selectByParameters(MyBatisMapUtil.warp("group_id", platformGroupId))
+					monitorService.selectByParameters(MyBatisMapUtil.warp("group_id", user.getCompanyId()))
 					);
 		} else {
 			return ResponseMessage.success(monitorService.selectByUserMapping(user));
