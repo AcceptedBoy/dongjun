@@ -108,7 +108,7 @@ public class CompanyController {
 	@ResponseBody
 	@RequestMapping("/switch/list")
 	public ResponseMessage listSwitch(String lineId) {
-		return ResponseMessage.success(switchService.selectByParameters(MyBatisMapUtil.warp("line_id", lineId)));
+		return ResponseMessage.success(switchService.selectByParameters(MyBatisMapUtil.warp("line_id", "1")));
 	}
 	
 	private static boolean isIpAddrAvailable(String ip) {

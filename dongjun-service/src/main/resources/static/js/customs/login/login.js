@@ -23,7 +23,7 @@
 			success : function(data) {
 				switch (data) {
 					case '0':
-						location.href = '/dongjun/companyManger/'
+						location.href = '/dongjun/companyManager/'
 						break
 					case '1':
 						Msg.notify('用户名不存在')

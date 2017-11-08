@@ -60,12 +60,12 @@ public class Application extends SpringBootServletInitializer {
 	public DataSource dataSource() {
 
 		ComboPooledDataSource ds = new ComboPooledDataSource();
-		ds.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/elecon?useUnicode=true&amp;charaterEncoding=utf-8&zeroDateTimeBehavior=convertToNull");
-		ds.setUser("root");
-		ds.setPassword("root");//elecon
-//		ds.setJdbcUrl("jdbc:mysql://120.24.12.171:3306/elecon?useUnicode=true&amp;charaterEncoding=utf-8&zeroDateTimeBehavior=convertToNull");
-//		ds.setUser("topview");
-//		ds.setPassword("topview+624");//elecon
+//		ds.setJdbcUrl("jdbc:mysql://127.0.0.1:3306/elecon?useUnicode=true&amp;charaterEncoding=utf-8&zeroDateTimeBehavior=convertToNull");
+//		ds.setUser("root");
+//		ds.setPassword("root");//elecon
+		ds.setJdbcUrl("jdbc:mysql://120.24.12.171:3306/elecon?useUnicode=true&amp;charaterEncoding=utf-8&zeroDateTimeBehavior=convertToNull");
+		ds.setUser("topview");
+		ds.setPassword("topview+624");//elecon
 		try {
 			ds.setDriverClass("com.mysql.jdbc.Driver");
 		} catch (PropertyVetoException e) {

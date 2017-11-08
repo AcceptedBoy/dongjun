@@ -3,9 +3,12 @@ package com.gdut.dongjun.service.webservice.server.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.catalina.core.ApplicationContext;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.gdut.dongjun.Const;
 import com.gdut.dongjun.domain.po.HighVoltageSwitch;
 import com.gdut.dongjun.service.LineService;
 import com.gdut.dongjun.service.SubstationService;
@@ -16,7 +19,7 @@ import com.gdut.dongjun.service.webservice.client.po.InitialParam;
 import com.gdut.dongjun.service.webservice.server.CenterCallWebsiteService;
 
 @Component
-public class CenterCallWebsiteServiceImpl implements CenterCallWebsiteService {
+public class CenterCallWebsiteServiceImpl implements CenterCallWebsiteService, InitializingBean {
 
 	@Autowired
 	private CommonServiceClient client;
@@ -40,6 +43,17 @@ public class CenterCallWebsiteServiceImpl implements CenterCallWebsiteService {
         }
         initialParam.setHvswitchList(dtos);
         client.getService().systemInitial(initialParam);
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		//	系统启动传输系统信息
+	
+	}
+
+	@Override
+	public void confirmInit(int tag) {
+		Const.SYSTEM_RUN = true;
 	}
 
 }

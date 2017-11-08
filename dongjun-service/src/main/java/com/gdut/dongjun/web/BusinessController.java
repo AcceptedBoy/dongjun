@@ -11,7 +11,7 @@ import com.gdut.dongjun.util.TimeUtil;
 import com.gdut.dongjun.web.vo.ResponseMessage;
 
 @Controller
-@RequestMapping("/dongjun/business")
+@RequestMapping("/dongjun")
 public class BusinessController {
 	
 	@Autowired
