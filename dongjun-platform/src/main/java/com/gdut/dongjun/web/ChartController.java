@@ -299,10 +299,12 @@ public class ChartController {
 		}
 		TemperatureChartData chartData = new TemperatureChartData();
 		Map<String, Object> measureMap = new HashMap<String, Object>();
-		List<TemperatureSensor> sensors = sensorService.selectAllType(deviceId);
+//		List<TemperatureSensor> sensors = sensorService.selectAllType(deviceId);
+		List<TemperatureSensor> sensors = sensorService.selectByParameters(MyBatisMapUtil.warp("device_id", deviceId));
 		for (TemperatureSensor sensor : sensors) {
 			List<TemperatureMeasure> measures = temMeasureService.selectByTime(deviceId, sensor.getTag(), beginDate, endDate);
-			measureMap.put(changeType(sensor.getType()), measures);
+//			measureMap.put(changeType(sensor.getType()), measures);
+			measureMap.put(sensor.getName(), measures);
 		}
 		return chartData.getJsonChart(measureMap);
 	}
@@ -609,10 +611,12 @@ public class ChartController {
 		}
 		TemperatureChartData chartData = new TemperatureChartData();
 		Map<String, Object> measureMap = new HashMap<String, Object>();
-		List<TemperatureSensor> sensors = sensorService.selectAllType(deviceId);
+//		List<TemperatureSensor> sensors = sensorService.selectAllType(deviceId);
+		List<TemperatureSensor> sensors = sensorService.selectByParameters(MyBatisMapUtil.warp("device_id", deviceId));
 		for (TemperatureSensor sensor : sensors) {
 			List<TemperatureMeasure> measures = temMeasureService.selectByTime(deviceId, sensor.getTag(), beginDate, endDate);
-			measureMap.put(changeType(sensor.getType()), measures);
+//			measureMap.put(changeType(sensor.getType()), measures);
+			measureMap.put(sensor.getName(), measures);
 		}
 		ChartData d =  chartData.getJsonChart(measureMap);
 		TemperatureModule module = temModuleService.selectByPrimaryKey(deviceId);

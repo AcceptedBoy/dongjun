@@ -31,24 +31,47 @@ public class TemperatureSensorController {
 	@ResponseBody
 	public ResponseMessage getSensorByDeviceId(String deviceId) {
 		List<TemperatureSensor> list = sensorService.selectByParameters(MyBatisMapUtil.warp("device_id", deviceId));
-		List<TemperatureSensorVO> dtoList = new ArrayList<TemperatureSensorVO>();
-		for (TemperatureSensor s : list) {
-			dtoList.add(TemperatureSensorVO.wrap(s));
-		}
-		return ResponseMessage.success(dtoList);
+//		List<TemperatureSensorVO> dtoList = new ArrayList<TemperatureSensorVO>();
+//		for (TemperatureSensor s : list) {
+//			dtoList.add(TemperatureSensorVO.wrap(s));
+//		}
+		return ResponseMessage.success(list);
 	}
 	
 //	@RequiresPermissions("platform_group_admin:device")
 	@RequestMapping("/edit")
 	@ResponseBody
 	public ResponseMessage editSensor(TemperatureSensor sensor) {
+		//	新增
 		if (null == sensor.getId()) {
 			sensor.setId(UUIDUtil.getUUID());
+			//	如果新增的传感器的tag已经存在，错误
+			List<TemperatureSensor> list = sensorService.selectByParameters(MyBatisMapUtil.warp("device_id", sensor.getDeviceId()));
+			for (TemperatureSensor s : list) {
+				if (s.getTag() == sensor.getTag()) {
+					return ResponseMessage.warning("操作失败"); 
+				}
+			}
+			sensorService.insert(sensor);
+			return ResponseMessage.success("操作成功");
+		} else {
+			List<TemperatureSensor> list = sensorService.selectByParameters(MyBatisMapUtil.warp("device_id", sensor.getDeviceId()));
+			for (TemperatureSensor s : list) {
+				if (s.getTag() == sensor.getTag()) {
+					if (s.getId().equals(sensor.getId())) {
+						//	相同的tag， 相同的id，判断为相同的两个实体
+						sensorService.updateByPrimaryKey(sensor);
+						return ResponseMessage.success("操作成功"); 
+					} else {
+						//	相同的tag，不同的id，则两个实体产生冲突，报错
+						return ResponseMessage.warning("操作失败"); 
+					}
+				}
+			}
+			//	数据库中没有一个记录拥有传入的tag，则认为是修改安全的记录
+			sensorService.updateByPrimaryKey(sensor);
+			return ResponseMessage.success("操作成功"); 
 		}
-		if (sensorService.updateByPrimaryKeySelective(sensor) == 0) {
-			return ResponseMessage.warning("操作失败");
-		}
-		return ResponseMessage.success("操作成功");
 	}
 	
 //	@RequiresPermissions("platform_group_admin:device")
