@@ -69,7 +69,7 @@ public class TemperatureSensorController {
 				}
 			}
 			//	数据库中没有一个记录拥有传入的tag，则认为是修改安全的记录
-			sensorService.updateByPrimaryKey(sensor);
+			sensorService.updateByPrimaryKeySelective(sensor);
 			return ResponseMessage.success("操作成功"); 
 		}
 	}

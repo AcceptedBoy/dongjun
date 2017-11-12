@@ -49,111 +49,6 @@
 </div>
 
 <script>
-/*  var Popup = function() {
-    var c = null
-    return {
-      Confirm: function(data) {
-        if(!c) {
-          c = new Confirm(data)
-          return c
-        } else {
-          return c.reset(data).show()
-        }
-      }
-    }
-  }()
-
-  var Confirm = function(data) {
-    this.title = data.title
-    this.text = data.text
-    this.confirm = data.confirm
-    this.fail = data.fail
-    this.panel = document.createElement('div')
-    this.titleNode = document.createElement('h3')
-    this.textNode = document.createElement('p')
-    this.closeBtn = document.createElement('button')
-    this.cancelBtn = document.createElement('button')
-    this.cancelText = data.cancelText || '取消'
-    this.confirmBtn = document.createElement('button')
-    this.confirmText = data.confirmText || '确认'
-    this.init()
-  }
-
-  Confirm.prototype.init = function() {
-    this.panel.className = 'modal hide fade'
-    this.panel.setAttribute('tabindex', '-1')
-    this.panel.setAttribute('role', 'dialog')
-    this.panel.setAttribute('aria-labelledby', 'myModalLabel')
-    this.panel.setAttribute('aria-hidden', 'true')
-    // header
-    var header = document.createElement('div')
-    header.className = 'modal-header'
-    this.closeBtn.className = 'close'
-    this.closeBtn.dataset.dismiss = 'modal'
-    this.closeBtn.setAttribute('aria-hidden', 'true')
-    this.closeBtn.innerHTML = '×'
-    header.appendChild(this.closeBtn)
-    this.titleNode.innerHTML = this.title
-    header.appendChild(this.titleNode)
-    this.panel.appendChild(header)
-
-    // body
-    var body = document.createElement('div')
-    body.className = 'modal-body'
-    this.textNode.innerHTML = this.text
-    body.appendChild(this.textNode)
-    this.panel.appendChild(body)
-
-    // footer
-    var footer = document.createElement('div')
-    footer.className = 'modal-footer'
-    this.cancelBtn.innerHTML = this.cancelText
-    this.cancelBtn.className = 'btn'
-    this.cancelBtn.dataset.dismiss = 'modal'
-    this.cancelBtn.setAttribute('aria-hidden', 'true')
-    footer.appendChild(this.cancelBtn)
-    this.confirmBtn.innerHTML = this.confirmText
-    this.confirmBtn.className = 'btn btn-danger'
-    this.confirmBtn.dataset.dismiss = 'modal'
-    this.confirmBtn.setAttribute('aria-hidden', 'true')
-    footer.appendChild(this.confirmBtn)
-    this.panel.appendChild(footer)
-
-    document.body.appendChild(this.panel)
-    this.bindEvent()
-    this.show()
-  }
-
-  Confirm.prototype.bindEvent = function() {
-    this.closeBtn.onclick = this.fail
-    this.cancelBtn.onclick = this.fail
-    this.confirmBtn.onclick = this.confirm
-  }
-
-  Confirm.prototype.reset = function(data) {
-    this.title = data.title
-    this.text = data.text
-    this.confirm = data.confirm
-    this.fail = data.fail
-    this.cancelText = data.cancelText || '取消'
-    this.confirmText = data.confirmText || '确认'
-    this.titleNode.innerHTML = this.title
-    this.textNode.innerHTML = this.text
-    this.cancelBtn.innerHTML = this.cancelText
-    this.confirmBtn.innerHTML = this.confirmText
-    this.bindEvent()
-    return this
-  }
-
-  Confirm.prototype.show = function(data) {
-    $(this.panel).modal('show')
-    return this
-  }
-
-  Confirm.prototype.hide = function(data) {
-    $(this.panel).modal('hide')
-    return this
-  }*/
 
   var panelObserver = function() {
     var __message = {}
@@ -201,24 +96,12 @@
           'columns': [
             { 'data': 'name' },
             { 'data': 'address' },
-            // {
-            //   'data': 'id',
-            //   'render': function(data, type, row) {
-            //     return '<a role="button" class="btn" data-fnc="goToGPRSModule" data-name="'+ row.name +'"  data-id="'+ data +'">查看</a>'
-            //   }
-            // },
             {
               'data': 'id',
               'render': function(data, type, row) {
                 return '<a role="button" class="btn" data-fnc="goToTemModule" data-name="'+ row.name +'"  data-id="'+ data +'">查看</a>'
               }
             },
-            // {
-            //   'data': 'id',
-            //   'render': function(data, type, row) {
-            //     return '<a role="button" class="btn" data-fnc="goToelectronicModule" data-name="'+ row.name +'"  data-id="'+ data +'">查看</a>'
-            //   }
-            // },
             {
               data: 'id',
               width: '50px',
@@ -302,7 +185,7 @@
   var ModulesTabPanel = function() {
     var hasLoad = []
     var template = {
-      temperature: 'temperature_module.html',
+      temperature: 'temperature_module_dev.html',
       GPRS: 'GPRS_module.html',
       electronic: 'electronic_module.html'
     }
@@ -320,8 +203,6 @@
       GPRS: 'showGPRSModule',
       electronic: 'showElectronicModule'
     }
-
-    // var afterLoad = function() {}
 
     var __loadTpl = function(tplName, fnc) {
       if(!template[tplName]) {
@@ -364,7 +245,6 @@
           currentTab = name
         }
         curMonitorId = monitorId
-        // afterLoad = fnc
         titleNode.text(monitorName)
         panelObserver.fire('toModulesPanel', {})
         $('#modules_panel_tab a[href="#'+ name + '_module' +'"]').tab('show')

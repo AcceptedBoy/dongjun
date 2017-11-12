@@ -594,6 +594,10 @@
 					op.legend.orient = 'vertical'
           op.legend.x = 'right'
           op.legend.y = '25'
+          // 加入配置项尝试连接空值 - 2017年11月11日22:35:05
+          for(var i = 0; i < op.series.length; i++) {
+        	  op.series[i].connectNulls = true
+          }
 				}
       };
     }();

@@ -1,0 +1,332 @@
+<div id="temperature_info_panel">
+  <div class="container-fluid well" style="height: 100%;overflow-y: hidden;position: relative;">
+    <table id="temperature_info_list" class="table table-bordered table-striped table-hover table-condensed success" style="width: 100%">
+      <thead>
+        <td>设备号码</td>
+        <td>名称</td>
+        <td>地址</td>
+        <td>温度上限</td>
+        <td>温度下限</td>
+        <td style="width: 70px;">修改</td>
+        <td style="width: 70px">删除</td>
+      </thead>
+    </table>
+  </div>
+</div>
+<div id="temperature_info_panel_modal"></div>
+<div id="temperature_sensor_panel">
+  <div class="container-fluid well" style="height: 100%;overflow-y: hidden;position: relative;">
+    <h4 class="text-center" id="sensor_list_header">
+      <span id="sensor_list_title" style="vertical-align: middle;">传感器</span>
+      <button class="btn" id="add_sensor_btn" style="float: right;">增加传感器</button>
+    </h4>
+  </div>
+  <table id="temperature_sensor_panel_table" class="table table-bordered table-striped table-hover table-condensed success" style="width: 100%">
+    <thead>
+      <td>传感器编号</td>
+      <td>传感器名称</td>
+      <td style="width: 70px;">修改</td>
+      <td style="width: 70px">删除</td>
+    </thead>
+  </table>
+</div>
+<div id="temperature_sensor_panel_modal"></div>
+<script>
+  var temModuleTable = function () {
+    var table = null
+    var store = {
+      dom: {
+        title: null,
+        add: null,
+        back: null
+      },
+      now: {
+        monitorId: '',  // data monitor id
+        moduleId: '',   // temperature module id
+      },
+      url: '',
+      lastId: ''
+    }
+    return {
+      init: function (setting) {
+        // 注册事件
+        panelObserver.regist('showTemModule', function (agrs) {
+          this.show(agrs.id, agrs.name)
+        }.bind(this))
+        store.dom = setting.dom
+        store.url = setting.url
+        // 返回按钮
+        this.loadModal()
+      },
+      loadModal: function () {
+        // 引入temModuleModal
+        var div = document.createElement('div')
+        dj.inserCmp('temperature_module_modal.html', div, function () {
+          $('#temperature_info_panel_modal')[0].appendChild(div)
+
+          // 设置modal
+          TemModuleModal.setOption({
+            url: {
+              add: '/dongjun/data_monitor/submodule/temperature/edit',
+              edit: '/dongjun/data_monitor/submodule/temperature/edit',
+              del: '/dongjun/data_monitor/submodule/temperature/del',
+            },
+            completeFnc: this.redraw.bind(this)
+          })
+
+        }.bind(this))
+      },
+      show: function (id, title) {
+        if (id === store.lastId) {
+          return
+        }
+        store.now.monitorId = id
+        this.draw(id)
+      },
+      changeTitle: function (title) {
+        store.dom.title.html('温度数据——' + title)
+        return this
+      },
+      draw: function (id) {
+        table = $('#temperature_info_list').DataTable({
+          'searching': false,
+          'ordering': false,
+          'info': false,
+          'paging': false,
+          'ajax': {
+            'url': store.url,
+            'type': 'POST',
+            'dataSrc': function (json) {
+              json.text = Object.prototype.toString.call(json.text) == '[object Object]' ? [json.text] : []
+              return json.text
+            },
+            'data': {
+              monitorId: id
+            }
+          },
+          'columns': [
+            { 'data': 'deviceNumber' },
+            { 'data': 'name' },
+            { 'data': 'address' },
+            { 'data': 'maxHitchValue' },
+            { 'data': 'minHitchValue' },
+            {
+              'data': 'id',
+              'width': '70px',
+              'render': function (data) {
+                return '<a href="#edit_module_modal" role="button" class="btn" data-toggle="modal" data-fnc="edit" data-id="' + data + '">修改 &raquo;</a>'
+              }
+            },
+            {
+              'data': 'id',
+              'width': '70px',
+              'render': function (data) {
+                return '<a role="button" class="btn" data-toggle="modal" data-fnc="del" data-id="' + data + '">删除 &raquo;</a>'
+              }
+            },
+          ],
+          'language': {
+            'emptyTable': '<a data-fnc="add" style="cursor: pointer;">点击添加新的数据</a>',
+            'zeroRecords': '<a data-fnc="add" style="cursor: pointer;">点击添加新的数据</a>',
+            'loadingRecords': '正在加载数据...'
+          },
+          'initComplete': function (setting, json) {
+
+            $(this[0]).click(function (event) {
+              var target = $(event.target)
+              var fnc = target.data('fnc')
+              if (fnc == 'edit') {
+                if (TemModuleModal) {
+                  var id = target.data('id')
+                  var data = Array.prototype.find.call(table.data(), function (item) {
+                    return item.id == id
+                  })
+                  data.monitorId = store.now.monitorId
+                  TemModuleModal.editTemModule(data)
+                }
+              } else if (fnc == 'del') {
+                var id = target.data('id')
+                if (TemModuleModal) {
+                  TemModuleModal.delTemModule(id)
+                }
+              } else if (fnc == 'add') {
+                TemModuleModal.addTemModule(store.now.monitorId)
+              }
+            })
+          },
+          'drawCallback': function (settings) {
+            var data = this.api().ajax.json()
+
+            if (data) {
+              var deviceId = data.text[0] ? data.text[0].id : '-1'
+              store.now.deviceId = deviceId
+              panelObserver.fire('showTemSensor', {
+                deviceId: deviceId
+              })
+            }
+
+          }
+        })
+        this.draw = this.redraw
+        return this
+      },
+      redraw: function (id) {
+        table.ajax.url(store.url)
+        id = id || store.now.monitorId
+        var param = {
+          monitorId: id
+        }
+        table.settings()[0].ajax.data = param
+        table.ajax.reload()
+        return this
+      }
+    }
+  }()
+
+  var sensorTable = function () {
+    var table = null
+    var $dom = $('#temperature_sensor_panel_table')
+    var addBtn = $('#add_sensor_btn')
+    var store = {
+      now: {
+        deviceId: '-1',
+        sensorId: ''
+      },
+      url: {
+        list: '/dongjun/temperature_sensor/list',
+        edit: '/dongjun/temperature_sensor/edit',
+        del: '/dongjun/temperature_sensor/del'
+      },
+      availableType: {
+        '0': '无类型'
+      }
+    }
+    var TYPES = ['无类型', '进线A相', '进线B相', '进线C相', '出线A相', '出线B相', '出线C相']
+    var hasSet = false
+    return {
+      init: function (setting) {
+        // 注册事件
+        panelObserver.regist('showTemSensor', function (agrs) {
+          this.show(agrs.deviceId)
+        }.bind(this))
+        this.loadModal()
+      },
+      loadModal: function () {
+        // 引入temSensorModal
+        var div = document.createElement('div')
+        dj.inserCmp('temperature_sensor_modal_dev.html', div, function () {
+          $('#temperature_sensor_panel_modal')[0].appendChild(div)
+
+          // 设置modal
+          sensorModal.setOption({
+            completeFnc: this.show.bind(this)
+          })
+
+        }.bind(this))
+      },
+      show: function (deviceId) {
+        var me = this
+        store.now.deviceId = deviceId || store.now.deviceId
+        this.draw(store.now.deviceId)
+      },
+      draw: function (id) {
+        table = $dom.DataTable({
+          'searching': false,
+          'info': false,
+          'paging': false,
+          'ajax': {
+            'url': store.url.list,
+            'type': 'POST',
+            'dataSrc': 'text',
+            'data': {
+              deviceId: id
+            }
+          },
+          'columns': [
+            { 'data': 'tag' },
+            { 'data': 'name' },
+            {
+              'data': 'id',
+              'width': '70px',
+              'render': function (data) {
+                return '<a href="" role="button" class="btn" data-toggle="modal" data-fnc="edit" data-id="' + data + '">修改 &raquo;</a>'
+              }
+            },
+            {
+              'data': 'id',
+              'width': '70px',
+              'render': function (data) {
+                return '<a role="button" class="btn" data-toggle="modal" data-fnc="del" data-id="' + data + '">删除 &raquo;</a>'
+              }
+            },
+          ],
+          'deferRender': true,
+          'order': [[0, 'asc']],
+          'language': {
+            'emptyTable': '<a data-fnc="add" style="cursor: pointer;">点击添加新的数据</a>',
+            'zeroRecords': '<a data-fnc="add" style="cursor: pointer;">点击添加新的数据</a>',
+            'loadingRecords': '正在加载数据...'
+          },
+          'initComplete': function (setting, json) {
+
+            $(this[0]).click(function (event) {
+              var target = $(event.target)
+              var fnc = target.data('fnc')
+              if (fnc == 'edit') {      // 编辑
+                var id = target.data('id')
+                var data = Array.prototype.find.call(table.data(), function (item) {
+                  return item.id == id
+                })
+                data.deviceId = store.now.deviceId
+                sensorModal.editSensor(data)
+                
+              } else if (fnc == 'del') {  // 删除
+                var id = target.data('id')
+                sensorModal.delSensor({
+                  id: id,
+                  deviceId: store.now.deviceId
+                })
+              } else if (fnc == 'add') {  // 增加
+                addBtn.click()
+              }
+            })
+
+            addBtn.on('click', function () {
+              console.log('add')
+              sensorModal.addSensor({
+                deviceId: store.now.deviceId
+              })
+            })
+          }
+        })
+        this.draw = this.redraw
+        return this
+      },
+      redraw: function (id) {
+        if (id == -1) {
+          table.clear().draw()
+          return
+        }
+        table.ajax.url(store.url.list)
+        id = id || store.now.deviceId
+        var param = {
+          deviceId: id
+        }
+        table.settings()[0].ajax.data = param
+        table.ajax.reload()
+        return this
+      }
+    }
+  }()
+ 
+  temModuleTable.init({
+    dom: {
+      title: $('#temperature_info_title'),
+      back: $('#tem_info_back')
+    },
+    url: '/dongjun/data_monitor/submodule/temperature/list'
+  })
+
+  sensorTable.init()
+
+</script>
