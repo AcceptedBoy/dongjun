@@ -1,5 +1,0 @@
-@mixin root($name) { 
-  @at-root #{&}-#{$name} { 
-    @content; 
-  } 
-}

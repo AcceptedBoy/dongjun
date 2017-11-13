@@ -60,7 +60,7 @@ public class TemperatureSensorController {
 				if (s.getTag() == sensor.getTag()) {
 					if (s.getId().equals(sensor.getId())) {
 						//	相同的tag， 相同的id，判断为相同的两个实体
-						sensorService.updateByPrimaryKey(sensor);
+						sensorService.updateByPrimaryKeySelective(sensor);
 						return ResponseMessage.success("操作成功"); 
 					} else {
 						//	相同的tag，不同的id，则两个实体产生冲突，报错
