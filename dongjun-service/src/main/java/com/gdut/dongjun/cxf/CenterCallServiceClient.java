@@ -84,6 +84,15 @@ public class CenterCallServiceClient implements InitializingBean {
 				service.getWebsiteService().initCall();
 			}
 		}
+		
+		public void confirmInit(String ipAddr) {
+			for (CenterServiceConnection service : serviceList) {
+				if (service.getIpAddr().equals(ipAddr)) {
+					service.getWebsiteService().confirmInit(1);
+					return ;
+				}
+			}
+		}
 	}
 
 	/**

@@ -16,9 +16,14 @@ public class IndexController {
 		return "login";
 	}
 	
-	@RequestMapping("/dongjun/companyManger")
-	public String companyManger() {
+	@RequestMapping("/dongjun/companyManager")
+	public String companyManager() {
 		return "companyManager";
+	}
+	
+	@RequestMapping("/dongjun/switchManager")
+	public String switchManager() {
+		return "switchManager";
 	}
 	
 	@RequestMapping("/testAvailable")

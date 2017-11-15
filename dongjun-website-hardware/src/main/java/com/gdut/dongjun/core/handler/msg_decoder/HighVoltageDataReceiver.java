@@ -34,6 +34,7 @@ import com.gdut.dongjun.core.SwitchGPRS;
 import com.gdut.dongjun.core.device_message_engine.impl.HighVoltageSwitchMessageEngine;
 import com.gdut.dongjun.core.handler.DataMonitorService;
 import com.gdut.dongjun.core.server.impl.HighVoltageServer;
+import com.gdut.dongjun.core.server.impl.HighVoltageServer_V1_3;
 import com.gdut.dongjun.domain.HighVoltageStatus;
 import com.gdut.dongjun.domain.po.HighVoltageCurrent;
 import com.gdut.dongjun.domain.po.HighVoltageHitchEvent;
@@ -50,6 +51,7 @@ import com.gdut.dongjun.util.CharUtils;
 import com.gdut.dongjun.util.HighVoltageDeviceCommandUtil;
 import com.gdut.dongjun.util.LowVoltageDeviceCommandUtil;
 import com.gdut.dongjun.util.MyBatisMapUtil;
+import com.gdut.dongjun.util.Standard101Util;
 import com.gdut.dongjun.util.StringCommonUtil;
 import com.gdut.dongjun.util.TimeUtil;
 import com.gdut.dongjun.util.UUIDUtil;
@@ -85,12 +87,15 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	private static final char[] CODE_47 = new char[] { '4', '7' }; // 47
 	private static final char[] CODE_16 = new char[] { '1', '6' }; // 16
 	private static final char[] CODE_68 = new char[] { '6', '8' }; // 68
+	private static final char[] CODE_108B = new char[] { '1', '0', '8', 'b' };
+	private static final char[] CODE_1080 = new char[] { '1', '0', '8', '0' };
 
 	private static final String STR_00 = "00".intern();
 	private static final String STR_01 = "01".intern();
 	private static final String STR_02 = "02".intern();
 
 	private static final Logger logger = LoggerFactory.getLogger(HighVoltageDataReceiver.class);
+	private static final Logger textLogger = LoggerFactory.getLogger("TextLogger");
 
 	@Autowired
 	private HighVoltageCurrentService currentService;
@@ -147,7 +152,53 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		 *//* getHitchReason(data.substring(140, 160)) *//*
 														 * ; }
 														 */
+		//	记录报文到单独的文件中
+		textLogger.info(rowMsg);
+		//	处理链路建立过程
+		if (handleRegis(ctx, data)) {
+			return ;
+		}
 		handleSeparatedText(ctx, data);
+	}
+	
+	/**
+	 * 建立链路建立过程
+	 * @param ctx
+	 * @param data
+	 * @return
+	 */
+	private boolean handleRegis(ChannelHandlerContext ctx, char[] data) {
+		//终端响应链路状态
+		if (CharUtils.startWith(data, CODE_108B)) {
+			// 主站复位远方链路
+			String addr = CtxStore.get(ctx).getAddress();
+			logger.info("来自" + addr + "的请求链路应答" + String.valueOf(data));
+			String msg = Standard101Util.getResetLinkRequest(addr);
+			ctx.writeAndFlush(msg);
+			logger.info("发送到" + addr + "的复位链路报文" + String.valueOf(msg));
+			return true;
+		} else if (CharUtils.startWith(data, CODE_1080)) {
+			// 终端确认复位远方链路
+			String addr = CtxStore.get(ctx).getAddress();
+			logger.info("来自" + addr + "的链路确认报文" + String.valueOf(data));
+			//	确认链路报文
+			ctx.writeAndFlush(Standard101Util.getConfirmFrame(CtxStore.get(ctx).getAddress()));
+			//	链路建立过程完成
+			CtxStore.get(ctx).setLinked(true);
+			AttributeKey<Integer> key = AttributeKey.valueOf("firstCall");
+			Attribute<Integer> attr = ctx.attr(key);
+			if (null == attr.get()) {
+				HighVoltageDeviceCommandUtil ut = new HighVoltageDeviceCommandUtil();
+				String msg = ut.checkTime(addr);
+				ctx.writeAndFlush(msg);
+				logger.info("发送到" + addr + "的对时报文" + msg);
+				//	链路建立成功发出总召
+				HighVoltageServer_V1_3.totalCall(CtxStore.get(ctx).getId());
+				attr.set(1);
+			}
+			return true;
+		}
+		return false;
 	}
 
 	private void handleSeparatedText(ChannelHandlerContext ctx, char[] data) {
@@ -175,38 +226,7 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			} else {
 				break;
 			}
-			// 获取报文分割点
-			// int pos = getSeparatedPoint(data, begin);
-			// pos为-1报文异常
-			// if (pos == -1) {
-			// break;
-			// }
-			// pos为-2目标分割点非报文分割点
-			// else if (pos == -2) {
-			// continue;
-			// }
 		}
-	}
-
-	/**
-	 * 得到报文分割点
-	 * 
-	 * @param data
-	 * @param begin
-	 * @return
-	 */
-	private int getSeparatedPoint(char[] data, Integer begin) {
-		int index = StringCommonUtil.getFirstIndexOfEndTag(data, begin, "16");
-		if (index != -1) {
-			if (isSeparatedPoint(data, index)) {
-				return index;
-			} else {
-				// 目标分割点非报文分割点
-				begin = index;
-				return -2;
-			}
-		}
-		return -1;
 	}
 
 	/**
@@ -396,36 +416,6 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		}
 		return false;
 	}
-
-	// /**
-	// * 判断一段报文是不是由几段报文拼凑而成
-	// *
-	// * @param data
-	// * @return
-	// */
-	// private boolean isMultiedCode(char[] data) {
-	// for (int i = 0; i < data.length - 1; i++) {
-	// // 如果是16开头
-	// if (data[i] == '1' && data[i + 1] == '6') {
-	// // 如果16在报文结尾，返回false
-	// if (data.length == i + 2) {
-	// return false;
-	// }
-	// //如果不是1668xx68的结构，返回false
-	// if (i + 9 >= data.length) {
-	// return false;
-	// }
-	// // 如果的确是1668xx68的结构，返回true
-	// if (data[i + 2] == '6'
-	// && data[i + 3] == '8'
-	// && data[i + 8] == '6'
-	// && data[i + 9] == '8') {
-	// return true;
-	// }
-	// }
-	// }
-	// return false;
-	// }
 
 	/**
 	 * 在发送遥控预置操作之后，若开关空闲，则可以开始对本开关进行开合闸操作<br>

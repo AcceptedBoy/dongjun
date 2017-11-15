@@ -20,4 +20,13 @@ public interface CenterCallWebsiteService {
 	@Consumes({MediaType.APPLICATION_JSON})
 	public void initCall();
 	
+	/**
+	 * service系统确定子系统身份，可以运作
+	 * @param tag
+	 */
+	@POST
+	@Path("/confirm_init")
+	@Consumes({MediaType.APPLICATION_JSON})
+	public void confirmInit(int tag);
+	
 }

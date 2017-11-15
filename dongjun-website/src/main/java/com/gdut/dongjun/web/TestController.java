@@ -2,19 +2,21 @@ package com.gdut.dongjun.web;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.gdut.dongjun.util.VoiceFixUtil;
+import com.gdut.dongjun.domain.model.ResponseMessage;
+import com.gdut.dongjun.domain.vo.ActiveHighSwitch;
+import com.gdut.dongjun.service.webservice.client.HardwareServiceClient;
+import com.gdut.dongjun.service.webservice.client.po.SwitchGPRS;
 
 @Controller
 public class TestController {
@@ -36,6 +38,25 @@ public class TestController {
 		return ;
 	}
 	
+	@Autowired
+	private HardwareServiceClient hardwareService;
+	
+	@RequestMapping("/testSwitchStatus")
+	@ResponseBody
+	public ResponseMessage testSwtchStatus() {
+		StringBuilder sb = new StringBuilder();
+		List<ActiveHighSwitch> list = hardwareService.getService().getActiveSwitchStatus();
+		List<SwitchGPRS> switchList = hardwareService.getService().getCtxInstance();
+		for (SwitchGPRS gprs : switchList) {
+			for (ActiveHighSwitch s : list) {
+				if (null != gprs.getId() && gprs.getId().equals(s.getId())) {
+					sb.append(gprs.getAddress() + "---" + s.getStatus() + "\n");
+					break;
+				}
+			}
+		}
+		return ResponseMessage.info(sb.toString());
+	}
 
 //	@RequestMapping("/electronic_map_info")
 //	public void getMapInfo(HttpServletRequest req, HttpServletResponse resp) throws Exception {

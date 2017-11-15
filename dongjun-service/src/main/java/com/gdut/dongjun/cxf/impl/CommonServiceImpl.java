@@ -182,6 +182,8 @@ public class CommonServiceImpl implements CommonService {
         //更新子系统的可用设备地址
         List<String> addrAvailable = hvSwitchService.selectAddrAvailableByCompanyId(c.getId());
         cxfClient.getService().updateSwitchAddressAvailable(addrAvailable, ipAddr);
+        //	通知子系统可以正常运行
+        cxfClient.getService().confirmInit(ipAddr);
         return SUCCESS;
     }
 
