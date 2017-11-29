@@ -63,5 +63,7 @@ public interface HighVoltageVoltageService extends DeviceVoltageService<HighVolt
 	 */
 	public List<HighVoltageVoltage> selectByTime(String switchId, String beginDate,
                                      String endDate, String phase);
+	
+	public int insertMulti(List<HighVoltageVoltage> list);
 
 }

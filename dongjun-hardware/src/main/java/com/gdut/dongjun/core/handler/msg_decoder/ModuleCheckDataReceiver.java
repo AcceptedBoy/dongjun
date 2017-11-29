@@ -26,6 +26,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
  */
 @Sharable
 @Component
+@Deprecated
 public class ModuleCheckDataReceiver extends ChannelInboundHandlerAdapter {
 	
 	private static final char[] CODE_68 = new char[] { '6', '8' };

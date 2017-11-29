@@ -41,4 +41,9 @@ SinglePrimaryKeyBaseDAOImpl<HighVoltageCurrent> implements HighVoltageCurrentMap
 		return template.selectList(getNamespace("getRecentlyCurrent"), hc);
 
 	}
+
+	@Override
+	public int insertMulti(List<HighVoltageCurrent> list) {
+		return template.insert(getNamespace("insertMulti"), list);
+	}
 }

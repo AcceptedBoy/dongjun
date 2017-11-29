@@ -122,4 +122,9 @@ public class HighVoltageVoltageServiceImpl extends DeviceVoltageServiceImpl<High
 		map.put("phase", phase);
 		return voltageMapper.selectByTime(map);
 	}
+
+	@Override
+	public int insertMulti(List<HighVoltageVoltage> list) {
+		return voltageMapper.insertMulti(list);
+	}
 }

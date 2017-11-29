@@ -49,4 +49,5 @@ public interface HighVoltageVoltageService extends BaseService<HighVoltageVoltag
 	 */
 	public List<HighVoltageVoltage> getRecentlyVoltage(String switchId, String phase);
 
+	public int insertMulti(List<HighVoltageVoltage> list);
 }

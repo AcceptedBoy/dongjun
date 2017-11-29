@@ -104,4 +104,9 @@ HighVoltageCurrentService {
 		}
 	}
 
+	@Override
+	public int insertMulti(List<HighVoltageCurrent> list) {
+		return currentMapper.insertMulti(list);
+	}
+
 }
