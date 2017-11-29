@@ -9,7 +9,7 @@
 // 	 callback:function(v,e){} //回调函数
 // });
 // 
-(function (){
+;(function (){
 	// Polyfill Object.assign
 	if (typeof Object.assign != 'function') {
 	  Object.assign = function(target) {
@@ -55,18 +55,21 @@
 	    init: function(o) {
 	      var _self = this;
 	      table = $('#switch_list').DataTable({
-					'ajax': {
-			      'url': defUrl,
-			      'type': 'POST',
-			      'data': o.data,
-			      'dataSrc': function(data) {
+					ajax: {
+			      url: defUrl,
+			      type: 'POST',
+			      data: o.data,
+			      dataSrc: function(data) {
 			        return typeof data === 'string' ? JSON.parse(data).text : data.text
 		        }
 			     },
-			    'columns': [
-			      { 'data': 'name' },
-			      { 'data': 'address' },
-			      { 'data': 'expireTime' },
+			    columns: [
+			      { data: 'name' },
+			      { data: 'address' },
+			      { 
+              data: 'expireTime',
+              render: this.renderTime
+            },
 			      {
 			        data: 'id',
 			        orderable: false,
@@ -94,19 +97,19 @@
 			        }
 			      },
 			    ],
-			    'language': {
-			      'paginate': {
-			        'next': '下一页',
-			        'previous': '上一页'
+			    language: {
+			      paginate: {
+			        next: '下一页',
+			        previous: '上一页'
 			      },
-			      'emptyTable': '找不到相关数据',
-			      'zeroRecords': '找不到相关数据',
-			      'loadingRecords': '正在加载数据...'
+			      emptyTable: '找不到相关数据',
+			      zeroRecords: '找不到相关数据',
+			      loadingRecords: '正在加载数据...'
 			    },
 			    drawCallback: function () {
 			    	componentHandler.upgradeDom()
 			    },
-			    'initComplete': function() {
+			    initComplete: function() {
 			    	isInit = true
 			    	$(this[0]).click(function(event) {
 	            var target = $(event.target)
@@ -117,7 +120,8 @@
 	                var id = target.data('id')
 	                var data = Array.prototype.find.call(table.data(), function(item) {
 	                  return item.id == id
-	                })
+                  })
+                  data.expireTime = _self.renderTime(data.expireTime) // 转换格式
 	              	switchModal.setId(id).setModalForm('editTime', data).show()
 	                return
 	              case 'delete':
@@ -140,7 +144,19 @@
 	      }
 	      table.settings()[0].ajax.data = param;
 	      table.ajax.reload()
-	    },
+      },
+      renderTime: function (time) {
+        var timeFormat = /\d{4}-\d{1,2}-\d{1,2}/
+        if (timeFormat.test(time)) {
+          return time
+        }
+        var date = new Date(time),
+            dateArr = []
+        dateArr.push(date.getFullYear())
+        dateArr.push(date.getMonth() + 1)
+        dateArr.push(date.getDate())
+        return dateArr.join('-')
+      },
 	    toggleRender: function (lineId) {
 	    	if(!isInit) {
 	    		this.init({
@@ -202,6 +218,7 @@
 	      return this
 	    },
 	    saveEndDate: function () {
+        var _self = this
 	    	var date = $('#expireTimeInput').val()
 	    	if (!$.trim(date)) {
 	    		Msg.notify('请选择日期')
@@ -219,7 +236,8 @@
 	    		data: data,
 	    		success: function (res) {
 	    			Msg.notify('修改成功')
-	    			switchTable.redraw(store.curId)
+            switchTable.redraw(store.curId)
+            _self.hide()
 	    		},
 	    		error: function () {
 	    			Msg.notify('修改失败')
@@ -235,18 +253,9 @@
 	    		self.disSwitch()
 	    	})
 	    },
-	    show: function (name, cb) {
-	    	if (!name) {
-	    		if (store.curModal) {
-	    			store.curModal.modal()
-	    		}
-	    	} else {
-		    	modal[name].modal()
-		    	if (cb) cb()
-	    	}
-	    },
 	    disSwitch: function () {
-	    	var id = store.curId
+        var id = store.curId
+        var _self = this
 	    	$.ajax({
 	    		type: 'POST',
 	    		url: api.disSwitch,
@@ -254,14 +263,35 @@
 	    			switchId: id
 	    		},
 	    		success: function () {
-	    			Msg.notify('停用成功，正在刷新列表')
-	    			switchTable.redraw(store.curId)
+	    			Msg.notify('停用成功')
+            switchTable.redraw(store.curId)
+            _self.hide()
 	    		},
 	    		error: function () {
 	    			Msg.notify('停用失败')
 	    		}
 	    	})
-	    }
+      },
+	    show: function (name, cb) {
+        if (!name) {
+          if (store.curModal) {
+            store.curModal.modal()
+          }
+        } else {
+          store.curModal = modal[name].modal()
+          if (cb) cb()
+        }
+      },
+      hide: function (name, cb) {
+        if (!name) {
+          if (store.curModal) {
+            store.curModal.modal('hide')
+          }
+        } else {
+          modal[name].modal('hide')
+          if (cb) cb()
+        }
+      }
 		}
 	}()
 
@@ -271,7 +301,7 @@
 			notify: function (text) {
 				snackbarContainer.MaterialSnackbar.showSnackbar({
 					message: text,
-					timeout: 10000
+					timeout: 1500
 				})
 			}
 		}

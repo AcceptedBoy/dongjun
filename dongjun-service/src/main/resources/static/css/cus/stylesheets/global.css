@@ -134,3 +134,32 @@ select::-ms-expand {
 i.fa {
   color: inherit;
 }
+/* 修复textarea的label与input不一致的问题 */
+.fix_area > .fix_textarea_label {
+  position: absolute;
+  margin-top: 4px;
+  color: rgba(0,0,0,.26);
+  font-size: 16px;
+  transition-property: visibility, transform, font-size, color;
+  transition-duration: .3s;
+}
+
+.fix_area.is-focused > .fix_textarea_label,
+.fix_area.is-dirty > .fix_textarea_label {
+  transform: translateY(-100%);
+  font-size: 12px;
+  color: rgb(33,150,243);
+}
+/* 
+.fix_area.is-focused > .mdl-textfield__label {
+  opacity: 0;
+  transition-delay: 0s;
+}
+
+.fix_area > .mdl-textfield__label {
+  opacity: 1;
+  -webkit-transition: opacity 0s linear .3s;
+  -moz-transition: opacity 0s linear .3s;
+  transition: opacity 0s linear .3s;
+}
+ */

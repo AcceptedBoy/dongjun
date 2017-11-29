@@ -102,7 +102,7 @@ var selectManager = function() {
 				}
 			})
 		},
-		loadLines: function (substationId) {
+		loadLines: function (substationId, fn) {
 			console.log('开始请求line')
 			if (!substationId) {
 				opts = '<option>当前没有数据</option>'
