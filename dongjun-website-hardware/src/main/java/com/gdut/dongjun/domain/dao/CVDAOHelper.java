@@ -1,7 +1,6 @@
 package com.gdut.dongjun.domain.dao;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +20,8 @@ public class CVDAOHelper extends Thread implements InitializingBean {
 	private HighVoltageCurrentService currentService;
 	public static BaseCache<HighVoltageVoltage> voltageCache = new BaseCache<HighVoltageVoltage>();
 	public static BaseCache<HighVoltageCurrent> currentCache = new BaseCache<HighVoltageCurrent>();
-	private static Object vLock;
-	private static Object cLock;
+	private static Object vLock = new Object();
+	private static Object cLock = new Object();
 	private int SLEEP = 10;
 	
 	public CVDAOHelper() {}
@@ -60,7 +59,7 @@ public class CVDAOHelper extends Thread implements InitializingBean {
 	}
 	
 	private void flushV() {
-		List<HighVoltageVoltage> list = null;
+		ArrayList<HighVoltageVoltage> list = null;
 		synchronized(vLock) {
 			if (voltageCache.currBuf == 'A') {
 				list = voltageCache.bufA;
@@ -78,10 +77,10 @@ public class CVDAOHelper extends Thread implements InitializingBean {
 		synchronized(cLock) {
 			if (currentCache.currBuf == 'A') {
 				list = currentCache.bufA;
-				voltageCache.currBuf = 'B';
-			} else if (voltageCache.currBuf == 'B') {
+				currentCache.currBuf = 'B';
+			} else if (currentCache.currBuf == 'B') {
 				list = currentCache.bufB;
-				voltageCache.currBuf = 'A';
+				currentCache.currBuf = 'A';
 			}
 		}
 		currentService.insertMulti(list);

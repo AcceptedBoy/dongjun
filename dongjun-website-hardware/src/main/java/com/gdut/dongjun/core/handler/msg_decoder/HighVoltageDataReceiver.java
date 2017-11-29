@@ -36,6 +36,7 @@ import com.gdut.dongjun.core.handler.DataMonitorService;
 import com.gdut.dongjun.core.server.impl.HighVoltageServer;
 import com.gdut.dongjun.core.server.impl.HighVoltageServer_V1_3;
 import com.gdut.dongjun.domain.HighVoltageStatus;
+import com.gdut.dongjun.domain.dao.CVDAOHelper;
 import com.gdut.dongjun.domain.po.HighVoltageCurrent;
 import com.gdut.dongjun.domain.po.HighVoltageHitchEvent;
 import com.gdut.dongjun.domain.po.HighVoltageSwitch;
@@ -101,10 +102,6 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 	private HighVoltageCurrentService currentService;
 	@Autowired
 	private HighVoltageVoltageService voltageService;
-	@Autowired
-	private HistoryHighVoltageCurrentService historyCurrentService;
-	@Autowired
-	private HistoryHighVoltageVoltageService historyVoltageService;
 	@Autowired
 	private HighVoltageHitchEventService hitchEventService;
 	@Resource(name = "HighVoltageSwitchMessageEngine")
@@ -870,7 +867,8 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			c1.setValue(Integer.parseInt(value));
 			voltageService.updateByPrimaryKey(c1);
 			c1.setId(UUIDUtil.getUUID());
-			historyVoltageService.insert(c1.changeToHistory());
+//			historyVoltageService.insert(c1.changeToHistory());
+			CVDAOHelper.add(c1);
 		} else {
 			HighVoltageVoltage c1 = new HighVoltageVoltage();
 			c1.setId(UUIDUtil.getUUID());
@@ -879,7 +877,8 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			c1.setValue(Integer.parseInt(value));
 			c1.setPhase(phase);
 			voltageService.insert(c1);
-			historyVoltageService.insert(c1.changeToHistory());
+//			historyVoltageService.insert(c1.changeToHistory());
+			CVDAOHelper.add(c1);
 		}
 	}
 
@@ -899,7 +898,8 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			c1.setValue(Integer.parseInt(value));
 			currentService.updateByPrimaryKey(c1);
 			c1.setId(UUIDUtil.getUUID());
-			historyCurrentService.insert(c1.changeToHistory());
+//			historyCurrentService.insert(c1.changeToHistory());
+			CVDAOHelper.add(c1);
 		} else {
 			HighVoltageCurrent c1 = new HighVoltageCurrent();
 			c1.setId(UUIDUtil.getUUID());
@@ -908,7 +908,8 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 			c1.setValue(Integer.parseInt(value));
 			c1.setPhase(phase);
 			currentService.insert(c1);
-			historyCurrentService.insert(c1.changeToHistory());
+//			historyCurrentService.insert(c1.changeToHistory());
+			CVDAOHelper.add(c1);
 		}
 	}
 
