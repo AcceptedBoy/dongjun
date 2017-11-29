@@ -51,5 +51,7 @@ public interface HighVoltageCurrentService extends
 	 * @throws
 	 */
 	public List<HighVoltageCurrent> getRecentlyCurrent(String switchId, String phase);
+	
+	public int insertMulti(List<HighVoltageCurrent> list);
 
 }

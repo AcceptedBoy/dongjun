@@ -40,5 +40,10 @@ SinglePrimaryKeyBaseDAOImpl<HighVoltageVoltage> implements HighVoltageVoltageMap
 		// TODO Auto-generated method stub
 		return template.selectList(getNamespace("getRecentlyVoltage"), hv);
 	}
+	
+	@Override
+	public int insertMulti(List<HighVoltageVoltage> list) {
+		return template.insert(getNamespace("insertMulti"), list);
+	}
 
 }

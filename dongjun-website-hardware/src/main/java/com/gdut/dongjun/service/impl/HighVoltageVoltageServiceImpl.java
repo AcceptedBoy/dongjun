@@ -88,6 +88,11 @@ HighVoltageVoltageService {
 		}
 	}
 
+	@Override
+	public int insertMulti(List<HighVoltageVoltage> list) {
+		return voltageMapper.insertMulti(list);
+	}
+
 
 
 }

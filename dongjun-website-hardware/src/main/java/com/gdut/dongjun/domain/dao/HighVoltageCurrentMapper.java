@@ -51,4 +51,6 @@ public interface HighVoltageCurrentMapper extends
 	 * @throws
 	 */
 	public List<HighVoltageCurrent> getRecentlyCurrent(HighVoltageCurrent hc);
+	
+	public int insertMulti(List<HighVoltageCurrent> list);
 }

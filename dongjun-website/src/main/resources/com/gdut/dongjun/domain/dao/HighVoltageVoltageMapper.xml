@@ -196,4 +196,11 @@
       switch_id = #{switchId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
+  
+  	<insert id="insertMulti">
+	    insert into history_high_voltage_voltage values
+   		<foreach collection="list" item="item" index="index" separator="," >  
+        	(#{item.id},#{item.time},#{item.phase},#{item.value}, #{item.switchId})  
+    	</foreach>  
+	</insert>
 </mapper>

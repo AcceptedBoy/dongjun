@@ -155,9 +155,9 @@ public class HighVoltageDataReceiver extends ChannelInboundHandlerAdapter {
 		//	记录报文到单独的文件中
 		textLogger.info(rowMsg);
 		//	处理链路建立过程
-		if (handleRegis(ctx, data)) {
-			return ;
-		}
+//		if (handleRegis(ctx, data)) {
+//			return ;
+//		}
 		handleSeparatedText(ctx, data);
 	}
 	
